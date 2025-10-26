@@ -2,30 +2,29 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (Day 2)
+| Web Routes (Day 3)
 |--------------------------------------------------------------------------
-| Update: Trang chủ gọi ProductController@index để render products grid.
-| Các route khác giữ placeholder 501 như Day 1 (sẽ làm ở Day 3-5).
+| - Trang chủ: ProductController@index
+| - Chi tiết: ProductController@show
+| - Cart CRUD: session-based
+| - Checkout/Contact vẫn placeholder tới Day 4/5
 */
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
-/**
- * Product detail (Day 3 sẽ implement)
- */
-Route::get('/product/{id}', function (int $id) {
-    return response("Product detail placeholder for ID: {$id}", 501);
-})->whereNumber('id')->name('product.show');
+Route::get('/product/{id}', [ProductController::class, 'show'])
+    ->whereNumber('id')
+    ->name('product.show');
 
-/**
- * Cart (Day 3)
- */
-Route::get('/cart', function () {
-    return response('Cart page placeholder', 501);
-})->name('cart.index');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
+Route::post('/cart/update/{id}', [CartController::class, 'update'])->whereNumber('id')->name('cart.update');
+Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
 /**
  * Checkout (Day 4)

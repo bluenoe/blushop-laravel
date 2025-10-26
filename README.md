@@ -60,3 +60,37 @@ DB_PASSWORD=your_password_here
 - Day 3: Product detail + Cart (Session).
 - Day 4: Breeze Auth + Checkout flow.
 - Day 5: Contact messages DB + polish UI + final docs.
+
+## Day 3 — Product Detail + Session Cart
+
+### Cart data shape (session)
+```php
+// session('cart')
+[
+  $productId => [
+    'name' => string,
+    'price' => float,   // lưu số để tính toán
+    'quantity' => int,  // >= 1
+    'image' => string,  // tên file ảnh trong public/images
+  ],
+  // ...
+]
+Routes (Cart)
+Method	Path	Controller@action	Purpose
+GET	/cart	CartController@index	Xem giỏ hàng
+POST	/cart/add/{id}	CartController@add	Thêm sản phẩm (qty default 1)
+POST	/cart/update/{id}	CartController@update	Cập nhật quantity
+POST	/cart/remove/{id}	CartController@remove	Xoá 1 item
+POST	/cart/clear	CartController@clear	Xoá toàn bộ giỏ
+
+Product detail
+Method	Path	Controller@action
+GET	/product/{id}	ProductController@show
+
+Ghi chú:
+
+Tất cả POST form đều kèm @csrf.
+
+Validate số lượng min:1.
+
+Dùng findOrFail($id) cho truy vấn sản phẩm.
