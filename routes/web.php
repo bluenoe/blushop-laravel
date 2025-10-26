@@ -18,6 +18,11 @@ use App\Http\Controllers\CheckoutController;
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
 
+Route::get('/dashboard', function () {
+    return view('dashboard'); // nhớ có file view
+})->middleware(['auth'])->name('dashboard'); // bỏ 'verified' nếu chưa bật email verify
+
+
 Route::get('/product/{id}', [ProductController::class, 'show'])
     ->whereNumber('id')
     ->name('product.show');
