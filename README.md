@@ -94,3 +94,35 @@ Tất cả POST form đều kèm @csrf.
 Validate số lượng min:1.
 
 Dùng findOrFail($id) cho truy vấn sản phẩm.
+
+## Day 4 — Auth (Breeze) & Checkout
+
+### Cài đặt Breeze
+```bash
+composer require laravel/breeze --dev
+php artisan breeze:install
+npm install
+npm run dev
+php artisan migrate
+
+Ghi chú: để login/register có CSS/JS, giữ npm run dev đang chạy.
+
+Routes (Checkout)
+Method	Path	Controller@action	Middleware
+GET	/checkout	CheckoutController@index	auth
+POST	/checkout/place	CheckoutController@place	auth
+Hành vi
+
+Guest truy cập /checkout → redirect về /login.
+
+User đã login có thể xem tóm tắt giỏ, nhập name/address, nhấn Place Order.
+
+Sau khi đặt hàng, session cart bị xoá và hiển thị trang success.
+
+Screenshot gợi ý
+
+screenshots/day4-login.png (trang login của Breeze)
+
+screenshots/day4-checkout-summary.png
+
+screenshots/day4-checkout-success.png
