@@ -18,11 +18,7 @@
         body { padding-top: 70px; }
         footer { margin-top: 40px; padding: 20px 0; background: #f8f9fa; }
         .nav-brand-txt { font-weight: 700; letter-spacing: .3px; }
-        .badge-cart {
-            position: relative;
-            top: -10px;
-            left: -6px;
-        }
+        .badge-cart { position: relative; top: -10px; left: -6px; }
     </style>
 </head>
 <body>
@@ -54,13 +50,25 @@
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
-                {{-- Day 4 sẽ dùng @auth/@guest --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
-                </li>
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('register') ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
+                    </li>
+                @endguest
+                @auth
+                    <li class="nav-item">
+                        <span class="navbar-text me-2">Hi, {{ auth()->user()->name }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button class="btn btn-sm btn-outline-light" type="submit">Logout</button>
+                        </form>
+                    </li>
+                @endauth
             </ul>
         </div>
     </div>
