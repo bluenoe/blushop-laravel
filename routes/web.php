@@ -1,46 +1,42 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (Day 1)
+| Web Routes (Day 2)
 |--------------------------------------------------------------------------
-| Skeleton routes. Chưa gắn controller để tránh dead code.
-| Dùng closure placeholder (HTTP 501) cho các trang chưa làm.
+| Update: Trang chủ gọi ProductController@index để render products grid.
+| Các route khác giữ placeholder 501 như Day 1 (sẽ làm ở Day 3-5).
 */
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [ProductController::class, 'index'])->name('home');
 
 /**
- * Product detail (chưa có controller Day 1)
- * Day 3 sẽ gắn ProductController@show
+ * Product detail (Day 3 sẽ implement)
  */
 Route::get('/product/{id}', function (int $id) {
     return response("Product detail placeholder for ID: {$id}", 501);
 })->whereNumber('id')->name('product.show');
 
 /**
- * Cart (chưa có controller Day 1)
- * Day 3 sẽ gắn CartController
+ * Cart (Day 3)
  */
 Route::get('/cart', function () {
     return response('Cart page placeholder', 501);
 })->name('cart.index');
 
 /**
- * Checkout (auth-only ở Day 4 — hiện chỉ placeholder)
+ * Checkout (Day 4)
  */
 Route::get('/checkout', function () {
     return response('Checkout page placeholder (will require auth at Day 4)', 501);
 })->name('checkout.index');
 
 /**
- * Contact (Day 5 sẽ làm form + lưu DB)
+ * Contact (Day 5)
  */
 Route::get('/contact', function () {
     return response('Contact form placeholder', 501);
 })->name('contact.index');
-

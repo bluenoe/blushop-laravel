@@ -4,17 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
    public function up(): void
 {
     if (Schema::hasTable('products')) {
         return; // bang da ton tai -> bo qua
     }
-
     Schema::create('products', function (Blueprint $table) {
         $table->id();
         $table->string('name');
@@ -26,11 +21,12 @@ return new class extends Migration
 }
 
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::table('products', function (Blueprint $table) {
+            if (Schema::hasColumn('products', 'image')) $table->dropColumn('image');
+            if (Schema::hasColumn('products', 'price')) $table->dropColumn('price');
+            if (Schema::hasColumn('products', 'name'))  $table->dropColumn('name');
+        });
     }
 };
