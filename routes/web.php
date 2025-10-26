@@ -4,24 +4,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (Day 4)
+| Web Routes (Day 5)
 |--------------------------------------------------------------------------
 | - Trang chủ: ProductController@index
 | - Chi tiết: ProductController@show
 | - Cart CRUD: session-based
 | - Checkout: auth-only (Breeze)
-| - Contact: placeholder (Day 5)
+| - Contact: form + lưu DB
 */
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
-
-Route::get('/dashboard', function () {
-    return view('dashboard'); // nhớ có file view
-})->middleware(['auth'])->name('dashboard'); // bỏ 'verified' nếu chưa bật email verify
-
 
 Route::get('/product/{id}', [ProductController::class, 'show'])
     ->whereNumber('id')
@@ -33,23 +29,15 @@ Route::post('/cart/update/{id}', [CartController::class, 'update'])->whereNumber
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-/**
- * Checkout (auth-only)
- */
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
 });
 
-/**
- * Contact (Day 5)
- */
-Route::get('/contact', function () {
-    return response('Contact form placeholder', 501);
-})->name('contact.index');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 /**
- * Breeze auth routes
- * (được tạo bởi php artisan breeze:install)
+ * Breeze auth routes (login/register/logout)
  */
 require __DIR__.'/auth.php';
