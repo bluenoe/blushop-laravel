@@ -18,9 +18,17 @@
         body { padding-top: 70px; }
         footer { margin-top: 40px; padding: 20px 0; background: #f8f9fa; }
         .nav-brand-txt { font-weight: 700; letter-spacing: .3px; }
+        .badge-cart {
+            position: relative;
+            top: -10px;
+            left: -6px;
+        }
     </style>
 </head>
 <body>
+@php
+    $cartQty = collect(session('cart', []))->sum('quantity');
+@endphp
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container">
         <a class="navbar-brand nav-brand-txt" href="{{ route('home') }}">BluShop</a>
@@ -34,14 +42,19 @@
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">Cart</a>
+                    <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
+                        Cart
+                        @if($cartQty > 0)
+                            <span class="badge bg-warning text-dark badge-cart">{{ $cartQty }}</span>
+                        @endif
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('contact.*') ? 'active' : '' }}" href="{{ route('contact.index') }}">Contact</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
-                {{-- Day 4 sẽ dùng @auth/@guest. Tạm thời link thẳng để skeleton rõ ràng. --}}
+                {{-- Day 4 sẽ dùng @auth/@guest --}}
                 <li class="nav-item">
                     <a class="nav-link" href="/login">Login</a>
                 </li>
