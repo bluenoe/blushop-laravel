@@ -16,6 +16,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+            {{-- Navigation (updated to include Home link to /) --}}
             @include('layouts.navigation')
 
             <!-- Page Heading -->

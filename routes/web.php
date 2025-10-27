@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
@@ -17,7 +18,11 @@ use App\Http\Controllers\ContactController;
 | - Contact: form + lưu DB
 */
 
-Route::get('/', [ProductController::class, 'index'])->name('home');
+// Landing page
+Route::get('/', [LandingController::class, 'index'])->name('home');
+
+// Products listing (target of "Shop Now" button)
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 Route::get('/product/{id}', [ProductController::class, 'show'])
     ->whereNumber('id')
