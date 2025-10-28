@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,20 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
  * Breeze auth routes (login/register/logout)
  */
 require __DIR__.'/auth.php';
+
+/**
+ * Breeze-compatible profile routes
+ */
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+/**
+ * Backwards-compatible alias for older components expecting 'dashboard'
+ */
+Route::redirect('/dashboard', '/admin')->name('dashboard');
 
 /**
  * Admin routes (auth + is_admin)
