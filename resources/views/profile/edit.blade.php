@@ -88,14 +88,18 @@
                             <span class="text-xs text-gray-500 dark:text-gray-400">Last updated: {{ optional($user->updated_at)->diffForHumans() ?? '—' }}</span>
                         </div>
 
-                        <!-- Avatar placeholder -->
+                        <!-- Avatar display: current image or initial-based placeholder -->
                         <div class="mt-6 flex items-center gap-4">
-                            <div class="h-16 w-16 rounded-full bg-indigo-600/80 text-white flex items-center justify-center text-xl font-bold">
-                                {{ Str::of($user->name ?? Auth::user()->name)->substr(0, 1)->upper() }}
+                            <div class="h-16 w-16 rounded-full overflow-hidden bg-indigo-600/80 text-white flex items-center justify-center text-xl font-bold">
+                                @if (!empty($user->avatar))
+                                    <img src="{{ Storage::url($user->avatar) }}" alt="{{ $user->name ?? Auth::user()->name }} avatar" class="h-full w-full object-cover" />
+                                @else
+                                    {{ Str::of($user->name ?? Auth::user()->name)->substr(0, 1)->upper() }}
+                                @endif
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Avatar</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Upload coming soon</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Use the form to update your avatar.</p>
                             </div>
                         </div>
 
@@ -103,24 +107,8 @@
                             <div class="lg:col-span-2">
                                 @include('profile.partials.update-profile-information-form')
                             </div>
-                            <!-- Optional placeholders (non-breaking) -->
-                            <div class="space-y-4">
-                                <div>
-                                    <x-input-label for="phone" :value="__('Phone Number')" />
-                                    <x-text-input id="phone" type="tel" placeholder="+84-123-456-789" class="mt-1 block w-full" disabled />
-                                </div>
-                                <div>
-                                    <x-input-label for="gender" :value="__('Gender')" />
-                                    <div class="mt-2 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                                        <label class="inline-flex items-center gap-2"><input type="radio" disabled class="rounded dark:bg-gray-900"/> <span>Male</span></label>
-                                        <label class="inline-flex items-center gap-2"><input type="radio" disabled class="rounded dark:bg-gray-900"/> <span>Female</span></label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <x-input-label for="dob" :value="__('Date of Birth')" />
-                                    <x-text-input id="dob" type="date" class="mt-1 block w-full" disabled />
-                                </div>
-                            </div>
+                            <!-- Right panel reserved for future widgets; kept empty to avoid duplicate inputs -->
+                            <div class="space-y-4"></div>
                         </div>
                     </div>
                 </div>

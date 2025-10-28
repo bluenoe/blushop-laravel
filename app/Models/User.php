@@ -22,6 +22,10 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'avatar',
+        'phone_number',
+        'gender',
+        'birth_date',
     ];
 
     /**
@@ -45,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'birth_date' => 'date',
         ];
     }
 }

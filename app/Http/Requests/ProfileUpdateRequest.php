@@ -25,6 +25,10 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'phone_number' => ['nullable', 'regex:/^(\+?\d{9,15})$/'],
+            'gender' => ['nullable', 'in:male,female,other'],
+            'birth_date' => ['nullable', 'date', 'before:-13 years'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }
