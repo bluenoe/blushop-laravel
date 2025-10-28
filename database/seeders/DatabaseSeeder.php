@@ -17,9 +17,14 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // Create a local admin for testing the /admin panel
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin User',
+            'email' => 'admin@blushop.local',
+            'is_admin' => true,
         ]);
+
+        // Optionally seed demo products
+        // $this->call(ProductSeeder::class);
     }
 }
