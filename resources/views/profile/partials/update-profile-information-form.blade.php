@@ -75,6 +75,8 @@
                             img.className = 'h-full w-full object-cover';
                             avatarPreviewPlaceholder.parentNode.replaceChild(img, avatarPreviewPlaceholder);
                         }
+                        // Broadcast to navbar/sidebar for instant global preview
+                        window.dispatchEvent(new CustomEvent('avatar:updated', { detail: { url: e.target.result } }));
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -82,6 +84,16 @@
                 }
             };
         </script>
+
+        @if (session('status') === 'profile-updated')
+            @php($u = Auth::user())
+            <script>
+                // On successful save, update global avatar to the persisted Storage URL (cache-busted)
+                window.dispatchEvent(new CustomEvent('avatar:updated', {
+                    detail: { url: @json($u?->avatarUrl()) }
+                }));
+            </script>
+        @endif
 
         <div>
             <x-input-label for="name" :value="__('Name')" />

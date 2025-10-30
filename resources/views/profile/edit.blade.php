@@ -5,9 +5,14 @@
             <aside class="lg:col-span-1">
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
                     <div class="p-4 flex items-center gap-3">
-                        <div class="h-12 w-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
-                            {{ Str::of($user->name ?? Auth::user()->name)->substr(0, 1)->upper() }}
-                        </div>
+                        @php($u = $user ?? Auth::user())
+                        @if ($u && $u->avatar)
+                            <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar" style="width:60px;height:60px" class="rounded-full object-cover ring-1 ring-gray-700/60 transform transition hover:scale-105 hover:ring-indigo-500" />
+                        @else
+                            <div data-avatar-placeholder="true" data-class="rounded-full object-cover ring-1 ring-gray-700/60 transform transition hover:scale-105 hover:ring-indigo-500" style="width:60px;height:60px" class="rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
+                                {{ Str::of($u->name)->substr(0, 1)->upper() }}
+                            </div>
+                        @endif
                         <div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">Hello</p>
                             <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $user->name ?? Auth::user()->name }}</p>

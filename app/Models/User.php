@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -51,5 +52,19 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'birth_date' => 'date',
         ];
+    }
+
+    /**
+     * Get the public URL to the user's avatar with cache-busting.
+     */
+    public function avatarUrl(?int $version = null): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        $url = Storage::url($this->avatar);
+        $v = $version ?? optional($this->updated_at)->getTimestamp() ?? time();
+        return $url . '?v=' . $v;
     }
 }
