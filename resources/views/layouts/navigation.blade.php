@@ -24,8 +24,17 @@
                     <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
                         {{ __('Cart') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                        {{ __('Favorites') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                         {{ __('Contact') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('about')" :active="request()->routeIs('about')">
+                        {{ __('About') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('faq')" :active="request()->routeIs('faq')">
+                        {{ __('FAQ') }}
                     </x-nav-link>
 
                     {{-- Nếu sau này có dashboard thì mở lại --}}
@@ -98,8 +107,17 @@
             <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
                 {{ __('Cart') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
+                {{ __('Favorites') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                 {{ __('Contact') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('about')" :active="request()->routeIs('about')">
+                {{ __('About') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('faq')" :active="request()->routeIs('faq')">
+                {{ __('FAQ') }}
             </x-responsive-nav-link>
             {{-- <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}

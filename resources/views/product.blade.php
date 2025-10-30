@@ -29,16 +29,20 @@
                 class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
             >
                 <!-- Left: hero image + thumbnails -->
-                <div class="group">
+                <div class="group" data-reveal="fade-up" x-data="{ imgLoaded: false }">
                     <div
                         class="relative overflow-hidden rounded-xl ring-1 ring-white/10 bg-gray-800"
                         x-on:touchstart="ts = $event.changedTouches[0].clientX"
                         x-on:touchend="te = $event.changedTouches[0].clientX; if (te - ts > 40) { active = (active - 1 + images.length) % images.length } else if (ts - te > 40) { active = (active + 1) % images.length }"
                     >
+                        <template x-if="!imgLoaded">
+                            <x-skeleton.image class="h-[360px] sm:h-[460px]" />
+                        </template>
                         <img
                             :src="images[active]"
                             alt="{{ $product->name }}"
-                            class="w-full h-[360px] sm:h-[460px] object-cover transform transition duration-300 group-hover:scale-[1.04] cursor-zoom-in"
+                            class="w-full h-[360px] sm:h-[460px] object-cover transform transition duration-300 group-hover:scale-[1.04] cursor-zoom-in opacity-0"
+                            @load="imgLoaded = true; $el.classList.remove('opacity-0')"
                         />
 
                         <!-- Prev/Next -->
@@ -52,6 +56,14 @@
                                 @click="active = (active + 1) % images.length">
                             ›
                         </button>
+
+                        <!-- Wishlist heart -->
+                        <div class="absolute top-3 right-3">
+                            <form action="{{ route('favorites.add', $product->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-black/60 transition" aria-label="Add to favorites">❤️</button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Thumbnails -->
@@ -69,7 +81,7 @@
                 </div>
 
                 <!-- Right: info panel -->
-                <div class="flex flex-col">
+                <div class="flex flex-col" data-reveal="fade-up">
                     <div class="rounded-xl ring-1 ring-white/10 bg-gray-800 p-6 sm:p-8">
                         <div class="flex items-start justify-between gap-4">
                             <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">{{ $product->name }}</h1>
@@ -201,35 +213,36 @@
                 </div>
             </div>
 
-            <!-- Related products (layout-only placeholders) -->
+            <!-- Related products -->
             <div class="mt-12">
                 <div class="flex items-end justify-between">
                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-100">You may also like</h2>
                     <a href="{{ route('products.index') }}" class="text-indigo-400 font-medium hover:underline">View all</a>
                 </div>
                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @php
-                        $related = [
-                            ['name' => 'Curated Item A', 'price' => 1900000, 'image' => 'sample3.jpg'],
-                            ['name' => 'Curated Item B', 'price' => 2500000, 'image' => 'sample4.jpg'],
-                            ['name' => 'Curated Item C', 'price' => 3200000, 'image' => 'sample5.jpg'],
-                            ['name' => 'Curated Item D', 'price' => 1500000, 'image' => 'sample6.jpg'],
-                        ];
-                    @endphp
-                    @foreach($related as $r)
-                        <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition duration-300">
-                            <div class="aspect-[4/3] overflow-hidden">
-                                <img src="{{ asset('images/' . $r['image']) }}" alt="{{ $r['name'] }}" class="w-full h-full object-cover transform transition duration-300 group-hover:scale-105" />
+                    @forelse(($relatedProducts ?? []) as $r)
+                        <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition duration-300 hover:shadow-lg hover:-translate-y-[2px]" data-reveal="fade-up" x-data="{ loaded: false }">
+                            <div class="relative aspect-[4/3] overflow-hidden">
+                                <template x-if="!loaded">
+                                    <x-skeleton.image class="aspect-[4/3]" />
+                                </template>
+                                <img src="{{ asset('images/' . $r->image) }}" alt="{{ $r->name }}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:scale-105" onload="this.classList.remove('opacity-0')" />
                             </div>
                             <div class="p-4">
-                                <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $r['name'] }}</h3>
-                                <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">₫{{ number_format((float)$r['price'], 0, ',', '.') }}</p>
-                                <div class="mt-3">
-                                    <a href="{{ route('products.index') }}" class="inline-flex items-center text-indigo-400 font-medium hover:underline">Explore more</a>
+                                <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $r->name }}</h3>
+                                <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">₫{{ number_format((float)$r->price, 0, ',', '.') }}</p>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <a href="{{ route('product.show', $r->id) }}" class="inline-block rounded-lg bg-indigo-600 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">View</a>
+                                    <form action="{{ route('favorites.add', $r->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="inline-block rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">❤️ Save</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <x-skeleton.card />
+                    @endforelse
                 </div>
             </div>
         </div>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FavoritesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,12 @@ Route::post('/cart/update/{id}', [CartController::class, 'update'])->whereNumber
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+// Favorites (wishlist) - session based
+Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
+Route::post('/favorites/add/{id}', [FavoritesController::class, 'add'])->whereNumber('id')->name('favorites.add');
+Route::post('/favorites/remove/{id}', [FavoritesController::class, 'remove'])->whereNumber('id')->name('favorites.remove');
+Route::post('/favorites/clear', [FavoritesController::class, 'clear'])->name('favorites.clear');
+
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
@@ -46,6 +53,10 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+
+// Static pages: About & FAQ
+Route::view('/about', 'pages.about')->name('about');
+Route::view('/faq', 'pages.faq')->name('faq');
 
 /**
  * Breeze auth routes (login/register/logout)
