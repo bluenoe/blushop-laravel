@@ -1,4 +1,7 @@
 <x-app-layout>
+    @push('head')
+        <link rel="preload" as="image" href="{{ asset('images/' . $product->image) }}" fetchpriority="high">
+    @endpush
     <section class="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800">
         <div class="max-w-7xl mx-auto px-6 py-10 sm:py-16">
             <!-- Breadcrumb -->
@@ -25,35 +28,43 @@
                     qty: 1,
                     ts: 0,
                     te: 0,
+                    imgLoading: true,
                 }"
                 class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
             >
                 <!-- Left: hero image + thumbnails -->
-                <div class="group" data-reveal="fade-up" x-data="{ imgLoaded: false }">
+                <div class="group" data-reveal="fade-up">
                     <div
                         class="relative overflow-hidden rounded-xl ring-1 ring-white/10 bg-gray-800"
+                        style="aspect-ratio: 4/3;"
                         x-on:touchstart="ts = $event.changedTouches[0].clientX"
-                        x-on:touchend="te = $event.changedTouches[0].clientX; if (te - ts > 40) { active = (active - 1 + images.length) % images.length } else if (ts - te > 40) { active = (active + 1) % images.length }"
+                        x-on:touchend="te = $event.changedTouches[0].clientX; if (te - ts > 40) { imgLoading = true; active = (active - 1 + images.length) % images.length } else if (ts - te > 40) { imgLoading = true; active = (active + 1) % images.length }"
                     >
-                        <template x-if="!imgLoaded">
-                            <x-skeleton.image class="h-[360px] sm:h-[460px]" />
-                        </template>
+                        <!-- Skeleton overlay: visible immediately, fades out on image load -->
+                        <div class="absolute inset-0 pointer-events-none" x-show="imgLoading" x-transition.opacity>
+                            <x-skeleton.image class="w-full h-full" />
+                        </div>
+                        <!-- Hero image (keeps container height constant) -->
                         <img
                             :src="images[active]"
                             alt="{{ $product->name }}"
-                            class="w-full h-[360px] sm:h-[460px] object-cover transform transition duration-300 group-hover:scale-[1.04] cursor-zoom-in opacity-0"
-                            @load="imgLoaded = true; $el.classList.remove('opacity-0')"
+                            class="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 ease-out group-hover:scale-[1.02]"
+                            :class="imgLoading ? 'opacity-0' : 'opacity-100'"
+                            @load="imgLoading = false"
+                            fetchpriority="high"
+                            decoding="async"
+                            draggable="false"
                         />
 
                         <!-- Prev/Next -->
                         <button type="button" aria-label="Previous image"
                                 class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-gray-900/60 text-gray-200 px-2 py-1 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20"
-                                @click="active = (active - 1 + images.length) % images.length">
+                                @click="imgLoading = true; active = (active - 1 + images.length) % images.length">
                             ‹
                         </button>
                         <button type="button" aria-label="Next image"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-gray-900/60 text-gray-200 px-2 py-1 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20"
-                                @click="active = (active + 1) % images.length">
+                                @click="imgLoading = true; active = (active + 1) % images.length">
                             ›
                         </button>
 
@@ -70,10 +81,10 @@
                     <div class="mt-4 flex items-center gap-3">
                         <template x-for="(src, i) in images" :key="i">
                             <button type="button" :aria-label="'Show image ' + (i+1)"
-                                    @click="active = i"
+                                    @click="imgLoading = true; active = i"
                                     :class="{'ring-2 ring-indigo-500': active === i}"
                                     class="overflow-hidden rounded-md ring-1 ring-white/10 bg-gray-800 w-20 h-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <img :src="src" alt="{{ $product->name }} thumbnail"
+                                <img :src="src" alt="{{ $product->name }} thumbnail" loading="lazy" decoding="async"
                                      class="w-full h-full object-cover" />
                             </button>
                         </template>

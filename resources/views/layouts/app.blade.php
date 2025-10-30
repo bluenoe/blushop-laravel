@@ -17,6 +17,7 @@
                 window.__INITIAL_AVATAR_URL = @json(Auth::user()->avatarUrl());
             </script>
         @endauth
+        @stack('head')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
