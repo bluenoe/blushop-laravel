@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -28,8 +29,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Use the standardized HOME route to avoid missing named routes
-        return redirect()->intended(\App\Providers\RouteServiceProvider::HOME);
+        // Defer to Fortify's LoginResponse for role-based redirection
+        return app(LoginResponseContract::class)->toResponse($request);
     }
 
     /**

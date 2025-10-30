@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Register route middleware aliases
         $middleware->alias([
+            // Override the default guest middleware to use role-aware redirects
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
     })
