@@ -1,4 +1,4 @@
-<section x-data="{ preview: @json($user->avatar ? asset('storage/'.$user->avatar) : null) }">
+<section x-data="{ preview: @json($user->avatar ? (Storage::url($user->avatar) . '?v=' . ((optional($user->updated_at)->getTimestamp()) ?? time())) : null) }">
     <header>
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             {{ __('Profile Information') }}
@@ -19,7 +19,6 @@
 
         <!-- Avatar upload with clickable preview (no visible file button) -->
         <div>
-            <x-input-label for="avatar" :value="__('Avatar')" />
             <div class="mt-3">
                 <!-- Clickable avatar circle triggers hidden file input -->
                 <div
@@ -54,10 +53,8 @@
                     accept="image/jpeg,image/png,image/webp"
                     class="hidden"
                     @change="const f = $event.target.files[0]; if (f) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(f); }"
-                    aria-describedby="avatar-help"
                 />
             </div>
-            <p id="avatar-help" class="mt-2 text-xs text-gray-600 dark:text-gray-400">JPG, JPEG, PNG, WEBP up to 2MB.</p>
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 

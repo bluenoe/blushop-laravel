@@ -89,19 +89,7 @@
                         </div>
 
                         <!-- Avatar display: current image or initial-based placeholder -->
-                        <div class="mt-6 flex items-center gap-4">
-                            <div class="h-16 w-16 rounded-full overflow-hidden bg-indigo-600/80 text-white flex items-center justify-center text-xl font-bold">
-                                @if (!empty($user->avatar))
-                                    <img src="{{ Storage::url($user->avatar) }}" alt="{{ $user->name ?? Auth::user()->name }} avatar" class="h-full w-full object-cover" />
-                                @else
-                                    {{ Str::of($user->name ?? Auth::user()->name)->substr(0, 1)->upper() }}
-                                @endif
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Avatar</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Use the form to update your avatar.</p>
-                            </div>
-                        </div>
+                        <!-- Removed duplicate avatar display block to unify avatar in the form -->
 
                         <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="lg:col-span-2">
