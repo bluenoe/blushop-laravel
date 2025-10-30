@@ -1,4 +1,4 @@
-<section x-data="{ preview: @json($user->avatar ? (Storage::url($user->avatar) . '?v=' . ((optional($user->updated_at)->getTimestamp()) ?? time())) : null) }">
+<section>
     <header>
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             {{ __('Profile Information') }}
@@ -23,17 +23,16 @@
                 <!-- Clickable avatar circle triggers hidden file input -->
                 <div
                     class="group relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-full overflow-hidden ring-1 ring-gray-700/60 bg-gray-900 flex items-center justify-center cursor-pointer transform-gpu transition duration-200 ease-out hover:scale-105 hover:opacity-95"
-                    @click="$refs.avatarInput.click()"
+                    onclick="document.getElementById('avatar').click()"
                     aria-label="Change avatar"
                 >
-                    <template x-if="preview">
-                        <img :src="preview" alt="Avatar preview" class="h-full w-full object-cover" />
-                    </template>
-                    <template x-if="!preview">
-                        <div class="h-full w-full flex items-center justify-center text-xl sm:text-2xl font-bold bg-indigo-600 text-white" aria-hidden="true">
+                    @if ($user->avatar)
+                        <img id="avatarPreview" src="{{ Storage::url($user->avatar) . '?v=' . ((optional($user->updated_at)->getTimestamp()) ?? time()) }}" alt="Avatar preview" class="h-full w-full object-cover" />
+                    @else
+                        <div id="avatarPreviewPlaceholder" class="h-full w-full flex items-center justify-center text-xl sm:text-2xl font-bold bg-indigo-600 text-white" aria-hidden="true">
                             {{ Str::of($user->name)->substr(0, 1)->upper() }}
                         </div>
-                    </template>
+                    @endif
 
                     <!-- Minimal pencil overlay icon -->
                     <span class="pointer-events-none absolute bottom-2 right-2 h-7 w-7 rounded-full bg-gray-800/80 text-gray-200 flex items-center justify-center ring-1 ring-gray-700/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" aria-hidden="true">
@@ -48,15 +47,41 @@
                 <input
                     id="avatar"
                     name="avatar"
-                    x-ref="avatarInput"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     class="hidden"
-                    @change="const f = $event.target.files[0]; if (f) { const r = new FileReader(); r.onload = e => preview = e.target.result; r.readAsDataURL(f); }"
+                    onchange="window.handleAvatarChange(event)"
                 />
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
+
+        <script>
+            window.handleAvatarChange = function(event) {
+                const file = event.target.files[0];
+                const avatarPreview = document.getElementById('avatarPreview');
+                const avatarPreviewPlaceholder = document.getElementById('avatarPreviewPlaceholder');
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (avatarPreview) {
+                            avatarPreview.src = e.target.result;
+                        } else if (avatarPreviewPlaceholder) {
+                            const img = document.createElement('img');
+                            img.id = 'avatarPreview';
+                            img.src = e.target.result;
+                            img.alt = 'Avatar preview';
+                            img.className = 'h-full w-full object-cover';
+                            avatarPreviewPlaceholder.parentNode.replaceChild(img, avatarPreviewPlaceholder);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // If no file is selected, revert to placeholder or current avatar
+                }
+            };
+        </script>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
