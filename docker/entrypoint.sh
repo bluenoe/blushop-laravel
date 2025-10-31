@@ -25,6 +25,9 @@ php artisan migrate --force --ansi || true
 # Storage symlink
 php artisan storage:link || true
 
+# Cache configuration for performance
+php artisan config:cache --ansi || true
+
 # Permissions
 chown -R www-data:www-data storage bootstrap/cache
 
