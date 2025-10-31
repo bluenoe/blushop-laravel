@@ -84,7 +84,7 @@ Landing Page (BluShop)
                 <div
                     class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition duration-300">
                     <div class="aspect-[4/3] overflow-hidden">
-                        <img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->name }}"
+                        <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transform transition duration-300 group-hover:scale-105">
                     </div>
                     <div class="p-4">
