@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
@@ -30,7 +32,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Đặt hàng giả lập: validate, tính tổng, xoá giỏ, hiển thị success.
+     * Đặt hàng: validate, tính tổng, lưu DB, xoá giỏ, điều hướng tới lịch sử.
      */
     public function place(Request $request)
     {
@@ -46,22 +48,32 @@ class CheckoutController extends Controller
 
         // Tính lại tổng từ server-side (không trust client)
         $total = 0.0;
-        foreach ($cart as $item) {
+        foreach ($cart as $pid => $item) {
             $total += ((float)$item['price']) * ((int)$item['quantity']);
         }
+        // Lưu đơn hàng
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'total_amount' => $total,
+            'payment_status' => 'pending',
+            'shipping_address' => $data['address'],
+        ]);
 
-        // Giả lập mã đơn hàng
-        $orderCode = 'BLU-' . Str::upper(Str::random(8));
+        // Lưu các dòng sản phẩm
+        foreach ($cart as $productId => $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => (int)$productId,
+                'quantity' => (int)$item['quantity'],
+                'price_at_purchase' => (float)$item['price'],
+            ]);
+        }
 
-        // Xoá giỏ sau khi "đặt hàng" thành công
+        // Xoá giỏ sau khi đặt hàng
         $request->session()->forget('cart');
 
-        // Trả về trang success (không lưu DB đơn hàng ở Day 4)
-        return view('checkout_success', [
-            'name'      => $data['name'],
-            'address'   => $data['address'],
-            'total'     => $total,
-            'orderCode' => $orderCode,
-        ]);
+        return redirect()
+            ->route('orders.index')
+            ->with('success', 'Order placed successfully.');
     }
 }

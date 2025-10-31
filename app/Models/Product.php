@@ -22,4 +22,9 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

@@ -67,4 +67,12 @@ class User extends Authenticatable
         $v = $version ?? optional($this->updated_at)->getTimestamp() ?? time();
         return $url . '?v=' . $v;
     }
+
+    /**
+     * Orders placed by the user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

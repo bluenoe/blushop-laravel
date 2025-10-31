@@ -19,6 +19,20 @@
                         </div>
                     </div>
 
+                    <!-- Quick Links: Orders & Wishlist -->
+                    @php($ordersCount = optional(Auth::user())->orders()->count())
+                    @php($favoritesCount = is_array(session('favorites')) ? count(session('favorites')) : 0)
+                    <div class="px-4 pb-4 grid grid-cols-2 gap-3">
+                        <a href="{{ route('orders.index') }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">My Orders</div>
+                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $ordersCount }}</div>
+                        </a>
+                        <a href="{{ route('favorites.index') }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">My Wishlist</div>
+                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $favoritesCount }}</div>
+                        </a>
+                    </div>
+
                     <nav class="border-t border-gray-200 dark:border-gray-700" aria-label="Account navigation">
                         <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                             <li>
@@ -110,9 +124,9 @@
                 <div x-show="tab==='orders'" x-cloak class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div class="p-6 sm:p-8">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">My Orders</h2>
-                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">No orders yet. Explore products and place your first order.</p>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View your order history and details.</p>
                         <div class="mt-6">
-                            <a href="{{ route('home') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Go to Shop</a>
+                            <a href="{{ route('orders.index') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Go to Orders</a>
                         </div>
                     </div>
                 </div>
@@ -137,7 +151,10 @@
                 <div x-show="tab==='wishlist'" x-cloak class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div class="p-6 sm:p-8">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">My Wishlist</h2>
-                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Save items to view them later. Wishlist feature is coming soon.</p>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">See products you saved for later.</p>
+                        <div class="mt-6">
+                            <a href="{{ route('favorites.index') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Open Wishlist</a>
+                        </div>
                     </div>
                 </div>
 

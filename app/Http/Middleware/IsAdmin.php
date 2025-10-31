@@ -4,17 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        if (! $request->user() || ! (bool)($request->user()->is_admin ?? false)) {
-            abort(403, 'Unauthorized. Admin access required.');
+        if (! Auth::check() || ! Auth::user()->is_admin) {
+            abort(403, 'Access denied. Admins only.');
         }
 
         return $next($request);
