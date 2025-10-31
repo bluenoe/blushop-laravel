@@ -27,10 +27,10 @@
                             <div class="text-xs text-gray-500 dark:text-gray-400">My Orders</div>
                             <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $ordersCount }}</div>
                         </a>
-                        <a href="{{ route('profile.wishlist') }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
+                        <button type="button" @click="tab='wishlist'" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
                             <div class="text-xs text-gray-500 dark:text-gray-400">My Wishlist</div>
-                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $favoritesCount }}</div>
-                        </a>
+                            <div id="wishlist-count" class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $favoritesCount }}</div>
+                        </button>
                     </div>
 
                     <nav class="border-t border-gray-200 dark:border-gray-700" aria-label="Account navigation">
@@ -147,14 +147,53 @@
                     </div>
                 </div>
 
-                <!-- Wishlist (placeholder) -->
+                <!-- Wishlist (inline) -->
                 <div x-show="tab==='wishlist'" x-cloak class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div class="p-6 sm:p-8">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">My Wishlist</h2>
-                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">See products you saved for later.</p>
-                        <div class="mt-6">
-                            <a href="{{ route('profile.wishlist') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Open Wishlist</a>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">My Wishlist</h2>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Saved products you love.</p>
+                            </div>
+                            @php($favorites = is_array(session('favorites')) ? session('favorites') : [])
+                            @if(!empty($favorites))
+                            <button type="button"
+                                    @click="$store.wishlist.clear(); $refs.wishlistGrid?.querySelectorAll('[data-wish-card]').forEach(el => el.remove())"
+                                    class="rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 hover:bg-gray-600">Clear All</button>
+                            @endif
                         </div>
+
+                        @if(empty($favorites))
+                        <div class="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-700 p-4">
+                            No favorites yet 💜 — go find something you like!
+                        </div>
+                        @else
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" x-ref="wishlistGrid">
+                            @foreach($favorites as $id => $fav)
+                            <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition hover:shadow-lg" data-wish-card>
+                                <div class="relative aspect-[4/3] overflow-hidden">
+                                    <img src="{{ Storage::url('products/' . ($fav['image'] ?? '')) }}" alt="{{ $fav['name'] ?? 'Product' }}" class="w-full h-full object-cover group-hover:scale-105 transition" />
+                                    <div class="absolute top-3 right-3" x-data="{ id: {{ $id }} }">
+                                        <button type="button" @click="$store.wishlist.remove(id); $el.closest('[data-wish-card]').remove()"
+                                                class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white/20"
+                                                aria-label="Remove from wishlist" title="Remove from wishlist">✖</button>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $fav['name'] }}</h3>
+                                    <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">₫{{ number_format((float)($fav['price'] ?? 0), 0, ',', '.') }}</p>
+                                    <div class="mt-3 flex items-center gap-2">
+                                        <a href="{{ route('product.show', $id) }}" class="inline-block rounded-lg bg-indigo-600 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">View</a>
+                                        <form action="{{ route('cart.add', $id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="inline-block rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">Add to Cart</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -182,4 +221,5 @@
             </div>
         </div>
     </section>
+@include('partials.wishlist-script')
 </x-app-layout>

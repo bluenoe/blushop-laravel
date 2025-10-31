@@ -59,14 +59,16 @@ UI-only Tailwind refresh to match landing page theme.
                         class="w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:scale-105"
                         @load="loaded = true; $el.classList.remove('opacity-0')">
 
-                    <!-- Wishlist heart -->
-                    <div class="absolute top-3 right-3">
-                        <form action="{{ route('favorites.add', $product->id) }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-black/60 transition"
-                                aria-label="Add to favorites">❤️</button>
-                        </form>
+                    <!-- Wishlist heart (AJAX) -->
+                    <div class="absolute top-3 right-3" x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
+                        <button type="button"
+                                @click="active = !active; $store.wishlist.toggle(id)"
+                                :class="active ? 'bg-pink-600 text-white scale-105' : 'bg-black/40 text-white'"
+                                class="rounded-full backdrop-blur px-3 py-2 transition transform hover:scale-105"
+                                :aria-label="active ? 'Remove from wishlist' : 'Add to wishlist'"
+                                :title="active ? 'Remove from wishlist' : 'Add to wishlist'">
+                            <span :class="active ? 'opacity-100' : 'opacity-80'">❤️</span>
+                        </button>
                     </div>
                 </div>
                 <div class="p-4">
@@ -92,4 +94,5 @@ UI-only Tailwind refresh to match landing page theme.
         </div>
         @endif
     </section>
+@include('partials.wishlist-script')
 </x-app-layout>

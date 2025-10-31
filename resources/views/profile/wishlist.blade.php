@@ -6,10 +6,9 @@
                 <p class="mt-2 text-gray-600 dark:text-gray-300">Saved products you love.</p>
             </div>
             @if(!empty($favorites))
-            <form action="{{ route('favorites.clear') }}" method="POST">
-                @csrf
-                <button type="submit" class="rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 hover:bg-gray-600">Clear All</button>
-            </form>
+            <button type="button"
+                    @click="$store.wishlist.clear(); document.querySelectorAll('[data-wish-card]').forEach(el => el.remove())"
+                    class="rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 hover:bg-gray-600">Clear All</button>
             @endif
         </div>
 
@@ -25,14 +24,13 @@
         @else
         <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($favorites as $id => $fav)
-            <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition hover:shadow-lg">
+            <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition hover:shadow-lg" data-wish-card>
                 <div class="relative aspect-[4/3] overflow-hidden">
                     <img src="{{ Storage::url('products/' . ($fav['image'] ?? '')) }}" alt="{{ $fav['name'] ?? 'Product' }}" class="w-full h-full object-cover group-hover:scale-105 transition" />
-                    <div class="absolute top-3 right-3">
-                        <form action="{{ route('favorites.remove', $id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-black/60" aria-label="Remove">♥</button>
-                        </form>
+                    <div class="absolute top-3 right-3" x-data="{ id: {{ $id }} }">
+                        <button type="button" @click="$store.wishlist.remove(id); $el.closest('[data-wish-card]').remove()"
+                            class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-white/20"
+                            aria-label="Remove from wishlist" title="Remove from wishlist">✖</button>
                     </div>
                 </div>
                 <div class="p-4">
@@ -51,4 +49,5 @@
         </div>
         @endif
     </section>
+@include('partials.wishlist-script')
 </x-app-layout>

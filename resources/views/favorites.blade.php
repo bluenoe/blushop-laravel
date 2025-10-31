@@ -8,12 +8,10 @@
                 <p class="mt-2 text-gray-600 dark:text-gray-300">Quick access to the items you love.</p>
             </div>
             @if(!empty($favorites))
-            <form action="{{ route('favorites.clear') }}" method="POST">
-                @csrf
-                <button type="submit"
-                    class="rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition">Clear
-                    All</button>
-            </form>
+            <button type="button"
+                @click="$store.wishlist.clear(); document.querySelectorAll('[data-wish-card]').forEach(el => el.remove())"
+                class="rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition">Clear
+                All</button>
             @endif
         </div>
 
@@ -33,13 +31,10 @@
                     <img src="{{ Storage::url('products/' . $fav['image']) }}" alt="{{ $fav['name'] }}"
                         class="w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:scale-105"
                         onload="this.classList.remove('opacity-0')">
-                    <div class="absolute top-3 right-3">
-                        <form action="{{ route('favorites.remove', $id) }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-black/60 transition"
-                                aria-label="Remove from favorites">✖</button>
-                        </form>
+                    <div class="absolute top-3 right-3" x-data="{ id: {{ $id }} }">
+                        <button type="button" @click="$store.wishlist.remove(id); $el.closest('[data-wish-card]').remove()"
+                            class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-red-600 transition"
+                            aria-label="Remove from wishlist" title="Remove from wishlist">✖</button>
                     </div>
                 </div>
                 <div class="p-4">
@@ -62,4 +57,5 @@
         </div>
         @endif
     </section>
+@include('partials.wishlist-script')
 </x-app-layout>

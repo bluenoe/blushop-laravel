@@ -30,16 +30,26 @@ class FavoritesController extends Controller
             ->findOrFail($id);
 
         $favorites = $this->favorites($request);
+        $favorited = false;
         if (!isset($favorites[$product->id])) {
             $favorites[$product->id] = [
                 'name' => $product->name,
                 'price' => (float) $product->price,
                 'image' => $product->image,
             ];
+            $favorited = true;
         }
 
         $request->session()->put('favorites', $favorites);
-        return back()->with('success', 'Added to favorites');
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'favorited' => $favorited,
+                'favorites_count' => count($favorites),
+                'message' => $favorited ? 'Added to favorites' : 'Already in favorites',
+            ]);
+        }
+        return back()->with('success', $favorited ? 'Added to favorites' : 'Already in favorites');
     }
 
     /**
@@ -48,13 +58,26 @@ class FavoritesController extends Controller
     public function remove(Request $request, int $id)
     {
         $favorites = $this->favorites($request);
+        $removed = false;
 
         if (isset($favorites[$id])) {
             unset($favorites[$id]);
+            $removed = true;
             $request->session()->put('favorites', $favorites);
-            return back()->with('success', 'Removed from favorites');
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => $removed,
+                'removed' => $removed,
+                'favorites_count' => count($favorites),
+                'message' => $removed ? 'Removed from favorites' : 'Product not in favorites',
+            ], $removed ? 200 : 422);
+        }
+
+        if ($removed) {
+            return back()->with('success', 'Removed from favorites');
+        }
         return back()->with('warning', 'Product not in favorites');
     }
 
@@ -64,6 +87,13 @@ class FavoritesController extends Controller
     public function clear(Request $request)
     {
         $request->session()->forget('favorites');
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'favorites_count' => 0,
+                'message' => 'Cleared favorites',
+            ]);
+        }
         return back()->with('success', 'Cleared favorites');
     }
 

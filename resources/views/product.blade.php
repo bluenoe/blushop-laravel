@@ -60,14 +60,16 @@
                             ›
                         </button>
 
-                        <!-- Wishlist heart -->
-                        <div class="absolute top-3 right-3">
-                            <form action="{{ route('favorites.add', $product->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="rounded-full bg-black/40 backdrop-blur px-3 py-2 text-white hover:bg-black/60 transition"
-                                    aria-label="Add to favorites">❤️</button>
-                            </form>
+                        <!-- Wishlist heart (AJAX) -->
+                        <div class="absolute top-3 right-3" x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
+                            <button type="button"
+                                    @click="active = !active; $store.wishlist.toggle(id)"
+                                    :class="active ? 'bg-pink-600 text-white scale-105' : 'bg-black/40 text-white'"
+                                    class="rounded-full backdrop-blur px-3 py-2 transition transform hover:scale-105"
+                                    :aria-label="active ? 'Remove from wishlist' : 'Add to wishlist'"
+                                    :title="active ? 'Remove from wishlist' : 'Add to wishlist'">
+                                <span :class="active ? 'opacity-100' : 'opacity-80'">❤️</span>
+                            </button>
                         </div>
                     </div>
 
@@ -260,12 +262,15 @@
                             <div class="mt-3 flex items-center gap-2">
                                 <a href="{{ route('product.show', $r->id) }}"
                                     class="inline-block rounded-lg bg-indigo-600 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">View</a>
-                                <form action="{{ route('favorites.add', $r->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit"
-                                        class="inline-block rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">❤️
-                                        Save</button>
-                                </form>
+                                <div x-data="{ id: {{ $r->id }}, active: $store.wishlist.isFav({{ $r->id }}) }">
+                                    <button type="button"
+                                        @click="active = !active; $store.wishlist.toggle(id)"
+                                        :class="active ? 'bg-pink-600 text-white scale-[1.03]' : 'bg-gray-700 text-white'"
+                                        class="inline-block rounded-lg font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">
+                                        <span class="mr-1">❤️</span>
+                                        <span x-text="active ? 'Saved' : 'Save'"></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -276,4 +281,5 @@
             </div>
         </div>
     </section>
+@include('partials.wishlist-script')
 </x-app-layout>
