@@ -27,7 +27,7 @@
                             <div class="text-xs text-gray-500 dark:text-gray-400">My Orders</div>
                             <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $ordersCount }}</div>
                         </a>
-                        <a href="{{ route('favorites.index') }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
+                        <a href="{{ route('profile.wishlist') }}" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 hover:border-indigo-500 transition">
                             <div class="text-xs text-gray-500 dark:text-gray-400">My Wishlist</div>
                             <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $favoritesCount }}</div>
                         </a>
@@ -153,7 +153,7 @@
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">My Wishlist</h2>
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">See products you saved for later.</p>
                         <div class="mt-6">
-                            <a href="{{ route('favorites.index') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Open Wishlist</a>
+                            <a href="{{ route('profile.wishlist') }}" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Open Wishlist</a>
                         </div>
                     </div>
                 </div>

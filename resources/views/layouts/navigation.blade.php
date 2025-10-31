@@ -24,9 +24,7 @@
                     <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
                         {{ __('Cart') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
-                        {{ __('Favorites') }}
-                    </x-nav-link>
+                    {{-- Favorites link removed: wishlist is now in Profile sidebar */}
                     <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                         {{ __('Contact') }}
                     </x-nav-link>
@@ -115,9 +113,7 @@
             <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
                 {{ __('Cart') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('favorites.index')" :active="request()->routeIs('favorites.index')">
-                {{ __('Favorites') }}
-            </x-responsive-nav-link>
+            {{-- Favorites link removed from mobile navigation */}
             <x-responsive-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                 {{ __('Contact') }}
             </x-responsive-nav-link>

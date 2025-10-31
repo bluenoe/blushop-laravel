@@ -56,6 +56,7 @@ class CheckoutController extends Controller
             'user_id' => Auth::id(),
             'total_amount' => $total,
             'payment_status' => 'pending',
+            'status' => 'pending',
             'shipping_address' => $data['address'],
         ]);
 

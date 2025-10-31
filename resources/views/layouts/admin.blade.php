@@ -21,6 +21,7 @@
                 <a href="{{ route('admin.products.index') }}" class="block px-3 py-2 rounded-md hover:bg-[#111a33] text-gray-200">Products</a>
                 <a href="{{ route('admin.categories.index') }}" class="block px-3 py-2 rounded-md hover:bg-[#111a33] text-gray-200">Categories</a>
                 <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded-md hover:bg-[#111a33] text-gray-200">Users</a>
+                <a href="{{ route('admin.orders.index') }}" class="block px-3 py-2 rounded-md hover:bg-[#111a33] text-gray-200">Orders</a>
             </nav>
         </aside>
 

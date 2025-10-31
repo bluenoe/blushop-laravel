@@ -23,9 +23,15 @@
                             <div class="space-y-1">
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Order #{{ $order->id }} • {{ $order->created_at->format('M d, Y') }}</p>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">₫{{ number_format((float)$order->total_amount, 0, ',', '.') }}</p>
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
-                                    {{ $order->payment_status === 'paid' ? 'bg-green-600/15 text-green-600 ring-1 ring-green-600/30' : ($order->payment_status === 'cancelled' ? 'bg-red-600/15 text-red-600 ring-1 ring-red-600/30' : 'bg-yellow-500/15 text-yellow-600 ring-1 ring-yellow-600/30') }}">
-                                    {{ ucfirst($order->payment_status) }}
+                                @php($cls = match($order->status){
+                                    'pending' => 'bg-gray-600/15 text-gray-300 ring-1 ring-gray-600/30',
+                                    'approved' => 'bg-blue-600/15 text-blue-300 ring-1 ring-blue-600/30',
+                                    'shipped' => 'bg-green-600/15 text-green-300 ring-1 ring-green-600/30',
+                                    'cancelled' => 'bg-red-600/15 text-red-300 ring-1 ring-red-600/30',
+                                    default => 'bg-gray-600/15 text-gray-300 ring-1 ring-gray-600/30'
+                                })
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $cls }}">
+                                    {{ ucfirst($order->status) }}
                                 </span>
                             </div>
                             <button type="button" @click="open = !open" class="rounded-md bg-gray-900/50 text-gray-200 px-3 py-2 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20">

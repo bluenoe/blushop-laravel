@@ -14,7 +14,8 @@ class FavoritesController extends Controller
     {
         $favorites = $this->favorites($request);
 
-        return view('favorites', [
+        $view = $request->routeIs('profile.wishlist') ? 'profile.wishlist' : 'favorites';
+        return view($view, [
             'favorites' => $favorites,
         ]);
     }

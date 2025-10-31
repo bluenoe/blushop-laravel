@@ -75,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Profile wishlist (session-based favorites view within profile)
+    Route::get('/profile/wishlist', [FavoritesController::class, 'index'])->name('profile.wishlist');
 });
 
 /**
@@ -112,9 +114,10 @@ Route::prefix('admin')
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
-        // Orders management
-        Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
-        Route::post('/orders/{order}/approve', [AdminOrderController::class, 'approve'])->name('admin.orders.approve');
-        Route::post('/orders/{order}/ship', [AdminOrderController::class, 'ship'])->name('admin.orders.ship');
-        Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('admin.orders.cancel');
+        // Orders management (index/show/updateStatus)
+        Route::prefix('orders')->group(function () {
+            Route::get('/', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+            Route::get('/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+            Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
+        });
     });
