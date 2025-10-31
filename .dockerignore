@@ -1,0 +1,15 @@
+.git
+.github
+.fleet
+.idea
+.vscode
+.zed
+node_modules
+vendor
+storage/framework/*
+storage/logs/*
+.env
+.env.*
+/public/hot
+Thumbs.db
+*.log

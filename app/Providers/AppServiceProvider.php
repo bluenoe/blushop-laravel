@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use App\Http\Responses\LoginResponse;
+use Illuminate\Support\Facades\Schema;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Console-only auto seeding of admin account
+        if (app()->runningInConsole()) {
+            try {
+                if (Schema::hasTable('users')) {
+                    $existing = User::query()->where('email', 'admin@blushop.local')->first();
+                    if (!$existing) {
+                        User::query()->create([
+                            'name' => 'Admin User',
+                            'email' => 'admin@blushop.local',
+                            'password' => bcrypt('12345678'),
+                            'is_admin' => true,
+                        ]);
+                        $this->app['log']->info('✔ Admin account ready!');
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Silently ignore during migrations when table may not exist
+            }
+        }
     }
 }

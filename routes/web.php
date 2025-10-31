@@ -82,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
 /**
  * Backwards-compatible alias for older components expecting 'dashboard'
  */
-Route::redirect('/dashboard', '/admin')->name('dashboard');
+Route::redirect('/dashboard', '/admin/dashboard')->name('dashboard');
 
 /**
  * Admin routes (auth + is_admin)
@@ -90,7 +90,7 @@ Route::redirect('/dashboard', '/admin')->name('dashboard');
 Route::prefix('admin')
     ->middleware(['auth', 'is_admin'])
     ->group(function () {
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
         // Products CRUD
         Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products.index');
@@ -121,3 +121,6 @@ Route::prefix('admin')
             Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
         });
     });
+
+// Backward-compatible root /admin redirect to /admin/dashboard
+Route::redirect('/admin', '/admin/dashboard');
