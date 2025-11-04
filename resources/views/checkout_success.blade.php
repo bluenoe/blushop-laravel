@@ -2,19 +2,19 @@
 
 @section('content')
     <div class="text-center py-5">
-        <h1 class="h3 fw-bold mb-2">🎉 Order Placed Successfully!</h1>
-        <p class="text-muted">Cảm ơn <strong>{{ $name }}</strong>. Đơn hàng của bạn đã được ghi nhận.</p>
+        <h1 class="text-xl sm:text-2xl font-bold mb-2">🎉 Order Placed Successfully!</h1>
+        <p class="text-gray-600 dark:text-gray-300">Cảm ơn <strong>{{ $name }}</strong>. Đơn hàng của bạn đã được ghi nhận.</p>
 
-        <div class="card mx-auto shadow-sm" style="max-width: 520px;">
-            <div class="card-body">
+        <x-ui.card class="mx-auto shadow-sm max-w-lg mt-4">
+            <div class="p-5 text-left">
                 <p class="mb-1"><strong>Order Code:</strong> {{ $orderCode }}</p>
                 <p class="mb-1"><strong>Ship To:</strong> {{ $address }}</p>
                 <p class="mb-0"><strong>Total Paid:</strong> ₫{{ number_format($total, 0, ',', '.') }}</p>
             </div>
-        </div>
+        </x-ui.card>
 
         <div class="mt-4">
-            <a class="btn btn-primary" href="{{ route('home') }}">Continue Shopping</a>
+            <x-ui.button href="{{ route('home') }}">Continue Shopping</x-ui.button>
         </div>
     </div>
 @endsection

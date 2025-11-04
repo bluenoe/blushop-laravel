@@ -2,8 +2,10 @@
 
 @section('content')
 <div class="py-5">
-    <h1>Welcome back, {{ auth()->user()->name }} 👋</h1>
-    <p class="lead">This is your BluShop dashboard.</p>
-    <a href="{{ route('home') }}" class="btn btn-primary mt-3">Go to Home</a>
+    <x-ui.card class="p-5">
+        <h1 class="text-2xl font-bold">Welcome back, {{ auth()->user()->name }} 👋</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">This is your BluShop dashboard.</p>
+        <x-ui.button href="{{ route('home') }}" class="mt-4">Go to Home</x-ui.button>
+    </x-ui.card>
 </div>
 @endsection

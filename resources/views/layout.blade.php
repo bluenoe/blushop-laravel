@@ -7,89 +7,84 @@
 
     <title>BluShop</title>
 
-    <!-- Bootstrap 5 CDN -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"
-    >
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body { padding-top: 70px; }
-        footer { margin-top: 40px; padding: 20px 0; background: #f8f9fa; }
+        footer { margin-top: 40px; padding: 20px 0; }
         .nav-brand-txt { font-weight: 700; letter-spacing: .3px; }
         .badge-cart { position: relative; top: -10px; left: -6px; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 @php
     $cartQty = collect(session('cart', []))->sum('quantity');
 @endphp
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand nav-brand-txt" href="{{ route('home') }}">BluShop</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
-                        Cart
-                        @if($cartQty > 0)
-                            <span class="badge bg-warning text-dark badge-cart">{{ $cartQty }}</span>
-                        @endif
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('contact.*') ? 'active' : '' }}" href="{{ route('contact.index') }}">Contact</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
+
+<header x-data="{ open: false }" class="fixed top-0 inset-x-0 z-50 bg-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+            <a class="nav-brand-txt text-white" href="{{ route('home') }}">BluShop</a>
+            <button @click="open = !open" aria-controls="mainNav" :aria-expanded="open"
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <nav class="hidden md:flex md:items-center md:space-x-6" id="mainNav">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Home</a>
+                <a href="{{ route('cart.index') }}" class="{{ request()->routeIs('cart.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}">
+                    Cart
+                    @if($cartQty > 0)
+                        <span class="badge-cart ml-2 inline-flex items-center justify-center rounded-full bg-yellow-400 text-gray-900 text-xs px-2">{{ $cartQty }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Contact</a>
+            </nav>
+            <div class="hidden md:flex md:items-center md:space-x-4">
                 @guest
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('register') ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
-                    </li>
+                    <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Login</a>
+                    <a href="{{ route('register') }}" class="{{ request()->is('register') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Register</a>
                 @endguest
                 @auth
-                    <li class="nav-item">
-                        <span class="navbar-text me-2">Hi, {{ auth()->user()->name }}</span>
-                    </li>
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button class="btn btn-sm btn-outline-light" type="submit">Logout</button>
-                        </form>
-                    </li>
+                    <span class="text-sm opacity-80">Hi, {{ auth()->user()->name }}</span>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="text-sm px-3 py-1.5 border border-white/40 rounded-md hover:bg-white/10">Logout</button>
+                    </form>
                 @endauth
-            </ul>
+            </div>
+        </div>
+        <div x-show="open" x-transition class="md:hidden pt-2 pb-3 space-y-1">
+            <a href="{{ route('home') }}" class="block px-3 py-2 {{ request()->routeIs('home') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Home</a>
+            <a href="{{ route('cart.index') }}" class="block px-3 py-2 {{ request()->routeIs('cart.*') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Cart @if($cartQty > 0)<span class="ml-2 inline-flex items-center justify-center rounded-full bg-yellow-400 text-gray-900 text-xs px-2">{{ $cartQty }}</span>@endif</a>
+            <a href="{{ route('contact.index') }}" class="block px-3 py-2 {{ request()->routeIs('contact.*') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Contact</a>
+            <div class="pt-2 border-t border-gray-800 mt-2">
+                @guest
+                    <a href="{{ route('login') }}" class="block px-3 py-2 {{ request()->is('login') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Login</a>
+                    <a href="{{ route('register') }}" class="block px-3 py-2 {{ request()->is('register') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Register</a>
+                @endguest
+                @auth
+                    <form action="{{ route('logout') }}" method="POST" class="px-3 py-2">
+                        @csrf
+                        <button type="submit" class="w-full text-left text-gray-300 hover:text-white">Logout</button>
+                    </form>
+                @endauth
+            </div>
         </div>
     </div>
-</nav>
+</header>
 
-<main class="container">
+<main class="max-w-7xl mx-auto px-4 mt-20">
     @yield('content')
+    
 </main>
 
-<footer class="text-center">
-    <div class="container">
-        <small class="text-muted">
+<footer class="text-center bg-gray-100 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+        <small class="text-gray-600 dark:text-gray-300">
             &copy; {{ date('Y') }} BluShop — A mini Laravel e-commerce for students. Built with ❤️.
         </small>
     </div>
+    
 </footer>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"
-></script>
 </body>
 </html>

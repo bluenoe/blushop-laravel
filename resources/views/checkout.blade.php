@@ -1,16 +1,16 @@
 @extends('layout')
 
 @section('content')
-<div class="mb-3">
+<div class="mb-3 space-y-2">
     @if(session('success'))
-    <div class="alert alert-success mb-2">{{ session('success') }}</div>
+        <x-ui.alert type="success">{{ session('success') }}</x-ui.alert>
     @endif
     @if(session('warning'))
-    <div class="alert alert-warning mb-2">{{ session('warning') }}</div>
+        <x-ui.alert type="warning">{{ session('warning') }}</x-ui.alert>
     @endif
 </div>
 
-<h2 class="h4 fw-bold mb-3">Checkout</h2>
+<h2 class="text-xl font-semibold mb-3">Checkout</h2>
 
 @php
 $cart = $cart ?? [];
@@ -18,72 +18,68 @@ $total = $total ?? 0;
 @endphp
 
 @if(empty($cart))
-<div class="alert alert-info">
-    Giỏ hàng trống. <a href="{{ route('home') }}">Tiếp tục mua sắm</a>.
-</div>
+    <x-ui.alert type="info">
+        Giỏ hàng trống. <a href="{{ route('home') }}" class="underline">Tiếp tục mua sắm</a>.
+    </x-ui.alert>
 @else
-<div class="table-responsive mb-4">
-    <table class="table align-middle">
-        <thead class="table-light">
+<div class="mb-4 overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-                <th style="width:64px;">Img</th>
-                <th>Product</th>
-                <th style="width:120px;">Price</th>
-                <th style="width:100px;">Qty</th>
-                <th style="width:140px;">Subtotal</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Img</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Product</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Price</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Qty</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Subtotal</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @foreach($cart as $id => $item)
-            @php
-            $subtotal = (float)$item['price'] * (int)$item['quantity'];
-            @endphp
-            <tr>
-                <td><img src="{{ Storage::url('products/' . $item['image']) }}" alt="{{ $item['name'] }}"
-                        style="width:56px; height:56px; object-fit:cover;"></td>
-                <td class="fw-semibold">{{ $item['name'] }}</td>
-                <td>₫{{ number_format((float)$item['price'], 0, ',', '.') }}</td>
-                <td>{{ (int)$item['quantity'] }}</td>
-                <td class="fw-semibold">₫{{ number_format($subtotal, 0, ',', '.') }}</td>
-            </tr>
+                @php $subtotal = (float)$item['price'] * (int)$item['quantity']; @endphp
+                <tr>
+                    <td class="px-3 py-2"><img src="{{ Storage::url('products/' . $item['image']) }}" alt="{{ $item['name'] }}" class="w-14 h-14 object-cover rounded"/></td>
+                    <td class="px-3 py-2 font-semibold">{{ $item['name'] }}</td>
+                    <td class="px-3 py-2">₫{{ number_format((float)$item['price'], 0, ',', '.') }}</td>
+                    <td class="px-3 py-2">{{ (int)$item['quantity'] }}</td>
+                    <td class="px-3 py-2 font-semibold">₫{{ number_format($subtotal, 0, ',', '.') }}</td>
+                </tr>
             @endforeach
-            <tr>
-                <td colspan="4" class="text-end fw-bold">Total</td>
-                <td class="fw-bold">₫{{ number_format($total, 0, ',', '.') }}</td>
+            <tr class="bg-gray-50 dark:bg-gray-800">
+                <td colspan="4" class="px-3 py-2 text-right font-bold">Total</td>
+                <td class="px-3 py-2 font-bold">₫{{ number_format($total, 0, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h5 class="card-title mb-3">Your Info</h5>
-        <form method="POST" action="{{ route('checkout.place') }}" class="row g-3">
+<x-ui.card class="shadow-sm">
+    <div class="p-5">
+        <h5 class="text-lg font-semibold mb-3">Your Info</h5>
+        <form method="POST" action="{{ route('checkout.place') }}" class="grid grid-cols-1 md:grid-cols-2 gap-3">
             @csrf
-            <div class="col-12 col-md-6">
-                <label for="name" class="form-label">Full name</label>
+            <div>
+                <label for="name" class="block text-sm font-medium">Full name</label>
                 <input type="text" id="name" name="name" value="{{ old('name', auth()->user()->name ?? '') }}"
-                    class="form-control @error('name') is-invalid @enderror" required>
+                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" required>
                 @error('name')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="col-12">
-                <label for="address" class="form-label">Address</label>
-                <textarea id="address" name="address" rows="3"
-                    class="form-control @error('address') is-invalid @enderror" required>{{ old('address') }}</textarea>
+            <div class="md:col-span-2">
+                <label for="address" class="block text-sm font-medium">Address</label>
+                <textarea id="address" name="address" rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" required>{{ old('address') }}</textarea>
                 @error('address')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="col-12 d-flex gap-2">
-                <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary">Back to Cart</a>
-                <button type="submit" class="btn btn-primary">Place Order</button>
+            <div class="md:col-span-2 flex gap-2">
+                <x-ui.button href="{{ route('cart.index') }}" variant="secondary">Back to Cart</x-ui.button>
+                <x-ui.button type="submit" variant="primary">Place Order</x-ui.button>
             </div>
         </form>
     </div>
-</div>
+</x-ui.card>
 @endif
 @endsection
