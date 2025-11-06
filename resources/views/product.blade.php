@@ -90,8 +90,16 @@
                 <div class="flex flex-col" data-reveal="fade-up">
                     <div class="rounded-xl ring-1 ring-white/10 bg-gray-800 p-6 sm:p-8">
                         <div class="flex items-start justify-between gap-4">
-                            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">{{ $product->name }}
-                            </h1>
+                            <div>
+                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">{{ $product->name }}</h1>
+                                @if($product->category)
+                                    <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
+                                       class="mt-1 inline-flex items-center gap-1 text-xs text-gray-300 hover:text-indigo-400">
+                                        <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                                        <span>{{ $product->category->name }}</span>
+                                    </a>
+                                @endif
+                            </div>
                             <span class="text-xs text-gray-400">SKU: {{ $product->id }}</span>
                         </div>
 

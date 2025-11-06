@@ -16,6 +16,7 @@ class Product extends Model
         'description',
         'price',
         'image',
+        'category_id',
     ];
 
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
@@ -26,5 +27,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

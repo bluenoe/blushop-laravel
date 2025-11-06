@@ -12,7 +12,17 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query()->select(['id', 'name', 'price', 'image']);
+        $query = Product::query()
+            ->select(['id', 'name', 'price', 'image', 'category_id'])
+            ->with(['category:id,name,slug']);
+
+        // Category filter by slug
+        if ($request->filled('category')) {
+            $slug = (string) $request->input('category');
+            $query->whereHas('category', function ($q) use ($slug) {
+                $q->where('slug', $slug);
+            });
+        }
 
         // Search by keyword (name or description)
         if ($request->filled('q')) {
@@ -50,7 +60,17 @@ class ProductController extends Controller
 
         $products = $query->get();
 
-        return view('home', ['products' => $products]);
+        // For filter UI
+        $categories = \App\Models\Category::query()
+            ->select(['id', 'name', 'slug'])
+            ->orderBy('name')
+            ->get();
+
+        return view('home', [
+            'products' => $products,
+            'categories' => $categories,
+            'activeCategory' => (string) $request->input('category', ''),
+        ]);
     }
 
     /**

@@ -23,6 +23,7 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">ID</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Name</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Slug</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Products</th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-300">Actions</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                     <td class="px-4 py-3 text-sm text-gray-300">{{ $c->id }}</td>
                     <td class="px-4 py-3 text-sm text-gray-100">{{ $c->name }}</td>
                     <td class="px-4 py-3 text-sm text-gray-300">{{ $c->slug }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-300">{{ $c->products_count }}</td>
                     <td class="px-4 py-3 text-sm text-right">
                         <a href="{{ route('admin.categories.edit', $c) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100 mr-2">Edit</a>
                         <div x-data="{ open:false }" class="inline">
@@ -39,15 +41,35 @@
                             <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
                                 <div class="w-full max-w-md rounded-xl bg-[#0d1426] border border-gray-700 p-6">
                                     <h3 class="text-lg font-semibold text-gray-100">Confirm delete</h3>
-                                    <p class="mt-2 text-sm text-gray-300">This will permanently remove the category. Continue?</p>
-                                    <div class="mt-4 flex justify-end gap-2">
-                                        <button @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
-                                        <form method="POST" action="{{ route('admin.categories.destroy', $c) }}">
+                                    <p class="mt-2 text-sm text-gray-300">This will permanently remove the category.</p>
+                                    @if($c->products_count > 0)
+                                        <p class="mt-2 text-sm text-amber-300">This category currently has products. Please choose a category to reassign them before deletion.</p>
+                                        <form method="POST" action="{{ route('admin.categories.destroy', $c) }}" class="mt-4">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
+                                            <label class="block text-sm text-gray-300 mb-1">Reassign products to</label>
+                                            <select name="reassign_to" class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100">
+                                                @foreach(($allCategories ?? collect()) as $opt)
+                                                    @if($opt->id !== $c->id)
+                                                        <option value="{{ $opt->id }}" {{ $opt->slug==='uncategorized' ? 'selected' : '' }}>{{ $opt->name }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
+                                                <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
+                                            </div>
                                         </form>
-                                    </div>
+                                    @else
+                                        <div class="mt-4 flex justify-end gap-2">
+                                            <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
+                                            <form method="POST" action="{{ route('admin.categories.destroy', $c) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

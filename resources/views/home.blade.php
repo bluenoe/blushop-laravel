@@ -10,6 +10,25 @@ UI-only Tailwind refresh to match landing page theme.
             <p class="mt-2 text-gray-600 dark:text-gray-300">Browse our minimal lineup — crafted for calm.</p>
         </div>
 
+        <!-- Category filter (pills) -->
+        <div class="mt-8" data-reveal="fade-up">
+            <div class="flex flex-wrap items-center gap-2">
+                @php($active = $activeCategory ?? request('category'))
+                <a href="{{ route('products.index') }}"
+                   class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors
+                          {{ empty($active) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/5 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
+                    All
+                </a>
+                @foreach(($categories ?? collect()) as $cat)
+                    <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $cat->slug])) }}"
+                       class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors
+                              {{ ($active === $cat->slug) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/5 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
+                        {{ $cat->name }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Filters -->
         <form action="{{ route('products.index') }}" method="GET"
             class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" data-reveal="fade-up">
@@ -73,6 +92,13 @@ UI-only Tailwind refresh to match landing page theme.
                 </div>
                 <div class="p-4">
                     <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $product->name }}</h3>
+                    @if($product->category)
+                        <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $product->category->slug])) }}"
+                           class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300 hover:text-indigo-500">
+                            <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                            <span>{{ $product->category->name }}</span>
+                        </a>
+                    @endif
                     <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">
                         ₫{{ number_format((float)$product->price, 0, ',', '.') }}
                     </p>

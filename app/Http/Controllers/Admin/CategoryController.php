@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Http\Requests\Admin\CategoryRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -19,11 +21,12 @@ class CategoryController extends Controller
                 $q->where('name', 'like', "%$search%")
                   ->orWhere('slug', 'like', "%$search%");
             })
+            ->withCount('products')
             ->latest('id')
             ->paginate(10)
             ->withQueryString();
-
-        return view('admin.categories.index', compact('categories', 'search'));
+        $allCategories = Category::query()->select(['id','name','slug'])->orderBy('name')->get();
+        return view('admin.categories.index', compact('categories', 'search', 'allCategories'));
     }
 
     public function create(): View
@@ -31,15 +34,14 @@ class CategoryController extends Controller
         return view('admin.categories.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(CategoryRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:categories,slug'],
+        $data = $request->validated();
+        Category::create([
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'description' => $data['description'] ?? null,
         ]);
-
-        $slug = $data['slug'] ?? Str::slug($data['name']);
-        Category::create(['name' => $data['name'], 'slug' => $slug]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
@@ -49,20 +51,46 @@ class CategoryController extends Controller
         return view('admin.categories.edit', compact('category'));
     }
 
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:categories,slug,'.$category->id],
+        $data = $request->validated();
+        $category->update([
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'description' => $data['description'] ?? null,
         ]);
-
-        $category->update(['name' => $data['name'], 'slug' => $data['slug']]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
 
     public function destroy(Category $category): RedirectResponse
     {
+        $reassignTo = request()->input('reassign_to');
+        $productCount = $category->products()->count();
+
+        if ($productCount > 0) {
+            if (!$reassignTo) {
+                return redirect()->route('admin.categories.index')
+                    ->with('warning', 'Category has products. Please reassign them before deleting.');
+            }
+
+            // Prevent self-reassign
+            if ((int)$reassignTo === (int)$category->id) {
+                return redirect()->route('admin.categories.index')
+                    ->with('warning', 'Cannot reassign products to the same category.');
+            }
+
+            // Validate target category exists
+            $target = Category::query()->find($reassignTo);
+            if (!$target) {
+                return redirect()->route('admin.categories.index')
+                    ->with('warning', 'Target category not found.');
+            }
+
+            // Reassign products
+            DB::table('products')->where('category_id', $category->id)->update(['category_id' => $target->id]);
+        }
+
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }

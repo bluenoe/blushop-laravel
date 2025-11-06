@@ -11,6 +11,15 @@
             <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100">
         </div>
         <div>
+            <label class="block text-sm text-gray-300 mb-1">Category</label>
+            <select name="category_id" required class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100">
+                <option value="">Select a category…</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" @selected(old('category_id') == $cat->id)>{{ $cat->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
             <label class="block text-sm text-gray-300 mb-1">Price</label>
             <input type="number" step="0.01" min="0" name="price" value="{{ old('price') }}" required class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100">
         </div>

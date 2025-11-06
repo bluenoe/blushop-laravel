@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -18,6 +19,7 @@ class ProductController extends Controller
             ->when($search !== '', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%");
             })
+            ->with(['category:id,name,slug'])
             ->latest('id')
             ->paginate(10)
             ->withQueryString();
@@ -27,7 +29,8 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        return view('admin.products.create');
+        $categories = Category::query()->orderBy('name')->get(['id','name','slug']);
+        return view('admin.products.create', compact('categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -37,6 +40,7 @@ class ProductController extends Controller
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
         ]);
 
         $path = null;
@@ -49,6 +53,7 @@ class ProductController extends Controller
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
             'image' => $path,
+            'category_id' => $data['category_id'],
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
@@ -56,7 +61,8 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        return view('admin.products.edit', compact('product'));
+        $categories = Category::query()->orderBy('name')->get(['id','name','slug']);
+        return view('admin.products.edit', compact('product','categories'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -66,6 +72,7 @@ class ProductController extends Controller
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
         ]);
 
         if ($request->hasFile('image')) {
@@ -79,6 +86,7 @@ class ProductController extends Controller
         $product->name = $data['name'];
         $product->description = $data['description'] ?? null;
         $product->price = $data['price'];
+        $product->category_id = $data['category_id'];
         $product->save();
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');

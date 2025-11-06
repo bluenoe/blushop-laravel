@@ -19,6 +19,8 @@ class ProductFactory extends Factory
             'description' => fake()->paragraph(2),
             'price' => fake()->randomFloat(2, 5, 199),
             'image' => null,
+            // category_id will be set in seeder/controller; keep null here
+            'category_id' => null,
         ];
     }
 }

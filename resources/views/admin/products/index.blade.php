@@ -23,6 +23,7 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">ID</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Image</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Name</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Category</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Price</th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-300">Actions</th>
             </tr>
@@ -39,6 +40,13 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-100">{{ $p->name }}</td>
+                    <td class="px-4 py-3 text-sm">
+                        @if($p->category)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-700 text-gray-100">{{ $p->category->name }}</span>
+                        @else
+                            <span class="text-xs text-gray-500">—</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-sm text-gray-200">${{ number_format((float) $p->price, 2) }}</td>
                     <td class="px-4 py-3 text-sm text-right">
                         <a href="{{ route('admin.products.edit', $p) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100 mr-2">Edit</a>

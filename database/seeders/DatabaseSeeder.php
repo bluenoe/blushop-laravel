@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -31,8 +32,39 @@ class DatabaseSeeder extends Seeder
         // 2) Example users
         $users = User::factory(3)->create();
 
-        // 3) Sample products
-        $products = Product::factory(10)->create();
+        // 3) Categories (seed demo + ensure Uncategorized exists)
+        $this->call(CategorySeeder::class);
+        $uncat = Category::query()->firstOrCreate(
+            ['slug' => 'uncategorized'],
+            ['name' => 'Uncategorized', 'description' => 'Default catch-all category']
+        );
+
+        // 4) Sample products (initially assign to Uncategorized to satisfy NOT NULL)
+        $products = Product::factory(10)->create(['category_id' => $uncat->id]);
+
+        // Assign products to sensible/random categories
+        $cats = Category::query()->pluck('id', 'slug');
+        foreach ($products as $product) {
+            $name = strtolower($product->name);
+            $categoryId = null;
+            if (str_contains($name, 'hoodie')) {
+                $categoryId = $cats['hoodies'] ?? null;
+            } elseif (str_contains($name, 'shirt') || str_contains($name, 't-shirt')) {
+                $categoryId = $cats['t-shirts'] ?? null;
+            } elseif (str_contains($name, 'mug')) {
+                $categoryId = $cats['mugs'] ?? null;
+            } elseif (str_contains($name, 'sticker')) {
+                $categoryId = $cats['stickers'] ?? null;
+            } elseif (str_contains($name, 'cap')) {
+                $categoryId = $cats['caps'] ?? null;
+            } elseif (str_contains($name, 'bag')) {
+                $categoryId = $cats['bags'] ?? null;
+            } elseif (str_contains($name, 'note') || str_contains($name, 'book')) {
+                $categoryId = $cats['stationery'] ?? null;
+            }
+            $product->category_id = $categoryId ?? $uncat->id;
+            $product->save();
+        }
 
         // 4) Fake orders per user (3 each)
         foreach ($users as $user) {
@@ -67,6 +99,7 @@ class DatabaseSeeder extends Seeder
         $this->command?->info('✔ Admin account ready!');
         $this->command?->info('Seeded users: '.(User::query()->count()));
         $this->command?->info('Seeded products: '.(Product::query()->count()));
+        $this->command?->info('Seeded categories: '.(Category::query()->count()));
         $this->command?->info('Seeded orders: '.(Order::query()->count()));
         $this->command?->info('Seeded order items: '.(OrderItem::query()->count()));
     }
