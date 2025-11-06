@@ -13,7 +13,11 @@ return new class extends Migration {
             if (!Schema::hasColumn('products', 'category_id')) {
                 $table->unsignedBigInteger('category_id')->nullable()->after('image');
                 $table->index('category_id');
-                $table->foreign('category_id')->references('id')->on('categories')->onUpdate('cascade')->onDelete('restrict');
+                $table->foreign('category_id')
+                    ->references('id')
+                    ->on('categories')
+                    ->onUpdate('cascade')
+                    ->onDelete('set null'); // ✅ đổi restrict -> set null để an toàn
             }
         });
 
@@ -34,27 +38,15 @@ return new class extends Migration {
         // 3) Backfill existing products to 'Uncategorized'
         DB::table('products')->whereNull('category_id')->update(['category_id' => $uncatId]);
 
-        // 4) Make category_id NOT NULL (driver-specific)
-        $driver = DB::getDriverName();
-        try {
-            if ($driver === 'mysql') {
-                DB::statement('ALTER TABLE products MODIFY category_id BIGINT UNSIGNED NOT NULL');
-            } elseif ($driver === 'pgsql') {
-                DB::statement('ALTER TABLE products ALTER COLUMN category_id SET NOT NULL');
-            } elseif ($driver === 'sqlite') {
-                // SQLite ALTER COLUMN not supported; leave as nullable but enforced at app level
-                // Optional: a CHECK constraint could be added via table rebuild; skipping for simplicity
-            }
-        } catch (\Throwable $e) {
-            // If changing column fails, leave nullable (app-level validation will enforce)
-        }
+        // ⚠️ 4) Remove the NOT NULL enforcement for now
+        // Because ProductSeeder inserts products without category_id yet.
+        // We'll keep nullable and enforce in code level later.
     }
 
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
             if (Schema::hasColumn('products', 'category_id')) {
-                // Drop FK first then column
                 try {
                     $table->dropForeign(['category_id']);
                 } catch (\Throwable $e) {}
