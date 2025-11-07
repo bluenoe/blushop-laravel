@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="bg-warm border-b border-beige">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -7,7 +7,7 @@
                 <div class="shrink-0 flex items-center">
                     {{-- was: route('dashboard') --}}
                     <a href="{{ route('home') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        <x-application-logo class="block h-9 w-auto fill-current text-ink" />
                     </a>
                 </div>
 
@@ -47,12 +47,12 @@
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-600 bg-warm hover:text-ink focus:outline-none transition ease-in-out duration-150">
                                 @php($u = Auth::user())
                                 @if ($u && $u->avatar)
-                                    <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar" class="h-10 w-10 rounded-full object-cover ring-1 ring-gray-700/60 mr-3 transform transition hover:scale-105 hover:ring-indigo-500" />
+                                    <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar" class="h-10 w-10 rounded-full object-cover ring-1 ring-beige mr-3 transform transition hover:scale-105 hover:ring-indigo-500" />
                                 @else
-                                    <div data-avatar-placeholder="true" data-class="h-10 w-10 rounded-full object-cover ring-1 ring-gray-700/60 mr-3 transform transition hover:scale-105 hover:ring-indigo-500" class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold mr-3">
+                                    <div data-avatar-placeholder="true" data-class="h-10 w-10 rounded-full object-cover ring-1 ring-beige mr-3 transform transition hover:scale-105 hover:ring-indigo-500" class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold mr-3">
                                         {{ Str::of($u->name)->substr(0, 1)->upper() }}
                                     </div>
                                 @endif
@@ -83,15 +83,15 @@
                     </x-dropdown>
                 @else
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:underline">Login</a>
-                        <a href="{{ route('register') }}" class="text-sm text-blue-600 hover:underline">Register</a>
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:underline">Login</a>
+                        <a href="{{ route('register') }}" class="text-sm text-indigo-600 hover:underline">Register</a>
                     </div>
                 @endauth
             </div>
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-warm">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Home') }}
@@ -129,20 +129,20 @@
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+        <div class="pt-4 pb-1 border-t border-beige">
             @auth
                 <div class="px-4 flex items-center gap-3">
                     @php($u = Auth::user())
                     @if ($u && $u->avatar)
-                        <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar" class="h-10 w-10 rounded-full object-cover ring-1 ring-gray-700/60 transform transition hover:scale-105 hover:ring-indigo-500" />
+                        <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar" class="h-10 w-10 rounded-full object-cover ring-1 ring-beige transform transition hover:scale-105 hover:ring-indigo-500" />
                     @else
-                        <div data-avatar-placeholder="true" data-class="h-10 w-10 rounded-full object-cover ring-1 ring-gray-700/60 transform transition hover:scale-105 hover:ring-indigo-500" class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
+                        <div data-avatar-placeholder="true" data-class="h-10 w-10 rounded-full object-cover ring-1 ring-beige transform transition hover:scale-105 hover:ring-indigo-500" class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
                             {{ Str::of($u->name)->substr(0, 1)->upper() }}
                         </div>
                     @endif
                     <div>
-                        <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ $u->name }}</div>
-                        <div class="font-medium text-sm text-gray-500">{{ $u->email }}</div>
+                        <div class="font-medium text-base text-ink">{{ $u->name }}</div>
+                        <div class="font-medium text-sm text-gray-600">{{ $u->email }}</div>
                     </div>
                 </div>
                 <div class="mt-3 space-y-1">
