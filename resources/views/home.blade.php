@@ -6,8 +6,8 @@ UI-only Tailwind refresh to match landing page theme.
 <x-app-layout>
     <section class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
         <div class="text-center" data-reveal="fade-up">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Products</h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-300">Browse our minimal lineup — crafted for calm.</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-ink">Products</h1>
+            <p class="mt-2 text-gray-700">Browse our minimal lineup — crafted for calm.</p>
         </div>
 
         <!-- Category filter (pills) -->
@@ -16,13 +16,13 @@ UI-only Tailwind refresh to match landing page theme.
                 @php($active = $activeCategory ?? request('category'))
                 <a href="{{ route('products.index') }}"
                    class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors
-                          {{ empty($active) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/5 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
+                          {{ empty($active) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-warm border-beige text-ink hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
                     All
                 </a>
                 @foreach(($categories ?? collect()) as $cat)
                     <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $cat->slug])) }}"
                        class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors
-                              {{ ($active === $cat->slug) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/5 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
+                              {{ ($active === $cat->slug) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-warm border-beige text-ink hover:bg-indigo-600 hover:text-white hover:border-indigo-600' }}">
                         {{ $cat->name }}
                     </a>
                 @endforeach
@@ -34,19 +34,19 @@ UI-only Tailwind refresh to match landing page theme.
             class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" data-reveal="fade-up">
             <div>
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Search products..."
-                    class="w-full rounded-lg bg-white/5 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500">
+                    class="w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
             </div>
             <div class="flex gap-2">
                 <input type="number" name="price_min" value="{{ request('price_min') }}" min="0" step="1"
                     placeholder="Min price"
-                    class="w-full rounded-lg bg-white/5 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500">
+                    class="w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
                 <input type="number" name="price_max" value="{{ request('price_max') }}" min="0" step="1"
                     placeholder="Max price"
-                    class="w-full rounded-lg bg-white/5 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500">
+                    class="w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
             </div>
             <div>
                 <select name="sort"
-                    class="w-full rounded-lg bg-white/5 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                    class="w-full rounded-lg bg-white border border-beige text-ink focus:ring-2 focus:ring-indigo-500 shadow-soft">
                     <option value="newest" {{ request('sort', 'newest' )==='newest' ? 'selected' : '' }}>Newest</option>
                     <option value="price_asc" {{ request('sort')==='price_asc' ? 'selected' : '' }}>Price: Low to High
                     </option>
@@ -68,7 +68,7 @@ UI-only Tailwind refresh to match landing page theme.
         @else
         <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($products as $product)
-            <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition duration-300 hover:shadow-lg hover:-translate-y-[2px]"
+            <div class="group rounded-xl overflow-hidden bg-white border border-beige shadow-soft transition duration-300 hover:shadow-lg hover:-translate-y-[2px]"
                 data-reveal="fade-up" x-data="{ loaded: false }">
                 <div class="relative aspect-[4/3] overflow-hidden">
                     <template x-if="!loaded">
@@ -91,15 +91,15 @@ UI-only Tailwind refresh to match landing page theme.
                     </div>
                 </div>
                 <div class="p-4">
-                    <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $product->name }}</h3>
+                    <h3 class="text-ink font-semibold truncate">{{ $product->name }}</h3>
                     @if($product->category)
                         <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $product->category->slug])) }}"
-                           class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300 hover:text-indigo-500">
+                           class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-500">
                             <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
                             <span>{{ $product->category->name }}</span>
                         </a>
                     @endif
-                    <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">
+                    <p class="mt-1 text-gray-700 font-medium">
                         ₫{{ number_format((float)$product->price, 0, ',', '.') }}
                     </p>
                     <div class="mt-3 flex items-center gap-2">
@@ -110,7 +110,7 @@ UI-only Tailwind refresh to match landing page theme.
                         <form action="{{ route('cart.add', $product->id) }}" method="POST">
                             @csrf
                             <button type="submit"
-                                class="inline-block rounded-lg bg-gray-700 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">Add
+                                class="inline-block rounded-lg bg-beige text-ink font-semibold px-4 py-2 border border-beige shadow-soft hover:bg-rosebeige transition-transform duration-300 hover:scale-[1.03]">Add
                                 to Cart</button>
                         </form>
                     </div>

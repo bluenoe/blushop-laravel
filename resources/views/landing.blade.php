@@ -44,7 +44,7 @@ Landing Page (BluShop)
 
         {{-- Highlights Section --}}
         <section class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">Why BluShop?</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold text-ink text-center">Why BluShop?</h2>
             <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @php
                 $highlights = [
@@ -57,9 +57,9 @@ Landing Page (BluShop)
 
                 @foreach($highlights as $h)
                 <div
-                    class="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-lg transition duration-300 hover:scale-[1.02]">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $h['title'] }}</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">{{ $h['desc'] }}</p>
+                    class="rounded-xl bg-white border border-beige p-6 shadow-soft hover:shadow-lg transition duration-300 hover:scale-[1.02]">
+                    <h3 class="text-lg font-semibold text-ink">{{ $h['title'] }}</h3>
+                    <p class="mt-2 text-gray-700">{{ $h['desc'] }}</p>
                 </div>
                 @endforeach
             </div>
@@ -68,9 +68,9 @@ Landing Page (BluShop)
         {{-- Featured Products Section --}}
         <section class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
             <div class="flex items-end justify-between">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Featured Products</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-ink">Featured Products</h2>
                 <a href="{{ route('products.index') }}"
-                    class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">View all</a>
+                    class="text-indigo-600 font-medium hover:underline">View all</a>
             </div>
 
             @if(($featured ?? collect())->isEmpty())
@@ -82,19 +82,19 @@ Landing Page (BluShop)
             <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($featured as $product)
                 <div
-                    class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition duration-300">
+                    class="group rounded-xl overflow-hidden bg-white border border-beige shadow-soft hover:shadow-lg transition duration-300">
                     <div class="aspect-[4/3] overflow-hidden">
                         <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transform transition duration-300 group-hover:scale-105">
                     </div>
                     <div class="p-4">
-                        <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $product->name }}</h3>
-                        <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">
+                        <h3 class="text-ink font-semibold truncate">{{ $product->name }}</h3>
+                        <p class="mt-1 text-gray-700 font-medium">
                             ₫{{ number_format((float)$product->price, 0, ',', '.') }}
                         </p>
                         <div class="mt-3">
                             <a href="{{ route('products.index') }}"
-                                class="inline-flex items-center text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
+                                class="inline-flex items-center text-indigo-600 font-medium hover:underline">
                                 Explore more
                                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -111,8 +111,8 @@ Landing Page (BluShop)
 
         {{-- About Section --}}
         <section class="max-w-3xl mx-auto px-6 py-12 sm:py-16 text-center">
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">About BluShop</h2>
-            <p class="mt-4 text-gray-700 dark:text-gray-300">
+            <h2 class="text-2xl sm:text-3xl font-bold text-ink">About BluShop</h2>
+            <p class="mt-4 text-gray-700">
                 BluShop is a minimal e-commerce project built for students and learners.
                 We focus on clean UI, sensible UX, and great content structure. Explore the
                 catalog, add items to cart, and learn how modern Laravel + Blade + Vite workflows

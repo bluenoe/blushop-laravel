@@ -15,56 +15,56 @@
         .badge-cart { position: relative; top: -10px; left: -6px; }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<body class="bg-warm text-ink">
 @php
     $cartQty = collect(session('cart', []))->sum('quantity');
 @endphp
 
-<header x-data="{ open: false }" class="fixed top-0 inset-x-0 z-50 bg-gray-900 text-white">
+<header x-data="{ open: false }" class="fixed top-0 inset-x-0 z-50 bg-warm text-ink border-b border-beige shadow-sm">
     <div class="max-w-7xl mx-auto px-4">
         <div class="flex items-center justify-between h-16">
-            <a class="nav-brand-txt text-white" href="{{ route('home') }}">BluShop</a>
+            <a class="nav-brand-txt text-ink hover:text-indigo-600" href="{{ route('home') }}">BluShop</a>
             <button @click="open = !open" aria-controls="mainNav" :aria-expanded="open"
-                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white">
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <nav class="hidden md:flex md:items-center md:space-x-6" id="mainNav">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Home</a>
-                <a href="{{ route('cart.index') }}" class="{{ request()->routeIs('cart.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-ink font-medium' : 'text-gray-700 hover:text-ink' }}">Home</a>
+                <a href="{{ route('cart.index') }}" class="{{ request()->routeIs('cart.*') ? 'text-ink font-medium' : 'text-gray-700 hover:text-ink' }}">
                     Cart
                     @if($cartQty > 0)
-                        <span class="badge-cart ml-2 inline-flex items-center justify-center rounded-full bg-yellow-400 text-gray-900 text-xs px-2">{{ $cartQty }}</span>
+                        <span class="badge-cart ml-2 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-xs px-2">{{ $cartQty }}</span>
                     @endif
                 </a>
-                <a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Contact</a>
+                <a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'text-ink font-medium' : 'text-gray-700 hover:text-ink' }}">Contact</a>
             </nav>
             <div class="hidden md:flex md:items-center md:space-x-4">
                 @guest
-                    <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Login</a>
-                    <a href="{{ route('register') }}" class="{{ request()->is('register') ? 'text-white' : 'text-gray-300 hover:text-white' }}">Register</a>
+                    <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'text-ink font-medium' : 'text-gray-700 hover:text-ink' }}">Login</a>
+                    <a href="{{ route('register') }}" class="{{ request()->is('register') ? 'text-ink font-medium' : 'text-gray-700 hover:text-ink' }}">Register</a>
                 @endguest
                 @auth
                     <span class="text-sm opacity-80">Hi, {{ auth()->user()->name }}</span>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="text-sm px-3 py-1.5 border border-white/40 rounded-md hover:bg-white/10">Logout</button>
+                        <button type="submit" class="text-sm px-3 py-1.5 border border-beige rounded-md hover:bg-beige">Logout</button>
                     </form>
                 @endauth
             </div>
         </div>
-        <div x-show="open" x-transition class="md:hidden pt-2 pb-3 space-y-1">
-            <a href="{{ route('home') }}" class="block px-3 py-2 {{ request()->routeIs('home') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Home</a>
-            <a href="{{ route('cart.index') }}" class="block px-3 py-2 {{ request()->routeIs('cart.*') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Cart @if($cartQty > 0)<span class="ml-2 inline-flex items-center justify-center rounded-full bg-yellow-400 text-gray-900 text-xs px-2">{{ $cartQty }}</span>@endif</a>
-            <a href="{{ route('contact.index') }}" class="block px-3 py-2 {{ request()->routeIs('contact.*') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Contact</a>
-            <div class="pt-2 border-t border-gray-800 mt-2">
+        <div x-show="open" x-transition class="md:hidden pt-2 pb-3 space-y-1 bg-warm">
+            <a href="{{ route('home') }}" class="block px-3 py-2 {{ request()->routeIs('home') ? 'bg-beige text-ink' : 'text-gray-700 hover:bg-beige hover:text-ink' }}">Home</a>
+            <a href="{{ route('cart.index') }}" class="block px-3 py-2 {{ request()->routeIs('cart.*') ? 'bg-beige text-ink' : 'text-gray-700 hover:bg-beige hover:text-ink' }}">Cart @if($cartQty > 0)<span class="ml-2 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-xs px-2">{{ $cartQty }}</span>@endif</a>
+            <a href="{{ route('contact.index') }}" class="block px-3 py-2 {{ request()->routeIs('contact.*') ? 'bg-beige text-ink' : 'text-gray-700 hover:bg-beige hover:text-ink' }}">Contact</a>
+            <div class="pt-2 border-t border-beige mt-2">
                 @guest
-                    <a href="{{ route('login') }}" class="block px-3 py-2 {{ request()->is('login') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Login</a>
-                    <a href="{{ route('register') }}" class="block px-3 py-2 {{ request()->is('register') ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">Register</a>
+                    <a href="{{ route('login') }}" class="block px-3 py-2 {{ request()->is('login') ? 'bg-beige text-ink' : 'text-gray-700 hover:bg-beige hover:text-ink' }}">Login</a>
+                    <a href="{{ route('register') }}" class="block px-3 py-2 {{ request()->is('register') ? 'bg-beige text-ink' : 'text-gray-700 hover:bg-beige hover:text-ink' }}">Register</a>
                 @endguest
                 @auth
                     <form action="{{ route('logout') }}" method="POST" class="px-3 py-2">
                         @csrf
-                        <button type="submit" class="w-full text-left text-gray-300 hover:text-white">Logout</button>
+                        <button type="submit" class="w-full text-left text-gray-700 hover:text-ink">Logout</button>
                     </form>
                 @endauth
             </div>
@@ -77,9 +77,9 @@
     
 </main>
 
-<footer class="text-center bg-gray-100 dark:bg-gray-800">
+<footer class="text-center bg-warm border-t border-beige">
     <div class="max-w-7xl mx-auto px-4">
-        <small class="text-gray-600 dark:text-gray-300">
+        <small class="text-gray-600">
             &copy; {{ date('Y') }} BluShop — A mini Laravel e-commerce for students. Built with ❤️.
         </small>
     </div>
