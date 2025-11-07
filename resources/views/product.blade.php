@@ -2,20 +2,20 @@
     @push('head')
     <link rel="preload" as="image" href="{{ Storage::url('products/' . $product->image) }}" fetchpriority="high">
     @endpush
-    <section class="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800">
+    <section class="min-h-[calc(100vh-4rem)] bg-warm">
         <div class="max-w-7xl mx-auto px-6 py-10 sm:py-16">
             <!-- Breadcrumb -->
-            <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
+            <nav class="text-sm text-gray-600" aria-label="Breadcrumb">
                 <ol class="flex items-center gap-1">
                     <li><a href="{{ route('home') }}"
-                            class="hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded">Home</a>
+                            class="hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Home</a>
                     </li>
                     <li>/</li>
                     <li><a href="{{ route('products.index') }}"
-                            class="hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded">Shop</a>
+                            class="hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Shop</a>
                     </li>
                     <li>/</li>
-                    <li aria-current="page" class="text-gray-300">{{ $product->name }}</li>
+                    <li aria-current="page" class="text-gray-700">{{ $product->name }}</li>
                 </ol>
             </nav>
 
@@ -35,7 +35,7 @@
                 }" class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                 <!-- Left: hero image + thumbnails -->
                 <div class="group" data-reveal="fade-up">
-                    <div class="relative overflow-hidden rounded-xl ring-1 ring-white/10 bg-gray-800"
+                    <div class="relative overflow-hidden rounded-xl border border-beige bg-white"
                         style="aspect-ratio: 4/3;" x-on:touchstart="ts = $event.changedTouches[0].clientX"
                         x-on:touchend="te = $event.changedTouches[0].clientX; if (te - ts > 40) { imgLoading = true; active = (active - 1 + images.length) % images.length } else if (ts - te > 40) { imgLoading = true; active = (active + 1) % images.length }">
                         <!-- Skeleton overlay: visible immediately, fades out on image load -->
@@ -50,12 +50,12 @@
 
                         <!-- Prev/Next -->
                         <button type="button" aria-label="Previous image"
-                            class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-gray-900/60 text-gray-200 px-2 py-1 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-ink/10 text-ink px-2 py-1 hover:bg-ink/20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             @click="imgLoading = true; active = (active - 1 + images.length) % images.length">
                             ‹
                         </button>
                         <button type="button" aria-label="Next image"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-gray-900/60 text-gray-200 px-2 py-1 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-ink/10 text-ink px-2 py-1 hover:bg-ink/20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             @click="imgLoading = true; active = (active + 1) % images.length">
                             ›
                         </button>
@@ -78,7 +78,7 @@
                         <template x-for="(src, i) in images" :key="i">
                             <button type="button" :aria-label="'Show image ' + (i+1)"
                                 @click="imgLoading = true; active = i" :class="{'ring-2 ring-indigo-500': active === i}"
-                                class="overflow-hidden rounded-md ring-1 ring-white/10 bg-gray-800 w-20 h-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="overflow-hidden rounded-md border border-beige bg-white w-20 h-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <img :src="src" alt="{{ $product->name }} thumbnail" loading="lazy" decoding="async"
                                     class="w-full h-full object-cover" />
                             </button>
@@ -88,36 +88,36 @@
 
                 <!-- Right: info panel -->
                 <div class="flex flex-col" data-reveal="fade-up">
-                    <div class="rounded-xl ring-1 ring-white/10 bg-gray-800 p-6 sm:p-8">
+                    <div class="rounded-xl border border-beige bg-white p-6 sm:p-8 shadow-soft">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">{{ $product->name }}</h1>
+                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}</h1>
                                 @if($product->category)
                                     <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
-                                       class="mt-1 inline-flex items-center gap-1 text-xs text-gray-300 hover:text-indigo-400">
+                                       class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">
                                         <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
                                         <span>{{ $product->category->name }}</span>
                                     </a>
                                 @endif
                             </div>
-                            <span class="text-xs text-gray-400">SKU: {{ $product->id }}</span>
+                            <span class="text-xs text-gray-500">SKU: {{ $product->id }}</span>
                         </div>
 
                         <div class="mt-2 flex items-center gap-3">
-                            <p class="text-indigo-400 text-xl sm:text-2xl font-semibold">₫{{
+                            <p class="text-indigo-600 text-xl sm:text-2xl font-semibold">₫{{
                                 number_format((float)$product->price, 0, ',', '.') }}</p>
-                            <span class="text-sm text-green-400">In stock</span>
+                            <span class="text-sm text-green-600">In stock</span>
                         </div>
 
                         <!-- Variant selectors -->
                         <div class="mt-6 space-y-5">
                             <!-- Sizes -->
                             <div>
-                                <p class="text-sm font-medium text-gray-300">Size</p>
+                                <p class="text-sm font-medium text-gray-700">Size</p>
                                 <div role="radiogroup" aria-label="Choose size" class="mt-2 flex flex-wrap gap-2">
                                     <template x-for="s in ['S','M','L','XL']" :key="s">
                                         <button type="button" :aria-checked="size === s"
-                                            :class="size === s ? 'bg-indigo-600 text-white ring-2 ring-indigo-500' : 'bg-gray-900/60 text-gray-200 ring-1 ring-white/10 hover:bg-gray-800'"
+                                            :class="size === s ? 'bg-indigo-600 text-white ring-2 ring-indigo-500' : 'bg-warm text-ink border border-beige hover:bg-beige'"
                                             class="px-3 py-1.5 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             @click="size = s" :disabled="s === 'XL' ? false : false"
                                             aria-disabled="false">
@@ -129,7 +129,7 @@
 
                             <!-- Colors -->
                             <div>
-                                <p class="text-sm font-medium text-gray-300">Color</p>
+                                <p class="text-sm font-medium text-gray-700">Color</p>
                                 <div role="radiogroup" aria-label="Choose color" class="mt-2 flex items-center gap-3">
                                     <template x-for="c in [
                                         {id:'black', name:'Black', cls:'bg-black'},
@@ -137,8 +137,8 @@
                                         {id:'navy', name:'Navy', cls:'bg-indigo-900'}
                                     ]" :key="c.id">
                                         <button type="button" :aria-checked="color === c.id"
-                                            class="w-7 h-7 rounded-full ring-2 ring-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            :class="[c.cls, color === c.id ? 'ring-indigo-500 ring-offset-2 ring-offset-gray-800' : 'hover:ring-white/30']"
+                                            class="w-7 h-7 rounded-full ring-2 ring-beige focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            :class="[c.cls, color === c.id ? 'ring-indigo-500 ring-offset-2 ring-offset-white' : 'hover:ring-beige']"
                                             @click="color = c.id">
                                             <span class="sr-only" x-text="c.name"></span>
                                         </button>
@@ -152,34 +152,34 @@
                             @csrf
                             <div class="flex flex-wrap items-center gap-4">
                                 <div class="flex items-center gap-2">
-                                    <label for="qty" class="text-sm font-medium text-gray-300">Quantity</label>
+                                    <label for="qty" class="text-sm font-medium text-gray-700">Quantity</label>
                                     <div class="flex items-center gap-1">
                                         <button type="button"
-                                            class="px-2 py-1 rounded-md bg-gray-900/60 text-gray-200 ring-1 ring-white/10 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            class="px-2 py-1 rounded-md bg-beige text-ink border border-beige hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             @click="qty = Math.max(1, qty - 1)">–</button>
                                         <input type="number" min="1" name="quantity" id="qty" x-model.number="qty"
                                             required
-                                            class="w-20 rounded-md border border-white/10 bg-gray-900/70 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                                            class="w-20 rounded-md border border-beige bg-white px-3 py-2 text-ink placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-soft" />
                                         <button type="button"
-                                            class="px-2 py-1 rounded-md bg-gray-900/60 text-gray-200 ring-1 ring-white/10 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                            class="px-2 py-1 rounded-md bg-beige text-ink border border-beige hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             @click="qty = qty + 1">+</button>
                                     </div>
                                 </div>
                                 @error('quantity')
-                                <p class="text-sm text-red-400">{{ $message }}</p>
+                                <p class="text-sm text-red-600">{{ $message }}</p>
                                 @enderror
 
                                 <div class="flex flex-wrap gap-3">
                                     <button type="submit"
-                                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Add to Cart
                                     </button>
                                     <a href="{{ route('checkout.index') }}"
-                                        class="inline-flex items-center justify-center rounded-md border border-white/10 bg-gray-900/50 px-5 py-2.5 text-sm font-semibold text-gray-200 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white/20 transition-colors">
+                                        class="inline-flex items-center justify-center rounded-md border border-beige bg-beige px-5 py-2.5 text-sm font-semibold text-ink hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Buy Now
                                     </a>
                                     <a href="{{ route('products.index') }}"
-                                        class="inline-flex items-center justify-center rounded-md text-sm font-semibold text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20">
+                                        class="inline-flex items-center justify-center rounded-md text-sm font-semibold text-gray-600 hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         Back to Shop
                                     </a>
                                 </div>
@@ -201,43 +201,43 @@
                 @endphp
                 @foreach($badges as $b)
                 <div
-                    class="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-lg transition duration-300">
-                    <h3 class="text-gray-900 dark:text-gray-100 font-semibold">{{ $b['title'] }}</h3>
-                    <p class="mt-1 text-gray-700 dark:text-gray-300 text-sm">{{ $b['desc'] }}</p>
+                    class="rounded-xl bg-white border border-beige p-5 shadow-soft hover:shadow-lg transition duration-300">
+                    <h3 class="text-ink font-semibold">{{ $b['title'] }}</h3>
+                    <p class="mt-1 text-gray-700 text-sm">{{ $b['desc'] }}</p>
                 </div>
                 @endforeach
             </div>
 
             <!-- Tabs -->
-            <div x-data="{tab: 'desc'}" class="mt-12 rounded-xl ring-1 ring-white/10 bg-gray-800">
+            <div x-data="{tab: 'desc'}" class="mt-12 rounded-xl border border-beige bg-white">
                 <div class="flex flex-wrap gap-2 px-6 pt-6">
                     <button @click="tab = 'desc'"
-                        :class="tab === 'desc' ? 'bg-indigo-600 text-white' : 'bg-gray-900/60 text-gray-200 hover:bg-gray-800'"
+                        :class="tab === 'desc' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
                         class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Description</button>
                     <button @click="tab = 'specs'"
-                        :class="tab === 'specs' ? 'bg-indigo-600 text-white' : 'bg-gray-900/60 text-gray-200 hover:bg-gray-800'"
+                        :class="tab === 'specs' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
                         class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Specs</button>
                     <button @click="tab = 'ship'"
-                        :class="tab === 'ship' ? 'bg-indigo-600 text-white' : 'bg-gray-900/60 text-gray-200 hover:bg-gray-800'"
+                        :class="tab === 'ship' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
                         class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Shipping
                         & Returns</button>
                 </div>
                 <div class="px-6 pb-6">
-                    <div x-show="tab === 'desc'" class="pt-4 text-gray-300 text-sm sm:text-base">
+                    <div x-show="tab === 'desc'" class="pt-4 text-gray-700 text-sm sm:text-base">
                         @if($product->description)
                         {{ $product->description }}
                         @else
                         Detailed product description will be available soon.
                         @endif
                     </div>
-                    <div x-show="tab === 'specs'" class="pt-4 text-gray-300 text-sm sm:text-base">
+                    <div x-show="tab === 'specs'" class="pt-4 text-gray-700 text-sm sm:text-base">
                         <ul class="list-disc pl-5 space-y-1">
                             <li>Premium materials and build</li>
                             <li>Designed for daily use</li>
                             <li>Warranty and support from BluShop</li>
                         </ul>
                     </div>
-                    <div x-show="tab === 'ship'" class="pt-4 text-gray-300 text-sm sm:text-base">
+                    <div x-show="tab === 'ship'" class="pt-4 text-gray-700 text-sm sm:text-base">
                         <p>Ships within 2–4 business days. Free returns within 14 days if unused and in original
                             packaging.</p>
                     </div>
@@ -247,13 +247,13 @@
             <!-- Related products -->
             <div class="mt-12">
                 <div class="flex items-end justify-between">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-100">You may also like</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-ink">You may also like</h2>
                     <a href="{{ route('products.index') }}" class="text-indigo-400 font-medium hover:underline">View
                         all</a>
                 </div>
                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @forelse(($relatedProducts ?? []) as $r)
-                    <div class="group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm transition duration-300 hover:shadow-lg hover:-translate-y-[2px]"
+                    <div class="group rounded-xl overflow-hidden bg-white border border-beige shadow-soft transition duration-300 hover:shadow-lg hover:-translate-y-[2px]"
                         data-reveal="fade-up" x-data="{ loaded: false }">
                         <div class="relative aspect-[4/3] overflow-hidden">
                             <template x-if="!loaded">
@@ -264,8 +264,8 @@
                                 onload="this.classList.remove('opacity-0')" />
                         </div>
                         <div class="p-4">
-                            <h3 class="text-gray-900 dark:text-gray-100 font-semibold truncate">{{ $r->name }}</h3>
-                            <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium">₫{{
+                            <h3 class="text-ink font-semibold truncate">{{ $r->name }}</h3>
+                            <p class="mt-1 text-gray-700 font-medium">₫{{
                                 number_format((float)$r->price, 0, ',', '.') }}</p>
                             <div class="mt-3 flex items-center gap-2">
                                 <a href="{{ route('product.show', $r->id) }}"
@@ -273,8 +273,8 @@
                                 <div x-data="{ id: {{ $r->id }}, active: $store.wishlist.isFav({{ $r->id }}) }">
                                     <button type="button"
                                         @click="active = !active; $store.wishlist.toggle(id)"
-                                        :class="active ? 'bg-pink-600 text-white scale-[1.03]' : 'bg-gray-700 text-white'"
-                                        class="inline-block rounded-lg font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">
+                                        :class="active ? 'bg-pink-600 text-white scale-[1.03]' : 'bg-beige text-ink border border-beige'"
+                                        class="inline-block rounded-lg font-semibold px-4 py-2 shadow-soft hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">
                                         <span class="mr-1">❤️</span>
                                         <span x-text="active ? 'Saved' : 'Save'"></span>
                                     </button>
