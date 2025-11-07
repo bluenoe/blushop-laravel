@@ -125,11 +125,11 @@ class ProductSeeder extends Seeder
             ],
         ];
 
-        $data = array_map(fn($item) => [
-            'name' => $item['name'],
-            'description' => $item['description'],
-            'price' => $item['price'],
-            'image' => $item['image'],
+        $data = array_map(fn ($item) => [
+            'name'       => $item['name'],
+            'description'=> $item['description'],
+            'price'      => $item['price'],
+            'image'      => $item['image'],
             'created_at' => $now,
             'updated_at' => $now,
         ], $items);
