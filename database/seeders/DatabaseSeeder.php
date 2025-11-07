@@ -34,19 +34,25 @@ class DatabaseSeeder extends Seeder
 
         // 3) Categories (seed demo + ensure Uncategorized exists)
         $this->call(CategorySeeder::class);
+
         $uncat = Category::query()->firstOrCreate(
             ['slug' => 'uncategorized'],
             ['name' => 'Uncategorized', 'description' => 'Default catch-all category']
         );
 
-        // 4) Sample products (initially assign to Uncategorized to satisfy NOT NULL)
-        $products = Product::factory(10)->create(['category_id' => $uncat->id]);
+        // 4) Products: dùng ProductSeeder của Blu (18 sản phẩm BluShop)
+        $this->call(ProductSeeder::class);
 
-        // Assign products to sensible/random categories
+        // Lấy toàn bộ sản phẩm sau khi seed
+        $products = Product::all();
+
+        // Gán category hợp lý dựa vào tên, nếu không match thì gán Uncategorized
         $cats = Category::query()->pluck('id', 'slug');
+
         foreach ($products as $product) {
             $name = strtolower($product->name);
             $categoryId = null;
+
             if (str_contains($name, 'hoodie')) {
                 $categoryId = $cats['hoodies'] ?? null;
             } elseif (str_contains($name, 'shirt') || str_contains($name, 't-shirt')) {
@@ -62,11 +68,12 @@ class DatabaseSeeder extends Seeder
             } elseif (str_contains($name, 'note') || str_contains($name, 'book')) {
                 $categoryId = $cats['stationery'] ?? null;
             }
+
             $product->category_id = $categoryId ?? $uncat->id;
             $product->save();
         }
 
-        // 4) Fake orders per user (3 each)
+        // 5) Fake orders per user (3 each)
         foreach ($users as $user) {
             for ($i = 0; $i < 3; $i++) {
                 $order = Order::factory()->create([
@@ -76,6 +83,7 @@ class DatabaseSeeder extends Seeder
 
                 $itemCount = random_int(1, 4);
                 $total = 0;
+
                 for ($j = 0; $j < $itemCount; $j++) {
                     $product = $products->random();
                     $qty = random_int(1, 3);
@@ -97,10 +105,10 @@ class DatabaseSeeder extends Seeder
 
         // Console summary output
         $this->command?->info('✔ Admin account ready!');
-        $this->command?->info('Seeded users: '.(User::query()->count()));
-        $this->command?->info('Seeded products: '.(Product::query()->count()));
-        $this->command?->info('Seeded categories: '.(Category::query()->count()));
-        $this->command?->info('Seeded orders: '.(Order::query()->count()));
-        $this->command?->info('Seeded order items: '.(OrderItem::query()->count()));
+        $this->command?->info('Seeded users: ' . (User::query()->count()));
+        $this->command?->info('Seeded products: ' . (Product::query()->count()));
+        $this->command?->info('Seeded categories: ' . (Category::query()->count()));
+        $this->command?->info('Seeded orders: ' . (Order::query()->count()));
+        $this->command?->info('Seeded order items: ' . (OrderItem::query()->count()));
     }
 }
