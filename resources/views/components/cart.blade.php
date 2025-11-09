@@ -5,13 +5,13 @@
 ])
 
 <article class="group relative flex flex-col overflow-hidden rounded-3xl border border-beige bg-white shadow-soft
-           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer transition-colors hover:bg-warm/40"
          x-data="{ pid: {{ (int) $product->id }}, active: {{ $isWished ? 'true' : 'false' }} }"
          x-init="active = $store.wishlist ? $store.wishlist.isFav(pid) : active">
 
     {{-- ✅ Full-card clickable overlay (trừ Add to cart) --}}
     <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="absolute inset-0 z-10"
-        aria-label="Xem chi tiết {{ $product->name }}"></a>
+        aria-label="View details of {{ $product->name }}"></a>
 
     {{-- 🖼️ Image Section --}}
     <div class="relative z-20 flex flex-col h-full">
