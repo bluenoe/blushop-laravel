@@ -70,6 +70,9 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'activeCategory' => (string) $request->input('category', ''),
+            'wishedIds' => auth()->check()
+                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+                : [],
         ]);
     }
 
@@ -91,6 +94,9 @@ class ProductController extends Controller
         return view('product', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
+            'wishedIds' => auth()->check()
+                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+                : [],
         ]);
     }
 }
