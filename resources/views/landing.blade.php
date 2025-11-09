@@ -154,35 +154,7 @@ Landing Page (BluShop)
                 @else
                 <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach($featured as $product)
-                    <article data-reveal
-                        class="opacity-0 translate-y-2 transition duration-500 group rounded-xl overflow-hidden bg-white border border-beige shadow-soft hover:shadow-lg hover:-translate-y-[2px]">
-                        <div class="relative aspect-[4/3] overflow-hidden">
-                            <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                class="w-full h-full object-cover transform transition duration-300 group-hover:scale-105">
-                            <span
-                                class="absolute top-3 left-3 inline-flex items-center rounded-full bg-indigo-600/90 text-white text-xs font-semibold px-2 py-0.5 shadow">
-                                Featured
-                            </span>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="text-ink font-semibold truncate">
-                                {{ $product->name }}
-                            </h3>
-                            <p class="mt-1 text-gray-700 font-medium">
-                                ₫{{ number_format((float)$product->price, 0, ',', '.') }}
-                            </p>
-                            <div class="mt-3 flex items-center justify-between">
-                                <a href="{{ route('product.show', $product->id) }}"
-                                    class="inline-flex items-center text-indigo-600 font-medium hover:underline">
-                                    View product
-                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
+                        <x-cart :product="$product" type="featured" :is-wished="in_array($product->id, $wishedIds ?? [])" />
                     @endforeach
                 </div>
                 @endif
@@ -324,4 +296,5 @@ Landing Page (BluShop)
                 </div>
             </section>
         </main>
+        @include('partials.wishlist-script')
     </x-app-layout>

@@ -17,8 +17,21 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
+        // DB-backed wishlist data for inline profile tab and count
+        $products = $user->wishlistedProducts()
+            ->select(['products.id', 'products.name', 'products.price', 'products.image', 'products.category_id'])
+            ->with(['category:id,name,slug'])
+            ->latest('wishlists.created_at')
+            ->get();
+
+        $wishedIds = $products->pluck('id')->map(fn($id) => (int) $id)->all();
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'products' => $products,
+            'wishedIds' => $wishedIds,
         ]);
     }
 

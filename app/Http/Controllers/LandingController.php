@@ -20,6 +20,9 @@ class LandingController extends Controller
 
         return view('landing', [
             'featured' => $featured,
+            'wishedIds' => auth()->check()
+                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+                : [],
         ]);
     }
 }
