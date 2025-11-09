@@ -4,17 +4,17 @@
     'isWished' => false,
 ])
 
-<article class="group relative flex flex-col overflow-hidden rounded-3xl border border-beige bg-white shadow-soft
-           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer transition-colors hover:bg-warm/40"
+<article class="group relative z-0 flex flex-col overflow-hidden rounded-3xl border border-beige bg-white shadow-soft
+           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer transition-colors hover:bg-warm/40 hover:ring-1 hover:ring-ink/10"
          x-data="{ pid: {{ (int) $product->id }}, active: {{ $isWished ? 'true' : 'false' }} }"
          x-init="active = $store.wishlist ? $store.wishlist.isFav(pid) : active">
 
     {{-- ✅ Full-card clickable overlay (trừ Add to cart) --}}
-    <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="absolute inset-0 z-10"
+    <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="absolute inset-0 z-[15]"
         aria-label="View details of {{ $product->name }}"></a>
 
     {{-- 🖼️ Image Section --}}
-    <div class="relative z-20 flex flex-col h-full">
+    <div class="relative z-0 flex flex-col h-full">
         {{-- Top: ảnh full khung + wishlist --}}
         <div class="relative {{ $type === 'featured' ? 'aspect-[4/3]' : 'aspect-[4/5]' }} overflow-hidden bg-warm">
             <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300
