@@ -9,7 +9,7 @@
                 </div>
                 <div>
                     <h2 class="font-semibold text-gray-100">Do you support wishlist?</h2>
-                    <p>Yes. Tap the heart ❤️ to save favorites. View them under Favorites.</p>
+                    <p>Yes. Tap the heart ❤️ to save items. View them under Profile → Wishlist.</p>
                 </div>
                 <div>
                     <h2 class="font-semibold text-gray-100">Is there free shipping?</h2>

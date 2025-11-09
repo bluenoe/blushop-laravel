@@ -253,37 +253,9 @@
                 </div>
                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @forelse(($relatedProducts ?? []) as $r)
-                    <div class="group rounded-xl overflow-hidden bg-white border border-beige shadow-soft transition duration-300 hover:shadow-lg hover:-translate-y-[2px]"
-                        data-reveal="fade-up" x-data="{ loaded: false }">
-                        <div class="relative aspect-[4/3] overflow-hidden">
-                            <template x-if="!loaded">
-                                <x-skeleton.image class="aspect-[4/3]" />
-                            </template>
-                            <img src="{{ Storage::url('products/' . $r->image) }}" alt="{{ $r->name }}"
-                                class="w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:scale-105"
-                                onload="this.classList.remove('opacity-0')" />
-                        </div>
-                        <div class="p-4">
-                            <h3 class="text-ink font-semibold truncate">{{ $r->name }}</h3>
-                            <p class="mt-1 text-gray-700 font-medium">₫{{
-                                number_format((float)$r->price, 0, ',', '.') }}</p>
-                            <div class="mt-3 flex items-center gap-2">
-                                <a href="{{ route('product.show', $r->id) }}"
-                                    class="inline-block rounded-lg bg-indigo-600 text-white font-semibold px-4 py-2 shadow hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">View</a>
-                                <div x-data="{ id: {{ $r->id }}, active: $store.wishlist.isFav({{ $r->id }}) }">
-                                    <button type="button"
-                                        @click="active = !active; $store.wishlist.toggle(id)"
-                                        :class="active ? 'bg-pink-600 text-white scale-[1.03]' : 'bg-beige text-ink border border-beige'"
-                                        class="inline-block rounded-lg font-semibold px-4 py-2 shadow-soft hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">
-                                        <span class="mr-1">❤️</span>
-                                        <span x-text="active ? 'Saved' : 'Save'"></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <x-cart :product="$r" type="featured" :is-wished="in_array($r->id, $wishedIds ?? [])" />
                     @empty
-                    <x-skeleton.card />
+                        <x-skeleton.card />
                     @endforelse
                 </div>
             </div>
