@@ -35,12 +35,17 @@
                     :title="active ? 'Remove from wishlist' : 'Add to wishlist'"
                     @click.stop="$store.wishlist.toggle(pid); active = $store.wishlist.isFav(pid)">
                 <svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5">
+                    <!-- Lucide-style precise heart, centered in 24x24 viewBox -->
                     <path
-                        d="M12 20.25s-4.92-3.13-7.36-5.57C3.11 13.16 2.25 11.9 2.25 10.4c0-2.02 1.63-3.65 3.65-3.65 1.22 0 2.39.6 3.1 1.53.71-.93 1.88-1.53 3.1-1.53 2.02 0 3.65 1.63 3.65 3.65 0 1.5-.86 2.76-2.39 4.28C16.92 17.12 12 20.25 12 20.25Z"
-                        :fill="active ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                        stroke-linejoin="round" />
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        :fill="active ? 'currentColor' : 'none'"
+                        :stroke="active ? 'none' : 'currentColor'"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
                 </svg>
-            </button>
+                </button>
 
             @if($type === 'featured')
                 <span class="absolute top-3 left-3 inline-flex items-center rounded-full bg-indigo-600/90 text-white text-xs font-semibold px-2 py-0.5 shadow">
