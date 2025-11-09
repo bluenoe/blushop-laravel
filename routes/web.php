@@ -26,6 +26,13 @@ use App\Http\Controllers\FavoritesController;
 | - Contact: form + lưu DB
 */
 
+// Cart routes
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+
+
+
+
+
 // Landing page
 Route::get('/', [LandingController::class, 'index'])->name('home');
 
@@ -66,7 +73,7 @@ Route::view('/faq', 'pages.faq')->name('faq');
 /**
  * Breeze auth routes (login/register/logout)
  */
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 /**
  * Breeze-compatible profile routes
