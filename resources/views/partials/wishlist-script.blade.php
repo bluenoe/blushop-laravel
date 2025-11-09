@@ -1,6 +1,6 @@
 <script>
-  // Seed initial favorites from session
-  window.__FAVS__ = @json(array_map('intval', array_keys(session('favorites', []))));
+  // Seed initial wished IDs from server-provided data
+  window.__WISHED_IDS__ = @json(($wishedIds ?? []));
 
   // Simple toast helper
   window.blToast = function(message, type = 'success') {
@@ -18,25 +18,28 @@
   // Alpine store for wishlist
   document.addEventListener('alpine:init', () => {
     Alpine.store('wishlist', {
-      ids: new Set((window.__FAVS__ || []).map(Number)),
+      ids: new Set((window.__WISHED_IDS__ || []).map(Number)),
       isFav(id) { return this.ids.has(Number(id)); },
       count() { return this.ids.size; },
       csrf() { const m = document.querySelector('meta[name=csrf-token]'); return m ? m.getAttribute('content') : ''; },
       async toggle(id) {
         id = Number(id);
-        const add = !this.isFav(id);
-        const url = add ? `{{ url('/favorites/add') }}/${id}` : `{{ url('/favorites/remove') }}/${id}`;
+        const url = `{{ url('/wishlist/toggle') }}/${id}`;
         try {
           const res = await fetch(url, {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': this.csrf(), 'Accept': 'application/json' }
           });
+          if (res.status === 401) {
+            // Not authenticated: redirect to login
+            window.location.href = `{{ route('login') }}`;
+            return false;
+          }
           const data = await res.json();
           if (res.ok && data.success) {
-            if (add) { this.ids.add(id); } else { this.ids.delete(id); }
-            localStorage.setItem('favorites_ids', JSON.stringify(Array.from(this.ids)));
+            if (data.wished) { this.ids.add(id); } else { this.ids.delete(id); }
             document.dispatchEvent(new CustomEvent('wishlist:updated', { detail: { count: this.count() } }));
-            blToast(add ? 'Added to wishlist' : 'Removed from wishlist');
+            blToast(data.wished ? 'Added to wishlist' : 'Removed from wishlist');
             return true;
           }
           blToast(data.message || 'Action failed', 'error');
@@ -49,11 +52,11 @@
       async remove(id) { if (this.isFav(id)) { return this.toggle(id); } return false; },
       async clear() {
         try {
-          const res = await fetch(`{{ url('/favorites/clear') }}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': this.csrf(), 'Accept': 'application/json' } });
+          const res = await fetch(`{{ url('/wishlist/clear') }}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': this.csrf(), 'Accept': 'application/json' } });
+          if (res.status === 401) { window.location.href = `{{ route('login') }}`; return false; }
           const data = await res.json();
           if (res.ok && data.success) {
             this.ids.clear();
-            localStorage.setItem('favorites_ids', '[]');
             document.dispatchEvent(new CustomEvent('wishlist:updated', { detail: { count: 0 } }));
             blToast('Cleared wishlist');
             return true;

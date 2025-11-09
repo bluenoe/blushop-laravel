@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,11 +49,12 @@ Route::post('/cart/update/{id}', [CartController::class, 'update'])->whereNumber
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-// Favorites (wishlist) - session based
-Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
-Route::post('/favorites/add/{id}', [FavoritesController::class, 'add'])->whereNumber('id')->name('favorites.add');
-Route::post('/favorites/remove/{id}', [FavoritesController::class, 'remove'])->whereNumber('id')->name('favorites.remove');
-Route::post('/favorites/clear', [FavoritesController::class, 'clear'])->name('favorites.clear');
+// Wishlist (DB-backed)
+Route::middleware('auth')->group(function () {
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -82,8 +83,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    // Profile wishlist (session-based favorites view within profile)
-    Route::get('/profile/wishlist', [FavoritesController::class, 'index'])->name('profile.wishlist');
+    // Profile wishlist uses DB-backed controller
+    Route::get('/profile/wishlist', [WishlistController::class, 'index'])->name('profile.wishlist');
 });
 
 /**
