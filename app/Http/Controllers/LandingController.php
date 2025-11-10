@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
+
 
 class LandingController extends Controller
 {
@@ -20,8 +22,8 @@ class LandingController extends Controller
 
         return view('landing', [
             'featured' => $featured,
-            'wishedIds' => auth()->check()
-                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+            'wishedIds' => Auth::check()
+                ? Auth::user()->wishlistedProducts()->pluck('id')->all()
                 : [],
         ]);
     }
