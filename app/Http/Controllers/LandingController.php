@@ -22,8 +22,9 @@ class LandingController extends Controller
 
         return view('landing', [
             'featured' => $featured,
+            // Qualify column to avoid ambiguous "id" when joining products and wishlists
             'wishedIds' => Auth::check()
-                ? Auth::user()->wishlistedProducts()->pluck('id')->all()
+                ? Auth::user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
         ]);
     }

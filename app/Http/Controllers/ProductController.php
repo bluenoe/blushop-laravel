@@ -70,8 +70,9 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'activeCategory' => (string) $request->input('category', ''),
+            // Qualify column to avoid ambiguous "id" when joining products and wishlists
             'wishedIds' => auth()->check()
-                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+                ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
         ]);
     }
@@ -94,8 +95,9 @@ class ProductController extends Controller
         return view('product', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
+            // Qualify column to avoid ambiguous "id" when joining products and wishlists
             'wishedIds' => auth()->check()
-                ? auth()->user()->wishlistedProducts()->pluck('id')->all()
+                ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
         ]);
     }
