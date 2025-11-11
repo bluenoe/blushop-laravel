@@ -26,5 +26,8 @@
                 {{ $slot }}
             </div>
         </div>
+
+        {{-- Global Footer (guest) --}}
+        @include('components.footer')
     </body>
 </html>

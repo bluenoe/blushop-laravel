@@ -38,6 +38,9 @@
             <main>
                 {{ $slot }}
             </main>
+
+            {{-- Global Footer --}}
+            @include('components.footer')
         </div>
     </body>
 </html>
