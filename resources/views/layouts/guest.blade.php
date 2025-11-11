@@ -27,9 +27,6 @@
             </div>
         </div>
 
-        {{-- Auth minimal footer (only on login & register) --}}
-        @if (request()->routeIs('login') || request()->routeIs('register'))
-            @include('components.auth-footer')
-        @endif
+        {{-- No footer on authentication pages (login/register) --}}
     </body>
 </html>
