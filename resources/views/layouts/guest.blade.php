@@ -27,7 +27,9 @@
             </div>
         </div>
 
-        {{-- Global Footer (guest) --}}
-        @include('components.footer')
+        {{-- Auth minimal footer (only on login & register) --}}
+        @if (request()->routeIs('login') || request()->routeIs('register'))
+            @include('components.auth-footer')
+        @endif
     </body>
 </html>
