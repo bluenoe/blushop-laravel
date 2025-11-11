@@ -42,9 +42,9 @@
                         <div class="absolute inset-0 pointer-events-none" x-show="imgLoading" x-transition.opacity>
                             <x-skeleton.image class="w-full h-full" />
                         </div>
-                        <!-- Hero image (keeps container height constant) -->
+                        <!-- Hero image (fills frame, keeps rounded corners) -->
                         <img :src="images[active]" alt="{{ $product->name }}"
-                            class="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 ease-out group-hover:scale-[1.02]"
+                            class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-300 ease-out group-hover:scale-[1.02]"
                             :class="imgLoading ? 'opacity-0' : 'opacity-100'" @load="imgLoading = false"
                             fetchpriority="high" decoding="async" draggable="false" />
 
@@ -60,15 +60,26 @@
                             ›
                         </button>
 
-                        <!-- Wishlist heart (AJAX) -->
-                        <div class="absolute top-3 right-3" x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
+                        <!-- Wishlist heart (aligned with product card styles) -->
+                        <div class="absolute top-0 right-0" x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
                             <button type="button"
-                                    @click="active = !active; $store.wishlist.toggle(id)"
-                                    :class="active ? 'bg-pink-600 text-white scale-105' : 'bg-black/40 text-white'"
-                                    class="rounded-full backdrop-blur px-3 py-2 transition transform hover:scale-105"
-                                    :aria-label="active ? 'Remove from wishlist' : 'Add to wishlist'"
-                                    :title="active ? 'Remove from wishlist' : 'Add to wishlist'">
-                                <span :class="active ? 'opacity-100' : 'opacity-80'">❤️</span>
+                                    class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
+                                           bg-white/90 text-ink shadow-sm ring-1 ring-beige/70
+                                           transition hover:bg-rose-50 hover:text-rose-500 hover:ring-rose-200 hover:scale-105"
+                                    :class="active ? 'bg-rose-50 text-rose-600 ring-rose-200' : ''"
+                                    :aria-pressed="active"
+                                    :title="active ? 'Remove from wishlist' : 'Add to wishlist'"
+                                    @click.stop="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                                        :fill="active ? 'currentColor' : 'none'"
+                                        :stroke="active ? 'none' : 'currentColor'"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
                             </button>
                         </div>
                     </div>
