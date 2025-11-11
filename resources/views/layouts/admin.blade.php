@@ -12,7 +12,7 @@
         <aside :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" class="fixed z-40 inset-y-0 left-0 w-64 transform transition-transform duration-200 bg-[#0d1426] border-r border-gray-700 md:static md:translate-x-0">
             <div class="px-4 py-4 border-b border-gray-700">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
-                    <x-application-logo class="w-8 h-8" />
+                    <x-application-logo class="h-10 w-auto sm:h-12" />
                     <span class="font-semibold text-gray-100">BluShop Admin</span>
                 </a>
             </div>

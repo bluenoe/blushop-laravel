@@ -4,8 +4,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
             <!-- Brand column -->
             <div class="space-y-4">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-3">
-                    <x-application-logo class="h-8 w-auto fill-current text-ink" />
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-3" aria-label="BluShop Home">
+                    <x-application-logo class="h-10 sm:h-12 w-auto" />
                     <span class="sr-only">BluShop</span>
                 </a>
                 <p class="text-sm text-gray-700 leading-relaxed max-w-sm">
