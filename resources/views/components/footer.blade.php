@@ -5,8 +5,7 @@
             <!-- Brand column -->
             <div class="space-y-4">
                 <a href="{{ route('home') }}" class="inline-flex items-center gap-3" aria-label="BluShop Home">
-                    <x-application-logo class="h-10 sm:h-12 w-auto" />
-                    <span class="sr-only">BluShop</span>
+                    <span class="text-ink text-2xl md:text-3xl font-semibold tracking-[0.25em] uppercase select-none">Blu</span>
                 </a>
                 <p class="text-sm text-gray-700 leading-relaxed max-w-sm">
                     Elevated essentials for modern wardrobes. Timeless silhouettes, soft tones, and everyday comfort.

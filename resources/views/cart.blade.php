@@ -19,7 +19,7 @@ UI-only Tailwind refresh to match landing page theme.
             @endif
         </div>
 
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Your Cart</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-ink dark:text-gray-100 mb-6">Your Cart</h2>
 
         @php
         $cart = $cart ?? [];
