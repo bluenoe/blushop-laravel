@@ -77,14 +77,7 @@
     
 </main>
 
-<footer class="text-center bg-warm border-t border-beige">
-    <div class="max-w-7xl mx-auto px-4">
-        <small class="text-gray-600">
-            &copy; {{ date('Y') }} BluShop — A mini Laravel e-commerce for students. Built with ❤️.
-        </small>
-    </div>
-    
-</footer>
+@include('components.footer')
 
 </body>
 </html>
