@@ -5,9 +5,9 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    {{-- was: route('dashboard') --}}
-                    <a href="{{ route('home') }}" aria-label="BluShop Home">
-                        <x-application-logo class="block h-10 sm:h-12 lg:h-14 xl:h-16 w-auto" />
+                    {{-- Brand wordmark (text-based) --}}
+                    <a href="{{ route('home') }}" aria-label="BluShop Home" class="inline-flex items-center">
+                        <span class="text-ink text-2xl md:text-3xl font-semibold tracking-[0.25em] uppercase select-none">Blu</span>
                     </a>
                 </div>
 
