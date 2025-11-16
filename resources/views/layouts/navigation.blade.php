@@ -7,7 +7,7 @@
                 <div class="shrink-0 flex items-center">
                     {{-- Brand wordmark (text-based) --}}
                     <a href="{{ route('home') }}" aria-label="BluShop Home" class="inline-flex items-center">
-                        <span class="text-ink text-2xl md:text-3xl font-semibold tracking-[0.25em] uppercase select-none">Blu</span>
+                        <x-blu-logo class="text-2xl md:text-3xl" />
                     </a>
                 </div>
 
