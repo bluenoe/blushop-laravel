@@ -14,7 +14,7 @@ class IsAdmin
     public function handle(Request $request, Closure $next)
     {
         if (! Auth::check() || ! Auth::user()->is_admin) {
-            abort(403, 'Access denied. Admins only.');
+            return redirect()->route('home');
         }
 
         return $next($request);
