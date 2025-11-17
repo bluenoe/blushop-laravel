@@ -27,10 +27,10 @@ $total = $total ?? 0;
         <thead class="bg-warm">
             <tr>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Img</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Product</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Price</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Qty</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Subtotal</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Product</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Price</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Qty</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Subtotal</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-beige">

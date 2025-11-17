@@ -39,7 +39,7 @@
                             <span class="text-xs text-gray-500">No image</span>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-100">{{ $p->name }}</td>
+                    <td class="px-4 py-3 text-sm text-ink">{{ $p->name }}</td>
                     <td class="px-4 py-3 text-sm">
                         @if($p->category)
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-warm text-ink ring-1 ring-beige">{{ $p->category->name }}</span>

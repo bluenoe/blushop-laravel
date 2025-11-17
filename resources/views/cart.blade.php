@@ -38,11 +38,11 @@ UI-only Tailwind refresh to match landing page theme.
                 <thead class="bg-warm">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600">Img</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600">Product
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Price</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Subtotal
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600">Price</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600">Qty</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600">Subtotal
                         </th>
                         <th class="px-4 py-3"></th>
                     </tr>

@@ -2,22 +2,22 @@
 
 @section('content')
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-xl font-semibold text-gray-100">Users</h1>
+    <h1 class="text-xl font-semibold text-ink">Users</h1>
 </div>
 
 <form method="GET" action="{{ route('admin.users.index') }}" class="mb-6">
     <div class="flex gap-2">
-        <input type="text" name="q" value="{{ $search }}" placeholder="Search users..." class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100 placeholder-gray-400">
-        <button class="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Search</button>
+        <input type="text" name="q" value="{{ $search }}" placeholder="Search users..." class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
+        <button class="px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Search</button>
     </div>
     @if($search !== '')
         <p class="mt-2 text-sm text-gray-400">Showing results for "{{ $search }}"</p>
     @endif
 </form>
 
-<div class="overflow-hidden rounded-xl border border-gray-700 bg-[#0d1426]">
-    <table class="min-w-full divide-y divide-gray-700">
-        <thead class="bg-[#0b1220]">
+    <div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft">
+    <table class="min-w-full divide-y divide-beige">
+        <thead class="bg-warm">
             <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">ID</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Name</th>
@@ -26,29 +26,29 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-300">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-700">
+        <tbody class="divide-y divide-beige">
             @foreach($users as $u)
-                <tr class="odd:bg-[#0d1426] even:bg-[#101831]">
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ $u->id }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-100">{{ $u->name }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ $u->email }}</td>
+                <tr class="odd:bg-white even:bg-warm">
+                    <td class="px-4 py-3 text-sm text-gray-700">{{ $u->id }}</td>
+                    <td class="px-4 py-3 text-sm text-ink">{{ $u->name }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700">{{ $u->email }}</td>
                     <td class="px-4 py-3 text-sm">
                         @if($u->is_admin)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-700 text-emerald-100 text-xs">Admin</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded bg-green-50 text-green-700 ring-1 ring-green-200 text-xs">Admin</span>
                         @else
-                            <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-700 text-gray-200 text-xs">User</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded bg-warm text-ink ring-1 ring-beige text-xs">User</span>
                         @endif
                     </td>
                     <td class="px-4 py-3 text-sm text-right">
-                        <a href="{{ route('admin.users.edit', $u) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100 mr-2">Edit</a>
+                        <a href="{{ route('admin.users.edit', $u) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white mr-2">Edit</a>
                         <div x-data="{ open:false }" class="inline">
                             <button @click="open=true" class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
-                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-                                <div class="w-full max-w-md rounded-xl bg-[#0d1426] border border-gray-700 p-6">
-                                    <h3 class="text-lg font-semibold text-gray-100">Confirm delete</h3>
-                                    <p class="mt-2 text-sm text-gray-300">This will permanently remove the user. Continue?</p>
+                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20">
+                                <div class="w-full max-w-md rounded-xl bg-white border border-beige p-6 shadow-soft">
+                                    <h3 class="text-lg font-semibold text-ink">Confirm delete</h3>
+                                    <p class="mt-2 text-sm text-gray-700">This will permanently remove the user. Continue?</p>
                                     <div class="mt-4 flex justify-end gap-2">
-                                        <button @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
+                                        <button @click="open=false" class="px-3 py-1.5 rounded-md bg-warm hover:bg-beige text-ink ring-1 ring-beige">Cancel</button>
                                         <form method="POST" action="{{ route('admin.users.destroy', $u) }}">
                                             @csrf
                                             @method('DELETE')

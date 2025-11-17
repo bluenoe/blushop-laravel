@@ -43,7 +43,7 @@
                                     <h3 class="text-lg font-semibold text-ink">Confirm delete</h3>
                                     <p class="mt-2 text-sm text-gray-700">This will permanently remove the category.</p>
                                     @if($c->products_count > 0)
-                                        <p class="mt-2 text-sm text-amber-300">This category currently has products. Please choose a category to reassign them before deletion.</p>
+                                        <p class="mt-2 text-sm text-yellow-700">This category currently has products. Please choose a category to reassign them before deletion.</p>
                                         <form method="POST" action="{{ route('admin.categories.destroy', $c) }}" class="mt-4">
                                             @csrf
                                             @method('DELETE')
@@ -56,8 +56,8 @@
                                                 @endforeach
                                             </select>
                                             <div class="mt-4 flex justify-end gap-2">
-                                                <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
-                                                <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
+                                                <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-warm hover:bg-beige text-ink ring-1 ring-beige">Cancel</button>
+                                                <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white">Delete</button>
                                             </div>
                                         </form>
                                     @else
