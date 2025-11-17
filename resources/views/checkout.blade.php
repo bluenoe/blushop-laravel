@@ -23,17 +23,17 @@ $total = $total ?? 0;
     </x-ui.alert>
 @else
 <div class="mb-4 overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-800">
+    <table class="min-w-full divide-y divide-beige">
+        <thead class="bg-warm">
             <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Img</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Img</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Product</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Price</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Qty</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">Subtotal</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="divide-y divide-beige">
             @foreach($cart as $id => $item)
                 @php $subtotal = (float)$item['price'] * (int)$item['quantity']; @endphp
                 <tr>
@@ -44,7 +44,7 @@ $total = $total ?? 0;
                     <td class="px-3 py-2 font-semibold">₫{{ number_format($subtotal, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
-            <tr class="bg-gray-50 dark:bg-gray-800">
+            <tr class="bg-warm">
                 <td colspan="4" class="px-3 py-2 text-right font-bold">Total</td>
                 <td class="px-3 py-2 font-bold">₫{{ number_format($total, 0, ',', '.') }}</td>
             </tr>
@@ -52,7 +52,7 @@ $total = $total ?? 0;
     </table>
 </div>
 
-<x-ui.card class="shadow-sm">
+<x-ui.card class="shadow-soft">
     <div class="p-5">
         <h5 class="text-lg font-semibold mb-3">Your Info</h5>
         <form method="POST" action="{{ route('checkout.place') }}" class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -60,7 +60,7 @@ $total = $total ?? 0;
             <div>
                 <label for="name" class="block text-sm font-medium">Full name</label>
                 <input type="text" id="name" name="name" value="{{ old('name', auth()->user()->name ?? '') }}"
-                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" required>
+                       class="mt-1 block w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft" required>
                 @error('name')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -68,7 +68,7 @@ $total = $total ?? 0;
 
             <div class="md:col-span-2">
                 <label for="address" class="block text-sm font-medium">Address</label>
-                <textarea id="address" name="address" rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" required>{{ old('address') }}</textarea>
+                <textarea id="address" name="address" rows="3" class="mt-1 block w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft" required>{{ old('address') }}</textarea>
                 @error('address')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror

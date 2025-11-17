@@ -2,33 +2,33 @@
 
 @section('content')
     <div class="space-y-8">
-        <h1 class="text-2xl font-semibold text-gray-100">Dashboard</h1>
+        <h1 class="text-2xl font-semibold text-ink">Dashboard</h1>
 
         <!-- Overview cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="rounded-xl bg-[#0d1426] border border-gray-700 p-5">
-                <div class="text-sm text-gray-400">Total Users</div>
-                <div class="mt-2 text-3xl font-bold text-gray-100">{{ number_format($stats['users']) }}</div>
+            <div class="rounded-xl bg-white border border-beige p-5 shadow-soft">
+                <div class="text-sm text-gray-700">Total Users</div>
+                <div class="mt-2 text-3xl font-bold text-ink">{{ number_format($stats['users']) }}</div>
             </div>
-            <div class="rounded-xl bg-[#0d1426] border border-gray-700 p-5">
-                <div class="text-sm text-gray-400">Total Orders</div>
-                <div class="mt-2 text-3xl font-bold text-gray-100">{{ number_format($stats['orders']) }}</div>
+            <div class="rounded-xl bg-white border border-beige p-5 shadow-soft">
+                <div class="text-sm text-gray-700">Total Orders</div>
+                <div class="mt-2 text-3xl font-bold text-ink">{{ number_format($stats['orders']) }}</div>
             </div>
-            <div class="rounded-xl bg-[#0d1426] border border-gray-700 p-5">
-                <div class="text-sm text-gray-400">Total Products</div>
-                <div class="mt-2 text-3xl font-bold text-gray-100">{{ number_format($stats['products']) }}</div>
+            <div class="rounded-xl bg-white border border-beige p-5 shadow-soft">
+                <div class="text-sm text-gray-700">Total Products</div>
+                <div class="mt-2 text-3xl font-bold text-ink">{{ number_format($stats['products']) }}</div>
             </div>
-            <div class="rounded-xl bg-[#0d1426] border border-gray-700 p-5">
-                <div class="text-sm text-gray-400">Revenue</div>
-                <div class="mt-2 text-3xl font-bold text-emerald-400">$ {{ number_format($stats['revenue'], 2) }}</div>
+            <div class="rounded-xl bg-white border border-beige p-5 shadow-soft">
+                <div class="text-sm text-gray-700">Revenue</div>
+                <div class="mt-2 text-3xl font-bold text-emerald-600">$ {{ number_format($stats['revenue'], 2) }}</div>
             </div>
         </div>
 
         <!-- Revenue chart -->
-        <div class="rounded-xl bg-[#0d1426] border border-gray-700 p-5">
+        <div class="rounded-xl bg-white border border-beige p-5 shadow-soft">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-100">Revenue by Month</h2>
-                <span class="text-sm text-gray-400">Last 12 months</span>
+                <h2 class="text-lg font-semibold text-ink">Revenue by Month</h2>
+                <span class="text-sm text-gray-700">Last 12 months</span>
             </div>
             <canvas id="revenueChart" height="120"></canvas>
         </div>
@@ -58,7 +58,7 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { labels: { color: '#cbd5e1' } },
+                    legend: { labels: { color: '#374151' } },
                     tooltip: {
                         callbacks: {
                             label: (ctx) => `$ ${ctx.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -66,8 +66,8 @@
                     }
                 },
                 scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } }
+                    x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(107, 114, 128, 0.15)' } },
+                    y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(107, 114, 128, 0.15)' } }
                 }
             }
         });

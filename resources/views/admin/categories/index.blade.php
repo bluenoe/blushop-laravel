@@ -2,23 +2,23 @@
 
 @section('content')
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-xl font-semibold text-gray-100">Categories</h1>
+    <h1 class="text-xl font-semibold text-ink">Categories</h1>
     <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white">Add New</a>
 </div>
 
 <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-6">
     <div class="flex gap-2">
-        <input type="text" name="q" value="{{ $search }}" placeholder="Search categories..." class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100 placeholder-gray-400">
-        <button class="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Search</button>
+        <input type="text" name="q" value="{{ $search }}" placeholder="Search categories..." class="w-full px-3 py-2 rounded-md bg-white border border-beige text-ink placeholder-gray-400 shadow-soft">
+        <button class="px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Search</button>
     </div>
     @if($search !== '')
         <p class="mt-2 text-sm text-gray-400">Showing results for "{{ $search }}"</p>
     @endif
 </form>
 
-<div class="overflow-hidden rounded-xl border border-gray-700 bg-[#0d1426]">
-    <table class="min-w-full divide-y divide-gray-700">
-        <thead class="bg-[#0b1220]">
+<div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft">
+    <table class="min-w-full divide-y divide-beige">
+        <thead class="bg-warm">
             <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">ID</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Name</th>
@@ -27,28 +27,28 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-300">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-700">
+        <tbody class="divide-y divide-beige">
             @foreach($categories as $c)
-                <tr class="odd:bg-[#0d1426] even:bg-[#101831]">
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ $c->id }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-100">{{ $c->name }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ $c->slug }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ $c->products_count }}</td>
+                <tr class="odd:bg-white even:bg-warm">
+                    <td class="px-4 py-3 text-sm text-gray-700">{{ $c->id }}</td>
+                    <td class="px-4 py-3 text-sm text-ink">{{ $c->name }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700">{{ $c->slug }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700">{{ $c->products_count }}</td>
                     <td class="px-4 py-3 text-sm text-right">
-                        <a href="{{ route('admin.categories.edit', $c) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100 mr-2">Edit</a>
+                        <a href="{{ route('admin.categories.edit', $c) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white mr-2">Edit</a>
                         <div x-data="{ open:false }" class="inline">
                             <button @click="open=true" class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
-                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-                                <div class="w-full max-w-md rounded-xl bg-[#0d1426] border border-gray-700 p-6">
-                                    <h3 class="text-lg font-semibold text-gray-100">Confirm delete</h3>
-                                    <p class="mt-2 text-sm text-gray-300">This will permanently remove the category.</p>
+                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20">
+                                <div class="w-full max-w-md rounded-xl bg-white border border-beige p-6 shadow-soft">
+                                    <h3 class="text-lg font-semibold text-ink">Confirm delete</h3>
+                                    <p class="mt-2 text-sm text-gray-700">This will permanently remove the category.</p>
                                     @if($c->products_count > 0)
                                         <p class="mt-2 text-sm text-amber-300">This category currently has products. Please choose a category to reassign them before deletion.</p>
                                         <form method="POST" action="{{ route('admin.categories.destroy', $c) }}" class="mt-4">
                                             @csrf
                                             @method('DELETE')
-                                            <label class="block text-sm text-gray-300 mb-1">Reassign products to</label>
-                                            <select name="reassign_to" class="w-full px-3 py-2 rounded-md bg-[#0d1426] border border-gray-700 text-gray-100">
+                                            <label class="block text-sm text-ink mb-1">Reassign products to</label>
+                                            <select name="reassign_to" class="w-full px-3 py-2 rounded-md bg-white border border-beige text-ink shadow-soft">
                                                 @foreach(($allCategories ?? collect()) as $opt)
                                                     @if($opt->id !== $c->id)
                                                         <option value="{{ $opt->id }}" {{ $opt->slug==='uncategorized' ? 'selected' : '' }}>{{ $opt->name }}</option>
@@ -62,7 +62,7 @@
                                         </form>
                                     @else
                                         <div class="mt-4 flex justify-end gap-2">
-                                            <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-100">Cancel</button>
+                                            <button type="button" @click="open=false" class="px-3 py-1.5 rounded-md bg-warm hover:bg-beige text-ink ring-1 ring-beige">Cancel</button>
                                             <form method="POST" action="{{ route('admin.categories.destroy', $c) }}">
                                                 @csrf
                                                 @method('DELETE')

@@ -101,7 +101,7 @@
                                 </div>
 
                                 <div
-                                    class="rounded-2xl border border-white/15 bg-black/40 backdrop-blur-sm px-4 py-3 sm:px-5 sm:py-4">
+                                    class="rounded-2xl border border-beige bg-warm/60 backdrop-blur-sm px-4 py-3 sm:px-5 sm:py-4">
                                     <p class="text-xs text-white/80">
                                         “Feels like a calm corner of the internet. Clean, simple and everything just
                                         works.”
