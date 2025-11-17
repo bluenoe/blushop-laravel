@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-lg font-medium text-ink">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm text-gray-700">
             {{ __("Update your account's profile information and email address.") }}
         </p>
     </header>
@@ -22,7 +22,7 @@
             <div class="mt-3">
                 <!-- Clickable avatar circle triggers hidden file input -->
                 <div
-                    class="group relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-full overflow-hidden ring-1 ring-gray-700/60 bg-gray-900 flex items-center justify-center cursor-pointer transform-gpu transition duration-200 ease-out hover:scale-105 hover:opacity-95"
+                    class="group relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-full overflow-hidden ring-1 ring-beige bg-warm flex items-center justify-center cursor-pointer transform-gpu transition duration-200 ease-out hover:scale-105 hover:opacity-95"
                     onclick="document.getElementById('avatar').click()"
                     aria-label="Change avatar"
                 >
@@ -35,7 +35,7 @@
                     @endif
 
                     <!-- Minimal pencil overlay icon -->
-                    <span class="pointer-events-none absolute bottom-2 right-2 h-7 w-7 rounded-full bg-gray-800/80 text-gray-200 flex items-center justify-center ring-1 ring-gray-700/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" aria-hidden="true">
+                    <span class="pointer-events-none absolute bottom-2 right-2 h-7 w-7 rounded-full bg-ink/70 text-white flex items-center justify-center ring-1 ring-beige opacity-0 group-hover:opacity-100 transition-opacity duration-200" aria-hidden="true">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9" />
                             <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
@@ -108,16 +108,16 @@
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
+                    <p class="text-sm mt-2 text-gray-700">
                         {{ __('Your email address is unverified.') }}
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                        <button form="send-verification" class="underline text-sm text-indigo-600 hover:text-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
+                        <p class="mt-2 font-medium text-sm text-green-600">
                             {{ __('A new verification link has been sent to your email address.') }}
                         </p>
                     @endif
@@ -137,16 +137,16 @@
             <x-input-label :value="__('Gender')" />
             <div class="mt-2 flex items-center gap-6">
                 @php($g = old('gender', $user->gender))
-                <label class="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <input type="radio" name="gender" value="male" @checked($g === 'male') class="rounded dark:bg-gray-900" />
+                <label class="inline-flex items-center gap-2 text-gray-700">
+                    <input type="radio" name="gender" value="male" @checked($g === 'male') class="rounded bg-white border-beige text-indigo-600 focus:ring-indigo-500" />
                     <span>Male</span>
                 </label>
-                <label class="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <input type="radio" name="gender" value="female" @checked($g === 'female') class="rounded dark:bg-gray-900" />
+                <label class="inline-flex items-center gap-2 text-gray-700">
+                    <input type="radio" name="gender" value="female" @checked($g === 'female') class="rounded bg-white border-beige text-indigo-600 focus:ring-indigo-500" />
                     <span>Female</span>
                 </label>
-                <label class="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <input type="radio" name="gender" value="other" @checked($g === 'other' || $g === null) class="rounded dark:bg-gray-900" />
+                <label class="inline-flex items-center gap-2 text-gray-700">
+                    <input type="radio" name="gender" value="other" @checked($g === 'other' || $g === null) class="rounded bg-white border-beige text-indigo-600 focus:ring-indigo-500" />
                     <span>Other</span>
                 </label>
             </div>
@@ -169,7 +169,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
+                    class="text-sm text-gray-700"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>
