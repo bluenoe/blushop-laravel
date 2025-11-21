@@ -43,7 +43,6 @@ class ProductController extends Controller
             $query->where('price', '<=', $max);
         }
 
-        // Sorting: newest (default), price_asc, price_desc
         $sort = (string) $request->input('sort', 'newest');
         switch ($sort) {
             case 'price_asc':
@@ -52,15 +51,26 @@ class ProductController extends Controller
             case 'price_desc':
                 $query->orderBy('price', 'desc');
                 break;
+            case 'featured':
+                $query->inRandomOrder();
+                break;
             case 'newest':
             default:
                 $query->latest('id');
                 break;
         }
 
-        $products = $query->get();
+        if ($request->boolean('on_sale')) {
+            $avg = (float) \App\Models\Product::query()->avg('price');
+            $threshold = $avg * 0.8;
+            $query->where('price', '<=', $threshold);
+        }
+        if ($request->boolean('featured')) {
+            $query->inRandomOrder();
+        }
 
-        // For filter UI
+        $products = $query->paginate(9)->withQueryString();
+
         $categories = \App\Models\Category::query()
             ->select(['id', 'name', 'slug'])
             ->orderBy('name')
@@ -79,6 +89,9 @@ class ProductController extends Controller
             $breadcrumbs[] = ['label' => 'Products'];
         }
 
+        $priceMinBound = (float) \App\Models\Product::query()->min('price');
+        $priceMaxBound = (float) \App\Models\Product::query()->max('price');
+
         return view('home', [
             'products' => $products,
             'categories' => $categories,
@@ -88,6 +101,8 @@ class ProductController extends Controller
                 ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
             'breadcrumbs' => $breadcrumbs,
+            'priceMinBound' => $priceMinBound,
+            'priceMaxBound' => $priceMaxBound,
         ]);
     }
 
