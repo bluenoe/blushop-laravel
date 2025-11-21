@@ -4,20 +4,7 @@
     @endpush
     <section class="min-h-[calc(100vh-4rem)] bg-warm">
         <div class="max-w-7xl mx-auto px-6 py-10 sm:py-16">
-            <!-- Breadcrumb -->
-            <nav class="text-sm text-gray-600" aria-label="Breadcrumb">
-                <ol class="flex items-center gap-1">
-                    <li><a href="{{ route('home') }}"
-                            class="hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Home</a>
-                    </li>
-                    <li>/</li>
-                    <li><a href="{{ route('products.index') }}"
-                            class="hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Shop</a>
-                    </li>
-                    <li>/</li>
-                    <li aria-current="page" class="text-gray-700">{{ $product->name }}</li>
-                </ol>
-            </nav>
+            <x-breadcrumbs :items="$breadcrumbs" />
 
             <div x-data="{
                     images: [

@@ -66,6 +66,19 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'Shop', 'url' => route('products.index')],
+        ];
+        if ($request->filled('category')) {
+            $catSlug = (string) $request->input('category');
+            $catName = optional(\App\Models\Category::query()->select(['name', 'slug'])->where('slug', $catSlug)->first())->name ?? $catSlug;
+            $breadcrumbs[] = ['label' => 'Products', 'url' => route('products.index')];
+            $breadcrumbs[] = ['label' => $catName];
+        } else {
+            $breadcrumbs[] = ['label' => 'Products'];
+        }
+
         return view('home', [
             'products' => $products,
             'categories' => $categories,
@@ -74,6 +87,7 @@ class ProductController extends Controller
             'wishedIds' => auth()->check()
                 ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -92,6 +106,13 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'Shop', 'url' => route('products.index')],
+            ['label' => 'Products', 'url' => route('products.index')],
+            ['label' => $product->name],
+        ];
+
         return view('product', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
@@ -99,6 +120,7 @@ class ProductController extends Controller
             'wishedIds' => auth()->check()
                 ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
                 : [],
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 }
