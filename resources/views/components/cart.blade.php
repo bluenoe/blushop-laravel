@@ -6,7 +6,7 @@
 ])
 
 @php
-    $isSpotlight = (bool) $spotlight;
+$isSpotlight = (bool) $spotlight;
 @endphp
 
 <article
@@ -64,7 +64,8 @@
                     {{ $product->name }}
                 </h3>
                 <p class="mt-2 text-sm text-slate-700 leading-relaxed line-clamp-3">
-                    {{ $product->short_description ?? 'Minimal Blu everyday gear for students - simple, durable, easy to mix & match.' }}
+                    {{ $product->short_description ?? 'Minimal Blu everyday gear for students - simple, durable, easy to
+                    mix & match.' }}
                 </p>
                 <div class="mt-4 flex items-center justify-between text-sm font-semibold text-ink">
                     <span class="text-base">
