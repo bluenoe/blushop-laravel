@@ -185,7 +185,8 @@
                 @else
                 <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach($featured as $product)
-                    <x-cart :product="$product" type="featured" :is-wished="in_array($product->id, $wishedIds ?? [])" />
+                    <x-cart :product="$product" type="featured" :is-wished="in_array($product->id, $wishedIds ?? [])"
+                        :spotlight="true" />
                     @endforeach
                 </div>
                 @endif

@@ -2,11 +2,16 @@
 'product',
 'type' => 'grid', // variants: grid, featured
 'isWished' => false,
+'spotlight' => false,
 ])
+
+@php
+    $isSpotlight = (bool) $spotlight;
+@endphp
 
 <article
     class="group relative z-0 flex flex-col overflow-hidden rounded-3xl border border-beige bg-white shadow-soft
-           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer transition-colors hover:bg-warm/40 hover:ring-1 hover:ring-ink/10"
+           transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer transition-colors hover:bg-warm/40 hover:ring-1 hover:ring-ink/10 {{ $isSpotlight ? 'hover:-translate-y-[10px] hover:shadow-2xl hover:shadow-indigo-200/60 ring-1 ring-indigo-50/60' : '' }}"
     x-data="{ pid: {{ (int) $product->id }}, active: {{ $isWished ? 'true' : 'false' }} }"
     x-init="active = $store.wishlist ? $store.wishlist.isFav(pid) : active">
 
@@ -39,12 +44,50 @@
 
             @if($type === 'featured')
             <span
-                class="absolute top-3 left-3 inline-flex items-center rounded-full bg-indigo-600/90 text-white text-xs font-semibold px-2 py-0.5 shadow">
+                class="absolute top-3 left-3 z-20 inline-flex items-center rounded-full bg-indigo-600/90 text-white text-xs font-semibold px-2 py-0.5 shadow">
                 Featured
             </span>
             @endif
         </div>
 
+        @if($isSpotlight)
+        {{-- Full-card hover reveal for landing spotlight --}}
+        <div
+            class="pointer-events-none absolute inset-0 z-10 opacity-0 transition duration-100 ease-out group-hover:opacity-100">
+            <div class="absolute inset-0 bg-white/70 backdrop-blur-md"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-white/30"></div>
+            <div class="relative h-full w-full flex flex-col justify-end p-5 text-slate-900">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-indigo-700">
+                    Quick peek
+                </p>
+                <h3 class="mt-2 text-lg font-semibold leading-tight">
+                    {{ $product->name }}
+                </h3>
+                <p class="mt-2 text-sm text-slate-700 leading-relaxed line-clamp-3">
+                    {{ $product->short_description ?? 'Minimal Blu everyday gear for students - simple, durable, easy to mix & match.' }}
+                </p>
+                <div class="mt-4 flex items-center justify-between text-sm font-semibold text-ink">
+                    <span class="text-base">
+                        ₫{{ number_format((float) $product->price, 0, ',', '.') }}
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-indigo-700">
+                        View details
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"></path>
+                            <path d="m13 6 6 6-6 6"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Minimal base state: only image + name --}}
+        <div class="px-5 py-4">
+            <h3 class="text-base sm:text-lg font-semibold text-ink line-clamp-2">
+                {{ $product->name }}
+            </h3>
+        </div>
+        @else
         {{-- 🧾 Info Section --}}
         <div class="px-5 pt-4 pb-5 flex flex-col gap-3 flex-1">
             {{-- Tên sản phẩm + tags --}}
@@ -112,5 +155,6 @@
                 @endif
             </div>
         </div>
+        @endif
     </div>
 </article>
