@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
-
 class LandingController extends Controller
 {
     /**

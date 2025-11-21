@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use App\Http\Responses\LoginResponse;
+use App\Models\User;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
-use App\Http\Responses\LoginResponse;
-use Illuminate\Support\Facades\Schema;
-use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             try {
                 if (Schema::hasTable('users')) {
                     $existing = User::query()->where('email', 'admin@blushop.local')->first();
-                    if (!$existing) {
+                    if (! $existing) {
                         User::query()->create([
                             'name' => 'Admin User',
                             'email' => 'admin@blushop.local',

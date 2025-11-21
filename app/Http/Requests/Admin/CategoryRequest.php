@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
@@ -16,6 +16,7 @@ class CategoryRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('category')?->id ?? null;
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => [
@@ -31,7 +32,7 @@ class CategoryRequest extends FormRequest
     public function prepareForValidation(): void
     {
         // Auto-generate slug from name if not provided
-        if (!$this->filled('slug') && $this->filled('name')) {
+        if (! $this->filled('slug') && $this->filled('name')) {
             $this->merge(['slug' => Str::slug((string) $this->input('name'))]);
         }
     }

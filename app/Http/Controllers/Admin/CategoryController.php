@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Http\Requests\Admin\CategoryRequest;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
+use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
@@ -19,13 +18,14 @@ class CategoryController extends Controller
         $categories = Category::query()
             ->when($search !== '', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhere('slug', 'like', "%$search%");
+                    ->orWhere('slug', 'like', "%$search%");
             })
             ->withCount('products')
             ->latest('id')
             ->paginate(10)
             ->withQueryString();
-        $allCategories = Category::query()->select(['id','name','slug'])->orderBy('name')->get();
+        $allCategories = Category::query()->select(['id', 'name', 'slug'])->orderBy('name')->get();
+
         return view('admin.categories.index', compact('categories', 'search', 'allCategories'));
     }
 
@@ -69,20 +69,20 @@ class CategoryController extends Controller
         $productCount = $category->products()->count();
 
         if ($productCount > 0) {
-            if (!$reassignTo) {
+            if (! $reassignTo) {
                 return redirect()->route('admin.categories.index')
                     ->with('warning', 'Category has products. Please reassign them before deleting.');
             }
 
             // Prevent self-reassign
-            if ((int)$reassignTo === (int)$category->id) {
+            if ((int) $reassignTo === (int) $category->id) {
                 return redirect()->route('admin.categories.index')
                     ->with('warning', 'Cannot reassign products to the same category.');
             }
 
             // Validate target category exists
             $target = Category::query()->find($reassignTo);
-            if (!$target) {
+            if (! $target) {
                 return redirect()->route('admin.categories.index')
                     ->with('warning', 'Target category not found.');
             }
@@ -92,6 +92,7 @@ class CategoryController extends Controller
         }
 
         $category->delete();
+
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 }

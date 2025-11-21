@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,10 +28,6 @@ use App\Http\Controllers\WishlistController;
 
 // Cart routes
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-
-
-
-
 
 // Landing page
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -74,7 +70,7 @@ Route::view('/faq', 'pages.faq')->name('faq');
 /**
  * Breeze auth routes (login/register/logout)
  */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 /**
  * Breeze-compatible profile routes

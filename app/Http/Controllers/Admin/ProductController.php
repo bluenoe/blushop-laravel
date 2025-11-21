@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class ProductController extends Controller
 {
@@ -29,7 +29,8 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        $categories = Category::query()->orderBy('name')->get(['id','name','slug']);
+        $categories = Category::query()->orderBy('name')->get(['id', 'name', 'slug']);
+
         return view('admin.products.create', compact('categories'));
     }
 
@@ -61,8 +62,9 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $categories = Category::query()->orderBy('name')->get(['id','name','slug']);
-        return view('admin.products.edit', compact('product','categories'));
+        $categories = Category::query()->orderBy('name')->get(['id', 'name', 'slug']);
+
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -95,6 +97,7 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $product->delete();
+
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

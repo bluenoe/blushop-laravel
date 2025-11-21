@@ -6,8 +6,8 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -26,7 +26,7 @@ class ProfileController extends Controller
             ->latest('wishlists.created_at')
             ->get();
 
-        $wishedIds = $products->pluck('id')->map(fn($id) => (int) $id)->all();
+        $wishedIds = $products->pluck('id')->map(fn ($id) => (int) $id)->all();
 
         return view('profile.edit', [
             'user' => $user,
@@ -48,7 +48,7 @@ class ProfileController extends Controller
             $path = $request->file('avatar')->store('avatars', 'public');
 
             // Delete old avatar if exists and is stored in public disk
-            if (!empty($user->avatar) && Storage::disk('public')->exists($user->avatar)) {
+            if (! empty($user->avatar) && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
 

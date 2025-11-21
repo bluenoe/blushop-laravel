@@ -30,7 +30,7 @@ class CartController extends Controller
         $data = $request->validate([
             'quantity' => ['nullable', 'integer', 'min:1'],
         ]);
-        $qty = (int)($data['quantity'] ?? 1);
+        $qty = (int) ($data['quantity'] ?? 1);
 
         $product = Product::query()
             ->select(['id', 'name', 'price', 'image'])
@@ -43,13 +43,14 @@ class CartController extends Controller
         } else {
             $cart[$product->id] = [
                 'name' => $product->name,
-                'price' => (float)$product->price,
+                'price' => (float) $product->price,
                 'quantity' => $qty,
                 'image' => $product->image,
             ];
         }
 
         $request->session()->put('cart', $cart);
+
         return redirect()->route('cart.index')->with('success', 'Đã thêm vào giỏ hàng!');
     }
 
@@ -64,11 +65,11 @@ class CartController extends Controller
 
         $cart = $this->cart($request);
 
-        if (!isset($cart[$id])) {
+        if (! isset($cart[$id])) {
             return redirect()->route('cart.index')->with('warning', 'Sản phẩm không có trong giỏ.');
         }
 
-        $cart[$id]['quantity'] = (int)$data['quantity'];
+        $cart[$id]['quantity'] = (int) $data['quantity'];
         $request->session()->put('cart', $cart);
 
         return redirect()->route('cart.index')->with('success', 'Đã cập nhật số lượng.');
@@ -84,6 +85,7 @@ class CartController extends Controller
         if (isset($cart[$id])) {
             unset($cart[$id]);
             $request->session()->put('cart', $cart);
+
             return redirect()->route('cart.index')->with('success', 'Đã xoá sản phẩm khỏi giỏ.');
         }
 
@@ -96,6 +98,7 @@ class CartController extends Controller
     public function clear(Request $request)
     {
         $request->session()->forget('cart');
+
         return redirect()->route('cart.index')->with('success', 'Đã xoá toàn bộ giỏ hàng.');
     }
 
@@ -105,6 +108,7 @@ class CartController extends Controller
     {
         /** @var array<string, array{name:string,price:float,quantity:int,image:string}> $cart */
         $cart = $request->session()->get('cart', []);
+
         return $cart;
     }
 
@@ -112,8 +116,9 @@ class CartController extends Controller
     {
         $sum = 0.0;
         foreach ($cart as $item) {
-            $sum += ((float)$item['price']) * ((int)$item['quantity']);
+            $sum += ((float) $item['price']) * ((int) $item['quantity']);
         }
+
         return $sum;
     }
 }

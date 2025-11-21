@@ -68,7 +68,8 @@ class User extends Authenticatable
 
         $url = Storage::url($this->avatar);
         $v = $version ?? optional($this->updated_at)->getTimestamp() ?? time();
-        return $url . '?v=' . $v;
+
+        return $url.'?v='.$v;
     }
 
     /**

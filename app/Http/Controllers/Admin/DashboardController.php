@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class DashboardController extends Controller
 {

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -105,10 +105,10 @@ class DatabaseSeeder extends Seeder
 
         // Console summary output
         $this->command?->info('✔ Admin account ready!');
-        $this->command?->info('Seeded users: ' . (User::query()->count()));
-        $this->command?->info('Seeded products: ' . (Product::query()->count()));
-        $this->command?->info('Seeded categories: ' . (Category::query()->count()));
-        $this->command?->info('Seeded orders: ' . (Order::query()->count()));
-        $this->command?->info('Seeded order items: ' . (OrderItem::query()->count()));
+        $this->command?->info('Seeded users: '.(User::query()->count()));
+        $this->command?->info('Seeded products: '.(Product::query()->count()));
+        $this->command?->info('Seeded categories: '.(Category::query()->count()));
+        $this->command?->info('Seeded orders: '.(Order::query()->count()));
+        $this->command?->info('Seeded order items: '.(OrderItem::query()->count()));
     }
 }

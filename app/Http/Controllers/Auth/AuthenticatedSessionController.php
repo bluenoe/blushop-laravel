@@ -7,8 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Illuminate\View\View;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class AuthenticatedSessionController extends Controller
 {

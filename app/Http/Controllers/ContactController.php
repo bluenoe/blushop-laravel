@@ -21,15 +21,15 @@ class ContactController extends Controller
     public function send(Request $request)
     {
         $data = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
-            'email'   => ['required', 'email', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'message' => ['required', 'string', 'min:5'],
         ]);
 
         ContactMessage::create([
-            'name'       => $data['name'],
-            'email'      => $data['email'],
-            'message'    => $data['message'],
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'message' => $data['message'],
             'created_at' => now(),
         ]);
 

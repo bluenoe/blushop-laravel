@@ -22,7 +22,7 @@ class CheckoutController extends Controller
         // Tính tổng
         $total = 0.0;
         foreach ($cart as $item) {
-            $total += ((float)$item['price']) * ((int)$item['quantity']);
+            $total += ((float) $item['price']) * ((int) $item['quantity']);
         }
 
         return view('checkout', [
@@ -42,14 +42,14 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:500'],
         ]);
 
         // Tính lại tổng từ server-side (không trust client)
         $total = 0.0;
         foreach ($cart as $pid => $item) {
-            $total += ((float)$item['price']) * ((int)$item['quantity']);
+            $total += ((float) $item['price']) * ((int) $item['quantity']);
         }
         // Lưu đơn hàng
         $order = Order::create([
@@ -64,9 +64,9 @@ class CheckoutController extends Controller
         foreach ($cart as $productId => $item) {
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => (int)$productId,
-                'quantity' => (int)$item['quantity'],
-                'price_at_purchase' => (float)$item['price'],
+                'product_id' => (int) $productId,
+                'quantity' => (int) $item['quantity'],
+                'price_at_purchase' => (float) $item['price'],
             ]);
         }
 

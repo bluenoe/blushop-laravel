@@ -19,7 +19,7 @@ class WishlistController extends Controller
             ->latest('wishlists.created_at')
             ->get();
 
-        $wishedIds = $products->pluck('id')->map(fn($id) => (int)$id)->all();
+        $wishedIds = $products->pluck('id')->map(fn ($id) => (int) $id)->all();
 
         return view('profile.wishlist', [
             'products' => $products,
@@ -68,6 +68,7 @@ class WishlistController extends Controller
         if ($request->expectsJson()) {
             return response()->json(['success' => true, 'count' => 0]);
         }
+
         return back()->with('success', 'Cleared wishlist');
     }
 }

@@ -25,7 +25,7 @@ class CategorySeeder extends Seeder
         foreach ($names as $name) {
             $slug = Str::slug($name);
             $exists = DB::table('categories')->where('slug', $slug)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('categories')->insert([
                     'name' => $name,
                     'slug' => $slug,
