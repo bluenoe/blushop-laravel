@@ -27,6 +27,18 @@ $isSpotlight = (bool) $spotlight;
             <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300
                        group-hover:scale-105">
 
+            <div class="absolute top-3 left-3 z-20 flex flex-col space-y-2">
+                @if ($product->is_on_sale)
+                    <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On sale</span>
+                @endif
+                @if ($product->is_bestseller)
+                    <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
+                @endif
+                @if ($product->is_new)
+                    <span class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
+                @endif
+            </div>
+
             {{-- Wishlist toggle --}}
             <button type="button" class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
                            bg-white/90 text-ink shadow-sm ring-1 ring-beige/70

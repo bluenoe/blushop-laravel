@@ -89,6 +89,17 @@
                     <div class="rounded-xl border border-beige bg-white p-6 sm:p-8 shadow-soft">
                         <div class="flex items-start justify-between gap-4">
                             <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    @if ($product->is_on_sale)
+                                        <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On sale</span>
+                                    @endif
+                                    @if ($product->is_bestseller)
+                                        <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
+                                    @endif
+                                    @if ($product->is_new)
+                                        <span class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
+                                    @endif
+                                </div>
                                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}</h1>
                                 @if($product->category)
                                     <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
