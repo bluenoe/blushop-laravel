@@ -55,6 +55,9 @@ class ProductController extends Controller
             'price' => $data['price'],
             'image' => $path,
             'category_id' => $data['category_id'],
+            'is_new' => $request->boolean('is_new'),
+            'is_bestseller' => $request->boolean('is_bestseller'),
+            'is_on_sale' => $request->boolean('is_on_sale'),
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
