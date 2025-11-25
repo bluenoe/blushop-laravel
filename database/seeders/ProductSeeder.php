@@ -125,11 +125,17 @@ class ProductSeeder extends Seeder
             ],
         ];
 
+        $categories = DB::table('categories')->pluck('id');
+
         $data = array_map(fn ($item) => [
             'name' => $item['name'],
             'description' => $item['description'],
             'price' => $item['price'],
             'image' => $item['image'],
+            'category_id' => $categories->random(),
+            'is_new' => rand(0, 1),
+            'is_bestseller' => rand(0, 1),
+            'is_on_sale' => rand(0, 1),
             'created_at' => $now,
             'updated_at' => $now,
         ], $items);

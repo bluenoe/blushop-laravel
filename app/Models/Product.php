@@ -20,6 +20,9 @@ class Product extends Model
         'price',
         'image',
         'category_id',
+        'is_new',
+        'is_bestseller',
+        'is_on_sale',
     ];
 
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
