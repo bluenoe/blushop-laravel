@@ -34,6 +34,22 @@
             <input type="file" name="image" accept="image/*" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
             <p class="mt-1 text-xs text-gray-600">PNG/JPG/WebP — max 2MB</p>
         </div>
+        <div class="space-y-4">
+            <h3 class="text-md font-semibold text-ink">Status Badges</h3>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_new" id="is_new" value="1" @checked(old('is_new')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
+                <label for="is_new" class="text-sm text-ink">Mark as New</label>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_bestseller" id="is_bestseller" value="1" @checked(old('is_bestseller')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
+                <label for="is_bestseller" class="text-sm text-ink">Mark as Bestseller</label>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_on_sale" id="is_on_sale" value="1" @checked(old('is_on_sale')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
+                <label for="is_on_sale" class="text-sm text-ink">Mark as On sale</label>
+            </div>
+        </div>
+
         <div class="flex gap-2">
             <a href="{{ route('admin.products.index') }}" class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Cancel</a>
             <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Create</button>
