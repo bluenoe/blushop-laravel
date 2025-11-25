@@ -26,6 +26,25 @@ $isSpotlight = (bool) $spotlight;
         <div class="relative {{ $type === 'featured' ? 'aspect-[4/3]' : 'aspect-[4/5]' }} overflow-hidden bg-warm">
             <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300
                        group-hover:scale-105">
+            @php
+                $badgeList = [];
+                if ((bool) ($product->is_on_sale ?? false)) {
+                    $badgeList[] = ['label' => 'On sale', 'class' => 'bg-rose-100 text-rose-700 ring-1 ring-rose-200'];
+                }
+                if ((bool) ($product->is_bestseller ?? false)) {
+                    $badgeList[] = ['label' => 'Bestseller', 'class' => 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200'];
+                }
+                if ((bool) ($product->is_new ?? false)) {
+                    $badgeList[] = ['label' => 'New', 'class' => 'bg-warm text-ink ring-1 ring-beige'];
+                }
+            @endphp
+            @if(!empty($badgeList))
+                <div class="absolute top-3 left-3 z-20 flex flex-wrap gap-2">
+                    @foreach($badgeList as $b)
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $b['class'] }}">{{ $b['label'] }}</span>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- Wishlist toggle --}}
             <button type="button" class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full

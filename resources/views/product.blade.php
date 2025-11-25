@@ -90,6 +90,25 @@
                         <div class="flex items-start justify-between gap-4">
                             <div>
                                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}</h1>
+                                @php
+                                    $badgeList = [];
+                                    if ((bool) ($product->is_on_sale ?? false)) {
+                                        $badgeList[] = ['label' => 'On sale', 'class' => 'bg-rose-100 text-rose-700 ring-1 ring-rose-200'];
+                                    }
+                                    if ((bool) ($product->is_bestseller ?? false)) {
+                                        $badgeList[] = ['label' => 'Bestseller', 'class' => 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200'];
+                                    }
+                                    if ((bool) ($product->is_new ?? false)) {
+                                        $badgeList[] = ['label' => 'New', 'class' => 'bg-warm text-ink ring-1 ring-beige'];
+                                    }
+                                @endphp
+                                @if(!empty($badgeList))
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        @foreach($badgeList as $b)
+                                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $b['class'] }}">{{ $b['label'] }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                                 @if($product->category)
                                     <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
                                        class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">

@@ -38,6 +38,20 @@
             <input type="file" name="image" accept="image/*" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
             <p class="mt-1 text-xs text-gray-600">PNG/JPG/WebP — max 2MB</p>
         </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" name="is_new" value="1" {{ old('is_new', $product->is_new) ? 'checked' : '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                Mark as New
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" name="is_bestseller" value="1" {{ old('is_bestseller', $product->is_bestseller) ? 'checked' : '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                Mark as Bestseller
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" name="is_on_sale" value="1" {{ old('is_on_sale', $product->is_on_sale) ? 'checked' : '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                Mark as On sale
+            </label>
+        </div>
         <div class="flex gap-2">
         <a href="{{ route('admin.products.index') }}" class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Cancel</a>
         <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Save Changes</button>

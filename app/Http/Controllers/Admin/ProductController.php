@@ -42,6 +42,9 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'is_new' => ['sometimes', 'boolean'],
+            'is_bestseller' => ['sometimes', 'boolean'],
+            'is_on_sale' => ['sometimes', 'boolean'],
         ]);
 
         $path = null;
@@ -55,6 +58,9 @@ class ProductController extends Controller
             'price' => $data['price'],
             'image' => $path,
             'category_id' => $data['category_id'],
+            'is_new' => $request->boolean('is_new'),
+            'is_bestseller' => $request->boolean('is_bestseller'),
+            'is_on_sale' => $request->boolean('is_on_sale'),
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
@@ -75,6 +81,9 @@ class ProductController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'is_new' => ['sometimes', 'boolean'],
+            'is_bestseller' => ['sometimes', 'boolean'],
+            'is_on_sale' => ['sometimes', 'boolean'],
         ]);
 
         if ($request->hasFile('image')) {
@@ -89,6 +98,9 @@ class ProductController extends Controller
         $product->description = $data['description'] ?? null;
         $product->price = $data['price'];
         $product->category_id = $data['category_id'];
+        $product->is_new = $request->boolean('is_new');
+        $product->is_bestseller = $request->boolean('is_bestseller');
+        $product->is_on_sale = $request->boolean('is_on_sale');
         $product->save();
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
