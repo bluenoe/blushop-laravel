@@ -26,25 +26,6 @@ $isSpotlight = (bool) $spotlight;
         <div class="relative {{ $type === 'featured' ? 'aspect-[4/3]' : 'aspect-[4/5]' }} overflow-hidden bg-warm">
             <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300
                        group-hover:scale-105">
-            @php
-                $badgeList = [];
-                if ((bool) ($product->is_on_sale ?? false)) {
-                    $badgeList[] = ['label' => 'On sale', 'class' => 'bg-rose-100 text-rose-700 ring-1 ring-rose-200'];
-                }
-                if ((bool) ($product->is_bestseller ?? false)) {
-                    $badgeList[] = ['label' => 'Bestseller', 'class' => 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200'];
-                }
-                if ((bool) ($product->is_new ?? false)) {
-                    $badgeList[] = ['label' => 'New', 'class' => 'bg-warm text-ink ring-1 ring-beige'];
-                }
-            @endphp
-            @if(!empty($badgeList))
-                <div class="absolute top-3 left-3 z-20 flex flex-wrap gap-2">
-                    @foreach($badgeList as $b)
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $b['class'] }}">{{ $b['label'] }}</span>
-                    @endforeach
-                </div>
-            @endif
 
             {{-- Wishlist toggle --}}
             <button type="button" class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
@@ -120,29 +101,37 @@ $isSpotlight = (bool) $spotlight;
                 </h3>
                 @if($product->category)
                 <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="inline-flex items-center rounded-full border border-beige bg-warm/70 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink transition-transform duration-150 hover:-translate-y-[1px] hover:shadow-sm hover:border-indigo-100 hover:bg-white">
+                    <span
+                        class="inline-flex items-center rounded-full border border-beige bg-warm/70 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink transition-transform duration-150 hover:-translate-y-[1px] hover:shadow-sm hover:border-indigo-100 hover:bg-white">
                         {{ $product->category->name }}
                     </span>
-                    <span class="inline-flex items-center rounded-full border border-beige bg-white px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-gray-600 transition-transform duration-150 hover:-translate-y-[1px] hover:shadow-sm hover:border-indigo-100 hover:bg-warm/80 hover:text-ink">
+                    <span
+                        class="inline-flex items-center rounded-full border border-beige bg-white px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-gray-600 transition-transform duration-150 hover:-translate-y-[1px] hover:shadow-sm hover:border-indigo-100 hover:bg-warm/80 hover:text-ink">
                         Blu
                     </span>
                 </div>
                 @endif
             </div>
             <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                {{ $product->short_description ?? 'Minimal Blu everyday gear for students — simple, durable, easy to mix & match.' }}
+                {{ $product->short_description ?? 'Minimal Blu everyday gear for students — simple, durable, easy to mix
+                & match.' }}
             </p>
             <div class="mt-1 flex items-end justify-between gap-3">
                 <div>
                     <span class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Price</span>
-                    <p class="text-xl font-semibold text-ink">₫{{ number_format((float) $product->price, 0, ',', '.') }}</p>
+                    <p class="text-xl font-semibold text-ink">₫{{ number_format((float) $product->price, 0, ',', '.') }}
+                    </p>
                 </div>
                 @if($type === 'featured')
-                <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03]">View product</a>
+                <a href="{{ route('products.show', $product->slug ?? $product->id) }}"
+                    class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03]">View
+                    product</a>
                 @else
                 <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-20">
                     @csrf
-                    <button type="submit" class="inline-flex items-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 hover:bg-indigo-700 hover:shadow-lg transition-transform duration-150 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white">Add to cart</button>
+                    <button type="submit"
+                        class="inline-flex items-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 hover:bg-indigo-700 hover:shadow-lg transition-transform duration-150 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white">Add
+                        to cart</button>
                 </form>
                 @endif
             </div>

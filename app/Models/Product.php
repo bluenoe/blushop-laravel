@@ -20,17 +20,11 @@ class Product extends Model
         'price',
         'image',
         'category_id',
-        'is_new',
-        'is_bestseller',
-        'is_on_sale',
     ];
 
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
         'price' => 'decimal:2',
-        'is_new' => 'boolean',
-        'is_bestseller' => 'boolean',
-        'is_on_sale' => 'boolean',
     ];
 
     public function orderItems()

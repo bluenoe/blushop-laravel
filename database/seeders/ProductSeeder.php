@@ -125,40 +125,14 @@ class ProductSeeder extends Seeder
             ],
         ];
 
-        $newNames = [
-            'Blu Water Bottle',
-            'Blu Phone Case',
-            'Blu Pencil Case',
-            'Blu Umbrella',
-            'Blu Notebook',
-        ];
-        $bestsellerNames = [
-            'Blu Hoodie',
-            'Blu Backpack',
-            'Blu Candle',
-            'Blu Wireless Charger',
-            'Blu Tote Bag',
-        ];
-        $onSaleNames = [
-            'Blu Mug',
-            'Blu Blanket',
-            'Blu Sticker Pack',
-            'Blu Socks',
-        ];
-
-        $data = array_map(function ($item) use ($now, $newNames, $bestsellerNames, $onSaleNames) {
-            return [
-                'name' => $item['name'],
-                'description' => $item['description'],
-                'price' => $item['price'],
-                'image' => $item['image'],
-                'is_new' => in_array($item['name'], $newNames, true),
-                'is_bestseller' => in_array($item['name'], $bestsellerNames, true),
-                'is_on_sale' => in_array($item['name'], $onSaleNames, true),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }, $items);
+        $data = array_map(fn ($item) => [
+            'name' => $item['name'],
+            'description' => $item['description'],
+            'price' => $item['price'],
+            'image' => $item['image'],
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $items);
 
         DB::table('products')->insert($data);
     }
