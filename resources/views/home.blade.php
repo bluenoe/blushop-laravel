@@ -67,7 +67,7 @@ Tailwind theme to match landing page.
                     @endforeach
                 </div>
                 @if(method_exists($products, 'links'))
-                <div class="mt-10 text-center">{{ $products->links() }}</div>
+                <div class="mt-10 text-center">{{ $products->links('components.ui.pagination') }}</div>
                 @endif
                 @endif
             </div>
