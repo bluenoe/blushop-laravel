@@ -13,7 +13,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query()
-            ->select(['id', 'name', 'price', 'image', 'category_id'])
+            ->select(['id', 'name', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
             ->with(['category:id,name,slug']);
 
         // Category filter by slug
@@ -115,7 +115,7 @@ class ProductController extends Controller
 
         // Fetch related products: simple strategy - random others
         $relatedProducts = Product::query()
-            ->select(['id', 'name', 'price', 'image'])
+            ->select(['id', 'name', 'price', 'image', 'is_new', 'is_bestseller', 'is_on_sale'])
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
             ->limit(4)
