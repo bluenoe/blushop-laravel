@@ -111,7 +111,7 @@ $isSpotlight = (bool) $spotlight;
                 <h3 class="text-base sm:text-lg font-semibold text-ink line-clamp-2">
                     {{ $product->name }}
                 </h3>
-                @if($product->category)
+                @if($product->category && $product->category->name != 'Uncategorized')
                 <div class="mt-2 flex flex-wrap gap-2">
                     <span
                         class="inline-flex items-center rounded-full border border-beige bg-warm/70 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-ink transition-transform duration-150 hover:-translate-y-[1px] hover:shadow-sm hover:border-indigo-100 hover:bg-white">

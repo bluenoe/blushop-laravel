@@ -73,6 +73,7 @@ class ProductController extends Controller
 
         $categories = \App\Models\Category::query()
             ->select(['id', 'name', 'slug'])
+            ->where('name', '!=', 'Uncategorized')
             ->orderBy('name')
             ->get();
 

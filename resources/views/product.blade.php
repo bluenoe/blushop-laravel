@@ -101,7 +101,7 @@
                                     @endif
                                 </div>
                                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}</h1>
-                                @if($product->category)
+                                @if($product->category && $product->category->name != 'Uncategorized')
                                     <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
                                        class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">
                                         <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
