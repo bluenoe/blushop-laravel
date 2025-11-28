@@ -48,24 +48,21 @@
                         </button>
 
                         <!-- Wishlist heart (aligned with product card styles) -->
-                        <div class="absolute top-0 right-0" x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
+                        <div class="absolute top-0 right-0"
+                            x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
                             <button type="button"
-                                    class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
+                                class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
                                            bg-white/90 text-ink shadow-sm ring-1 ring-beige/70
                                            transition hover:bg-rose-50 hover:text-rose-500 hover:ring-rose-200 hover:scale-105"
-                                    :class="active ? 'bg-rose-50 text-rose-600 ring-rose-200' : ''"
-                                    :aria-pressed="active"
-                                    :title="active ? 'Remove from wishlist' : 'Add to wishlist'"
-                                    @click.stop="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)">
+                                :class="active ? 'bg-rose-50 text-rose-600 ring-rose-200' : ''" :aria-pressed="active"
+                                :title="active ? 'Remove from wishlist' : 'Add to wishlist'"
+                                @click.stop="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)">
                                 <svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5">
                                     <path
                                         d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
                                         :fill="active ? 'currentColor' : 'none'"
-                                        :stroke="active ? 'none' : 'currentColor'"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    />
+                                        :stroke="active ? 'none' : 'currentColor'" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
                         </div>
@@ -91,22 +88,27 @@
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
                                     @if ($product->is_on_sale)
-                                        <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On sale</span>
+                                    <span
+                                        class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On
+                                        sale</span>
                                     @endif
                                     @if ($product->is_bestseller)
-                                        <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
+                                    <span
+                                        class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
                                     @endif
                                     @if ($product->is_new)
-                                        <span class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
+                                    <span
+                                        class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
                                     @endif
                                 </div>
-                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}</h1>
+                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}
+                                </h1>
                                 @if($product->category && $product->category->name != 'Uncategorized')
-                                    <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
-                                       class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">
-                                        <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
-                                        <span>{{ $product->category->name }}</span>
-                                    </a>
+                                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
+                                    class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                                    <span>{{ $product->category->name }}</span>
+                                </a>
                                 @endif
                             </div>
                             <span class="text-xs text-gray-500">SKU: {{ $product->id }}</span>
@@ -157,7 +159,21 @@
                         </div>
 
                         <!-- Quantity + actions -->
-                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="mt-6 sm:mt-8">
+                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="mt-6 sm:mt-8"
+                            x-data="{loading:false,ok:false}" @submit.prevent="
+                            loading = true;
+                            fetch($el.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                },
+                                body: JSON.stringify({ quantity: qty })
+                            }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
+                                if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.count); ok = true; }
+                            }).catch(() => {}).finally(() => { loading = false; });
+                        ">
                             @csrf
                             <div class="flex flex-wrap items-center gap-4">
                                 <div class="flex items-center gap-2">
@@ -179,10 +195,12 @@
                                 @enderror
 
                                 <div class="flex flex-wrap gap-3">
-                                    <button type="submit"
+                                    <button type="submit" :class="loading ? 'opacity-70 cursor-wait' : ''"
                                         class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Add to Cart
                                     </button>
+                                    <span x-show="ok"
+                                        class="inline-flex items-center text-xs text-green-600">Added</span>
                                     <a href="{{ route('checkout.index') }}"
                                         class="inline-flex items-center justify-center rounded-md border border-beige bg-beige px-5 py-2.5 text-sm font-semibold text-ink hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Buy Now
@@ -262,13 +280,13 @@
                 </div>
                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @forelse(($relatedProducts ?? []) as $r)
-                        <x-cart :product="$r" type="featured" :is-wished="in_array($r->id, $wishedIds ?? [])" />
+                    <x-cart :product="$r" type="featured" :is-wished="in_array($r->id, $wishedIds ?? [])" />
                     @empty
-                        <x-skeleton.card />
+                    <x-skeleton.card />
                     @endforelse
                 </div>
             </div>
         </div>
     </section>
-@include('partials.wishlist-script')
+    @include('partials.wishlist-script')
 </x-app-layout>

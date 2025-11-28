@@ -17,6 +17,8 @@
                 window.__INITIAL_AVATAR_URL = @json(Auth::user()->avatarUrl());
             </script>
         @endauth
+        @php($cartQty = collect(session('cart', []))->sum('quantity'))
+        <script>window.__CART_COUNT = {{ (int) $cartQty }};</script>
         @stack('head')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

@@ -29,13 +29,14 @@ $isSpotlight = (bool) $spotlight;
 
             <div class="absolute top-3 left-3 z-20 flex flex-col space-y-2">
                 @if ($product->is_on_sale)
-                    <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On sale</span>
+                <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On sale</span>
                 @endif
                 @if ($product->is_bestseller)
-                    <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
+                <span
+                    class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
                 @endif
                 @if ($product->is_new)
-                    <span class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
+                <span class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
                 @endif
             </div>
 
@@ -139,11 +140,26 @@ $isSpotlight = (bool) $spotlight;
                     class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03]">View
                     product</a>
                 @else
-                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-20">
+                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-20"
+                    x-data="{loading:false,ok:false}" @submit.prevent="
+                    loading = true;
+                    fetch($el.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || ''
+                        },
+                        body: JSON.stringify({ quantity: 1 })
+                    }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
+                        if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.count); ok = true; }
+                    }).catch(() => {}).finally(() => { loading = false; });
+                ">
                     @csrf
-                    <button type="submit"
+                    <button type="submit" :class="loading ? 'opacity-70 cursor-wait' : ''"
                         class="inline-flex items-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 hover:bg-indigo-700 hover:shadow-lg transition-transform duration-150 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white">Add
                         to cart</button>
+                    <span x-show="ok" class="ml-2 text-xs text-green-600">Added</span>
                 </form>
                 @endif
             </div>

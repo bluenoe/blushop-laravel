@@ -12,6 +12,12 @@ document.addEventListener('alpine:init', () => {
         url: window.__INITIAL_AVATAR_URL || null,
         set(url) { this.url = url; }
     });
+
+    Alpine.store('cart', {
+        count: typeof window.__CART_COUNT === 'number' ? window.__CART_COUNT : 0,
+        set(n) { this.count = Number(n) || 0; },
+        increment(n = 1) { this.count = this.count + (Number(n) || 0); }
+    });
 });
 
 // Listen for avatar updates and sync images across the app

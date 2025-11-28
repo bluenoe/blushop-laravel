@@ -51,6 +51,16 @@ class CartController extends Controller
 
         $request->session()->put('cart', $cart);
 
+        $count = collect($cart)->sum('quantity');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'count' => (int) $count,
+                'product_id' => $product->id,
+            ]);
+        }
+
         return redirect()->route('cart.index')->with('success', 'Đã thêm vào giỏ hàng!');
     }
 
