@@ -4,8 +4,6 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-Alpine.start();
-
 // Initialize a global Alpine store for avatar
 document.addEventListener('alpine:init', () => {
     Alpine.store('avatar', {
@@ -19,6 +17,8 @@ document.addEventListener('alpine:init', () => {
         increment(n = 1) { this.count = this.count + (Number(n) || 0); }
     });
 });
+
+Alpine.start();
 
 // Listen for avatar updates and sync images across the app
 window.addEventListener('avatar:updated', (e) => {

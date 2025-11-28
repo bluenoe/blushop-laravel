@@ -140,8 +140,8 @@ $isSpotlight = (bool) $spotlight;
                     class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03]">View
                     product</a>
                 @else
-                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-20"
-                    x-data="{loading:false,ok:false}" @submit.prevent="
+                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-30"
+                    x-data="{loading:false,ok:false}" @click.stop @submit.prevent="
                     loading = true;
                     fetch($el.action, {
                         method: 'POST',
@@ -152,14 +152,20 @@ $isSpotlight = (bool) $spotlight;
                         },
                         body: JSON.stringify({ quantity: 1 })
                     }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
-                        if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.cart_count); ok = true; }
+                        if (data && data.success) { 
+                            if (window.Alpine && Alpine.store('cart')) {
+                                Alpine.store('cart').set(data.cart_count);
+                                ok = true; 
+                                setTimeout(() => ok = false, 2000);
+                            }
+                        }
                     }).catch(() => {}).finally(() => { loading = false; });
                 ">
                     @csrf
                     <button type="submit" :class="loading ? 'opacity-70 cursor-wait' : ''"
                         class="inline-flex items-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 hover:bg-indigo-700 hover:shadow-lg transition-transform duration-150 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white">Add
                         to cart</button>
-                    <span x-show="ok" class="ml-2 text-xs text-green-600">Added</span>
+                    <span x-show="ok" x-transition class="ml-2 text-xs text-green-600 font-medium">Added</span>
                 </form>
                 @endif
             </div>

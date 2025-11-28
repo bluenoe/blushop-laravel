@@ -171,7 +171,13 @@
                                 },
                                 body: JSON.stringify({ quantity: qty })
                             }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
-                                if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.cart_count); ok = true; }
+                                if (data && data.success) { 
+                                    if (window.Alpine && Alpine.store('cart')) {
+                                        Alpine.store('cart').set(data.cart_count);
+                                        ok = true; 
+                                        setTimeout(() => ok = false, 2000);
+                                    }
+                                }
                             }).catch(() => {}).finally(() => { loading = false; });
                         ">
                             @csrf
@@ -199,8 +205,8 @@
                                         class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Add to Cart
                                     </button>
-                                    <span x-show="ok"
-                                        class="inline-flex items-center text-xs text-green-600">Added</span>
+                                    <span x-show="ok" x-transition
+                                        class="inline-flex items-center text-xs text-green-600 font-medium">Added</span>
                                     <a href="{{ route('checkout.index') }}"
                                         class="inline-flex items-center justify-center rounded-md border border-beige bg-beige px-5 py-2.5 text-sm font-semibold text-ink hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                                         Buy Now
