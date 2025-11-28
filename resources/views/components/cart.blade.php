@@ -152,7 +152,7 @@ $isSpotlight = (bool) $spotlight;
                         },
                         body: JSON.stringify({ quantity: 1 })
                     }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
-                        if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.count); ok = true; }
+                        if (data && data.success) { if (window.Alpine) Alpine.store('cart').set(data.cart_count); ok = true; }
                     }).catch(() => {}).finally(() => { loading = false; });
                 ">
                     @csrf

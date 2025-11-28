@@ -56,7 +56,7 @@ class CartController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'count' => (int) $count,
+                'cart_count' => (int) $count,
                 'product_id' => $product->id,
             ]);
         }

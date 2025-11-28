@@ -68,11 +68,12 @@
                 </nav>
                 <div class="hidden md:flex md:items-center md:space-x-4">
                     <a href="{{ route('cart.index') }}"
-                        class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h15l-1.5 9h-13z" />
-                            <circle cx="9" cy="20" r="1.5" />
-                            <circle cx="18" cy="20" r="1.5" />
+                            <path d="M8 7V6a4 4 0 1 1 8 0v1" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M10 11a2 2 0 0 0 4 0" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         @if($cartQty > 0)
                         <span
