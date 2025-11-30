@@ -8,7 +8,9 @@
     @vite(['resources/css/app.css','resources/js/app.js'])
 </head>
 
-<body class="bg-warm text-ink min-h-screen" x-data="{ sidebarOpen: false }">
+<body class="bg-warm text-ink min-h-screen"
+    x-data="{ sidebarOpen: false, theme: (localStorage.getItem('admin:theme') || 'light') }"
+    x-init="document.body.classList.toggle('admin-theme-dark', theme === 'dark'); $watch('theme', v => { localStorage.setItem('admin:theme', v); document.body.classList.toggle('admin-theme-dark', v === 'dark') })">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
@@ -21,15 +23,45 @@
             </div>
             <nav class="px-2 py-4 space-y-1">
                 <a href="{{ route('admin.dashboard') }}"
-                    class="block px-3 py-2 rounded-md hover:bg-beige text-ink">Dashboard</a>
+                    class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.dashboard') ? 'bg-beige' : 'hover:bg-beige' }}">
+                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
                 <a href="{{ route('admin.products.index') }}"
-                    class="block px-3 py-2 rounded-md hover:bg-beige text-ink">Products</a>
+                    class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.products.*') ? 'bg-beige' : 'hover:bg-beige' }}">
+                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 12V7a2 2 0 00-2-2h-3M4 12V7a2 2 0 012-2h3m11 7a2 2 0 01-2 2h-3m-6 0H6a2 2 0 01-2-2m6 0V5m0 9v5" />
+                    </svg>
+                    <span>Products</span>
+                </a>
                 <a href="{{ route('admin.categories.index') }}"
-                    class="block px-3 py-2 rounded-md hover:bg-beige text-ink">Categories</a>
+                    class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.categories.*') ? 'bg-beige' : 'hover:bg-beige' }}">
+                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 7a2 2 0 012-2h14a2 2 0 012 2v2H3V7zm0 4h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6z" />
+                    </svg>
+                    <span>Categories</span>
+                </a>
                 <a href="{{ route('admin.users.index') }}"
-                    class="block px-3 py-2 rounded-md hover:bg-beige text-ink">Users</a>
+                    class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.users.*') ? 'bg-beige' : 'hover:bg-beige' }}">
+                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 14a4 4 0 10-8 0m8 0v1a4 4 0 01-4 4H8a4 4 0 01-4-4v-1m12 0a4 4 0 014 4v1" />
+                    </svg>
+                    <span>Users</span>
+                </a>
                 <a href="{{ route('admin.orders.index') }}"
-                    class="block px-3 py-2 rounded-md hover:bg-beige text-ink">Orders</a>
+                    class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.orders.*') ? 'bg-beige' : 'hover:bg-beige' }}">
+                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 6h15l-1.5 9a2 2 0 01-2 1.7H8.5a2 2 0 01-2-1.7L5 6m1 0V4a1 1 0 011-1h2m8 0h2a1 1 0 011 1v2M7 22a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                    <span>Orders</span>
+                </a>
             </nav>
         </aside>
 
@@ -46,13 +78,56 @@
                         </svg>
                     </button>
                     <div class="flex items-center gap-3">
-                        <span class="text-sm text-gray-600">Signed in as</span>
-                        <span class="text-sm font-medium text-ink">{{ auth()->user()->name ?? 'Admin' }}</span>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button
-                                class="ml-4 inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm">Logout</button>
-                        </form>
+                        <button @click="theme = theme === 'dark' ? 'light' : 'dark'"
+                            class="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:text-ink hover:bg-beige focus:outline-none"
+                            aria-label="Toggle theme">
+                            <template x-if="theme === 'dark'">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
+                                </svg>
+                            </template>
+                            <template x-if="theme !== 'dark'">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="12" r="4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                                </svg>
+                            </template>
+                        </button>
+
+                        <x-dropdown align="right" width="48" contentClasses="py-1 bg-warm">
+                            <x-slot name="trigger">
+                                <button class="flex items-center gap-3">
+                                    @php($u = auth()->user())
+                                    @if($u && $u->avatarUrl())
+                                    <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar"
+                                        class="h-8 w-8 rounded-full object-cover ring-1 ring-beige" />
+                                    @else
+                                    <div data-avatar-placeholder="true"
+                                        data-class="h-8 w-8 rounded-full object-cover ring-1 ring-beige"
+                                        class="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
+                                        {{ Str::of($u?->name ?? 'A')->substr(0, 1)->upper() }}
+                                    </div>
+                                    @endif
+                                    <span class="text-sm font-medium text-ink">{{ $u?->name ?? 'Admin User' }}</span>
+                                    <svg class="ml-1 h-4 w-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.dashboard')">Settings</x-dropdown-link>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">Logout</x-dropdown-link>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
                     </div>
                 </div>
             </header>

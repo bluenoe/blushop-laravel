@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($breadcrumb = [ ['label' => 'Categories', 'url' => route('admin.categories.index')], ['label' => 'Create'] ])
+
 @section('content')
 <h1 class="text-xl font-semibold text-ink mb-6">Add Category</h1>
 

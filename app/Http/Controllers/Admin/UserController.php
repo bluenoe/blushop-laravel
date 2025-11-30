@@ -13,16 +13,21 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $search = (string) $request->query('q', '');
+        $role = (string) $request->query('role', '');
         $users = User::query()
             ->when($search !== '', function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
                     ->orWhere('email', 'like', "%$search%");
             })
+            ->when($role !== '', function ($q) use ($role) {
+                if ($role === 'admin') { $q->where('is_admin', true); }
+                elseif ($role === 'user') { $q->where('is_admin', false); }
+            })
             ->latest('id')
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users', 'search'));
+        return view('admin.users.index', compact('users', 'search', 'role'));
     }
 
     public function edit(User $user): View

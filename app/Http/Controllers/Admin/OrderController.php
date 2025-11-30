@@ -16,6 +16,8 @@ class OrderController extends Controller
     {
         $status = $request->string('status')->toString();
         $q = trim((string) $request->input('q', ''));
+        $from = (string) $request->query('from', '');
+        $to = (string) $request->query('to', '');
 
         $query = Order::query()
             ->with(['user', 'orderItems.product'])
@@ -24,6 +26,17 @@ class OrderController extends Controller
         // Filter by status (use new orders.status column)
         if ($status !== '') {
             $query->where('status', $status);
+        }
+
+        // Date range filtering
+        if ($from !== '' || $to !== '') {
+            if ($from !== '' && $to !== '') {
+                $query->whereBetween('created_at', [\Carbon\Carbon::parse($from)->startOfDay(), \Carbon\Carbon::parse($to)->endOfDay()]);
+            } elseif ($from !== '') {
+                $query->where('created_at', '>=', \Carbon\Carbon::parse($from)->startOfDay());
+            } elseif ($to !== '') {
+                $query->where('created_at', '<=', \Carbon\Carbon::parse($to)->endOfDay());
+            }
         }
 
         // Search by user name or status
@@ -41,6 +54,8 @@ class OrderController extends Controller
             'orders' => $orders,
             'status' => $status,
             'search' => $q,
+            'from' => $from,
+            'to' => $to,
         ]);
     }
 
