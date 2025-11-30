@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($breadcrumb = [ ['label' => 'Users', 'url' => route('admin.users.index')], ['label' => 'Edit'] ])
+
 @section('content')
 <h1 class="text-xl font-semibold text-ink mb-6">Edit User</h1>
 

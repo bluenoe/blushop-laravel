@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($breadcrumb = [ ['label' => 'Dashboard'] ])
+
 @section('content')
     <div class="space-y-8">
         <h1 class="text-2xl font-semibold text-ink">Dashboard</h1>

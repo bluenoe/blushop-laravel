@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($breadcrumb = [ ['label' => 'Products'] ])
+
 @section('content')
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-semibold text-ink">Products</h1>

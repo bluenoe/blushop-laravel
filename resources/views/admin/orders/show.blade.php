@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($breadcrumb = [ ['label' => 'Orders', 'url' => route('admin.orders.index')], ['label' => '#'.$order->id] ])
+
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-xl font-semibold text-ink">Order #{{ $order->id }}</h1>
