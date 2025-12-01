@@ -61,5 +61,14 @@ const observer = new IntersectionObserver((entries) => {
 
 revealElements.forEach((el) => {
     el.classList.add('opacity-0', 'translate-y-2', 'transition', 'duration-700');
-    observer.observe(el);
+observer.observe(el);
+});
+
+// Sticky header shadow toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const nav = document.getElementById('main-nav');
+  if (!nav) return;
+  const apply = () => { nav.classList.toggle('shadow-soft', window.scrollY > 0); };
+  apply();
+  window.addEventListener('scroll', apply, { passive: true });
 });

@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-warm border-b border-beige">
+<nav id="main-nav" x-data="{ open: false }" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-14 sm:h-16 lg:h-20">
