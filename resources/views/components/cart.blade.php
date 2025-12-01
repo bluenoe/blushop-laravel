@@ -16,12 +16,12 @@ $isSpotlight = (bool) $spotlight;
     x-data="{ pid: {{ (int) $product->id }}, active: {{ $isWished ? 'true' : 'false' }} }"
     x-init="active = $store.wishlist ? $store.wishlist.isFav(pid) : active">
 
-    {{-- ✅ Full-card clickable overlay (trừ Add to cart) --}}
-    <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="absolute inset-0 z-[15]"
+    {{-- Full-card clickable overlay (card body navigates to details) --}}
+    <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="absolute inset-0 z-0"
         aria-label="View details of {{ $product->name }}"></a>
 
     {{-- 🖼️ Image Section --}}
-    <div class="relative z-0 flex flex-col h-full">
+    <div class="relative z-0 flex flex-col h-full pointer-events-none">
         {{-- Top: ảnh full khung + wishlist --}}
         <div class="relative {{ $type === 'featured' ? 'aspect-[4/3]' : 'aspect-[4/5]' }} overflow-hidden bg-warm">
             <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition-transform duration-300
@@ -41,7 +41,7 @@ $isSpotlight = (bool) $spotlight;
             </div>
 
             {{-- Wishlist toggle --}}
-            <button type="button" class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
+            <button type="button" class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full pointer-events-auto
                            bg-white/90 text-ink shadow-sm ring-1 ring-beige/70
                            transition hover:bg-rose-50 hover:text-rose-500 hover:ring-rose-200 hover:scale-105"
                 :class="active ? 'bg-rose-50 text-rose-600 ring-rose-200' : ''" :aria-pressed="active"
@@ -137,10 +137,10 @@ $isSpotlight = (bool) $spotlight;
                 </div>
                 @if($type === 'featured')
                 <a href="{{ route('products.show', $product->slug ?? $product->id) }}"
-                    class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03]">View
+                    class="shrink-0 relative z-20 inline-flex items-center rounded-full bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 shadow-sm hover:bg-white hover:text-indigo-800 hover:ring-indigo-300 transition-transform duration-150 hover:scale-[1.03] pointer-events-auto">View
                     product</a>
                 @else
-                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-30"
+                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="shrink-0 relative z-30 pointer-events-auto"
                     x-data="{loading:false,ok:false}" @click.stop @submit.prevent="
                     loading = true;
                     fetch($el.action, {
