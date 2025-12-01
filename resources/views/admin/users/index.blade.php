@@ -10,9 +10,9 @@
 <form method="GET" action="{{ route('admin.users.index') }}" class="mb-6">
     <div class="flex flex-wrap items-center gap-2">
         <input type="text" name="q" value="{{ $search }}" placeholder="Search users..."
-            class="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
+            class="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400">
         <select name="role"
-            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
+            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200">
             <option value="">All roles</option>
             <option value="admin" @selected(($role ?? '' )==='admin' )>Admin</option>
             <option value="user" @selected(($role ?? '' )==='user' )>User</option>
@@ -26,30 +26,30 @@
     @endif
 </form>
 
-<div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft">
+<div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft dark:bg-slate-900 dark:border-slate-700">
     <table class="min-w-full divide-y divide-beige">
-        <thead class="bg-warm">
+        <thead class="bg-warm dark:bg-slate-800">
             <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">ID</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Name</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Email</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300">Admin</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300">Actions</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Name</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Email</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Admin</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300 dark:text-slate-300">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-beige">
+        <tbody class="divide-y divide-beige dark:divide-slate-700">
             @foreach($users as $u)
-            <tr class="odd:bg-white even:bg-warm">
-                <td class="px-4 py-3 text-sm text-gray-700">{{ $u->id }}</td>
-                <td class="px-4 py-3 text-sm text-ink">{{ $u->name }}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">{{ $u->email }}</td>
+            <tr class="odd:bg-white even:bg-warm dark:odd:bg-slate-900 dark:even:bg-slate-800">
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $u->id }}</td>
+                <td class="px-4 py-3 text-sm text-ink dark:text-slate-200">{{ $u->name }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $u->email }}</td>
                 <td class="px-4 py-3 text-sm">
                     @if($u->is_admin)
                     <span
                         class="inline-flex items-center px-2 py-0.5 rounded bg-green-50 text-green-700 ring-1 ring-green-200 text-xs">Admin</span>
                     @else
                     <span
-                        class="inline-flex items-center px-2 py-0.5 rounded bg-warm text-ink ring-1 ring-beige text-xs">User</span>
+                        class="inline-flex items-center px-2 py-0.5 rounded bg-warm text-ink ring-1 ring-beige text-xs dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">User</span>
                     @endif
                 </td>
                 <td class="px-4 py-3 text-sm text-right">

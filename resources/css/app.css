@@ -12,33 +12,36 @@
         color: #1f2937; /* ink */
     }
 
-    .admin-theme-dark {
+    .dark {
         color: #e5e7eb;
         background-color: #0f172a;
     }
-    .admin-theme-dark .bg-warm {
+    .dark .bg-warm {
         @apply bg-slate-900;
     }
-    .admin-theme-dark .bg-white {
+    .dark .bg-white {
         @apply bg-slate-900;
     }
-    .admin-theme-dark .text-ink {
+    .dark .text-ink {
         @apply text-slate-200;
     }
-    .admin-theme-dark .text-gray-700 {
+    .dark .text-gray-700 {
         @apply text-slate-300;
     }
-    .admin-theme-dark .text-gray-600 {
+    .dark .text-gray-600 {
         @apply text-slate-400;
     }
-    .admin-theme-dark .border-beige {
+    .dark .border-beige {
         @apply border-slate-700;
     }
-    .admin-theme-dark .divide-beige {
+    .dark .divide-beige {
         @apply divide-slate-700;
     }
-    .admin-theme-dark .ring-beige {
+    .dark .ring-beige {
         @apply ring-slate-700;
+    }
+    .dark .text-gray-300 {
+        @apply text-slate-300;
     }
 }
 

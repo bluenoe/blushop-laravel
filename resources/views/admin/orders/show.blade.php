@@ -13,7 +13,7 @@
 @endif
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="md:col-span-2 rounded-xl bg-white border border-beige p-6 shadow-soft">
+    <div class="md:col-span-2 rounded-xl bg-white border border-beige p-6 shadow-soft dark:bg-slate-900 dark:border-slate-700">
         <h2 class="text-lg font-semibold text-ink mb-4">Items</h2>
         <ul class="divide-y divide-beige">
             @foreach($order->orderItems as $item)
@@ -31,7 +31,7 @@
         </ul>
     </div>
 
-    <div class="rounded-xl bg-white border border-beige p-6 shadow-soft">
+    <div class="rounded-xl bg-white border border-beige p-6 shadow-soft dark:bg-slate-900 dark:border-slate-700">
         <h2 class="text-lg font-semibold text-ink mb-4">Summary</h2>
         <dl class="space-y-3">
             <div class="flex justify-between">
@@ -54,13 +54,13 @@
                 <dt class="text-sm text-gray-700">Status</dt>
                 <dd>
                     @php($badge = match($order->status){
-                        'pending' => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200'],
-                        'approved' => ['Approved','bg-blue-50 text-blue-700 ring-1 ring-blue-200'],
-                        'shipped' => ['Shipped','bg-green-50 text-green-700 ring-1 ring-green-200'],
-                        'cancelled' => ['Cancelled','bg-red-50 text-red-700 ring-1 ring-red-200'],
-                        default => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200']
+                        'pending' => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-800'],
+                        'approved' => ['Approved','bg-blue-50 text-blue-700 ring-1 ring-blue-200','dark:bg-blue-900 dark:text-blue-200 dark:ring-blue-800'],
+                        'shipped' => ['Shipped','bg-green-50 text-green-700 ring-1 ring-green-200','dark:bg-green-900 dark:text-green-200 dark:ring-green-800'],
+                        'cancelled' => ['Cancelled','bg-red-50 text-red-700 ring-1 ring-red-200','dark:bg-red-900 dark:text-red-200 dark:ring-red-800'],
+                        default => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-800']
                     })
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs {{ $badge[1] }}">{{ $badge[0] }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs {{ $badge[1] }} {{ $badge[2] }}">{{ $badge[0] }}</span>
                 </dd>
             </div>
         </dl>
