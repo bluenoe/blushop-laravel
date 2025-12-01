@@ -9,10 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 
-<body class="bg-warm text-ink min-h-screen"
+<body class="bg-warm text-ink dark:bg-slate-950 dark:text-slate-100 min-h-screen"
     x-data="{ sidebarOpen: false, theme: (localStorage.getItem('admin:theme') || 'light') }"
     x-init="document.body.classList.toggle('dark', theme === 'dark'); $watch('theme', v => { localStorage.setItem('admin:theme', v); document.body.classList.toggle('dark', v === 'dark') })">
-    <div class="flex min-h-screen">
+    <div class="flex min-h-screen bg-warm dark:bg-slate-950">
         <!-- Sidebar -->
         <aside :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
             class="fixed z-40 inset-y-0 left-0 w-64 transform transition-transform duration-200 bg-white border-r border-beige md:static md:translate-x-0 dark:bg-slate-900 dark:border-slate-700">
@@ -52,7 +52,7 @@
         </aside>
 
         <!-- Content area -->
-        <div class="flex-1 md:ml-64">
+        <div class="flex-1 md:ml-64 bg-warm dark:bg-slate-950">
             <!-- Topbar -->
             <header
                 class="sticky top-0 z-30 bg-warm/95 backdrop-blur border-b border-beige dark:bg-slate-900/95 dark:border-slate-700">
