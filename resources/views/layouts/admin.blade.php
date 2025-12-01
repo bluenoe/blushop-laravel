@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BluShop Admin</title>
     @vite(['resources/css/app.css','resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 
 <body class="bg-warm text-ink min-h-screen"
@@ -24,42 +25,27 @@
             <nav class="px-2 py-4 space-y-1">
                 <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.dashboard') ? 'bg-beige' : 'hover:bg-beige' }}">
-                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
-                    </svg>
+                    <i data-lucide="layout-dashboard" class="h-5 w-5 text-gray-600"></i>
                     <span>Dashboard</span>
                 </a>
                 <a href="{{ route('admin.products.index') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.products.*') ? 'bg-beige' : 'hover:bg-beige' }}">
-                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 12V7a2 2 0 00-2-2h-3M4 12V7a2 2 0 012-2h3m11 7a2 2 0 01-2 2h-3m-6 0H6a2 2 0 01-2-2m6 0V5m0 9v5" />
-                    </svg>
+                    <i data-lucide="package" class="h-5 w-5 text-gray-600"></i>
                     <span>Products</span>
                 </a>
                 <a href="{{ route('admin.categories.index') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.categories.*') ? 'bg-beige' : 'hover:bg-beige' }}">
-                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 7a2 2 0 012-2h14a2 2 0 012 2v2H3V7zm0 4h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6z" />
-                    </svg>
+                    <i data-lucide="grid-2x2" class="h-5 w-5 text-gray-600"></i>
                     <span>Categories</span>
                 </a>
                 <a href="{{ route('admin.users.index') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.users.*') ? 'bg-beige' : 'hover:bg-beige' }}">
-                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 14a4 4 0 10-8 0m8 0v1a4 4 0 01-4 4H8a4 4 0 01-4-4v-1m12 0a4 4 0 014 4v1" />
-                    </svg>
+                    <i data-lucide="users" class="h-5 w-5 text-gray-600"></i>
                     <span>Users</span>
                 </a>
                 <a href="{{ route('admin.orders.index') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded-md text-ink {{ request()->routeIs('admin.orders.*') ? 'bg-beige' : 'hover:bg-beige' }}">
-                    <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 6h15l-1.5 9a2 2 0 01-2 1.7H8.5a2 2 0 01-2-1.7L5 6m1 0V4a1 1 0 011-1h2m8 0h2a1 1 0 011 1v2M7 22a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
+                    <i data-lucide="receipt" class="h-5 w-5 text-gray-600"></i>
                     <span>Orders</span>
                 </a>
             </nav>
@@ -167,6 +153,7 @@
             </main>
         </div>
     </div>
+    <script>document.addEventListener('DOMContentLoaded', function () { try { if (window.lucide) { lucide.createIcons(); } } catch (e) { } });</script>
 </body>
 
 </html>
