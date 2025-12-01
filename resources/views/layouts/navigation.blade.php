@@ -1,7 +1,8 @@
 <nav id="main-nav" x-data="{ open: false }" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-14 sm:h-16 lg:h-20">
+        <div class="flex justify-between h-10 sm:h-12 lg:h-14">
+
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
@@ -44,17 +45,23 @@
 
             <!-- Right: cart icon + settings dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
-                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
+                <a href="{{ route('cart.index') }}"
+                    class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M8 7V6a4 4 0 1 1 8 0v1" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round"
+                            stroke-linejoin="round" />
                         <path d="M10 11a2 2 0 0 0 4 0" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     @php($cartQty = collect(session('cart', []))->sum('quantity'))
                     @if($cartQty > 0)
-                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5" x-text="$store.cart && $store.cart.count">{{ $cartQty }}</span>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
+                        x-text="$store.cart && $store.cart.count">{{ $cartQty }}</span>
                     @else
-                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5" x-show="$store.cart && $store.cart.count > 0" x-text="$store.cart && $store.cart.count"></span>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
+                        x-show="$store.cart && $store.cart.count > 0" x-text="$store.cart && $store.cart.count"></span>
                     @endif
                 </a>
                 @auth
