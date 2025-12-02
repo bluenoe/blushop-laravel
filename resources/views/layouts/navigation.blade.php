@@ -151,8 +151,9 @@
     <div x-cloak x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2" class="bg-warm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        x-transition:leave-end="opacity-0 -translate-y-2" class="bg-warm overflow-hidden"
+        :style="searchOpen ? 'max-height: 96px' : 'max-height: 0px'">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 transition-all duration-200 ease-out">
             <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-2">
                 <input x-ref="searchInput" type="text" name="q" value="{{ request('q') }}"
                     placeholder="Search products..."
