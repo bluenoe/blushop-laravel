@@ -23,7 +23,7 @@
         <div class="max-w-5xl mx-auto px-4 lg:px-6 pb-14 lg:pb-18 pt-10">
             <div class="grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
                 {{-- Contact form --}}
-                <div class="bg-card rounded-3xl border border-beige/70 shadow-soft p-5 md:p-7" data-reveal="fade-up">
+                <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5 md:p-7" data-reveal="fade-up">
                     @if (session('success'))
                     <div class="mb-4 rounded-xl border border-beige/70 bg-warm/80 px-4 py-3 text-sm text-ink">
                         {{ session('success') }}
@@ -106,7 +106,7 @@
 
                 {{-- Info + map --}}
                 <div class="space-y-6" data-reveal="fade-up">
-                    <div class="bg-card rounded-3xl border border-beige/70 shadow-soft p-5">
+                    <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5">
                         <h3 class="text-base font-semibold text-ink mb-3">
                             Contact details
                         </h3>
@@ -134,7 +134,7 @@
                         </ul>
                     </div>
 
-                    <div class="bg-card rounded-3xl border border-beige/70 shadow-soft overflow-hidden">
+                    <div class="bg-white rounded-3xl border border-beige/60 shadow-soft overflow-hidden">
                         <div class="aspect-[4/3]">
                             <iframe src="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE_HERE" style="border:0;"
                                 allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
