@@ -1,65 +1,178 @@
-{{--
-    Contact page
-    UI-only Tailwind refresh to match landing page theme.
---}}
-
 <x-app-layout>
-    <section class="max-w-3xl mx-auto px-6 py-12 sm:py-16">
-        {{-- Flash success --}}
-        @if(session('success'))
-            <div class="mb-4 rounded-md border border-green-200 bg-green-50 text-green-700 p-3">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <div class="rounded-xl border border-beige bg-white shadow-soft">
-            <div class="p-6">
-                <h2 class="text-2xl sm:text-3xl font-bold text-ink">Contact Us</h2>
-                <p class="mt-2 text-gray-700">Send us a message and we’ll get back to you soon.</p>
-
-                <form method="POST" action="{{ route('contact.send') }}" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @csrf
-
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-ink">Your Name</label>
-                        <input type="text" id="name" name="name" value="{{ old('name') }}"
-                               class="mt-1 block w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft @error('name') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
-                               required>
-                        @error('name')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-ink">Email</label>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}"
-                               class="mt-1 block w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft @error('email') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
-                               required>
-                        @error('email')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label for="message" class="block text-sm font-medium text-ink">Message</label>
-                        <textarea id="message" name="message" rows="5"
-                                  class="mt-1 block w-full rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft @error('message') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
-                                  required>{{ old('message') }}</textarea>
-                        @error('message')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="sm:col-span-2 flex flex-wrap gap-3">
-                        <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 text-white px-4 py-2 hover:bg-indigo-700 transition">Send</button>
-                        <a href="{{ route('home') }}" class="inline-flex items-center rounded-md border border-beige text-ink px-4 py-2 hover:bg-beige transition">Back Home</a>
-                    </div>
-                </form>
+    {{-- Hero / intro --}}
+    <section class="bg-warm border-b border-beige/40">
+        <div class="max-w-4xl mx-auto px-4 lg:px-6 py-12 lg:py-16" data-reveal="fade-up">
+            <div class="max-w-2xl space-y-4">
+                <p class="text-xs tracking-[0.2em] uppercase text-muted">
+                    CONTACT
+                </p>
+                <h1 class="text-3xl md:text-4xl font-semibold text-ink">
+                    Let’s make your wardrobe a little calmer.
+                </h1>
+                <p class="text-sm md:text-base text-muted leading-relaxed">
+                    Questions about sizing, orders, or styling?
+                    Leave us a message – the Blu team is here to help with fit advice,
+                    order updates, or anything you’re unsure about.
+                </p>
             </div>
         </div>
+    </section>
 
-        <div class="text-gray-700 text-sm mt-3">
-            <em>Note:</em> We store your message in our database only. No email is sent.
+    {{-- Form + info + map --}}
+    <section class="bg-warm/60 -mt-6 lg:-mt-10 relative z-10">
+        <div class="max-w-5xl mx-auto px-4 lg:px-6 pb-14 lg:pb-18 pt-10">
+            <div class="grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+                {{-- Contact form --}}
+                <div class="bg-card rounded-3xl border border-beige/70 shadow-soft p-5 md:p-7" data-reveal="fade-up">
+                    @if (session('success'))
+                    <div class="mb-4 rounded-xl border border-beige/70 bg-warm/80 px-4 py-3 text-sm text-ink">
+                        {{ session('success') }}
+                    </div>
+                    @endif
+
+                    <h2 class="text-xl md:text-2xl font-semibold text-ink mb-3">
+                        Send us a message
+                    </h2>
+                    <p class="text-sm text-muted mb-6">
+                        We usually reply within 24 hours on weekdays.
+                    </p>
+
+                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-4">
+                        @csrf
+
+                        <div>
+                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
+                                Name
+                            </label>
+                            <input type="text" name="name" required
+                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
+                                placeholder="Enter your full name">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
+                                Email
+                            </label>
+                            <input type="email" name="email" required
+                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
+                                placeholder="you@example.com">
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
+                                    Topic
+                                </label>
+                                <select name="topic"
+                                    class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70">
+                                    <option value="order">Order support</option>
+                                    <option value="sizing">Sizing & fit</option>
+                                    <option value="product">Product question</option>
+                                    <option value="collab">Collaboration</option>
+                                    <option value="other">Something else</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
+                                    Order ID (optional)
+                                </label>
+                                <input type="text" name="order_id"
+                                    class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
+                                    placeholder="#BLU1234">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
+                                Message
+                            </label>
+                            <textarea name="message" rows="4" required
+                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70 resize-y"
+                                placeholder="Tell us how we can help..."></textarea>
+                        </div>
+
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+                            <p class="text-[11px] text-muted">
+                                By sending this form, you agree to let us contact you about your request.
+                            </p>
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-full bg-ink text-warm px-5 py-2.5 text-sm font-medium hover:bg-ink/90 active:scale-[0.98] transition">
+                                Send message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- Info + map --}}
+                <div class="space-y-6" data-reveal="fade-up">
+                    <div class="bg-card rounded-3xl border border-beige/70 shadow-soft p-5">
+                        <h3 class="text-base font-semibold text-ink mb-3">
+                            Contact details
+                        </h3>
+                        <ul class="space-y-2 text-sm text-muted">
+                            <li>
+                                <span class="font-medium text-ink">Email:</span>
+                                <a href="mailto:hello@blushop.vn" class="hover:text-ink">
+                                    hello@blushop.vn
+                                </a>
+                            </li>
+                            <li>
+                                <span class="font-medium text-ink">Phone:</span>
+                                <a href="tel:+84901234567" class="hover:text-ink">
+                                    +84 90 123 45 67
+                                </a>
+                            </li>
+                            <li>
+                                <span class="font-medium text-ink">Hours:</span>
+                                Mon – Sun, 9:00 – 21:00 (GMT+7)
+                            </li>
+                            <li>
+                                <span class="font-medium text-ink">Showroom:</span>
+                                District 1, Ho Chi Minh City, Viet Nam
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-card rounded-3xl border border-beige/70 shadow-soft overflow-hidden">
+                        <div class="aspect-[4/3]">
+                            <iframe src="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE_HERE" style="border:0;"
+                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                                class="w-full h-full"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Support strip nhỏ phía dưới, cho đỡ trống --}}
+            <div class="mt-10 pt-6 border-t border-beige/50" data-reveal="fade-up">
+                <div class="grid gap-4 md:grid-cols-3 text-sm">
+                    <div class="space-y-1">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+                            URGENT ORDER ISSUE
+                        </p>
+                        <p class="text-ink">
+                            Call us directly for time-sensitive problems with delivery or payment.
+                        </p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+                            SIZE & FIT ADVICE
+                        </p>
+                        <p class="text-ink">
+                            Not sure which size to pick? Add your height and weight in the message.
+                        </p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+                            COLLAB & PARTNERSHIP
+                        </p>
+                        <p class="text-ink">
+                            For collaborations or bulk orders, choose “Collaboration” in Topic.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </x-app-layout>

@@ -2,39 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
     /**
-     * Hiển thị form liên hệ.
+     * Hiển thị trang Contact BluShop
+     * GET /contact
      */
-    public function index()
+    public function show()
     {
+        // View đang dùng <x-app-layout> và nằm ở: resources/views/contact.blade.php
         return view('contact');
     }
 
     /**
-     * Lưu message vào DB, hiện flash success.
+     * Xử lý form liên hệ từ trang Contact
+     * POST /contact
      */
-    public function send(Request $request)
+    public function submit(Request $request)
     {
+        // Validate dữ liệu người dùng nhập
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'message' => ['required', 'string', 'min:5'],
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email',
+            'topic'    => 'nullable|string|max:100',
+            'order_id' => 'nullable|string|max:50',
+            'message'  => 'required|string',
         ]);
 
-        ContactMessage::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'message' => $data['message'],
-            'created_at' => now(),
-        ]);
+        // 👉 Tùy bà muốn làm gì tiếp:
+        // - Lưu vào database (tạo bảng contact_messages)
+        // - Gửi mail cho admin
+        // - Ghi log để debug
+        //
+        // Ví dụ tạm: ghi log để chắc chắn form hoạt động
+        // \Log::info('New contact message', $data);
 
-        return redirect()
-            ->route('contact.index')
-            ->with('success', 'Your message has been sent. Thank you!');
+        // Sau khi xử lý xong, redirect về lại trang Contact + flash message
+        return back()->with('success', 'Cám ơn bạn đã liên hệ BluShop. Chúng tôi đã nhận được tin nhắn của bạn!');
     }
 }
