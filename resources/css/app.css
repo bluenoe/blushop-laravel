@@ -43,6 +43,9 @@
     .dark .text-gray-300 {
         @apply text-slate-300;
     }
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 @layer components {

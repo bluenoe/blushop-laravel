@@ -60,8 +60,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
 
-Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
-Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.index');
+
+
+
+// Xử lý form contact (POST)
+Route::post('/contact', [ContactController::class, 'submit'])
+    ->name('contact.submit');
 
 // Static pages: About & FAQ
 Route::view('/about', 'pages.about')->name('about');
@@ -70,7 +75,7 @@ Route::view('/faq', 'pages.faq')->name('faq');
 /**
  * Breeze auth routes (login/register/logout)
  */
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 /**
  * Breeze-compatible profile routes

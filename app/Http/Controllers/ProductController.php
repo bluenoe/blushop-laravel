@@ -81,14 +81,6 @@ class ProductController extends Controller
             ['label' => 'Home', 'url' => route('home')],
             ['label' => 'Shop', 'url' => route('products.index')],
         ];
-        if ($request->filled('category')) {
-            $catSlug = (string) $request->input('category');
-            $catName = optional(\App\Models\Category::query()->select(['name', 'slug'])->where('slug', $catSlug)->first())->name ?? $catSlug;
-            $breadcrumbs[] = ['label' => 'Products', 'url' => route('products.index')];
-            $breadcrumbs[] = ['label' => $catName];
-        } else {
-            $breadcrumbs[] = ['label' => 'Products'];
-        }
 
         $priceMinBound = (float) \App\Models\Product::query()->min('price');
         $priceMaxBound = (float) \App\Models\Product::query()->max('price');
@@ -125,7 +117,6 @@ class ProductController extends Controller
         $breadcrumbs = [
             ['label' => 'Home', 'url' => route('home')],
             ['label' => 'Shop', 'url' => route('products.index')],
-            ['label' => 'Products', 'url' => route('products.index')],
             ['label' => $product->name],
         ];
 

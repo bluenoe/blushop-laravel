@@ -1,7 +1,9 @@
-<nav id="main-nav" x-data="{ open: false }" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
+<nav id="main-nav"
+    x-data="{ open: false, searchOpen: false, toggleSearch(){ this.searchOpen = !this.searchOpen; if(this.searchOpen){ this.$nextTick(() => this.$refs.searchInput && this.$refs.searchInput.focus()); } } }"
+    @keydown.window.escape="searchOpen=false" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-10 sm:h-12 lg:h-14">
+        <div class="flex items-center justify-between h-10 sm:h-12 lg:h-14">
 
             <div class="flex">
                 <!-- Logo -->
@@ -13,7 +15,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden sm:hidden">
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Home') }}
                     </x-nav-link>
@@ -22,9 +24,7 @@
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
                         {{ __('Shop') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                        {{ __('Cart') }}
-                    </x-nav-link>
+
                     {{-- Favorites link removed: wishlist is now in Profile sidebar */}
                     <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                         {{ __('Contact') }}
@@ -32,9 +32,7 @@
                     <x-nav-link :href="route('about')" :active="request()->routeIs('about')">
                         {{ __('About') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('faq')" :active="request()->routeIs('faq')">
-                        {{ __('FAQ') }}
-                    </x-nav-link>
+
 
                     {{-- Nếu sau này có dashboard thì mở lại --}}
                     {{-- <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -43,8 +41,56 @@
                 </div>
             </div>
 
-            <!-- Right: cart icon + settings dropdown -->
+            <div class="hidden sm:flex flex-1 items-center justify-center">
+                <div class="flex items-center gap-8">
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">{{ __('Home') }}</x-nav-link>
+                    <div class="relative" x-data="{ shopOpen:false }" @keydown.window.escape="shopOpen=false">
+                        <button type="button" @mouseenter="shopOpen=true" @mouseleave="shopOpen=false"
+                            @click="shopOpen=!shopOpen"
+                            class="inline-flex items-center px-1 pt-1 text-sm font-medium {{ request()->routeIs('products.*') ? 'text-ink' : 'text-gray-700 hover:text-ink' }}">
+                            {{ __('Shop') }}
+                            <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div x-cloak x-show="shopOpen" @mouseenter="shopOpen=true" @mouseleave="shopOpen=false"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-1/2 -translate-x-1/2 mt-2 w-64 rounded-xl border border-beige bg-white shadow-soft">
+                            <ul class="py-2">
+                                @foreach((\App\Models\Category::query()->select(['name','slug'])->where('slug','!=','uncategorized')->orderBy('name')->get()
+                                ?? collect()) as $c)
+                                <li>
+                                    <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $c->slug])) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-beige hover:text-ink">{{
+                                        $c->name }}</a>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <x-nav-link :href="route('about')" :active="request()->routeIs('about')">{{ __('About')
+                        }}</x-nav-link>
+                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">{{
+                        __('Contact') }}</x-nav-link>
+                </div>
+            </div>
+
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+                <button type="button" @click="toggleSearch()"
+                    class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]"
+                    aria-label="Search">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
                 <a href="{{ route('cart.index') }}"
                     class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -116,8 +162,15 @@
                 @endauth
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <div class="-me-2 flex items-center sm:hidden gap-2">
+                <button type="button" @click="toggleSearch()"
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out"
+                    aria-label="Search">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -132,18 +185,77 @@
         </div>
     </div>
 
+    <div x-cloak x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2" class="bg-warm overflow-hidden"
+        :style="searchOpen ? 'max-height: 96px' : 'max-height: 0px'">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 transition-all duration-200 ease-out">
+            <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-2">
+                <input x-ref="searchInput" type="text" name="q" value="{{ request('q') }}"
+                    placeholder="Search products..."
+                    class="flex-1 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
+                <button type="submit"
+                    class="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-indigo-600 text-white font-semibold shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">Search</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-warm">
+    <div x-data="{ mobileShopOpen:false }" :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-warm">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Home') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
-                {{ __('Shop') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                {{ __('Cart') }}
-            </x-responsive-nav-link>
+            <div class="px-3 py-2">
+                <button type="button" @click="mobileShopOpen = !mobileShopOpen"
+                    class="w-full text-left text-sm font-medium text-gray-700 hover:text-ink flex items-center justify-between">
+                    <span>{{ __('Shop') }}</span>
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-cloak x-show="mobileShopOpen" x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-1" class="mt-2">
+                    <ul class="space-y-1">
+                        @foreach((\App\Models\Category::query()->select(['name','slug'])->where('slug','!=','uncategorized')->orderBy('name')->get()
+                        ?? collect()) as $c)
+                        <li>
+                            <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $c->slug])) }}"
+                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-beige hover:text-ink rounded-md">{{
+                                $c->name }}</a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="px-3 py-2">
+                <a href="{{ route('cart.index') }}"
+                    class="inline-flex items-center gap-2 text-sm text-gray-700 hover:text-ink">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 7V6a4 4 0 1 1 8 0v1" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M10 11a2 2 0 0 0 4 0" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    @php($cartQty = collect(session('cart', []))->sum('quantity'))
+                    <span
+                        class="inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
+                        x-show="$store.cart && $store.cart.count > 0" x-text="$store.cart && $store.cart.count"></span>
+                    @if($cartQty > 0)
+                    <span
+                        class="inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5">{{
+                        $cartQty }}</span>
+                    @endif
+                    <span>{{ __('Cart') }}</span>
+                </a>
+            </div>
             {{-- Favorites link removed from mobile navigation */}
             <x-responsive-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
                 {{ __('Contact') }}
@@ -151,9 +263,7 @@
             <x-responsive-nav-link :href="route('about')" :active="request()->routeIs('about')">
                 {{ __('About') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('faq')" :active="request()->routeIs('faq')">
-                {{ __('FAQ') }}
-            </x-responsive-nav-link>
+
             {{-- <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link> --}}
