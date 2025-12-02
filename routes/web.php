@@ -1,74 +1,59 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\LandingController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\WishlistController;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (Day 5)
+| Web Routes
 |--------------------------------------------------------------------------
-| - Trang chủ: ProductController@index
-| - Chi tiết: ProductController@show
-| - Cart CRUD: session-based
-| - Checkout: auth-only (Breeze)
-| - Contact: form + lưu DB
+| - Public: landing, product, cart, contact, static pages
+| - User (auth): wishlist, checkout, orders, profile
+| - Admin: dashboard + CRUD
 */
 
-// Cart routes
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-
+/**
+ * Public routes
+ */
 // Landing page
 Route::get('/', [LandingController::class, 'index'])->name('home');
 
-// Products listing (target of "Shop Now" button)
+// Products listing + detail
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+// (Optional) legacy URL /product/{id} -> same action
 Route::get('/product/{id}', [ProductController::class, 'show'])
     ->whereNumber('id')
     ->name('product.show');
 
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
-Route::post('/cart/update/{id}', [CartController::class, 'update'])->whereNumber('id')->name('cart.update');
-Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
-// Wishlist (DB-backed)
-Route::middleware('auth')->group(function () {
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+// Cart (session-based)
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
+    Route::post('/update/{id}', [CartController::class, 'update'])->whereNumber('id')->name('cart.update');
+    Route::post('/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
+    Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
-
-    // User orders
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-});
-
+// Contact
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.index');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
-
-
-// Xử lý form contact (POST)
-Route::post('/contact', [ContactController::class, 'submit'])
-    ->name('contact.submit');
-
-// Static pages: About & FAQ
+// Static pages
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
 
@@ -78,13 +63,27 @@ Route::view('/faq', 'pages.faq')->name('faq');
 require __DIR__ . '/auth.php';
 
 /**
- * Breeze-compatible profile routes
+ * Authenticated user routes
  */
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth')->group(function () {
+    // Wishlist (DB-backed)
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+
+    // Checkout
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
+
+    // User orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    // Profile wishlist uses DB-backed controller
+
+    // Profile wishlist shortcut
     Route::get('/profile/wishlist', [WishlistController::class, 'index'])->name('profile.wishlist');
 });
 
@@ -123,7 +122,7 @@ Route::prefix('admin')
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
-        // Orders management (index/show/updateStatus)
+        // Orders management
         Route::prefix('orders')->group(function () {
             Route::get('/', [AdminOrderController::class, 'index'])->name('admin.orders.index');
             Route::get('/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
