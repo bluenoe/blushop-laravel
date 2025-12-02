@@ -3,6 +3,7 @@
     <section class="bg-warm min-h-[60vh] border-b border-beige/40">
         <div class="max-w-5xl mx-auto px-4 lg:px-6 py-16 lg:py-24" data-reveal="fade-up">
             <div class="grid gap-10 lg:grid-cols-[1.3fr,1fr] items-center">
+                {{-- Text side --}}
                 <div>
                     <p class="text-xs tracking-[0.2em] uppercase text-muted mb-3">
                         ABOUT BLUSHOP
@@ -17,54 +18,62 @@
                         soft textures, and silhouettes that never scream for attention –
                         they just feel right.
                     </p>
-                    <p class="text-sm md:text-base text-muted leading-relaxed mb-8">
+                    <p class="text-sm md:text-base text-muted leading-relaxed">
                         Every detail – from the weight of a hoodie to the finish on a button –
                         is considered. We keep the palette warm and grounded so you can mix,
                         match, and rewear your favorite pieces without thinking too much.
                     </p>
 
-                    <div class="grid grid-cols-3 gap-4 md:gap-6 text-sm">
-                        <div>
-                            <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                2025
-                            </p>
-                            <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                YEAR BLUSHOP LAUNCHED
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                +50
-                            </p>
-                            <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                CORE WARDROBE PIECES
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                24/7
-                            </p>
-                            <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                ONLINE SUPPORT
-                            </p>
+                    {{-- Stats --}}
+                    <div class="mt-8 pt-6 border-t border-beige/40">
+                        <div class="grid grid-cols-3 gap-4 md:gap-6 text-sm">
+                            <div>
+                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
+                                    2025
+                                </p>
+                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
+                                    YEAR BLUSHOP LAUNCHED
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
+                                    +50
+                                </p>
+                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
+                                    CORE WARDROBE PIECES
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
+                                    24/7
+                                </p>
+                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
+                                    ONLINE SUPPORT
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- Image + BLU NOTE --}}
                 <div class="relative" data-reveal="fade-up">
                     <div class="aspect-[4/5] rounded-3xl bg-card shadow-soft overflow-hidden">
                         {{-- Đổi ảnh này thành asset thật của BluShop --}}
                         <img src="{{ asset('images/about/lookbook-blu.jpg') }}" alt="BluShop lookbook"
                             class="w-full h-full object-cover">
                     </div>
-                    <div
-                        class="absolute -bottom-6 -left-4 bg-card px-4 py-3 rounded-2xl shadow-soft border border-beige/60">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-1">
-                            BLU NOTE
-                        </p>
-                        <p class="text-xs text-ink/90">
-                            Designed in Viet Nam, inspired by quiet confidence.
-                        </p>
+
+                    {{-- BLU NOTE badge: overlay nhẹ trên ảnh, không che quá nhiều --}}
+                    <div class="absolute bottom-4 left-4">
+                        <div
+                            class="max-w-[240px] rounded-2xl border border-beige/60 bg-card/95 px-4 py-3 shadow-soft backdrop-blur-sm">
+                            <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-1">
+                                BLU NOTE
+                            </p>
+                            <p class="text-xs text-ink/90 leading-relaxed">
+                                Designed in Viet Nam, inspired by quiet confidence.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
