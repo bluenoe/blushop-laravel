@@ -1,4 +1,6 @@
-<nav id="main-nav" x-data="{ open: false }" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
+<nav id="main-nav"
+    x-data="{ open: false, searchOpen: false, toggleSearch(){ this.searchOpen = !this.searchOpen; if(this.searchOpen){ this.$nextTick(() => this.$refs.searchInput && this.$refs.searchInput.focus()); } } }"
+    @keydown.window.escape="searchOpen=false" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-10 sm:h-12 lg:h-14">
@@ -43,8 +45,15 @@
                 </div>
             </div>
 
-            <!-- Right: cart icon + settings dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+                <button type="button" @click="toggleSearch()"
+                    class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]"
+                    aria-label="Search">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
                 <a href="{{ route('cart.index') }}"
                     class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -116,8 +125,15 @@
                 @endauth
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <div class="-me-2 flex items-center sm:hidden gap-2">
+                <button type="button" @click="toggleSearch()"
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out"
+                    aria-label="Search">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -129,6 +145,21 @@
                     </svg>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <div x-cloak x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2" class="bg-warm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-2">
+                <input x-ref="searchInput" type="text" name="q" value="{{ request('q') }}"
+                    placeholder="Search products..."
+                    class="flex-1 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
+                <button type="submit"
+                    class="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-indigo-600 text-white font-semibold shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">Search</button>
+            </form>
         </div>
     </div>
 
