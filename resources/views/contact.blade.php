@@ -1,19 +1,22 @@
 <x-app-layout>
     {{-- Hero / intro --}}
     <section class="bg-warm border-b border-beige/40">
-        <div class="max-w-4xl mx-auto px-4 lg:px-6 py-12 lg:py-16" data-reveal="fade-up">
-            <div class="max-w-2xl space-y-4">
-                <p class="text-xs tracking-[0.2em] uppercase text-muted">
-                    CONTACT
-                </p>
-                <h1 class="text-3xl md:text-4xl font-semibold text-ink">
-                    Let’s make your wardrobe a little calmer.
-                </h1>
-                <p class="text-sm md:text-base text-muted leading-relaxed">
-                    Questions about sizing, orders, or styling?
-                    Leave us a message – the Blu team is here to help with fit advice,
-                    order updates, or anything you’re unsure about.
-                </p>
+        <div class="max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
+            <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5 md:p-7 lg:p-8"
+                data-reveal="fade-up">
+                <div class="max-w-2xl space-y-4">
+                    <p class="text-xs tracking-[0.2em] uppercase text-muted">
+                        CONTACT
+                    </p>
+                    <h1 class="text-3xl md:text-4xl font-semibold text-ink">
+                        Let’s make your wardrobe a little calmer.
+                    </h1>
+                    <p class="text-sm md:text-base text-muted leading-relaxed">
+                        Questions about sizing, orders, or styling?
+                        Leave us a message – the Blu team is here to help with fit advice,
+                        order updates, or anything you’re unsure about.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
@@ -136,35 +139,45 @@
 
                     <div class="bg-white rounded-3xl border border-beige/60 shadow-soft overflow-hidden">
                         <div class="aspect-[4/3]">
-                            <iframe src="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE_HERE" style="border:0;"
-                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-                                class="w-full h-full"></iframe>
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.5373213786506!2d108.21856011182456!3d16.037583284573277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219e90334f96f%3A0x430e2149e78987c7!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIFBoxrDGoW5nIMSQw7RuZyDEkMOgIE7hurVuZw!5e0!3m2!1sen!2s!4v1764680430323!5m2!1sen!2s"
+                                style="border:0;" allowfullscreen loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade" class="w-full h-full"></iframe>
                         </div>
                     </div>
+
                 </div>
             </div>
 
             {{-- Support strip nhỏ phía dưới, cho đỡ trống --}}
             <div class="mt-10 pt-6 border-t border-beige/50" data-reveal="fade-up">
                 <div class="grid gap-4 md:grid-cols-3 text-sm">
-                    <div class="space-y-1">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
+                   hover:border-accent/60 hover:bg-warm/90">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
+                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
                             URGENT ORDER ISSUE
                         </p>
                         <p class="text-ink">
                             Call us directly for time-sensitive problems with delivery or payment.
                         </p>
                     </div>
-                    <div class="space-y-1">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+
+                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
+                   hover:border-accent/60 hover:bg-warm/90">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
+                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
                             SIZE & FIT ADVICE
                         </p>
                         <p class="text-ink">
                             Not sure which size to pick? Add your height and weight in the message.
                         </p>
                     </div>
-                    <div class="space-y-1">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted">
+
+                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
+                   hover:border-accent/60 hover:bg-warm/90">
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
+                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
                             COLLAB & PARTNERSHIP
                         </p>
                         <p class="text-ink">
@@ -173,6 +186,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 </x-app-layout>
