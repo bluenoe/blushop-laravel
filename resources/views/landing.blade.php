@@ -1,429 +1,448 @@
-{{-- Landing Page (BluShop v2) --}}
+{{-- resources/views/landing.blade.php --}}
+@push('head')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('bluLanding', () => ({
+            // ===== STATE =====
+            active: 0,
+            progress: 0,
+            duration: 8000, // ms per slide
+            heroTimer: null,
+            railTimer: null,
+
+            slides: [
+                {
+                    image: @json(asset('images/hero-bg.jpg')),
+                    label: 'WINTER • 25',
+                    title: 'Soft Blu layers.',
+                    subtitle: 'Warm, quiet pieces for cold mornings.'
+                },
+                {
+                    image: @json(asset('images/hero-bg2.jpg')),
+                    label: 'EVERYDAY BLU',
+                    title: 'Campus, all day.',
+                    subtitle: 'From lecture to late coffee.'
+                },
+                {
+                    image: @json(asset('images/hero-bg3.jpg')),
+                    label: 'JUST BLU THINGS',
+                    title: 'Little daily things.',
+                    subtitle: 'Socks, bottles, totes & more.'
+                },
+            ],
+
+            init() {
+                this.startHero();
+                this.startRail();
+                this.setupReveal();
+            },
+
+            // ===== HERO SLIDER (AUTO) =====
+            startHero() {
+                this.stopHero();
+                this.progress = 0;
+
+                const steps = 120;
+                const stepTime = this.duration / steps;
+
+                this.heroTimer = setInterval(() => {
+                    this.progress += 1 / steps;
+                    if (this.progress >= 1) {
+                        this.progress = 0;
+                        this.nextSlide();
+                    }
+                }, stepTime);
+            },
+            stopHero() {
+                if (this.heroTimer) {
+                    clearInterval(this.heroTimer);
+                    this.heroTimer = null;
+                }
+            },
+            nextSlide() {
+                this.active = (this.active + 1) % this.slides.length;
+                this.progress = 0;
+            },
+            prevSlide() {
+                this.active = (this.active - 1 + this.slides.length) % this.slides.length;
+                this.progress = 0;
+            },
+            goToSlide(i) {
+                this.active = i;
+                this.progress = 0;
+                this.startHero();
+            },
+
+            // ===== PRODUCT RAIL AUTO-SCROLL =====
+            startRail() {
+                this.stopRail();
+                this.railTimer = setInterval(() => {
+                    const rail = this.$refs.productRail;
+                    if (!rail) return;
+
+                    const step = rail.clientWidth * 0.55;
+                    rail.scrollBy({ left: step, behavior: 'smooth' });
+
+                    if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 32) {
+                        setTimeout(() => {
+                            rail.scrollTo({ left: 0, behavior: 'smooth' });
+                        }, 600);
+                    }
+                }, 5200);
+            },
+            stopRail() {
+                if (this.railTimer) {
+                    clearInterval(this.railTimer);
+                    this.railTimer = null;
+                }
+            },
+
+            // ===== SCROLL REVEAL (NHẸ) =====
+            setupReveal() {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.remove('opacity-0', 'translate-y-6');
+                            entry.target.classList.add('opacity-100', 'translate-y-0');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.14 });
+
+                document.querySelectorAll('[data-reveal]').forEach(el => {
+                    el.classList.add(
+                        'opacity-0',
+                        'translate-y-6',
+                        'transition-all',
+                        'duration-700'
+                    );
+                    observer.observe(el);
+                });
+            },
+
+            // Smooth scroll
+            scrollTo(id) {
+                const el = document.getElementById(id);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            },
+        }));
+    });
+</script>
+@endpush
+
 <x-app-layout>
-    @push('head')
-    <link rel="preload" as="image" href="{{ asset('images/hero-bg.jpg') }}" fetchpriority="high">
-    @endpush
+    <div x-data="bluLanding()" x-init="init" class="bg-warm text-ink">
+        <main>
 
-    <main class="bg-white">
-        {{-- HERO: editorial fashion vibe --}}
-        <section x-data="{ bgLoaded: false }" x-init="(() => {
-                const img = new Image();
-                img.src = '{{ asset('images/hero-bg.jpg') }}';
-                img.onload = () => { bgLoaded = true; };
-            })()" class="relative overflow-hidden bg-slate-950 text-white">
-            {{-- background image --}}
-            <div class="absolute inset-0 bg-cover bg-center lg:bg-fixed transition-opacity duration-700"
-                :class="bgLoaded ? 'opacity-100' : 'opacity-0'"
-                style="background-image: url('{{ asset('images/hero-bg.jpg') }}');"></div>
+            {{-- ================= HERO FULLSCREEN ================= --}}
+            <section class="relative h-[88vh] md:h-[94vh] overflow-hidden">
 
-            {{-- gradient overlay --}}
-            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
-
-            {{-- skeleton while loading --}}
-            <div class="absolute inset-0" x-show="!bgLoaded" x-transition.opacity x-cloak>
-                <x-skeleton.image class="w-full h-full" />
-            </div>
-
-            {{-- content --}}
-            <div class="relative z-20 max-w-7xl mx-auto px-6 py-16 sm:py-20 lg:py-24">
-                <div class="grid gap-10 lg:grid-cols-[1.1fr,0.9fr] items-center">
-                    {{-- Left: copy / USP --}}
-                    <div>
-                        <p data-reveal style="transition-delay: 150ms"
-                            class="opacity-0 translate-y-2 transition duration-700 text-sm uppercase tracking-[0.22em] text-white/70">
-                            BLUSHOP / DAILY ESSENTIALS
-                        </p>
-
-                        <h1 data-reveal style="transition-delay: 300ms"
-                            class="opacity-0 translate-y-2 transition duration-700 mt-3 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight">
-                            Minimal pieces<br class="hidden sm:block">
-                            for everyday students.
-                        </h1>
-
-                        <p data-reveal style="transition-delay: 450ms"
-                            class="opacity-0 translate-y-2 transition duration-700 mt-4 text-base sm:text-lg text-white/80 max-w-xl">
-                            Curated Blu essentials designed to mix, match and survive 8AM classes, library marathons
-                            and late-night coffee runs – without breaking your budget.
-                        </p>
-
-                        {{-- hero stats --}}
-                        <dl data-reveal style="transition-delay: 550ms"
-                            class="opacity-0 translate-y-2 transition duration-700 mt-6 flex flex-wrap gap-6 text-sm text-white/80">
-                            <div>
-                                <dt class="text-xs uppercase tracking-[0.22em] text-white/50">Students served</dt>
-                                <dd class="mt-1 text-lg font-semibold">10k+</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs uppercase tracking-[0.22em] text-white/50">Average rating</dt>
-                                <dd class="mt-1 text-lg font-semibold">4.8 / 5.0</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs uppercase tracking-[0.22em] text-white/50">Campuses</dt>
-                                <dd class="mt-1 text-lg font-semibold">35+ cities</dd>
-                            </div>
-                        </dl>
-
-                        <div data-reveal style="transition-delay: 650ms"
-                            class="opacity-0 translate-y-2 transition duration-700 mt-8 flex flex-col sm:flex-row gap-3">
-                            <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center rounded-full bg-white text-slate-950 font-semibold px-7 py-3 text-sm sm:text-base
-                                      shadow-lg shadow-slate-900/30 hover:shadow-xl hover:scale-[1.03] transition">
-                                Shop Blu collection
-                            </a>
-
-                            <a href="#section-new-in" class="inline-flex items-center justify-center rounded-full border border-white/70 text-white font-medium px-7 py-3 text-sm
-                                      bg-white/5 hover:bg-white/10 backdrop-blur-sm transition">
-                                View this week’s drops
-                            </a>
+                {{-- Background slides --}}
+                <div class="absolute inset-0">
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <div x-show="active === index" x-transition:enter="transition ease-out duration-700"
+                            x-transition:enter-start="opacity-0 scale-[1.02]"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0" class="absolute inset-0">
+                            <img :src="slide.image" alt="" class="w-full h-full object-cover object-center" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
                         </div>
-                    </div>
+                    </template>
+                </div>
 
-                    {{-- Right: hero product collage --}}
-                    <div data-reveal style="transition-delay: 450ms"
-                        class="opacity-0 translate-y-3 transition duration-700">
-                        <div class="grid grid-cols-2 gap-4 sm:gap-5">
-                            <div class="space-y-4 sm:space-y-5">
-                                <div
-                                    class="rounded-3xl overflow-hidden bg-warm/90 border border-white/10 shadow-2xl shadow-black/40">
-                                    <img src="{{ asset('images/hero-product-1.jpg') }}" alt="Blu tote & desk essentials"
-                                        class="h-44 sm:h-56 w-full object-cover">
-                                </div>
-                                <div
-                                    class="rounded-3xl overflow-hidden bg-warm/90 border border-white/10 shadow-xl shadow-black/40">
-                                    <img src="{{ asset('images/hero-product-2.jpg') }}" alt="Minimal Blu bottle"
-                                        class="h-36 sm:h-44 w-full object-cover">
+                {{-- Content --}}
+                <div class="relative z-10 h-full">
+                    <div class="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-between py-6">
+
+                        {{-- Top line --}}
+                        <div class="flex justify-between items-center text-[11px] text-white/75">
+                            <span class="uppercase tracking-[0.22em]">BLUSHOP</span>
+                            <button type="button" @click="scrollTo('rail')"
+                                class="hidden sm:inline-flex items-center gap-1 hover:text-white">
+                                Scroll
+                                <svg class="h-3 w-3" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                    <path d="M5 8l5 5 5-5" stroke-width="1.5" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Center copy --}}
+                        <div class="flex-1 flex items-center">
+                            <div class="max-w-xl space-y-3">
+                                <p class="text-[11px] font-semibold tracking-[0.28em] text-white/70"
+                                    x-text="slides[active].label"></p>
+                                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] leading-tight font-semibold text-white"
+                                    x-text="slides[active].title"></h1>
+                                <p class="text-sm md:text-base text-white/70 max-w-md" x-text="slides[active].subtitle">
+                                </p>
+
+                                <div class="flex flex-wrap items-center gap-3 pt-2">
+                                    <a href="{{ route('home') }}"
+                                        class="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-ink text-warm text-sm md:text-base font-medium shadow-soft hover:bg-black transition">
+                                        Enter BluShop
+                                    </a>
+                                    <a href="{{ route('products.index') }}"
+                                        class="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-white/10 border border-white/35 text-xs md:text-sm text-white hover:bg-white/20 backdrop-blur">
+                                        Shop collection
+                                    </a>
                                 </div>
                             </div>
-                            <div class="space-y-4 sm:space-y-5 pt-8 sm:pt-10">
-                                <div
-                                    class="rounded-3xl overflow-hidden bg-warm/90 border border-white/10 shadow-2xl shadow-black/40">
-                                    <img src="{{ asset('images/hero-product-3.jpg') }}" alt="Blu hoodie & campus gear"
-                                        class="h-48 sm:h-64 w-full object-cover">
+                        </div>
+
+                        {{-- Bottom: short line + controls + slide index --}}
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 text-[11px] text-white/70">
+                                <span>Calm, everyday pieces.</span>
+                                <span class="hidden sm:inline h-[1px] w-8 bg-white/30"></span>
+                                <span class="hidden sm:inline" x-text="(active + 1) + ' / ' + slides.length"></span>
+                            </div>
+
+                            <div class="flex items-center gap-4 md:self-auto self-end">
+                                {{-- Slide controls --}}
+                                <div class="flex items-center gap-2">
+                                    <button type="button" @click="prevSlide()"
+                                        class="h-8 w-8 rounded-full border border-white/40 text-white/80 flex items-center justify-center hover:bg-white/15">
+                                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                            <path d="M12 5l-4 5 4 5" stroke-width="1.6" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <button type="button" @click="nextSlide()"
+                                        class="h-8 w-8 rounded-full border border-white/40 text-white/80 flex items-center justify-center hover:bg-white/15">
+                                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                            <path d="M8 5l4 5-4 5" stroke-width="1.6" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
                                 </div>
 
-                                <div
-                                    class="rounded-2xl border border-beige bg-warm/60 backdrop-blur-sm px-4 py-3 sm:px-5 sm:py-4">
-                                    <p class="text-xs text-white/80">
-                                        “Feels like a calm corner of the internet. Clean, simple and everything just
-                                        works.”
-                                    </p>
-                                    <p class="mt-2 text-xs font-medium text-white/70">
-                                        Minh Anh – CS Student, HCM
-                                    </p>
+                                {{-- Dots --}}
+                                <div class="flex items-center gap-1.5">
+                                    <template x-for="(slide, index) in slides" :key="'dot-' + index">
+                                        <button type="button" @click="goToSlide(index)"
+                                            class="h-1.5 rounded-full transition-all duration-300"
+                                            :class="active === index ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'"></button>
+                                    </template>
                                 </div>
+                            </div>
+                        </div>
+
+                        {{-- Progress bar --}}
+                        <div class="mt-4 h-[2px] w-full bg-white/15 overflow-hidden rounded-full">
+                            <div class="h-full bg-white"
+                                :style="`width: ${Math.min(progress * 100, 100)}%; transition: width 80ms linear;`">
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        {{-- TRUST / HIGHLIGHTS --}}
-        <section class="bg-white">
-            <div class="max-w-7xl mx-auto px-6 py-10 sm:py-12">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div data-reveal class="text-center lg:text-left">
-                        <p class="text-xs uppercase tracking-[0.22em] text-gray-500">
-                            WHY BLUSHOP
-                        </p>
-                        <h2 class="mt-2 text-xl sm:text-2xl font-semibold text-ink">
-                            Built for students. Styled like a brand.
-                        </h2>
+            {{-- =============== THIN INFO STRIP =============== --}}
+            <section class="bg-warm border-b border-beige/70" data-reveal>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                    <div class="flex flex-wrap items-center justify-between gap-3 text-[11px] sm:text-xs text-muted">
+                        <span>Designed in Viet Nam. Built for campus life.</span>
+                        <span class="hidden sm:inline">Neutral, be–toned, easy to wear.</span>
+                    </div>
+                </div>
+            </section>
+
+            {{-- =============== CATEGORIES STRIP =============== --}}
+            <section class="bg-warm py-8 md:py-10" data-reveal>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+                    <div class="flex items-end justify-between gap-3">
+                        <div>
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-muted">CATEGORIES</p>
+                            <h2 class="text-lg md:text-xl font-semibold text-ink">Pick your lane.</h2>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+                        <a href="{{ route('products.index') }}"
+                            class="group relative overflow-hidden rounded-3xl border border-beige bg-white/80 px-4 py-5 md:px-5 md:py-6 flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <p class="text-xs uppercase tracking-[0.2em] text-muted">APPAREL</p>
+                                <h3 class="text-base md:text-lg font-semibold text-ink">Tees & layers.</h3>
+                            </div>
+                            <span class="mt-3 text-[11px] text-muted group-hover:text-ink flex items-center gap-1">
+                                Shop apparel
+                                <span>→</span>
+                            </span>
+                        </a>
+
+                        <a href="{{ route('products.index') }}"
+                            class="group relative overflow-hidden rounded-3xl border border-beige bg-white/80 px-4 py-5 md:px-5 md:py-6 flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <p class="text-xs uppercase tracking-[0.2em] text-muted">EVERYDAY</p>
+                                <h3 class="text-base md:text-lg font-semibold text-ink">Bottles & totes.</h3>
+                            </div>
+                            <span class="mt-3 text-[11px] text-muted group-hover:text-ink flex items-center gap-1">
+                                Daily carry
+                                <span>→</span>
+                            </span>
+                        </a>
+
+                        <a href="{{ route('products.index') }}"
+                            class="group relative overflow-hidden rounded-3xl border border-beige bg-white/80 px-4 py-5 md:px-5 md:py-6 flex flex-col justify-between">
+                            <div class="space-y-1">
+                                <p class="text-xs uppercase tracking-[0.2em] text-muted">DESK</p>
+                                <h3 class="text-base md:text-lg font-semibold text-ink">Stationery.</h3>
+                            </div>
+                            <span class="mt-3 text-[11px] text-muted group-hover:text-ink flex items-center gap-1">
+                                Study setup
+                                <span>→</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            {{-- =============== PRODUCT RAIL =============== --}}
+            <section id="rail" class="bg-warm pb-9 md:pb-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 md:space-y-6">
+                    <div class="flex items-end justify-between gap-3" data-reveal>
+                        <div>
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-muted">BLU PREVIEW</p>
+                            <h2 class="text-lg md:text-xl font-semibold text-ink">New & loved.</h2>
+                        </div>
+                        <a href="{{ route('products.index') }}"
+                            class="hidden sm:inline-flex items-center text-xs md:text-sm text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline">
+                            View all products →
+                        </a>
                     </div>
 
                     @php
-                    $highlights = [
-                    ['title' => 'Calm shopping', 'desc' => 'Minimal interface, no pop-up chaos, just products.'],
-                    ['title' => 'Student-friendly pricing', 'desc' => 'Blu pieces priced for real life, not runway.'],
-                    ['title' => 'Fast, secure checkout', 'desc' => 'Modern, encrypted payment flow you can trust.'],
-                    ['title' => 'Curated essentials', 'desc' => 'Every item picked to actually be used on campus.'],
-                    ];
+                    $railProducts = isset($landingProducts) && $landingProducts->count()
+                    ? $landingProducts
+                    : collect([
+                    ['name' => 'Soft campus socks', 'price' => '199.000', 'tag' => 'Socks'],
+                    ['name' => 'Frost sky bottle', 'price' => '329.000', 'tag' => 'Bottle'],
+                    ['name' => 'Canvas tote', 'price' => '289.000', 'tag' => 'Tote'],
+                    ['name' => 'Blu knit beanie', 'price' => '249.000', 'tag' => 'Beanie'],
+                    ['name' => 'Minimal crewneck', 'price' => '449.000', 'tag' => 'Crew'],
+                    ]);
                     @endphp
 
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full lg:w-auto">
-                        @foreach($highlights as $h)
-                        <article data-reveal
-                            class="opacity-0 translate-y-2 transition duration-500 rounded-2xl border border-beige bg-white px-4 py-3 shadow-soft">
-                            <h3 class="text-sm font-semibold text-ink">
-                                {{ $h['title'] }}
-                            </h3>
-                            <p class="mt-1 text-xs text-gray-600">
-                                {{ $h['desc'] }}
-                            </p>
+                    <div x-ref="productRail" @mouseover="stopRail()" @mouseleave="startRail()"
+                        class="relative flex gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pb-3"
+                        data-reveal>
+                        @foreach($railProducts as $p)
+                        <article class="snap-start shrink-0 w-[210px] sm:w-[230px] md:w-[250px]
+                                       bg-white rounded-3xl shadow-soft hover:shadow-xl
+                                       transition-transform duration-300 will-change-transform overflow-hidden">
+                            <a href="{{ isset($p->id) ? route('products.show', $p->slug ?? $p->id) : route('products.index') }}"
+                                class="block">
+                                <div class="aspect-[4/3] bg-warm/60 overflow-hidden">
+                                    @if(isset($p->image_url))
+                                    <img src="{{ $p->image_url }}" alt="{{ $p->name }}"
+                                        class="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500" />
+                                    @else
+                                    <img src="{{ asset('images/landing/rail-' . (($loop->index % 3) + 1) . '.jpg') }}"
+                                        alt="{{ is_array($p) ? $p['name'] : $p->name }}"
+                                        class="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500" />
+                                    @endif
+                                </div>
+                            </a>
+                            <div class="p-3.5 space-y-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-sm font-semibold text-ink truncate">
+                                        {{ is_array($p) ? $p['name'] : $p->name }}
+                                    </p>
+                                    <span class="text-[10px] rounded-full bg-rosebeige/70 text-ink px-2 py-0.5">
+                                        {{ is_array($p) ? $p['tag'] : 'Blu' }}
+                                    </span>
+                                </div>
+                                <p class="text-sm font-semibold text-ink">
+                                    {{ is_array($p)
+                                    ? $p['price'] . 'đ'
+                                    : number_format($p->unit_price ?? $p->price ?? 0, 0, ',', '.') . 'đ' }}
+                                </p>
+                            </div>
                         </article>
                         @endforeach
                     </div>
-                </div>
-            </div>
-        </section>
 
-        {{-- NEW IN / FEATURED --}}
-        <section id="section-new-in" class="bg-warm/60">
-            <div class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
-                <div class="flex items-end justify-between gap-4" data-reveal>
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.22em] text-gray-600">
-                            THIS WEEK
-                        </p>
-                        <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-ink">
-                            New in Blu.
-                        </h2>
-                        <p class="mt-1 text-sm text-gray-700 max-w-md">
-                            A small curated drop of pieces students are actually reaching for right now.
-                        </p>
-                    </div>
-                    <a href="{{ route('products.index') }}"
-                        class="hidden sm:inline-flex text-indigo-600 text-sm font-medium hover:underline">
-                        View full collection
-                    </a>
-                </div>
-
-                @if(($featured ?? collect())->isEmpty())
-                <div class="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-700 p-4">
-                    No featured products yet. Seed some data:
-                    <code class="ml-1">php artisan db:seed --class=ProductSeeder</code>
-                </div>
-                @else
-                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @foreach($featured as $product)
-                    <x-cart :product="$product" type="featured" :is-wished="in_array($product->id, $wishedIds ?? [])"
-                        :spotlight="true" :imageOnly="true" />
-                    @endforeach
-                </div>
-                @endif
-
-                <div class="mt-6 sm:hidden text-center">
-                    <a href="{{ route('products.index') }}"
-                        class="inline-flex text-indigo-600 text-sm font-medium hover:underline">
-                        View all products
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        {{-- SHOP BY EDIT / CATEGORY STYLE --}}
-        <section class="bg-white">
-            <div class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
-                <div class="flex items-end justify-between gap-4" data-reveal>
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.22em] text-gray-500">
-                            CURATED EDITS
-                        </p>
-                        <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-ink">
-                            Build your Blu uniform.
-                        </h2>
-                        <p class="mt-1 text-sm text-gray-600 max-w-md">
-                            Browse by mood instead of product type. Pick an edit that matches your campus routine.
-                        </p>
+                    <div class="flex justify-center sm:hidden pt-1">
+                        <a href="{{ route('products.index') }}"
+                            class="inline-flex items-center text-xs text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline">
+                            View all products →
+                        </a>
                     </div>
                 </div>
+            </section>
 
-                @php
-                $collections = [
-                [
-                'name' => 'Lecture-ready',
-                'desc' => 'Bags, bottles & sleeves that survive packed schedules and crowded buses.',
-                'pill' => 'Everyday carry',
-                ],
-                [
-                'name' => 'Desk & focus',
-                'desc' => 'Stands, cables and little upgrades that make your study corner feel calm.',
-                'pill' => 'Study setup',
-                ],
-                [
-                'name' => 'Off-campus slow days',
-                'desc' => 'Soft layers and cozy pieces for coffee shops, libraries and late walks.',
-                'pill' => 'Lifestyle',
-                ],
-                ];
-                @endphp
-
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($collections as $c)
-                    <article data-reveal
-                        class="opacity-0 translate-y-2 transition duration-500 rounded-2xl bg-warm/40 border border-beige shadow-soft hover:shadow-lg hover:-translate-y-[2px]">
-                        <div class="p-5 flex flex-col h-full">
-                            <span
-                                class="inline-flex items-center rounded-full bg-indigo-50 text-[11px] font-medium text-indigo-700 px-3 py-1">
-                                {{ $c['pill'] }}
-                            </span>
-                            <h3 class="mt-4 text-lg font-semibold text-ink">
-                                {{ $c['name'] }}
-                            </h3>
-                            <p class="mt-2 text-sm text-gray-700 leading-relaxed">
-                                {{ $c['desc'] }}
+            {{-- =============== STORY + LOOKBOOK =============== --}}
+            <section class="bg-warm pb-10 md:pb-14" data-reveal>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid gap-6 md:gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-start">
+                        <div class="space-y-4 md:space-y-5">
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-muted">STORY</p>
+                            <h2 class="text-xl md:text-2xl font-semibold text-ink">
+                                Designed in Viet Nam, made for campus.
+                            </h2>
+                            <p class="text-sm md:text-base text-muted max-w-md">
+                                Blu is about quiet confidence — warm layers, neutral tones, and small objects you carry
+                                every day.
                             </p>
-                            <div class="mt-4">
-                                <a href="{{ route('products.index') }}"
-                                    class="inline-flex items-center text-indigo-600 text-sm font-medium hover:underline">
-                                    Shop this edit
-                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </a>
+                            <p class="text-sm text-muted max-w-md">
+                                One calm place for tees, crews, socks, bottles, totes and stationery that actually
+                                match.
+                            </p>
+                        </div>
+
+                        <div class="grid gap-3 md:gap-4">
+                            <div class="relative overflow-hidden rounded-3xl bg-ink/5 aspect-[4/5]">
+                                <img src="{{ asset('images/landing/lookbook-1.jpg') }}" alt="Blu lookbook outfit"
+                                    class="w-full h-full object-cover object-center" />
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent">
+                                </div>
+                                <span
+                                    class="absolute bottom-3 left-3 text-[11px] text-warm/90 uppercase tracking-[0.18em]">
+                                    LOOKBOOK • FW
+                                </span>
+                            </div>
+                            <div class="relative overflow-hidden rounded-3xl bg-ink/5 aspect-[16/9] md:aspect-[3/2]">
+                                <img src="{{ asset('images/landing/lookbook-2.jpg') }}" alt="Blu desk setup"
+                                    class="w-full h-full object-cover object-center" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent">
+                                </div>
+                                <span
+                                    class="absolute bottom-3 left-3 text-[11px] text-warm/90 uppercase tracking-[0.18em]">
+                                    DESK • STATIONERY
+                                </span>
                             </div>
                         </div>
-                    </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        {{-- SOCIAL PROOF / REVIEWS --}}
-        <section class="bg-slate-950">
-            <div class="max-w-7xl mx-auto px-6 py-12 sm:py-16">
-                <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
-                    <div data-reveal>
-                        <p class="text-xs uppercase tracking-[0.22em] text-slate-400">
-                            STUDENT REVIEWS
-                        </p>
-                        <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-white">
-                            What the Blu community is saying.
-                        </h2>
-                        <p class="mt-2 text-sm text-slate-300 max-w-md">
-                            Real students, real timelines, real backpacks. No staged “perfect” lives – just useful gear.
-                        </p>
-                    </div>
-
-                    <div data-reveal style="transition-delay: 150ms"
-                        class="opacity-0 translate-y-2 transition duration-700 flex items-center gap-3 text-slate-200">
-                        <div class="flex items-center gap-1">
-                            @for($i = 0; $i < 5; $i++) <svg viewBox="0 0 24 24" class="h-4 w-4 text-amber-400"
-                                aria-hidden="true">
-                                <path
-                                    d="M12 4.5 14.09 8.7l4.69.68-3.39 3.3.8 4.62L12 15.9 7.81 17.3l.8-4.62-3.39-3.3 4.69-.68L12 4.5Z"
-                                    fill="currentColor" />
-                                </svg>
-                                @endfor
-                        </div>
-                        <span class="text-sm">
-                            4.8 average rating from 500+ orders
-                        </span>
                     </div>
                 </div>
+            </section>
 
-                @php
-                $reviews = [
-                [
-                'name' => 'Linh, 3rd-year Marketing',
-                'quote' => 'Feels like a friend curated my cart. Nothing loud, just pieces I actually use.',
-                'tag' => 'Everyday carry',
-                ],
-                [
-                'name' => 'Nam, CS freshman',
-                'quote' => 'The site is calm. I came for one bottle, ended up staying to read the code.',
-                'tag' => 'Learner / dev',
-                ],
-                [
-                'name' => 'Thao, Architecture',
-                'quote' => 'The “lecture-ready” edit basically solved my whole weekday outfit + gear problem.',
-                'tag' => 'Lecture-ready',
-                ],
-                ];
-                @endphp
-
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($reviews as $r)
-                    <figure data-reveal
-                        class="opacity-0 translate-y-2 transition duration-500 rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg shadow-black/40">
-                        <figcaption class="flex items-center justify-between gap-3">
-                            <div>
-                                <p class="text-sm font-semibold text-white">
-                                    {{ $r['name'] }}
-                                </p>
-                                <p
-                                    class="mt-1 inline-flex items-center rounded-full bg-slate-800 text-[11px] text-slate-200 px-2 py-0.5">
-                                    {{ $r['tag'] }}
-                                </p>
-                            </div>
-                        </figcaption>
-                        <p class="mt-4 text-sm text-slate-200 leading-relaxed">
-                            “{{ $r['quote'] }}”
-                        </p>
-                    </figure>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        {{-- HOW IT WORKS (SHORT) --}}
-        <section class="bg-white">
-            <div class="max-w-5xl mx-auto px-6 py-12 sm:py-16">
-                <h2 data-reveal class="text-2xl sm:text-3xl font-bold text-ink text-center">
-                    How BluShop fits into your day.
-                </h2>
-                <p data-reveal style="transition-delay: 150ms"
-                    class="opacity-0 translate-y-2 transition duration-700 mt-3 text-center text-sm text-gray-600 max-w-xl mx-auto">
-                    Think of BluShop as a calm layer on top of your student life: browse, add to cart, and quietly
-                    upgrade your everyday routine.
-                </p>
-
-                @php
-                $steps = [
-                [
-                'title' => 'Browse clean edits',
-                'desc' => 'No infinite carousels. Use a few focused edits or filters to discover pieces that match your
-                routine.',
-                ],
-                [
-                'title' => 'Build your Blu stack',
-                'desc' => 'Add items to cart or wishlist as you go. Mix gear, desk items and lifestyle pieces.',
-                ],
-                [
-                'title' => 'Check out & repeat',
-                'desc' => 'Secure checkout, simple tracking, and then you’re back to shipping your own projects.',
-                ],
-                ];
-                @endphp
-
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($steps as $i => $step)
-                    <article data-reveal
-                        class="opacity-0 translate-y-2 transition duration-500 rounded-2xl border border-beige bg-white p-6 shadow-soft">
-                        <div
-                            class="flex items-center justify-center h-9 w-9 rounded-full bg-indigo-600 text-white text-sm font-semibold">
-                            {{ $i + 1 }}
+            {{-- =============== FINAL CTA =============== --}}
+            <section class="bg-warm pb-12 md:pb-16" data-reveal>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="rounded-3xl border border-beige bg-white/85 backdrop-blur px-5 py-6 md:px-8 md:py-8
+                               flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-8">
+                        <div class="space-y-2 max-w-xl">
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-muted">BLUSHOP</p>
+                            <h3 class="text-lg md:text-xl font-semibold text-ink">
+                                Your quiet campus wardrobe.
+                            </h3>
                         </div>
-                        <h3 class="mt-4 text-lg font-semibold text-ink">
-                            {{ $step['title'] }}
-                        </h3>
-                        <p class="mt-2 text-sm text-gray-700 leading-relaxed">
-                            {{ $step['desc'] }}
-                        </p>
-                    </article>
-                    @endforeach
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{{ route('home') }}"
+                                class="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-ink text-warm text-sm md:text-base font-medium shadow-soft hover:bg-black transition">
+                                Enter BluShop
+                            </a>
+                            <a href="{{ route('products.index') }}"
+                                class="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-ink/20 text-sm text-ink hover:bg-warm/80">
+                                Browse all
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </section>
-
-        {{-- ABOUT + FINAL CTA --}}
-        <section id="about-blushop" class="bg-warm/40">
-            <div class="max-w-3xl mx-auto px-6 py-12 sm:py-16 text-center">
-                <h2 data-reveal class="text-2xl sm:text-3xl font-bold text-ink">
-                    Built for students. Designed for learning.
-                </h2>
-                <p data-reveal style="transition-delay: 200ms"
-                    class="opacity-0 translate-y-2 transition duration-700 mt-4 text-gray-700 leading-relaxed">
-                    BluShop is both a calm e-commerce experience and a learning sandbox. Behind every product card
-                    is Laravel 11, Blade components, Vite and Tailwind – wired in a way that’s easy to read,
-                    extend and break (in a good way). Browse like a customer, then explore the code like a dev.
-                </p>
-
-                <div data-reveal style="transition-delay: 350ms"
-                    class="opacity-0 translate-y-2 transition duration-700 mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-                    <a href="{{ route('products.index') }}"
-                        class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-8 py-3 text-sm sm:text-base font-semibold text-white
-                              shadow-md shadow-indigo-500/40 hover:bg-indigo-700 hover:shadow-lg hover:scale-[1.03] transition">
-                        Start shopping Blu
-                    </a>
-                    <a href="{{ route('products.index', ['sort' => 'newest']) }}" class="inline-flex items-center justify-center rounded-full border border-indigo-200 bg-white px-8 py-3 text-sm sm:text-base font-medium text-indigo-700
-                              hover:bg-indigo-50 transition">
-                        Explore latest arrivals
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    @include('partials.wishlist-script')
+            </section>
+        </main>
+    </div>
 </x-app-layout>
