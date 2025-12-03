@@ -47,7 +47,7 @@ UI-only Tailwind refresh to match landing page theme.
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
-                    <tbody class="divide-y divide-beige">
+                <tbody class="divide-y divide-beige">
                     @foreach($cart as $id => $item)
                     @php
                     $subtotal = (float)$item['price'] * (int)$item['quantity'];
