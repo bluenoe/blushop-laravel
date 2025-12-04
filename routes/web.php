@@ -135,3 +135,11 @@ Route::prefix('admin')
 
 // Backward-compatible root /admin redirect to /admin/dashboard
 Route::redirect('/admin', '/admin/dashboard');
+
+
+//Fall back to 404 for undefined routes
+Route::fallback(function () {
+    // Trả về view 404 custom + status code 404
+    return response()
+        ->view('errors.404', [], 404);
+});
