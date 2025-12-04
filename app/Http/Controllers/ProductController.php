@@ -85,7 +85,7 @@ class ProductController extends Controller
         $priceMinBound = (float) \App\Models\Product::query()->min('price');
         $priceMaxBound = (float) \App\Models\Product::query()->max('price');
 
-        return view('home', [
+        return view('products.index', [
             'products' => $products,
             'categories' => $categories,
             'activeCategory' => (string) $request->input('category', ''),
@@ -120,7 +120,7 @@ class ProductController extends Controller
             ['label' => $product->name],
         ];
 
-        return view('product', [
+        return view('products.show', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
             // Qualify column to avoid ambiguous "id" when joining products and wishlists
