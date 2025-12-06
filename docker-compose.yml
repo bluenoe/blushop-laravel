@@ -1,70 +1,18 @@
-version: "3.9"
+version: "3.8"
 
 services:
-  app:
-    build: .
-    container_name: blushop-app
-    volumes:
-      - .:/var/www/html
-    environment:
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8080
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: blushop
-      DB_USERNAME: blushop
-      DB_PASSWORD: blushop
-    depends_on:
-      - db
-    networks:
-      - blushop
-
-  web:
-    image: nginx:alpine
-    container_name: blushop-web
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
-    networks:
-      - blushop
-
+  # Dịch vụ Database (MySQL)
   db:
     image: mysql:8.0
-    container_name: blushop-db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: blushop
-      MYSQL_USER: blushop
-      MYSQL_PASSWORD: blushop
-      MYSQL_ROOT_PASSWORD: rootpassword
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - blushop
-
-  node:
-    image: node:20
-    container_name: blushop-node
-    working_dir: /app
-    command: bash -c "npm install && npm run dev"
-    environment:
-      VITE_HOST: 0.0.0.0
-      VITE_PORT: 5173
+    container_name: blushop_mysql
+    restart: always
     ports:
-      - "5173:5173"
+      - "3306:3306" # Mở cổng thùng ra ngoài máy thật
+    environment:
+      MYSQL_ROOT_PASSWORD: root # Mật khẩu root
+      MYSQL_DATABASE: blushop_db # Tên DB tự tạo lúc khởi động
     volumes:
-      - .:/app
-    networks:
-      - blushop
+      - db_data:/var/lib/mysql # Lưu dữ liệu bền vững
 
 volumes:
-  db-data:
-
-networks:
-  blushop:
+  db_data:
