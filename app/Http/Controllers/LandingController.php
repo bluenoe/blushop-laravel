@@ -19,7 +19,7 @@ class LandingController extends Controller
             ->take(4)
             ->get();
 
-        return view('landing', [
+        return view('home', [
             'featured' => $featured,
             // Qualify column to avoid ambiguous "id" when joining products and wishlists
             'wishedIds' => Auth::check()

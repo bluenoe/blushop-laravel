@@ -171,7 +171,7 @@ Concept: Art Gallery / Editorial Store
                 @foreach($featured as $product)
                 <div class="group relative">
                     <div class="aspect-[3/4] overflow-hidden bg-white relative mb-4">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy"
+                        <img src="{{ $product->image }}" alt="{{ $product->name }}" loading="lazy"
                             class="w-full h-full object-cover transition duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0">
 
                         <button

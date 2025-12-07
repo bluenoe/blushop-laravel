@@ -32,7 +32,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 // Shop home page
-Route::view('/home', 'home')->name('home');
+Route::get('/home', [LandingController::class, 'index'])->name('home');
 
 // Products listing + detail
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
