@@ -46,7 +46,7 @@ Concept: Visual Storytelling, High Contrast, Clean Typography
                         {{-- Caption --}}
                         <div class="mt-4 flex justify-between text-[10px] uppercase tracking-widest text-neutral-400">
                             <span>The Studio</span>
-                            <span>SGN — VN</span>
+                            <span>DN — VN</span>
                         </div>
                     </div>
 
