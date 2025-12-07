@@ -1,192 +1,169 @@
+{{--
+═══════════════════════════════════════════════════════════════
+BluShop Contact v3 - Minimalist Underline Form
+Concept: Clean, Editorial, High-End Feel
+═══════════════════════════════════════════════════════════════
+--}}
+
 <x-app-layout>
-    {{-- Hero / intro --}}
-    <section class="bg-warm border-b border-beige/40">
-        <div class="max-w-5xl mx-auto px-4 lg:px-6 py-12 lg:py-16">
-            <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5 md:p-7 lg:p-8"
-                data-reveal="fade-up">
-                <div class="max-w-2xl space-y-4">
-                    <p class="text-xs tracking-[0.2em] uppercase text-muted">
-                        CONTACT
+    <main class="bg-white text-neutral-900 min-h-screen">
+
+        {{-- 1. HERO HEADER --}}
+        <section class="pt-24 pb-12 sm:pt-32 sm:pb-20 px-6 border-b border-neutral-100">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="max-w-3xl" data-reveal>
+                    <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 mb-6 pl-1">
+                        Get in Touch
                     </p>
-                    <h1 class="text-3xl md:text-4xl font-semibold text-ink">
-                        Let’s make your wardrobe a little calmer.
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8">
+                        Let's Start a <br>
+                        <span class="font-serif italic font-light text-neutral-500 ml-4">Conversation.</span>
                     </h1>
-                    <p class="text-sm md:text-base text-muted leading-relaxed">
-                        Questions about sizing, orders, or styling?
-                        Leave us a message – the Blu team is here to help with fit advice,
-                        order updates, or anything you’re unsure about.
-                    </p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    {{-- Form + info + map --}}
-    <section class="bg-warm/60 -mt-6 lg:-mt-10 relative z-10">
-        <div class="max-w-5xl mx-auto px-4 lg:px-6 pb-14 lg:pb-18 pt-10">
-            <div class="grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
-                {{-- Contact form --}}
-                <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5 md:p-7" data-reveal="fade-up">
+        {{-- 2. MAIN CONTENT --}}
+        <section class="max-w-[1400px] mx-auto px-6 py-20 lg:py-32">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+
+                {{-- LEFT COLUMN: INFO & MAP --}}
+                <div class="lg:col-span-5 space-y-16" data-reveal>
+
+                    {{-- Contact Info Block --}}
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-8">Contact Details</h3>
+                        <div class="space-y-8 text-lg font-light">
+                            <div>
+                                <p class="text-xs uppercase text-neutral-400 mb-1">Email</p>
+                                <a href="mailto:baokhanh.dev281@gmail.com"
+                                    class="hover:underline decoration-1 underline-offset-4">baokhanh.dev281@gmail.com</a>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase text-neutral-400 mb-1">Phone</p>
+                                <a href="tel:+84901234567" class="hover:underline decoration-1 underline-offset-4">+84
+                                    90 123 45 67</a>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase text-neutral-400 mb-1">Studio</p>
+                                <p>District Hai Chau, Da Nang City<br>Vietnam</p>
+                            </div>
+                            <div>
+                                <p class="text-xs uppercase text-neutral-400 mb-1">Hours</p>
+                                <p>Mon – Sun<br>9:00 – 21:00 (GMT+7)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Map (Grayscale Filter) --}}
+                    <div
+                        class="aspect-square bg-neutral-100 grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition duration-700">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.494532679872!2d106.6994763153561!3d10.773385262194605!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa1bd14565e1148af!2zQ2jhu6MgQuG6v24gVGjDoG5o!5e0!3m2!1svi!2s!4v1654321234567!5m2!1svi!2s"
+                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+
+                {{-- RIGHT COLUMN: FORM --}}
+                <div class="lg:col-span-7" data-reveal style="transition-delay: 200ms">
+
                     @if (session('success'))
-                    <div class="mb-4 rounded-xl border border-beige/70 bg-warm/80 px-4 py-3 text-sm text-ink">
-                        {{ session('success') }}
+                    <div class="mb-12 p-6 bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p class="text-sm text-neutral-600">{{ session('success') }}</p>
                     </div>
                     @endif
 
-                    <h2 class="text-xl md:text-2xl font-semibold text-ink mb-3">
-                        Send us a message
-                    </h2>
-                    <p class="text-sm text-muted mb-6">
-                        We usually reply within 24 hours on weekdays.
-                    </p>
-
-                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-4">
+                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-12">
                         @csrf
 
-                        <div>
-                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
-                                Name
+                        {{-- Name --}}
+                        <div class="group relative z-0 w-full mb-6">
+                            <input type="text" name="name" id="name" required
+                                class="block py-4 px-0 w-full text-xl text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                                placeholder=" " />
+                            <label for="name"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                Your Name
                             </label>
-                            <input type="text" name="name" required
-                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
-                                placeholder="Enter your full name">
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
-                                Email
+                        {{-- Email --}}
+                        <div class="group relative z-0 w-full mb-6">
+                            <input type="email" name="email" id="email" required
+                                class="block py-4 px-0 w-full text-xl text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                                placeholder=" " />
+                            <label for="email"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                Email Address
                             </label>
-                            <input type="email" name="email" required
-                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
-                                placeholder="you@example.com">
                         </div>
 
-                        <div class="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
-                                    Topic
-                                </label>
-                                <select name="topic"
-                                    class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70">
-                                    <option value="order">Order support</option>
-                                    <option value="sizing">Sizing & fit</option>
-                                    <option value="product">Product question</option>
-                                    <option value="collab">Collaboration</option>
-                                    <option value="other">Something else</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
-                                    Order ID (optional)
-                                </label>
-                                <input type="text" name="order_id"
-                                    class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70"
-                                    placeholder="#BLU1234">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium tracking-[0.16em] uppercase text-muted mb-2">
-                                Message
+                        {{-- Topic --}}
+                        <div class="group relative z-0 w-full mb-6">
+                            <select name="topic" id="topic"
+                                class="block py-4 px-0 w-full text-xl text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer">
+                                <option value="" disabled selected class="text-neutral-400">Select a topic</option>
+                                <option value="order">Order Inquiry</option>
+                                <option value="product">Product & Sizing</option>
+                                <option value="collab">Collaboration</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <label for="topic"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                Subject
                             </label>
-                            <textarea name="message" rows="4" required
-                                class="w-full rounded-xl border border-beige/80 bg-warm/60 px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent/70 resize-y"
-                                placeholder="Tell us how we can help..."></textarea>
                         </div>
 
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
-                            <p class="text-[11px] text-muted">
-                                By sending this form, you agree to let us contact you about your request.
-                            </p>
+                        {{-- Message --}}
+                        <div class="group relative z-0 w-full mb-6">
+                            <textarea name="message" id="message" rows="4" required
+                                class="block py-4 px-0 w-full text-xl text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer resize-none"
+                                placeholder=" "></textarea>
+                            <label for="message"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                How can we help?
+                            </label>
+                        </div>
+
+                        {{-- Submit Button --}}
+                        <div class="pt-8">
                             <button type="submit"
-                                class="inline-flex items-center gap-2 rounded-full bg-ink text-warm px-5 py-2.5 text-sm font-medium hover:bg-ink/90 active:scale-[0.98] transition">
-                                Send message
+                                class="inline-block px-12 py-4 bg-black text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition transform hover:-translate-y-1">
+                                Send Message
                             </button>
                         </div>
+
                     </form>
                 </div>
 
-                {{-- Info + map --}}
-                <div class="space-y-6" data-reveal="fade-up">
-                    <div class="bg-white rounded-3xl border border-beige/60 shadow-soft p-5">
-                        <h3 class="text-base font-semibold text-ink mb-3">
-                            Contact details
-                        </h3>
-                        <ul class="space-y-2 text-sm text-muted">
-                            <li>
-                                <span class="font-medium text-ink">Email:</span>
-                                <a href="mailto:hello@blushop.vn" class="hover:text-ink">
-                                    hello@blushop.vn
-                                </a>
-                            </li>
-                            <li>
-                                <span class="font-medium text-ink">Phone:</span>
-                                <a href="tel:+84901234567" class="hover:text-ink">
-                                    +84 90 123 45 67
-                                </a>
-                            </li>
-                            <li>
-                                <span class="font-medium text-ink">Hours:</span>
-                                Mon – Sun, 9:00 – 21:00 (GMT+7)
-                            </li>
-                            <li>
-                                <span class="font-medium text-ink">Showroom:</span>
-                                District 1, Ho Chi Minh City, Viet Nam
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-white rounded-3xl border border-beige/60 shadow-soft overflow-hidden">
-                        <div class="aspect-[4/3]">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.5373213786506!2d108.21856011182456!3d16.037583284573277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219e90334f96f%3A0x430e2149e78987c7!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIFBoxrDGoW5nIMSQw7RuZyDEkMOgIE7hurVuZw!5e0!3m2!1sen!2s!4v1764680430323!5m2!1sen!2s"
-                                style="border:0;" allowfullscreen loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade" class="w-full h-full"></iframe>
-                        </div>
-                    </div>
-
-                </div>
             </div>
+        </section>
 
-            {{-- Support strip nhỏ phía dưới, cho đỡ trống --}}
-            <div class="mt-10 pt-6 border-t border-beige/50" data-reveal="fade-up">
-                <div class="grid gap-4 md:grid-cols-3 text-sm">
-                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
-                   hover:border-accent/60 hover:bg-warm/90">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
-                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
-                            URGENT ORDER ISSUE
-                        </p>
-                        <p class="text-ink">
-                            Call us directly for time-sensitive problems with delivery or payment.
-                        </p>
-                    </div>
+    </main>
 
-                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
-                   hover:border-accent/60 hover:bg-warm/90">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
-                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
-                            SIZE & FIT ADVICE
-                        </p>
-                        <p class="text-ink">
-                            Not sure which size to pick? Add your height and weight in the message.
-                        </p>
-                    </div>
+    {{-- Script Reveal Effect --}}
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove('opacity-0', 'translate-y-4');
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                    }
+                });
+            }, { threshold: 0.1 });
 
-                    <div class="space-y-1 rounded-2xl border border-beige/40 bg-warm/70 px-4 py-3 md:px-5 md:py-4 transition
-                   hover:border-accent/60 hover:bg-warm/90">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted flex items-center gap-2">
-                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
-                            COLLAB & PARTNERSHIP
-                        </p>
-                        <p class="text-ink">
-                            For collaborations or bulk orders, choose “Collaboration” in Topic.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
+            document.querySelectorAll('[data-reveal]').forEach(el => {
+                el.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-1000', 'ease-out');
+                observer.observe(el);
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>
