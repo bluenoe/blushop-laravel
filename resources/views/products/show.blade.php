@@ -1,298 +1,302 @@
+{{--
+═══════════════════════════════════════════════════════════════
+BluShop Product Detail v3 - High-End Minimalist
+Concept: Sticky Sidebar & Vertical Gallery
+═══════════════════════════════════════════════════════════════
+--}}
+
 <x-app-layout>
     @push('head')
     <link rel="preload" as="image" href="{{ Storage::url('products/' . $product->image) }}" fetchpriority="high">
-    @endpush
-    <section class="min-h-[calc(100vh-4rem)] bg-warm">
-        <div class="max-w-7xl mx-auto px-6 py-10 sm:py-16">
-            <x-breadcrumbs :items="$breadcrumbs" />
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
 
-            <div x-data="{
-                    images: [
-                        '{{ Storage::url('products/' . $product->image) }}',
-                        '{{ asset('images/sample2.jpg') }}',
-                        '{{ asset('images/sample3.jpg') }}'
-                    ],
-                    active: 0,
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    @endpush
+
+    <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
+
+        {{-- BREADCRUMBS: Minimal --}}
+        <div class="max-w-[1400px] mx-auto px-6 pt-6 pb-2">
+            <nav class="flex text-xs uppercase tracking-widest text-neutral-500">
+                <a href="{{ route('home') }}" class="hover:text-black transition">Home</a>
+                <span class="mx-2">/</span>
+                <a href="{{ route('products.index') }}" class="hover:text-black transition">Shop</a>
+                @if($product->category)
+                <span class="mx-2">/</span>
+                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
+                    class="hover:text-black transition">{{ $product->category->name }}</a>
+                @endif
+                <span class="mx-2">/</span>
+                <span class="text-black border-b border-black">{{ $product->name }}</span>
+            </nav>
+        </div>
+
+        {{-- MAIN PRODUCT SECTION --}}
+        <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-8 lg:py-12">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
+                    activeImage: 0,
                     size: null,
                     color: null,
                     qty: 1,
-                    ts: 0,
-                    te: 0,
-                    imgLoading: true,
-                }" class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                <!-- Left: hero image + thumbnails -->
-                <div class="group" data-reveal="fade-up">
-                    <div class="relative overflow-hidden rounded-xl border border-beige bg-white"
-                        style="aspect-ratio: 4/3;" x-on:touchstart="ts = $event.changedTouches[0].clientX"
-                        x-on:touchend="te = $event.changedTouches[0].clientX; if (te - ts > 40) { imgLoading = true; active = (active - 1 + images.length) % images.length } else if (ts - te > 40) { imgLoading = true; active = (active + 1) % images.length }">
-                        <!-- Skeleton overlay: visible immediately, fades out on image load -->
-                        <div class="absolute inset-0 pointer-events-none" x-show="imgLoading" x-transition.opacity>
-                            <x-skeleton.image class="w-full h-full" />
-                        </div>
-                        <!-- Hero image (fills frame, keeps rounded corners) -->
-                        <img :src="images[active]" alt="{{ $product->name }}"
-                            class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-300 ease-out group-hover:scale-[1.02]"
-                            :class="imgLoading ? 'opacity-0' : 'opacity-100'" @load="imgLoading = false"
-                            fetchpriority="high" decoding="async" draggable="false" />
+                    loading: false,
+                    added: false,
+                    // Giả lập nhiều ảnh nếu DB chỉ có 1 ảnh
+                    images: [
+                        '{{ Storage::url('products/' . $product->image) }}',
+                        // Thêm ảnh placeholder để demo layout gallery
+                        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
+                        'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1000',
+                        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=1000'
+                    ]
+                 }">
 
-                        <!-- Prev/Next -->
-                        <button type="button" aria-label="Previous image"
-                            class="absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-ink/10 text-ink px-2 py-1 hover:bg-ink/20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            @click="imgLoading = true; active = (active - 1 + images.length) % images.length">
-                            ‹
-                        </button>
-                        <button type="button" aria-label="Next image"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-ink/10 text-ink px-2 py-1 hover:bg-ink/20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            @click="imgLoading = true; active = (active + 1) % images.length">
-                            ›
-                        </button>
+                {{-- LEFT COLUMN: GALLERY (Mobile Slider / Desktop Grid) --}}
+                <div class="lg:col-span-7 col-span-12 w-full">
 
-                        <!-- Wishlist heart (aligned with product card styles) -->
-                        <div class="absolute top-0 right-0"
-                            x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
-                            <button type="button"
-                                class="group/heart absolute top-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full
-                                           bg-white/90 text-ink shadow-sm ring-1 ring-beige/70
-                                           transition hover:bg-rose-50 hover:text-rose-500 hover:ring-rose-200 hover:scale-105"
-                                :class="active ? 'bg-rose-50 text-rose-600 ring-rose-200' : ''" :aria-pressed="active"
-                                :title="active ? 'Remove from wishlist' : 'Add to wishlist'"
-                                @click.stop="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5">
-                                    <path
-                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                                        :fill="active ? 'currentColor' : 'none'"
-                                        :stroke="active ? 'none' : 'currentColor'" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
+                    {{-- Mobile View: Horizontal Slider --}}
+                    <div
+                        class="lg:hidden relative w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar aspect-[3/4]">
+                        <template x-for="(img, index) in images" :key="index">
+                            <div class="snap-center min-w-full w-full h-full bg-neutral-100 relative">
+                                <img :src="img" class="w-full h-full object-cover">
+                                {{-- Counter badge --}}
+                                <div
+                                    class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full">
+                                    <span x-text="index + 1"></span> / <span x-text="images.length"></span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
-                    <!-- Thumbnails -->
-                    <div class="mt-4 flex items-center gap-3">
-                        <template x-for="(src, i) in images" :key="i">
-                            <button type="button" :aria-label="'Show image ' + (i+1)"
-                                @click="imgLoading = true; active = i" :class="{'ring-2 ring-indigo-500': active === i}"
-                                class="overflow-hidden rounded-md border border-beige bg-white w-20 h-20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <img :src="src" alt="{{ $product->name }} thumbnail" loading="lazy" decoding="async"
-                                    class="w-full h-full object-cover" />
-                            </button>
+                    {{-- Desktop View: Vertical Masonry/Grid --}}
+                    <div class="hidden lg:grid grid-cols-2 gap-4">
+                        <template x-for="(img, index) in images" :key="index">
+                            <div class="bg-neutral-50 relative group cursor-zoom-in"
+                                :class="index === 0 ? 'col-span-2 aspect-[4/5]' : 'col-span-1 aspect-[3/4]'">
+                                <img :src="img"
+                                    class="w-full h-full object-cover mix-blend-multiply transition duration-700 group-hover:scale-[1.02]"
+                                    loading="lazy">
+                            </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Right: info panel -->
-                <div class="flex flex-col" data-reveal="fade-up">
-                    <div class="rounded-xl border border-beige bg-white p-6 sm:p-8 shadow-soft">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <div class="flex items-center gap-2 mb-2">
-                                    @if ($product->is_on_sale)
-                                    <span
-                                        class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">On
-                                        sale</span>
-                                    @endif
-                                    @if ($product->is_bestseller)
-                                    <span
-                                        class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Bestseller</span>
-                                    @endif
-                                    @if ($product->is_new)
-                                    <span
-                                        class="rounded-full bg-beige px-2 py-0.5 text-xs font-medium text-ink">New</span>
-                                    @endif
-                                </div>
-                                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{{ $product->name }}
-                                </h1>
-                                @if($product->category && $product->category->name != 'Uncategorized')
-                                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
-                                    class="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 hover:text-indigo-600">
-                                    <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
-                                    <span>{{ $product->category->name }}</span>
-                                </a>
-                                @endif
-                            </div>
-                            <span class="text-xs text-gray-500">SKU: {{ $product->id }}</span>
-                        </div>
+                {{-- RIGHT COLUMN: PRODUCT INFO (Sticky) --}}
+                <div class="lg:col-span-5 col-span-12 px-6 lg:px-0 mt-8 lg:mt-0 lg:sticky lg:top-24">
 
-                        <div class="mt-2 flex items-center gap-3">
-                            <p class="text-indigo-600 text-xl sm:text-2xl font-semibold">₫{{
-                                number_format((float)$product->price, 0, ',', '.') }}</p>
-                            <span class="text-sm text-green-600">In stock</span>
-                        </div>
+                    {{-- Header --}}
+                    <div class="mb-8 border-b border-neutral-200 pb-6">
+                        <div class="flex justify-between items-start">
+                            <h1
+                                class="text-3xl md:text-4xl font-bold tracking-tighter leading-tight text-neutral-900 mb-2">
+                                {{ $product->name }}
+                            </h1>
 
-                        <!-- Variant selectors -->
-                        <div class="mt-6 space-y-5">
-                            <!-- Sizes -->
-                            <div>
-                                <p class="text-sm font-medium text-gray-700">Size</p>
-                                <div role="radiogroup" aria-label="Choose size" class="mt-2 flex flex-wrap gap-2">
-                                    <template x-for="s in ['S','M','L','XL']" :key="s">
-                                        <button type="button" :aria-checked="size === s"
-                                            :class="size === s ? 'bg-indigo-600 text-white ring-2 ring-indigo-500' : 'bg-warm text-ink border border-beige hover:bg-beige'"
-                                            class="px-3 py-1.5 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            @click="size = s" :disabled="s === 'XL' ? false : false"
-                                            aria-disabled="false">
-                                            <span x-text="s"></span>
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <!-- Colors -->
-                            <div>
-                                <p class="text-sm font-medium text-gray-700">Color</p>
-                                <div role="radiogroup" aria-label="Choose color" class="mt-2 flex items-center gap-3">
-                                    <template x-for="c in [
-                                        {id:'black', name:'Black', cls:'bg-black'},
-                                        {id:'gray', name:'Gray', cls:'bg-gray-500'},
-                                        {id:'navy', name:'Navy', cls:'bg-indigo-900'}
-                                    ]" :key="c.id">
-                                        <button type="button" :aria-checked="color === c.id"
-                                            class="w-7 h-7 rounded-full ring-2 ring-beige focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            :class="[c.cls, color === c.id ? 'ring-indigo-500 ring-offset-2 ring-offset-white' : 'hover:ring-beige']"
-                                            @click="color = c.id">
-                                            <span class="sr-only" x-text="c.name"></span>
-                                        </button>
-                                    </template>
-                                </div>
+                            {{-- Wishlist Button --}}
+                            <div x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
+                                <button @click="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)"
+                                    class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition">
+                                    <svg class="w-6 h-6 transition-colors"
+                                        :class="active ? 'text-red-600 fill-current' : 'text-neutral-400 group-hover:text-black'"
+                                        viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Quantity + actions -->
-                        <form method="POST" action="{{ route('cart.add', $product->id) }}" class="mt-6 sm:mt-8"
-                            x-data="{loading:false,ok:false}" @submit.prevent="
+                        <div class="flex items-center gap-4 mt-2">
+                            <span class="text-xl font-medium text-neutral-900">
+                                ₫{{ number_format((float)$product->price, 0, ',', '.') }}
+                            </span>
+                            @if($product->is_on_sale)
+                            <span class="bg-black text-white text-[10px] uppercase font-bold px-2 py-1">Sale</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Add to Cart Form --}}
+                    <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
+                            if(!size) { alert('Please select a size'); return; }
                             loading = true;
+                            // Simulate API call logic here...
                             fetch($el.action, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Accept': 'application/json',
-                                    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
                                 },
-                                body: JSON.stringify({ quantity: qty })
-                            }).then(r => r.ok ? r.json() : Promise.reject(r)).then(data => {
+                                body: JSON.stringify({ quantity: qty, size: size, color: color })
+                            }).then(r => r.ok ? r.json() : Promise.reject(r))
+                            .then(data => {
                                 if (data && data.success) { 
-                                    if (window.Alpine && Alpine.store('cart')) {
-                                        Alpine.store('cart').set(data.cart_count);
-                                        ok = true; 
-                                        setTimeout(() => ok = false, 2000);
-                                    }
+                                    Alpine.store('cart').set(data.cart_count);
+                                    added = true; 
+                                    setTimeout(() => added = false, 3000);
                                 }
-                            }).catch(() => {}).finally(() => { loading = false; });
-                        ">
-                            @csrf
-                            <div class="flex flex-wrap items-center gap-4">
-                                <div class="flex items-center gap-2">
-                                    <label for="qty" class="text-sm font-medium text-gray-700">Quantity</label>
-                                    <div class="flex items-center gap-1">
-                                        <button type="button"
-                                            class="px-2 py-1 rounded-md bg-beige text-ink border border-beige hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            @click="qty = Math.max(1, qty - 1)">–</button>
-                                        <input type="number" min="1" name="quantity" id="qty" x-model.number="qty"
-                                            required
-                                            class="w-20 rounded-md border border-beige bg-white px-3 py-2 text-ink placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-soft" />
-                                        <button type="button"
-                                            class="px-2 py-1 rounded-md bg-beige text-ink border border-beige hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            @click="qty = qty + 1">+</button>
-                                    </div>
-                                </div>
-                                @error('quantity')
-                                <p class="text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                            }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
+                          ">
+                        @csrf
 
-                                <div class="flex flex-wrap gap-3">
-                                    <button type="submit" :class="loading ? 'opacity-70 cursor-wait' : ''"
-                                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
-                                        Add to Cart
-                                    </button>
-                                    <span x-show="ok" x-transition
-                                        class="inline-flex items-center text-xs text-green-600 font-medium">Added</span>
-                                    <a href="{{ route('checkout.index') }}"
-                                        class="inline-flex items-center justify-center rounded-md border border-beige bg-beige px-5 py-2.5 text-sm font-semibold text-ink hover:bg-rosebeige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
-                                        Buy Now
-                                    </a>
-                                    <a href="{{ route('products.index') }}"
-                                        class="inline-flex items-center justify-center rounded-md text-sm font-semibold text-gray-600 hover:text-ink focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        Back to Shop
-                                    </a>
-                                </div>
+                        {{-- 1. COLOR SELECTION --}}
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
+                                <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
                             </div>
-                        </form>
+                            <div class="flex gap-3">
+                                <template x-for="c in [
+                                    {id:'black', cls:'bg-neutral-900'},
+                                    {id:'white', cls:'bg-white border border-gray-200'},
+                                    {id:'beige', cls:'bg-[#E8E0D5]'},
+                                    {id:'navy',  cls:'bg-[#1F2937]'}
+                                ]" :key="c.id">
+                                    <button type="button" @click="color = c.id"
+                                        class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
+                                        :class="color === c.id ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
+                                        <div :class="c.cls" class="w-full h-full rounded-full"></div>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- 2. SIZE SELECTION --}}
+                        <div class="mb-8">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
+                                <button type="button" class="text-xs underline text-neutral-400 hover:text-black">Size
+                                    Guide</button>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2">
+                                <template x-for="s in ['S','M','L','XL']" :key="s">
+                                    <button type="button" @click="size = s"
+                                        class="py-3 border text-sm font-medium transition-all duration-200"
+                                        :class="size === s 
+                                                ? 'border-black bg-black text-white' 
+                                                : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                        <span x-text="s"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        {{-- 3. ACTION BUTTONS --}}
+                        <div class="space-y-3">
+                            <button type="submit" :disabled="loading"
+                                class="w-full py-4 bg-neutral-900 text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed relative">
+                                <span x-show="!loading && !added">Add to Bag</span>
+                                <span x-show="loading" class="animate-pulse">Processing...</span>
+                                <span x-show="added" class="flex items-center justify-center gap-2">
+                                    Added
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <p class="text-center text-[10px] text-neutral-400 uppercase tracking-widest">
+                                Free shipping on orders over 500k
+                            </p>
+                        </div>
+                    </form>
+
+                    {{-- DETAILS ACCORDION --}}
+                    <div class="mt-10 border-t border-neutral-200" x-data="{ activeTab: 'desc' }">
+                        {{-- Item 1 --}}
+                        <div class="border-b border-neutral-200">
+                            <button @click="activeTab = activeTab === 'desc' ? null : 'desc'"
+                                class="w-full py-4 flex justify-between items-center text-left group">
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Description</span>
+                                <span class="text-lg leading-none transition-transform duration-300"
+                                    :class="activeTab === 'desc' ? 'rotate-45' : ''">+</span>
+                            </button>
+                            <div x-show="activeTab === 'desc'" x-collapse
+                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
+                                <p class="mb-4">
+                                    @if($product->description) {{ $product->description }} @else
+                                    Crafted with precision for the modern student. This piece combines functional
+                                    utility with a minimalist aesthetic, ensuring you look sharp from the lecture hall
+                                    to the coffee shop.
+                                    @endif
+                                </p>
+                                <ul class="list-disc list-inside space-y-1 text-neutral-500 marker:text-neutral-300">
+                                    <li>Premium durable fabric</li>
+                                    <li>Relaxed fit for comfort</li>
+                                    <li>Machine washable</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {{-- Item 2 --}}
+                        <div class="border-b border-neutral-200">
+                            <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
+                                class="w-full py-4 flex justify-between items-center text-left group">
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Shipping
+                                    & Returns</span>
+                                <span class="text-lg leading-none transition-transform duration-300"
+                                    :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
+                            </button>
+                            <div x-show="activeTab === 'ship'" x-collapse
+                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
+                                <p>Standard shipping (2-4 business days). Free returns within 14 days of purchase. Items
+                                    must be unworn and in original packaging.</p>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
+        </section>
 
-            <!-- Trust badges -->
-            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                @php
-                $badges = [
-                ['title' => 'Free Shipping', 'desc' => 'On selected orders'],
-                ['title' => 'Secure Payment', 'desc' => 'Encrypted checkout'],
-                ['title' => '24/7 Support', 'desc' => 'We’re here to help'],
-                ['title' => 'Genuine Quality', 'desc' => 'Reliable, curated items'],
-                ];
-                @endphp
-                @foreach($badges as $b)
-                <div
-                    class="rounded-xl bg-white border border-beige p-5 shadow-soft hover:shadow-lg transition duration-300">
-                    <h3 class="text-ink font-semibold">{{ $b['title'] }}</h3>
-                    <p class="mt-1 text-gray-700 text-sm">{{ $b['desc'] }}</p>
-                </div>
-                @endforeach
-            </div>
+        {{-- RELATED PRODUCTS --}}
+        <section class="border-t border-neutral-100 py-16 lg:py-24">
+            <div class="max-w-[1400px] mx-auto px-6">
+                <h2 class="text-2xl font-bold tracking-tight mb-8">Complete the Look</h2>
 
-            <!-- Tabs -->
-            <div x-data="{tab: 'desc'}" class="mt-12 rounded-xl border border-beige bg-white">
-                <div class="flex flex-wrap gap-2 px-6 pt-6">
-                    <button @click="tab = 'desc'"
-                        :class="tab === 'desc' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
-                        class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Description</button>
-                    <button @click="tab = 'specs'"
-                        :class="tab === 'specs' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
-                        class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Specs</button>
-                    <button @click="tab = 'ship'"
-                        :class="tab === 'ship' ? 'bg-indigo-600 text-white' : 'bg-warm text-ink hover:bg-beige'"
-                        class="px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">Shipping
-                        & Returns</button>
-                </div>
-                <div class="px-6 pb-6">
-                    <div x-show="tab === 'desc'" class="pt-4 text-gray-700 text-sm sm:text-base">
-                        @if($product->description)
-                        {{ $product->description }}
-                        @else
-                        Detailed product description will be available soon.
-                        @endif
-                    </div>
-                    <div x-show="tab === 'specs'" class="pt-4 text-gray-700 text-sm sm:text-base">
-                        <ul class="list-disc pl-5 space-y-1">
-                            <li>Premium materials and build</li>
-                            <li>Designed for daily use</li>
-                            <li>Warranty and support from BluShop</li>
-                        </ul>
-                    </div>
-                    <div x-show="tab === 'ship'" class="pt-4 text-gray-700 text-sm sm:text-base">
-                        <p>Ships within 2–4 business days. Free returns within 14 days if unused and in original
-                            packaging.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Related products -->
-            <div class="mt-12">
-                <div class="flex items-end justify-between">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-ink">You may also like</h2>
-                    <a href="{{ route('products.index') }}" class="text-indigo-400 font-medium hover:underline">View
-                        all</a>
-                </div>
-                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                     @forelse(($relatedProducts ?? []) as $r)
-                    <x-cart :product="$r" type="featured" :is-wished="in_array($r->id, $wishedIds ?? [])" />
+                    <div class="group relative">
+                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
+                            <img src="{{ Storage::url('products/' . $r->image) }}" alt="{{ $r->name }}"
+                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0">
+
+                            @if($r->is_new)
+                            <div
+                                class="absolute top-2 left-2 bg-white text-black text-[10px] font-bold uppercase px-2 py-1">
+                                New</div>
+                            @endif
+                        </div>
+                        <h3 class="text-sm font-bold">
+                            <a href="{{ route('products.show', $r) }}">
+                                <span class="absolute inset-0"></span>
+                                {{ $r->name }}
+                            </a>
+                        </h3>
+                        <p class="text-sm text-neutral-500 mt-1">₫{{ number_format((float)$r->price, 0, ',', '.') }}</p>
+                    </div>
                     @empty
-                    <x-skeleton.card />
+                    {{-- Skeleton for empty related --}}
+                    <div class="col-span-full text-center py-12 text-neutral-400 text-sm">
+                        More essentials coming soon.
+                    </div>
                     @endforelse
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+    </main>
+
     @include('partials.wishlist-script')
 </x-app-layout>
