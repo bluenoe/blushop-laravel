@@ -53,7 +53,7 @@ Concept: Visual Storytelling, High Contrast, Clean Typography
                     {{-- Right: Content --}}
                     <div class="lg:pt-20 space-y-12" data-reveal>
                         <div>
-                            <h2 class="text-3xl font-bold tracking-tight mb-6">Born in Saigon.</h2>
+                            <h2 class="text-3xl font-bold tracking-tight mb-6">Born in Danang.</h2>
                             <div class="space-y-6 text-neutral-600 font-light text-lg leading-relaxed">
                                 <p>
                                     BluShop began with a simple question: Why is it so hard to find high-quality basics
