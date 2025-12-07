@@ -1,318 +1,285 @@
-<nav id="main-nav"
-    x-data="{ open: false, searchOpen: false, toggleSearch(){ this.searchOpen = !this.searchOpen; if(this.searchOpen){ this.$nextTick(() => this.$refs.searchInput && this.$refs.searchInput.focus()); } } }"
-    @keydown.window.escape="searchOpen=false" class="bg-warm border-b border-beige sticky top-0 z-40 transition-shadow">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-10 sm:h-12 lg:h-14">
+@php
+// Tui lấy dữ liệu danh mục ở đây để tránh lỗi cú pháp trong @foreach
+// và tối ưu query (chỉ gọi 1 lần dùng cho cả desktop và mobile)
+$categories = \App\Models\Category::query()
+->where('slug', '!=', 'uncategorized')
+->orderBy('name')
+->get();
+@endphp
 
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    {{-- Brand wordmark (text-based) --}}
-                    <a href="{{ route('home') }}" aria-label="BluShop Home" class="inline-flex items-center">
-                        <x-blu-logo class="text-2xl md:text-3xl" />
+<nav x-data="{ 
+        mobileMenuOpen: false, 
+        searchOpen: false, 
+        shopHover: false,
+        scrolled: false 
+    }" @scroll.window="scrolled = (window.pageYOffset > 20)"
+    @keydown.window.escape="searchOpen = false; mobileMenuOpen = false; shopHover = false"
+    :class="{ 'bg-white/90 backdrop-blur-md shadow-sm': scrolled, 'bg-white': !scrolled }"
+    class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-gray-100">
+
+    {{-- PRIMARY HEADER --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+
+            {{-- 1. MOBILE MENU BUTTON (LEFT) --}}
+            <div class="flex items-center sm:hidden">
+                <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="p-2 -ml-2 text-gray-900 hover:opacity-70 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- 2. DESKTOP NAV LINKS (CENTER - SPLIT) --}}
+            <div class="hidden sm:flex items-center gap-8 md:gap-12">
+                {{-- Mega Menu Trigger --}}
+                <div class="relative h-full flex items-center" @mouseenter="shopHover = true"
+                    @mouseleave="shopHover = false">
+                    <a href="{{ route('products.index') }}"
+                        class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition py-8 border-b-2 border-transparent hover:border-black">
+                        Shop
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden sm:hidden">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
-                        {{ __('Home') }}
-                    </x-nav-link>
-
-                    {{-- Thêm các link có sẵn trong web.php cho đúng flow --}}
-                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
-                        {{ __('Shop') }}
-                    </x-nav-link>
-
-                    {{-- Favorites link removed: wishlist is now in Profile sidebar */}
-                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
-                        {{ __('Contact') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('about')" :active="request()->routeIs('about')">
-                        {{ __('About') }}
-                    </x-nav-link>
-
-
-                    {{-- Nếu sau này có dashboard thì mở lại --}}
-                    {{-- <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link> --}}
-                </div>
+                {{-- Other Links --}}
+                <a href="#new-arrivals"
+                    class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition">
+                    New In
+                </a>
+                <a href="{{ route('about') }}"
+                    class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition">
+                    About
+                </a>
             </div>
 
-            <div class="hidden sm:flex flex-1 items-center justify-center">
-                <div class="flex items-center gap-8">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">{{ __('Home') }}</x-nav-link>
-                    <div class="relative" x-data="{ shopOpen:false }" @keydown.window.escape="shopOpen=false">
-                        <button type="button" @mouseenter="shopOpen=true" @mouseleave="shopOpen=false"
-                            @click="shopOpen=!shopOpen"
-                            class="inline-flex items-center px-1 pt-1 text-sm font-medium {{ request()->routeIs('products.*') ? 'text-ink' : 'text-gray-700 hover:text-ink' }}">
-                            {{ __('Shop') }}
-                            <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        <div x-cloak x-show="shopOpen" @mouseenter="shopOpen=true" @mouseleave="shopOpen=false"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 -translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 -translate-y-1"
-                            class="absolute left-1/2 -translate-x-1/2 mt-2 w-64 rounded-xl border border-beige bg-white shadow-soft">
-                            <ul class="py-2">
-                                @foreach((\App\Models\Category::query()->select(['name','slug'])->where('slug','!=','uncategorized')->orderBy('name')->get()
-                                ?? collect()) as $c)
-                                <li>
-                                    <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $c->slug])) }}"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-beige hover:text-ink">{{
-                                        $c->name }}</a>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                    <x-nav-link :href="route('about')" :active="request()->routeIs('about')">{{ __('About')
-                        }}</x-nav-link>
-                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">{{
-                        __('Contact') }}</x-nav-link>
-                </div>
+            {{-- 3. LOGO (CENTER ABSOLUTE) --}}
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <a href="{{ route('home') }}" class="block group">
+                    <span
+                        class="font-bold text-2xl sm:text-3xl tracking-tighter group-hover:opacity-80 transition">BLUSHOP.</span>
+                </a>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
-                <button type="button" @click="toggleSearch()"
-                    class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]"
-                    aria-label="Search">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
+            {{-- 4. ICONS (RIGHT) --}}
+            <div class="flex items-center gap-4 sm:gap-6">
+                {{-- Search Toggle --}}
+                <button @click="searchOpen = !searchOpen; $nextTick(() => $refs.searchInput.focus())"
+                    class="text-gray-900 hover:opacity-60 transition">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </button>
-                <a href="{{ route('cart.index') }}"
-                    class="relative inline-flex items-center justify-center h-9 w-9 rounded-full border border-beige bg-white text-ink hover:bg-beige focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-transform duration-150 hover:scale-[1.03]">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8 7V6a4 4 0 1 1 8 0v1" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M10 11a2 2 0 0 0 4 0" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    @php($cartQty = collect(session('cart', []))->sum('quantity'))
-                    @if($cartQty > 0)
-                    <span
-                        class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
-                        x-text="$store.cart && $store.cart.count">{{ $cartQty }}</span>
-                    @else
-                    <span
-                        class="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
-                        x-show="$store.cart && $store.cart.count > 0" x-text="$store.cart && $store.cart.count"></span>
-                    @endif
-                </a>
-                @auth
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-600 bg-warm hover:text-ink focus:outline-none transition ease-in-out duration-150">
-                            @php($u = Auth::user())
-                            @if ($u && $u->avatar)
-                            <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar"
-                                class="h-10 w-10 rounded-full object-cover ring-1 ring-beige mr-3 transform transition hover:scale-105 hover:ring-indigo-500" />
-                            @else
-                            <div data-avatar-placeholder="true"
-                                data-class="h-10 w-10 rounded-full object-cover ring-1 ring-beige mr-3 transform transition hover:scale-105 hover:ring-indigo-500"
-                                class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold mr-3">
-                                {{ Str::of($u->name)->substr(0, 1)->upper() }}
-                            </div>
-                            @endif
-                            <div>{{ $u->name }}</div>
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
 
-                    <x-slot name="content">
-                        @if (Route::has('profile.edit'))
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-                        @endif
-                        <!-- Authentication -->
+                {{-- Account (Desktop Only) --}}
+                <div class="hidden sm:block relative" x-data="{ open: false }">
+                    <button @click="open = !open" @click.outside="open = false"
+                        class="text-gray-900 hover:opacity-60 transition flex items-center">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </button>
+                    {{-- Account Dropdown --}}
+                    <div x-show="open" x-transition.opacity.duration.200ms
+                        class="absolute right-0 mt-4 w-48 bg-white border border-gray-100 shadow-xl py-2 z-50">
+                        @auth
+                        <div class="px-4 py-2 border-b border-gray-50 mb-1">
+                            <p class="text-xs text-gray-500">Hello,</p>
+                            <p class="text-sm font-bold truncate">{{ Auth::user()->name }}</p>
+                        </div>
+                        <a href="{{ route('profile.edit') }}"
+                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault(); this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
+                            <button type="submit"
+                                class="w-full text-left px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50 text-red-600">Log
+                                Out</button>
                         </form>
-                    </x-slot>
-                </x-dropdown>
+                        @else
+                        <a href="{{ route('login') }}"
+                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Login</a>
+                        <a href="{{ route('register') }}"
+                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Register</a>
+                        @endauth
+                    </div>
+                </div>
+
+                {{-- Cart --}}
+                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    {{-- Minimalist Badge --}}
+                    @php($cartQty = collect(session('cart', []))->sum('quantity'))
+                    <span x-show="$store.cart && $store.cart.count > 0 || {{ $cartQty > 0 ? 'true' : 'false' }}"
+                        class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full"
+                        x-text="$store.cart ? $store.cart.count : '{{ $cartQty }}'">
+                        {{ $cartQty }}
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- MEGA MENU (DESKTOP ONLY) --}}
+    <div x-show="shopHover" @mouseenter="shopHover = true" @mouseleave="shopHover = false"
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
+        class="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl z-40 hidden sm:block">
+
+        <div class="max-w-7xl mx-auto px-8 py-10">
+            <div class="grid grid-cols-4 gap-8">
+                {{-- Column 1: Categories --}}
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Categories</h3>
+                    <ul class="space-y-4">
+                        @foreach($categories->take(5) as $c)
+                        <li>
+                            <a href="{{ route('products.index', ['category' => $c->slug]) }}"
+                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">
+                                {{ $c->name }}
+                            </a>
+                        </li>
+                        @endforeach
+                        <li>
+                            <a href="{{ route('products.index') }}"
+                                class="text-sm font-bold text-black mt-2 inline-block">View All Products &rarr;</a>
+                        </li>
+                    </ul>
+                </div>
+
+                {{-- Column 2: Collections --}}
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Edits</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#"
+                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Campus
+                                Essentials</a></li>
+                        <li><a href="#"
+                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Desk
+                                Setup</a></li>
+                        <li><a href="#"
+                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Minimalist
+                                Tech</a></li>
+                        <li><a href="#"
+                                class="text-sm text-red-600 hover:underline decoration-1 underline-offset-4">Sale - Last
+                                Chance</a></li>
+                    </ul>
+                </div>
+
+                {{-- Column 3 & 4: Featured Image --}}
+                <div class="col-span-2 relative h-64 bg-gray-100 overflow-hidden group">
+                    <img src="{{ asset('images/menu-featured.jpg') }}"
+                        onerror="this.src='https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop'"
+                        alt="New Collection"
+                        class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-black/10"></div>
+                    <div class="absolute bottom-6 left-6 text-white">
+                        <p class="text-xs uppercase tracking-widest mb-2">Just Landed</p>
+                        <h4 class="text-xl font-bold">The Monochrome Collection</h4>
+                    </div>
+                    <a href="#" class="absolute inset-0"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- SEARCH OVERLAY --}}
+    <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
+        <div class="max-w-4xl mx-auto relative">
+            <form action="{{ route('products.index') }}" method="GET">
+                <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..."
+                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
+            </form>
+            <button @click="searchOpen = false"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black">
+                <span class="text-xs uppercase tracking-widest">Close</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- MOBILE MENU (SLIDE OVER) --}}
+    <div x-show="mobileMenuOpen" class="sm:hidden fixed inset-0 z-50 flex">
+        {{-- Backdrop --}}
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false" x-show="mobileMenuOpen"
+            x-transition.opacity></div>
+
+        {{-- Panel --}}
+        <div class="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col" x-show="mobileMenuOpen"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full"
+            x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+
+            <div class="p-6 flex justify-between items-center border-b border-gray-100">
+                <span class="font-bold text-xl tracking-tighter">MENU</span>
+                <button @click="mobileMenuOpen = false">
+                    <svg class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <a href="{{ route('home') }}" class="block text-lg font-medium">Home</a>
+
+                {{-- Mobile Shop Accordion --}}
+                <div x-data="{ expanded: true }">
+                    <button @click="expanded = !expanded"
+                        class="flex items-center justify-between w-full text-lg font-medium mb-4">
+                        <span>Shop</span>
+                        <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <ul x-show="expanded" x-collapse class="pl-4 space-y-3 border-l border-gray-200">
+                        @foreach($categories as $c)
+                        <li><a href="{{ route('products.index', ['category' => $c->slug]) }}"
+                                class="text-gray-600 hover:text-black">{{ $c->name }}</a></li>
+                        @endforeach
+                        <li><a href="{{ route('products.index') }}" class="font-medium text-black">View All</a></li>
+                    </ul>
+                </div>
+
+                <a href="{{ route('contact.index') }}" class="block text-lg font-medium">Contact</a>
+                <a href="{{ route('about') }}" class="block text-lg font-medium">About</a>
+            </div>
+
+            <div class="p-6 border-t border-gray-100 bg-gray-50">
+                @auth
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">
+                        {{ Str::substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">{{ Auth::user()->name }}</p>
+                        <a href="{{ route('profile.edit') }}" class="text-xs text-gray-500 underline">Edit Profile</a>
+                    </div>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button
+                        class="w-full py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest hover:bg-black hover:text-white transition">Log
+                        Out</button>
+                </form>
                 @else
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:underline">Login</a>
-                    <a href="{{ route('register') }}" class="text-sm text-indigo-600 hover:underline">Register</a>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{{ route('login') }}"
+                        class="flex items-center justify-center py-3 bg-black text-white font-bold uppercase text-xs tracking-widest">Login</a>
+                    <a href="{{ route('register') }}"
+                        class="flex items-center justify-center py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest">Register</a>
                 </div>
                 @endauth
             </div>
-
-            <div class="-me-2 flex items-center sm:hidden gap-2">
-                <button type="button" @click="toggleSearch()"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out"
-                    aria-label="Search">
-                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="7" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M21 21l-4.3-4.3" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-                <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-ink hover:bg-beige focus:outline-none focus:bg-beige focus:text-ink transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round"
-                            stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div x-cloak x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2" class="bg-warm overflow-hidden"
-        :style="searchOpen ? 'max-height: 96px' : 'max-height: 0px'">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 transition-all duration-200 ease-out">
-            <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-2">
-                <input x-ref="searchInput" type="text" name="q" value="{{ request('q') }}"
-                    placeholder="Search products..."
-                    class="flex-1 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-soft">
-                <button type="submit"
-                    class="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-indigo-600 text-white font-semibold shadow-soft hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">Search</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div x-data="{ mobileShopOpen:false }" :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-warm">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
-                {{ __('Home') }}
-            </x-responsive-nav-link>
-            <div class="px-3 py-2">
-                <button type="button" @click="mobileShopOpen = !mobileShopOpen"
-                    class="w-full text-left text-sm font-medium text-gray-700 hover:text-ink flex items-center justify-between">
-                    <span>{{ __('Shop') }}</span>
-                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <div x-cloak x-show="mobileShopOpen" x-transition:enter="transition ease-out duration-150"
-                    x-transition:enter-start="opacity-0 -translate-y-1"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-100"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-1" class="mt-2">
-                    <ul class="space-y-1">
-                        @foreach((\App\Models\Category::query()->select(['name','slug'])->where('slug','!=','uncategorized')->orderBy('name')->get()
-                        ?? collect()) as $c)
-                        <li>
-                            <a href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $c->slug])) }}"
-                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-beige hover:text-ink rounded-md">{{
-                                $c->name }}</a>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-            <div class="px-3 py-2">
-                <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center gap-2 text-sm text-gray-700 hover:text-ink">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8 7V6a4 4 0 1 1 8 0v1" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6 21h12a2 2 0 0 0 2-2l-1-11H5l-1 11a2 2 0 0 0 2 2Z" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M10 11a2 2 0 0 0 4 0" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    @php($cartQty = collect(session('cart', []))->sum('quantity'))
-                    <span
-                        class="inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5"
-                        x-show="$store.cart && $store.cart.count > 0" x-text="$store.cart && $store.cart.count"></span>
-                    @if($cartQty > 0)
-                    <span
-                        class="inline-flex items-center justify-center rounded-full bg-rosebeige text-ink text-[11px] px-1.5">{{
-                        $cartQty }}</span>
-                    @endif
-                    <span>{{ __('Cart') }}</span>
-                </a>
-            </div>
-            {{-- Favorites link removed from mobile navigation */}
-            <x-responsive-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
-                {{ __('Contact') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('about')" :active="request()->routeIs('about')">
-                {{ __('About') }}
-            </x-responsive-nav-link>
-
-            {{-- <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link> --}}
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-beige">
-            @auth
-            <div class="px-4 flex items-center gap-3">
-                @php($u = Auth::user())
-                @if ($u && $u->avatar)
-                <img data-avatar-sync="true" src="{{ $u->avatarUrl() }}" alt="User avatar"
-                    class="h-10 w-10 rounded-full object-cover ring-1 ring-beige transform transition hover:scale-105 hover:ring-indigo-500" />
-                @else
-                <div data-avatar-placeholder="true"
-                    data-class="h-10 w-10 rounded-full object-cover ring-1 ring-beige transform transition hover:scale-105 hover:ring-indigo-500"
-                    class="h-10 w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
-                    {{ Str::of($u->name)->substr(0, 1)->upper() }}
-                </div>
-                @endif
-                <div>
-                    <div class="font-medium text-base text-ink">{{ $u->name }}</div>
-                    <div class="font-medium text-sm text-gray-600">{{ $u->email }}</div>
-                </div>
-            </div>
-            <div class="mt-3 space-y-1">
-                @if (Route::has('profile.edit'))
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-                @endif
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-            @else
-            <div class="px-4">
-                <x-responsive-nav-link :href="route('login')">
-                    {{ __('Login') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('register')">
-                    {{ __('Register') }}
-                </x-responsive-nav-link>
-            </div>
-            @endauth
         </div>
     </div>
 </nav>
