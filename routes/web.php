@@ -29,7 +29,9 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
  * Public routes
  */
 // Landing page
-Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::get('/', function () {
+    return view('landing');
+})->name('landing');
 
 // Shop home page
 Route::get('/home', [LandingController::class, 'index'])->name('home');
