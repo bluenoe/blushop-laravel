@@ -1,144 +1,188 @@
+{{--
+═══════════════════════════════════════════════════════════════
+BluShop About Page v3 - Editorial Minimalist
+Concept: Visual Storytelling, High Contrast, Clean Typography
+═══════════════════════════════════════════════════════════════
+--}}
+
 <x-app-layout>
-    {{-- Hero / story --}}
-    <section class="bg-warm min-h-[60vh] border-b border-beige/40">
-        <div class="max-w-5xl mx-auto px-4 lg:px-6 py-16 lg:py-24" data-reveal="fade-up">
-            <div class="grid gap-10 lg:grid-cols-[1.3fr,1fr] items-center">
-                {{-- Text side --}}
-                <div>
-                    <p class="text-xs tracking-[0.2em] uppercase text-muted mb-3">
-                        ABOUT BLUSHOP
+    <main class="bg-white text-neutral-900 selection:bg-black selection:text-white">
+
+        {{-- 1. HERO HEADER: Big Statement --}}
+        <section class="pt-24 pb-12 sm:pt-32 sm:pb-20 px-6 border-b border-neutral-100">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="max-w-4xl" data-reveal>
+                    <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 mb-6 pl-1">
+                        Est. 2025 • Saigon
                     </p>
-                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-ink mb-4">
-                        Everyday pieces, <span class="text-accent">quietly confident</span>.
+                    <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8">
+                        Quietly <br>
+                        <span class="font-serif italic font-light ml-2 sm:ml-4 text-neutral-500">Confident.</span>
                     </h1>
-                    <p class="text-sm md:text-base text-muted leading-relaxed mb-4">
-                        BluShop is a modern fashion label born in Saigon, built for
-                        calm mornings, late-night work sessions, and everything in between.
-                        We design wardrobe staples that feel effortless, with muted tones,
-                        soft textures, and silhouettes that never scream for attention –
-                        they just feel right.
+                    <p
+                        class="text-lg sm:text-2xl font-light text-neutral-800 leading-relaxed max-w-2xl pl-1 border-l-2 border-black pl-6 mt-12">
+                        We design wardrobe staples that feel effortless. Muted tones, soft textures, and silhouettes
+                        that never scream for attention — they just feel right.
                     </p>
-                    <p class="text-sm md:text-base text-muted leading-relaxed">
-                        Every detail – from the weight of a hoodie to the finish on a button –
-                        is considered. We keep the palette warm and grounded so you can mix,
-                        match, and rewear your favorite pieces without thinking too much.
-                    </p>
+                </div>
+            </div>
+        </section>
 
-                    {{-- Stats --}}
-                    <div class="mt-8 pt-6 border-t border-beige/40">
-                        <div class="grid grid-cols-3 gap-4 md:gap-6 text-sm">
-                            <div>
-                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                    2025
+        {{-- 2. THE STORY: Editorial Layout --}}
+        <section class="py-20 sm:py-32">
+            <div class="max-w-[1400px] mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+
+                    {{-- Left: Image (Parallax feel) --}}
+                    <div class="relative group" data-reveal>
+                        <div class="aspect-[4/5] overflow-hidden bg-neutral-100 relative">
+                            {{-- Placeholder Image --}}
+                            <img src="{{ asset('images/about/story-hero.jpg') }}"
+                                onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop'"
+                                alt="BluShop Studio"
+                                class="w-full h-full object-cover grayscale transition duration-[1.5s] group-hover:grayscale-0 group-hover:scale-105"
+                                loading="lazy">
+                        </div>
+                        {{-- Caption --}}
+                        <div class="mt-4 flex justify-between text-[10px] uppercase tracking-widest text-neutral-400">
+                            <span>The Studio</span>
+                            <span>SGN — VN</span>
+                        </div>
+                    </div>
+
+                    {{-- Right: Content --}}
+                    <div class="lg:pt-20 space-y-12" data-reveal>
+                        <div>
+                            <h2 class="text-3xl font-bold tracking-tight mb-6">Born in Saigon.</h2>
+                            <div class="space-y-6 text-neutral-600 font-light text-lg leading-relaxed">
+                                <p>
+                                    BluShop began with a simple question: Why is it so hard to find high-quality basics
+                                    that don't cost a fortune?
                                 </p>
-                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                    YEAR BLUSHOP LAUNCHED
+                                <p>
+                                    We stripped away the loud logos and the retail markups. Instead, we focused on the
+                                    weight of the hoodie, the finish of a button, and the cut of a tee.
                                 </p>
-                            </div>
-                            <div>
-                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                    +50
-                                </p>
-                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                    CORE WARDROBE PIECES
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-2xl md:text-3xl font-semibold text-ink mb-1">
-                                    24/7
-                                </p>
-                                <p class="text-[11px] uppercase tracking-[0.16em] text-muted">
-                                    ONLINE SUPPORT
+                                <p>
+                                    Built for calm mornings, late-night work sessions, and everything in between. We
+                                    keep the palette grounded so you can mix, match, and rewear without thinking twice.
                                 </p>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {{-- Image + BLU NOTE --}}
-                <div class="relative" data-reveal="fade-up">
-                    <div class="aspect-[4/5] rounded-3xl bg-card shadow-soft overflow-hidden">
-                        {{-- Đổi ảnh này thành asset thật của BluShop --}}
-                        <img src="{{ asset('images/about/lookbook-blu.jpg') }}" alt="BluShop lookbook"
-                            class="w-full h-full object-cover">
-                    </div>
+                        {{-- Stats Row (Clean) --}}
+                        <div class="grid grid-cols-3 gap-8 border-t border-neutral-200 pt-12">
+                            <div>
+                                <span class="block text-4xl font-bold tracking-tighter mb-1">2025</span>
+                                <span class="text-[10px] uppercase tracking-widest text-neutral-400">Founded</span>
+                            </div>
+                            <div>
+                                <span class="block text-4xl font-bold tracking-tighter mb-1">50+</span>
+                                <span class="text-[10px] uppercase tracking-widest text-neutral-400">Essentials</span>
+                            </div>
+                            <div>
+                                <span class="block text-4xl font-bold tracking-tighter mb-1">10k</span>
+                                <span class="text-[10px] uppercase tracking-widest text-neutral-400">Community</span>
+                            </div>
+                        </div>
 
-                    {{-- BLU NOTE badge: overlay nhẹ trên ảnh, không che quá nhiều --}}
-                    <div class="absolute bottom-4 left-4">
-                        <div
-                            class="max-w-[240px] rounded-2xl border border-beige/60 bg-card/95 px-4 py-3 shadow-soft backdrop-blur-sm">
-                            <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-1">
-                                BLU NOTE
-                            </p>
-                            <p class="text-xs text-ink/90 leading-relaxed">
-                                Designed in Viet Nam, inspired by quiet confidence.
-                            </p>
+                        {{-- Signature --}}
+                        <div class="pt-8">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Signature_sample.svg/1200px-Signature_sample.svg.png"
+                                alt="Signature" class="h-12 opacity-30 invert-0">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    {{-- Values / Why BluShop --}}
-    <section class="bg-warm/60">
-        <div class="max-w-5xl mx-auto px-4 lg:px-6 py-16 lg:py-20" data-reveal="fade-up">
-            <div class="grid gap-10 md:grid-cols-3">
-                <div class="md:col-span-1">
-                    <p class="text-xs tracking-[0.2em] uppercase text-muted mb-3">
-                        WHAT WE CARE ABOUT
-                    </p>
-                    <h2 class="text-2xl md:text-3xl font-semibold text-ink mb-4">
-                        Built to be worn, not just posted.
+        {{-- 3. VALUES: 3-Column Minimal Grid --}}
+        <section class="bg-neutral-50 py-24 border-y border-neutral-200">
+            <div class="max-w-[1400px] mx-auto px-6">
+                <div class="mb-16 md:text-center max-w-2xl mx-auto" data-reveal>
+                    <span
+                        class="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 block mb-4">Philosophy</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Built to be worn,<br> not just posted.
                     </h2>
-                    <p class="text-sm text-muted leading-relaxed">
-                        We design with repeat wear in mind – pieces you’ll actually reach
-                        for every day, not just for one photo.
-                    </p>
                 </div>
 
-                <div class="md:col-span-2 grid gap-6 md:grid-cols-3">
-                    <div class="bg-card rounded-2xl border border-beige/60 p-4 md:p-5 shadow-soft/40">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-2">
-                            FABRIC FIRST
-                        </p>
-                        <p class="text-sm text-ink mb-2">
-                            Soft-touch cotton blends and breathable weaves chosen for comfort
-                            and long-term wear.
-                        </p>
-                        <p class="text-xs text-muted">
-                            Tested across real, everyday routines – commute, café,
-                            office, and late-night coding sessions.
-                        </p>
-                    </div>
-
-                    <div class="bg-card rounded-2xl border border-beige/60 p-4 md:p-5 shadow-soft/40">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-2">
-                            WARM NEUTRALS
-                        </p>
-                        <p class="text-sm text-ink mb-2">
-                            A warm Blu signature palette that makes mixing & matching effortless.
-                        </p>
-                        <p class="text-xs text-muted">
-                            Beige, ink, soft browns – colors that quietly match your day
-                            instead of shouting over it.
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    {{-- Value 1 --}}
+                    <div class="group" data-reveal>
+                        <div
+                            class="w-12 h-12 bg-white border border-neutral-200 flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white transition duration-300">
+                            <span class="font-serif italic text-xl">01</span>
+                        </div>
+                        <h3 class="text-sm font-bold uppercase tracking-widest mb-4">Fabric First</h3>
+                        <p class="text-neutral-500 font-light leading-relaxed">
+                            Soft-touch blends and breathable weaves. Tested across real routines—commute, café, and
+                            coding sessions.
                         </p>
                     </div>
 
-                    <div class="bg-card rounded-2xl border border-beige/60 p-4 md:p-5 shadow-soft/40">
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-muted mb-2">
-                            SMALL BATCH
+                    {{-- Value 2 --}}
+                    <div class="group" data-reveal style="transition-delay: 100ms">
+                        <div
+                            class="w-12 h-12 bg-white border border-neutral-200 flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white transition duration-300">
+                            <span class="font-serif italic text-xl">02</span>
+                        </div>
+                        <h3 class="text-sm font-bold uppercase tracking-widest mb-4">Warm Neutrals</h3>
+                        <p class="text-neutral-500 font-light leading-relaxed">
+                            A signature palette of beige, ink, and stone. Colors that quietly match your day instead of
+                            shouting over it.
                         </p>
-                        <p class="text-sm text-ink mb-2">
-                            Focused drops instead of endless noise. We’d rather get one hoodie
-                            perfect than ship ten that feel “just ok”.
-                        </p>
-                        <p class="text-xs text-muted">
-                            Limited runs help us listen, learn, and refine what you actually love.
+                    </div>
+
+                    {{-- Value 3 --}}
+                    <div class="group" data-reveal style="transition-delay: 200ms">
+                        <div
+                            class="w-12 h-12 bg-white border border-neutral-200 flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white transition duration-300">
+                            <span class="font-serif italic text-xl">03</span>
+                        </div>
+                        <h3 class="text-sm font-bold uppercase tracking-widest mb-4">Small Batch</h3>
+                        <p class="text-neutral-500 font-light leading-relaxed">
+                            Limited runs help us listen, learn, and refine what you actually love. Less waste, more
+                            intention.
                         </p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        {{-- 4. TEAM / CAREER CTA --}}
+        <section class="py-32 text-center px-6">
+            <div class="max-w-2xl mx-auto" data-reveal>
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter mb-8">Join the Movement</h2>
+                <p class="text-neutral-500 text-lg font-light mb-10">
+                    We are always looking for creative minds to help us redefine student essentials.
+                </p>
+                <a href="{{ route('contact.index') }}"
+                    class="inline-block px-10 py-4 bg-black text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition transform hover:-translate-y-1">
+                    Get in Touch
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    {{-- Script Reveal Effect (Nếu chưa có trong layout chính) --}}
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove('opacity-0', 'translate-y-8');
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('[data-reveal]').forEach(el => {
+                el.classList.add('opacity-0', 'translate-y-8', 'transition-all', 'duration-1000', 'ease-out');
+                observer.observe(el);
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>
