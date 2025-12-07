@@ -131,7 +131,7 @@
         {{-- BOTTOM BAR --}}
         <div class="border-t border-neutral-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-[10px] uppercase tracking-widest text-neutral-400">
-                &copy; {{ date('Y') }} BluShop. Saigon, Vietnam.
+                &copy; {{ date('Y') }} BluShop. Danang, Vietnam.
             </p>
 
             <div class="flex gap-6">
