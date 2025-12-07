@@ -45,18 +45,18 @@ Tailwind theme to match landing page.
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="in_stock" value="1" {{ request('in_stock') ? 'checked' :
-                                    '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="in_stock" value="1" {{ request('in_stock') ? 'checked' : ''
+                                    }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
                                 In stock
                             </label>
                             <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="on_sale" value="1" {{ request('on_sale') ? 'checked' :
-                                    '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="on_sale" value="1" {{ request('on_sale') ? 'checked' : ''
+                                    }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
                                 On sale
                             </label>
                             <label class="inline-flex items-center gap-2 text-sm text-gray-700 col-span-2">
-                                <input type="checkbox" name="featured" value="1" {{ request('featured') ? 'checked' :
-                                    '' }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="featured" value="1" {{ request('featured') ? 'checked' : ''
+                                    }} class="rounded border-beige text-indigo-600 focus:ring-indigo-500">
                                 Featured
                             </label>
                         </div>
