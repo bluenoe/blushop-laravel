@@ -246,7 +246,8 @@ Theme: Editorial Fashion, High Contrast, Clean Lines
             <div class="max-w-2xl mx-auto" data-reveal>
                 <h2 class="text-4xl md:text-6xl font-bold tracking-tighter mb-8">Ready to upgrade?</h2>
                 <p class="text-neutral-400 text-lg mb-12 font-light">Join the movement of smarter student fashion.
-                    <br>Minimal effort, maximum style.</p>
+                    <br>Minimal effort, maximum style.
+                </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <a href="#hero"
