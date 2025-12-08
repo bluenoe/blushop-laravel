@@ -1,6 +1,7 @@
 @php
-// Tui lấy dữ liệu danh mục ở đây để tránh lỗi cú pháp trong @foreach
-// và tối ưu query (chỉ gọi 1 lần dùng cho cả desktop và mobile)
+// Lấy dữ liệu danh mục ở đây để tránh lỗi cú pháp trong @foreach
+// Và tối ưu query (chỉ gọi 1 lần dùng cho cả desktop và mobile)
+
 $categories = \App\Models\Category::query()
 ->where('slug', '!=', 'uncategorized')
 ->orderBy('name')
