@@ -33,6 +33,9 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
+// New arrivals
+Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
+
 // Shop home page
 Route::get('/home', [LandingController::class, 'index'])->name('home');
 

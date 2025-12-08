@@ -130,4 +130,13 @@ class ProductController extends Controller
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
+
+    /**
+     * Hiển thị danh sách sản phẩm mới nhất.
+     */
+    public function newArrivals()
+    {
+        $products = Product::latest()->paginate(12); // Lấy mới nhất
+        return view('products.new-arrivals', compact('products'));
+    }
 }
