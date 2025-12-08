@@ -1,6 +1,6 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Product Listing v3 - Editorial Grid
+BluShop Product Listing v3.1 - Fixed Spacing
 Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
 ═══════════════════════════════════════════════════════════════
 --}}
@@ -13,9 +13,9 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
             activeSort: '{{ request('sort', 'newest') }}'
          }" class="bg-white min-h-screen text-neutral-900">
 
-        {{-- 1. HEADER & TOOLBAR --}}
+        {{-- 1. HEADER & TOOLBAR (STICKY) --}}
         <div
-            class="sticky top-[64px] sm:top-[80px] z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-100 transition-all duration-300">
+            class="sticky top-[64px] sm:top-[80px] z-30 bg-white/95 backdrop-blur-md border-b border-neutral-100 transition-all duration-300">
             <div class="max-w-[1600px] mx-auto px-6 py-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
@@ -97,8 +97,9 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
             </div>
         </div>
 
-        {{-- 2. PRODUCT GRID --}}
-        <section class="max-w-[1600px] mx-auto px-6 pb-24 pt-8">
+        {{-- 2. PRODUCT GRID (Đã tăng Padding Top để không bị che) --}}
+        {{-- Sửa: pt-8 -> pt-12 sm:pt-16 --}}
+        <section class="max-w-[1600px] mx-auto px-6 pb-24 pt-20 sm:pt-28">
             @if(($products ?? collect())->isEmpty())
             <div class="flex flex-col items-center justify-center py-24 text-center">
                 <p class="text-neutral-400 mb-4 text-lg font-light">No products found matching your criteria.</p>
