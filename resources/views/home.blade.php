@@ -142,7 +142,7 @@ Concept: Art Gallery / Editorial Store
         {{-- 4. FEATURED PRODUCTS (Grid Layout Fixed) --}}
         <section id="new-arrivals" class="bg-neutral-50 py-24 overflow-hidden border-y border-neutral-200">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="max-w-2xl mb-12 flex flex-col gap-3" data-reveal>
+                <div class="max-w-2xl mb-12 flex flex-col gap-3 pt-3" data-reveal>
                     <span class="text-neutral-500 text-xs font-bold uppercase tracking-[0.2em]">
                         Weekly Selection
                     </span>
