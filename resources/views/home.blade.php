@@ -89,7 +89,7 @@ Concept: Art Gallery / Editorial Store
                 {{-- Edit 1: Large Left --}}
                 <div class="md:col-span-5 relative group overflow-hidden bg-neutral-100 h-[400px] md:h-full cursor-pointer"
                     data-reveal>
-                    <img src="{{ asset('images/cat-campus.jpg') }}" alt="Campus Ready"
+                    <img src="{{ Storage::url('home/home-campus.jpg') }}" alt="Campus Ready"
                         class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
                     <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-500"></div>
                     <div class="absolute bottom-6 left-6 text-white">
@@ -104,7 +104,7 @@ Concept: Art Gallery / Editorial Store
                     {{-- Edit 2: Top Right --}}
                     <div class="relative group overflow-hidden bg-neutral-100 h-[300px] md:h-auto cursor-pointer"
                         data-reveal style="transition-delay: 100ms">
-                        <img src="{{ asset('images/cat-tech.jpg') }}" alt="Tech Essentials"
+                        <img src="{{ Storage::url('home/home-desk.jpg') }}" alt="Tech Essentials"
                             class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
                         <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-500"></div>
                         <div class="absolute bottom-6 left-6 text-white">
@@ -119,7 +119,7 @@ Concept: Art Gallery / Editorial Store
                     <div class="grid grid-cols-2 gap-4 md:gap-6">
                         <div class="relative group overflow-hidden bg-neutral-100 h-[250px] md:h-auto cursor-pointer"
                             data-reveal style="transition-delay: 200ms">
-                            <img src="{{ asset('images/cat-acc.jpg') }}" alt="Accessories"
+                            <img src="{{ Storage::url('home/home-accessories.jpg') }}" alt="Accessories"
                                 class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
                             <div class="absolute bottom-6 left-6 text-white z-10">
                                 <h3 class="text-lg font-bold">Accessories</h3>
