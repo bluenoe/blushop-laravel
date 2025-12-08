@@ -45,7 +45,7 @@ $categories = \App\Models\Category::query()
                 </div>
 
                 {{-- Other Links --}}
-                <a href="#new-arrivals"
+                <a href="{{ route('new-arrivals') }}"
                     class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition">
                     New In
                 </a>
