@@ -58,7 +58,7 @@
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6">Shop</h3>
                     <ul class="space-y-4 text-sm font-medium">
-                        <li><a href="{{ route('products.index', ['sort' => 'newest']) }}"
+                        <li><a href="{{ route('new-arrivals') }}"
                                 class="hover:text-neutral-500 hover:underline decoration-1 underline-offset-4 transition">New
                                 Arrivals</a></li>
                         <li><a href="{{ route('products.index') }}"
