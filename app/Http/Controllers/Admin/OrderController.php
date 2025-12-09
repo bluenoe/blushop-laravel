@@ -11,9 +11,8 @@ class OrderController extends Controller
     // 1. Danh sách đơn hàng
     public function index(Request $request)
     {
-        $query = Order::query()->with('user'); // Eager load user để tối ưu
+        $query = Order::query()->with('user');
 
-        // Filter theo Status (nếu có)
         if ($request->has('status') && $request->status != 'all') {
             $query->where('status', $request->status);
         }
@@ -23,11 +22,11 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
-    // 2. Chi tiết đơn hàng (Hàm bị thiếu gây ra lỗi đây nè)
+    // 2. Chi tiết đơn hàng (SỬA LẠI KHÚC NÀY NÈ)
     public function show(Order $order)
     {
-        // Load thêm chi tiết sản phẩm trong đơn để hiển thị
-        $order->load(['items.product', 'user']);
+        // Sửa 'items.product' thành 'orderItems.product' cho đúng tên trong Model
+        $order->load(['orderItems.product', 'user']);
 
         return view('admin.orders.show', compact('order'));
     }
