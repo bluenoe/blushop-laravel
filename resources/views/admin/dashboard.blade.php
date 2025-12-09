@@ -10,7 +10,7 @@
         </div>
         <div class="text-right hidden md:block">
             <p class="text-sm font-medium text-neutral-900">{{ now()->format('l, F j, Y') }}</p>
-            <p class="text-xs text-neutral-400">Tam Kỳ, Quảng Nam</p>
+            <p class="text-xs text-neutral-400">Đà Nẵng</p>
         </div>
     </div>
 
