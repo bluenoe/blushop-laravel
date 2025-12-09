@@ -53,4 +53,46 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
+
+    // 3. Hiển thị Form chỉnh sửa
+    public function edit(Product $product)
+    {
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
+    }
+
+    // 4. Xử lý Cập nhật
+    public function update(Request $request, Product $product)
+    {
+        // Validate
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'price' => 'required|numeric',
+            // SKU check unique nhưng TRỪ sản phẩm hiện tại ra (để không báo lỗi chính nó)
+            'sku' => 'nullable|unique:products,sku,' . $product->id,
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        // Nếu user đổi tên -> Cập nhật Slug
+        if ($request->name !== $product->name) {
+            $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(4);
+        }
+
+        // Xử lý Upload ảnh mới (nếu có)
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu cần (Optional)
+            if ($product->image) {
+                Storage::disk('public')->delete('products/' . $product->image);
+            }
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = basename($path);
+        }
+
+        // Cập nhật
+        $product->update($validated);
+
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+    }
 }
