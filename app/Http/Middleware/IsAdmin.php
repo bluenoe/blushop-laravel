@@ -11,10 +11,12 @@ class IsAdmin
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check() || ! Auth::user()->is_admin) {
-            return redirect()->route('home');
+        // Kiểm tra: Đã đăng nhập CHƯA? và CÓ PHẢI ADMIN KHÔNG?
+        // Giả sử trong bảng users bà có cột 'is_admin' (boolean) hoặc 'role' (string)
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.'); // Chặn ngay
         }
 
         return $next($request);
