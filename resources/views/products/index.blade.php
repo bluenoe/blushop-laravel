@@ -131,17 +131,34 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             @endif
                         </div>
 
-                        {{-- Quick Add Overlay (Desktop) --}}
+                        {{-- Quick Add Overlay (AJAX Enabled) --}}
                         <div
                             class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition duration-300 ease-out hidden lg:block">
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit"
-                                    class="w-full py-3 bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">
+                            <div x-data>
+                                <button type="button" @click="
+                    $el.innerHTML = 'Adding...';
+                    fetch('{{ route('cart.add', $product->id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ quantity: 1 })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        $el.innerHTML = 'Added';
+                        $dispatch('notify', { message: data.message }); // Bắn thông báo
+                        // THÊM DÒNG NÀY ĐỂ UPDATE HEADER:
+                        Alpine.store('cart').set(data.cart_count);
+                        setTimeout(() => $el.innerHTML = 'Quick Add +', 2000);
+                    })
+                    .catch(err => console.error(err));
+                " class="w-full py-3 bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">
                                     Quick Add +
                                 </button>
-                            </form>
+                            </div>
                         </div>
                     </div>
 

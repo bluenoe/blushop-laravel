@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Controllers
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+
+// Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -20,61 +23,58 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-| - Public: landing, product, cart, contact, static pages
-| - User (auth): wishlist, checkout, orders, profile
-| - Admin: dashboard + CRUD
+| - Public: Landing, Product, Cart, Contact, Static Pages
+| - Auth: Checkout, Wishlist, Profile, Orders
+| - Admin: Dashboard + CRUD
 */
 
-/**
- * Public routes
- */
-// Landing page
+// --- PUBLIC ROUTES ---
+
+// Landing Page
 Route::get('/', function () {
-    return view('landing');
+    return view('landing'); // Hoặc dùng LandingController nếu có logic
 })->name('landing');
 
-// New arrivals
-Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
-
-// Shop home page
+// Shop Home (Alternative Home)
 Route::get('/home', [LandingController::class, 'index'])->name('home');
 
-// Products listing + detail
+// Products
+Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+// Legacy support
+Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
 
-// (Optional) legacy URL /product/{id} -> same action
-Route::get('/product/{id}', [ProductController::class, 'show'])
-    ->whereNumber('id')
-    ->name('product.show');
-
-// Cart (session-based)
+// Cart (Session-based, AJAX Compatible)
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
+
+    // Add item (có ID trên URL vì thường gọi từ trang Product/List)
     Route::post('/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
-    Route::post('/update/{id}', [CartController::class, 'update'])->whereNumber('id')->name('cart.update');
-    Route::post('/remove/{id}', [CartController::class, 'remove'])->whereNumber('id')->name('cart.remove');
+
+    // Update & Remove (AJAX body sends ID, so no ID in URL needed for cleaner API)
+    // Support cả POST (cho form thường) và PATCH/DELETE (cho AJAX chuẩn)
+    Route::match(['post', 'patch'], '/update', [CartController::class, 'update'])->name('cart.update');
+    Route::match(['post', 'delete'], '/remove', [CartController::class, 'remove'])->name('cart.remove');
+
+    // Clear all
     Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 
-// Contact
+// Contact & Pages
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
-
-// Static pages
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
 
-/**
- * Breeze auth routes (login/register/logout)
- */
+
+// --- AUTH ROUTES (Breeze) ---
 require __DIR__ . '/auth.php';
 
-/**
- * Authenticated user routes
- */
+
+// --- AUTHENTICATED USER ROUTES ---
 Route::middleware('auth')->group(function () {
-    // Wishlist (DB-backed)
+    // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
@@ -83,68 +83,51 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
 
-    // User orders
+    // Orders History
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
-    // Profile
+    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Profile wishlist shortcut
-    Route::get('/profile/wishlist', [WishlistController::class, 'index'])->name('profile.wishlist');
+    // Shortcut
+    Route::get('/profile/wishlist', [WishlistController::class, 'index']);
 });
 
-/**
- * Backwards-compatible alias for older components expecting 'dashboard'
- */
-Route::redirect('/dashboard', '/admin/dashboard')->name('dashboard');
 
-/**
- * Admin routes (auth + is_admin)
- */
+// --- ADMIN ROUTES ---
 Route::prefix('admin')
-    ->middleware(['auth', 'is_admin'])
+    ->middleware(['auth', 'is_admin']) // Ensure you have is_admin middleware or alias
+    ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        // Dashboard
+        Route::redirect('/', '/admin/dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        // Products CRUD
-        Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products.index');
-        Route::get('/products/create', [AdminProductController::class, 'create'])->name('admin.products.create');
-        Route::post('/products', [AdminProductController::class, 'store'])->name('admin.products.store');
-        Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('admin.products.edit');
-        Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('admin.products.update');
-        Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('admin.products.destroy');
+        // Products
+        Route::resource('products', AdminProductController::class);
 
-        // Categories CRUD
-        Route::get('/categories', [AdminCategoryController::class, 'index'])->name('admin.categories.index');
-        Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('admin.categories.create');
-        Route::post('/categories', [AdminCategoryController::class, 'store'])->name('admin.categories.store');
-        Route::get('/categories/{category}/edit', [AdminCategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('admin.categories.update');
-        Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy');
+        // Categories
+        Route::resource('categories', AdminCategoryController::class);
 
-        // Users CRUD (optional)
-        Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-        Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
-        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+        // Users
+        Route::resource('users', AdminUserController::class)->except(['show', 'create', 'store']);
 
-        // Orders management
-        Route::prefix('orders')->group(function () {
-            Route::get('/', [AdminOrderController::class, 'index'])->name('admin.orders.index');
-            Route::get('/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
-            Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
+        // Orders
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+            Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
+            Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('status');
         });
     });
 
-// Backward-compatible root /admin redirect to /admin/dashboard
-Route::redirect('/admin', '/admin/dashboard');
+// Fallback for Admin Dashboard legacy link
+Route::get('/dashboard', function () {
+    return auth()->user()->is_admin ? redirect()->route('admin.dashboard') : redirect()->route('home');
+})->middleware(['auth'])->name('dashboard');
 
-
-//Fall back to 404 for undefined routes
+// 404 Handling
 Route::fallback(function () {
-    // Trả về view 404 custom + status code 404
-    return response()
-        ->view('errors.404', [], 404);
+    return response()->view('errors.404', [], 404);
 });
