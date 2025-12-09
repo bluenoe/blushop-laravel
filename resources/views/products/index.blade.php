@@ -22,7 +22,7 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                     {{-- Left: Title & Breadcrumb --}}
                     <div>
                         <div
-                            class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
+                            class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-neutral-500 mb-1 pt-3">
                             <a href="{{ route('home') }}" class="hover:text-black">Home</a>
                             <span>/</span>
                             <span class="text-black">Shop</span>

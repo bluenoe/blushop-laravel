@@ -13,7 +13,7 @@ Concept: Visual Storytelling, High Contrast, Clean Typography
             <div class="max-w-[1400px] mx-auto">
                 <div class="max-w-4xl" data-reveal>
                     <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 mb-6 pl-1">
-                        Est. 2025 • Saigon
+                        Est. 2025 • Danang
                     </p>
                     <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8">
                         Quietly <br>

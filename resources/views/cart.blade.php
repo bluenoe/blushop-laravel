@@ -11,7 +11,7 @@ Concept: Clean Product List, Sticky Summary Sidebar
         <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-20">
 
             {{-- Header --}}
-            <div class="mb-12 flex items-baseline justify-between border-b border-neutral-100 pb-6">
+            <div class="mb-12 flex items-baseline justify-between border-b border-neutral-100 pb-6 pt-2">
                 <h1 class="text-3xl md:text-4xl font-bold tracking-tighter uppercase">Shopping Bag</h1>
                 <span class="text-sm text-neutral-500">{{ count($cart ?? []) }} Items</span>
             </div>
