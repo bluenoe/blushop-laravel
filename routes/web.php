@@ -119,9 +119,12 @@ Route::prefix('admin')
             Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
             Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('status');
         });
+
+        // Settings (Optional)
+        Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
     });
-Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
-Route::post('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
 
 // Fallback for Admin Dashboard legacy link
 Route::get('/dashboard', function () {
