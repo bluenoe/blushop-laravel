@@ -116,7 +116,7 @@ $categories = \App\Models\Category::query()
                     </svg>
 
                     {{-- Badge Số lượng: Dùng x-text để bind vào Alpine Store --}}
-                    <span x-show="$store.cart.count > 0" x-text="$store.cart.count" x-transition.scale
+                    <span x-show="$store.cart.count > 0" x-text="$store.cart.count" x-transition.scale x-cloak
                         class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                     </span>
                 </a>
