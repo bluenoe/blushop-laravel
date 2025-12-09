@@ -8,44 +8,44 @@
 
     <title>{{ config('app.name', 'BluShop') }}</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Scripts -->
     @auth
     <script>
         window.__INITIAL_AVATAR_URL = @json(Auth:: user() -> avatarUrl());
     </script>
     @endauth
-    @php($cartQty = collect(session('cart', []))->sum('quantity'))
-    <script>window.__CART_COUNT = {{ (int) $cartQty }};</script>
+
+    {{-- Tính toán số lượng cart 1 lần duy nhất ở đây --}}
+    @php
+    $cartQty = collect(session('cart', []))->sum('quantity');
+    @endphp
+
+    <script>
+        window.__CART_COUNT = {{ (int) $cartQty }};
+
+        // Khởi tạo Store ngay khi Alpine load, sử dụng biến window ở trên
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('cart', {
+                count: window.__CART_COUNT || 0,
+
+                set(newCount) {
+                    this.count = parseInt(newCount);
+                }
+            });
+        });
+    </script>
+
     @stack('head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-
 </head>
 
 <body class="font-sans antialiased">
-    <!-- Alpine.js store for cart count  -->
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('cart', {
-                count: {{ collect(session('cart', [])) -> sum('quantity')
-        }}, // Lấy số lượng ban đầu từ PHP session
-
-            // Hàm cập nhật số lượng (gọi khi thêm/sửa/xóa)
-            set(newCount) {
-            this.count = parseInt(newCount);
-        }
-        });
-    });
-    </script>
     <div class="min-h-screen bg-warm">
-        {{-- Navigation (updated to include Home link to /) --}}
+        {{-- Navigation --}}
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
         @isset($header)
         <header class="bg-warm border-b border-beige shadow-sm">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-ink">
@@ -54,7 +54,6 @@
         </header>
         @endisset
 
-        <!-- Page Content -->
         <main>
             {{ $slot }}
         </main>
@@ -62,6 +61,7 @@
         {{-- Global Footer --}}
         @include('components.footer')
     </div>
+
     {{-- GLOBAL TOAST NOTIFICATION --}}
     <div x-data="{ 
             show: false, 
@@ -71,7 +71,7 @@
                 this.message = event.detail.message;
                 this.type = event.detail.type || 'success';
                 this.show = true;
-                setTimeout(() => this.show = false, 3000); // Tự tắt sau 3s
+                setTimeout(() => this.show = false, 3000);
             }
          }" @notify.window="showNotification($event)"
         class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
