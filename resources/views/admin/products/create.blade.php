@@ -1,61 +1,142 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    {{-- Form Wrapper --}}
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data"
+        class="max-w-5xl mx-auto">
+        @csrf
 
-@php($breadcrumb = [ ['label' => 'Products', 'url' => route('admin.products.index')], ['label' => 'Create'] ])
-
-@section('content')
-<h1 class="text-xl font-semibold text-ink mb-6">Add Product</h1>
-
-<form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    @csrf
-    <div class="space-y-4">
-        <div>
-            <label class="block text-sm text-ink mb-1">Name</label>
-            <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-        </div>
-        <div>
-            <label class="block text-sm text-ink mb-1">Category</label>
-            <select name="category_id" required class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-                <option value="">Select a category…</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" @selected(old('category_id') == $cat->id)>{{ $cat->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm text-ink mb-1">Price</label>
-            <input type="number" step="0.01" min="0" name="price" value="{{ old('price') }}" required class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-        </div>
-        <div>
-            <label class="block text-sm text-ink mb-1">Description</label>
-            <textarea name="description" rows="6" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">{{ old('description') }}</textarea>
-        </div>
-    </div>
-    <div class="space-y-4">
-        <div>
-            <label class="block text-sm text-ink mb-1">Image</label>
-            <input type="file" name="image" accept="image/*" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-            <p class="mt-1 text-xs text-gray-600">PNG/JPG/WebP — max 2MB</p>
-        </div>
-        <div class="space-y-4">
-            <h3 class="text-md font-semibold text-ink">Status Badges</h3>
-            <div class="flex items-center gap-2">
-                <input type="checkbox" name="is_new" id="is_new" value="1" @checked(old('is_new')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
-                <label for="is_new" class="text-sm text-ink">Mark as New</label>
+        {{-- HEADER & ACTIONS --}}
+        <div class="flex items-end justify-between mb-12 border-b border-neutral-100 pb-6">
+            <div>
+                <a href="{{ route('admin.products.index') }}"
+                    class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition mb-2 block">
+                    &larr; Back to Catalogue
+                </a>
+                <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">New Entry</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <input type="checkbox" name="is_bestseller" id="is_bestseller" value="1" @checked(old('is_bestseller')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
-                <label for="is_bestseller" class="text-sm text-ink">Mark as Bestseller</label>
-            </div>
-            <div class="flex items-center gap-2">
-                <input type="checkbox" name="is_on_sale" id="is_on_sale" value="1" @checked(old('is_on_sale')) class="rounded text-indigo-600 focus:ring-indigo-500 shadow-soft">
-                <label for="is_on_sale" class="text-sm text-ink">Mark as On sale</label>
+
+            <div class="flex gap-4">
+                <button type="submit"
+                    class="px-8 py-3 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition transform active:scale-95">
+                    Publish Item
+                </button>
             </div>
         </div>
 
-        <div class="flex gap-2">
-            <a href="{{ route('admin.products.index') }}" class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Cancel</a>
-            <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Create</button>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+
+            {{-- LEFT COLUMN: MEDIA (IMAGE UPLOAD) --}}
+            <div class="lg:col-span-4 space-y-6">
+                <div x-data="{ imagePreview: null }" class="relative group">
+                    <label
+                        class="block w-full aspect-[3/4] bg-neutral-50 border border-neutral-200 cursor-pointer overflow-hidden relative transition hover:border-black hover:bg-neutral-100">
+                        {{-- Hidden Input --}}
+                        <input type="file" name="image" class="hidden" accept="image/*" @change="const file = $event.target.files[0]; 
+                                        const reader = new FileReader(); 
+                                        reader.onload = (e) => { imagePreview = e.target.result }; 
+                                        reader.readAsDataURL(file)">
+
+                        {{-- Default State --}}
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-neutral-400"
+                            x-show="!imagePreview">
+                            <span class="text-4xl font-thin mb-2">+</span>
+                            <span class="text-[10px] uppercase tracking-widest">Upload Cover</span>
+                        </div>
+
+                        {{-- Preview State --}}
+                        <img :src="imagePreview" x-show="imagePreview" class="w-full h-full object-cover"
+                            style="display: none;">
+
+                        {{-- Hover Effect --}}
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition duration-300"></div>
+                    </label>
+                    <p class="mt-3 text-[10px] text-neutral-400 uppercase tracking-wider text-center">
+                        Format: JPG, PNG • Max: 2MB
+                    </p>
+                </div>
+            </div>
+
+            {{-- RIGHT COLUMN: SPECIFICATIONS --}}
+            <div class="lg:col-span-8 space-y-10">
+
+                {{-- 1. BASIC INFO --}}
+                <div class="space-y-8">
+                    {{-- Product Name (Floating Label) --}}
+                    <div class="relative z-0 w-full group">
+                        <input type="text" name="name" id="name" required
+                            class="block py-2.5 px-0 w-full text-xl font-bold text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                            placeholder=" " />
+                        <label for="name"
+                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                            Product Name
+                        </label>
+                    </div>
+
+                    {{-- Category & SKU Row --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {{-- Category Select --}}
+                        <div class="relative z-0 w-full group">
+                            <select name="category_id" id="category_id"
+                                class="block py-2.5 px-0 w-full text-sm text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer">
+                                <option value="" disabled selected>Select Category</option>
+                                @foreach($categories ?? [] as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                            <label for="category_id"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                Category
+                            </label>
+                        </div>
+
+                        {{-- SKU Input --}}
+                        <div class="relative z-0 w-full group">
+                            <input type="text" name="sku" id="sku"
+                                class="block py-2.5 px-0 w-full text-sm font-mono text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                                placeholder=" " />
+                            <label for="sku"
+                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                                SKU / Code
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 2. PRICING & STOCK --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+                    {{-- Price --}}
+                    <div class="relative z-0 w-full group">
+                        <input type="number" name="price" id="price" required
+                            class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                            placeholder=" " />
+                        <label for="price"
+                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                            Price (VND)
+                        </label>
+                    </div>
+
+                    {{-- Stock --}}
+                    <div class="relative z-0 w-full group">
+                        <input type="number" name="stock" id="stock" value="0"
+                            class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                            placeholder=" " />
+                        <label for="stock"
+                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                            Stock Qty
+                        </label>
+                    </div>
+                </div>
+
+                {{-- 3. DESCRIPTION --}}
+                <div class="pt-4">
+                    <label for="description"
+                        class="block mb-4 text-xs font-bold uppercase tracking-widest text-neutral-400">Description /
+                        Details</label>
+                    <textarea name="description" id="description" rows="6"
+                        class="block p-4 w-full text-sm text-neutral-900 bg-neutral-50 border-0 focus:ring-1 focus:ring-black placeholder-neutral-400 font-light leading-relaxed"
+                        placeholder="Describe the silhouette, fabric, and fit..."></textarea>
+                </div>
+
+            </div>
         </div>
-    </div>
-</form>
-@endsection
+    </form>
+</x-admin-layout>

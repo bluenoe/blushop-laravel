@@ -3,104 +3,96 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Category; // Nhớ import cái này
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(Request $request): View
+    public function index()
     {
-        $search = (string) $request->query('q', '');
-        $products = Product::query()
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%");
-            })
-            ->with(['category:id,name,slug'])
-            ->latest('id')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.products.index', compact('products', 'search'));
+        $products = Product::with('category')->latest()->paginate(10);
+        return view('admin.products.index', compact('products'));
     }
 
-    public function create(): View
+    // 1. Hiển thị Form tạo mới
+    public function create()
     {
-        $categories = Category::query()->orderBy('name')->get(['id', 'name', 'slug']);
-
+        // Lấy danh mục để chọn (nếu bà chưa có model Category thì tạm thời xóa dòng này và truyền mảng rỗng)
+        $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
 
-    public function store(Request $request): RedirectResponse
+    // 2. Xử lý Lưu sản phẩm
+    public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
+        // Validate dữ liệu đầu vào
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'price' => 'required|numeric',
+            'sku' => 'nullable|unique:products,sku',
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable',
+            'image' => 'nullable|image|max:2048', // Max 2MB
         ]);
 
-        $path = null;
+        // Tạo Slug tự động từ tên (VD: Ao Thun -> ao-thun)
+        $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(4);
+
+        // Xử lý Upload ảnh
         if ($request->hasFile('image')) {
+            // Lưu vào storage/app/public/products
             $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = basename($path);
         }
 
-        $product = Product::create([
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-            'price' => $data['price'],
-            'image' => $path,
-            'category_id' => $data['category_id'],
-            'is_new' => $request->boolean('is_new'),
-            'is_bestseller' => $request->boolean('is_bestseller'),
-            'is_on_sale' => $request->boolean('is_on_sale'),
-        ]);
+        // Tạo sản phẩm
+        Product::create($validated);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
 
-    public function edit(Product $product): View
+    // 3. Hiển thị Form chỉnh sửa
+    public function edit(Product $product)
     {
-        $categories = Category::query()->orderBy('name')->get(['id', 'name', 'slug']);
-
+        $categories = Category::all();
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, Product $product): RedirectResponse
+    // 4. Xử lý Cập nhật
+    public function update(Request $request, Product $product)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
+        // Validate
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'price' => 'required|numeric',
+            // SKU check unique nhưng TRỪ sản phẩm hiện tại ra (để không báo lỗi chính nó)
+            'sku' => 'nullable|unique:products,sku,' . $product->id,
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            // delete old image if exists
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $product->image = $request->file('image')->store('products', 'public');
+        // Nếu user đổi tên -> Cập nhật Slug
+        if ($request->name !== $product->name) {
+            $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(4);
         }
 
-        $product->name = $data['name'];
-        $product->description = $data['description'] ?? null;
-        $product->price = $data['price'];
-        $product->category_id = $data['category_id'];
-        $product->save();
+        // Xử lý Upload ảnh mới (nếu có)
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu cần (Optional)
+            if ($product->image) {
+                Storage::disk('public')->delete('products/' . $product->image);
+            }
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = basename($path);
+        }
+
+        // Cập nhật
+        $product->update($validated);
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
-    }
-
-    public function destroy(Product $product): RedirectResponse
-    {
-        $product->delete();
-
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

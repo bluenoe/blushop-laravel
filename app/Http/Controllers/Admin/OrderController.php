@@ -5,105 +5,41 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
-    /**
-     * Admin: list orders with search and status filter, eager loaded.
-     */
+    // 1. Danh sách đơn hàng
     public function index(Request $request)
     {
-        $status = $request->string('status')->toString();
-        $q = trim((string) $request->input('q', ''));
-        $from = (string) $request->query('from', '');
-        $to = (string) $request->query('to', '');
+        $query = Order::query()->with('user');
 
-        $query = Order::query()
-            ->with(['user', 'orderItems.product'])
-            ->latest('created_at');
-
-        // Filter by status (use new orders.status column)
-        if ($status !== '') {
-            $query->where('status', $status);
+        if ($request->has('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
         }
 
-        // Date range filtering
-        if ($from !== '' || $to !== '') {
-            if ($from !== '' && $to !== '') {
-                $query->whereBetween('created_at', [\Carbon\Carbon::parse($from)->startOfDay(), \Carbon\Carbon::parse($to)->endOfDay()]);
-            } elseif ($from !== '') {
-                $query->where('created_at', '>=', \Carbon\Carbon::parse($from)->startOfDay());
-            } elseif ($to !== '') {
-                $query->where('created_at', '<=', \Carbon\Carbon::parse($to)->endOfDay());
-            }
-        }
+        $orders = $query->latest()->paginate(10);
 
-        // Search by user name or status
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->whereHas('user', function ($u) use ($q) {
-                    $u->where('name', 'like', "%{$q}%");
-                })->orWhere('status', 'like', "%{$q}%");
-            });
-        }
-
-        $orders = $query->paginate(10)->withQueryString();
-
-        return view('admin.orders.index', [
-            'orders' => $orders,
-            'status' => $status,
-            'search' => $q,
-            'from' => $from,
-            'to' => $to,
-        ]);
+        return view('admin.orders.index', compact('orders'));
     }
 
-    /**
-     * Show order details.
-     */
+    // 2. Chi tiết đơn hàng (SỬA LẠI KHÚC NÀY NÈ)
     public function show(Order $order)
     {
-        $order->load(['user', 'orderItems.product']);
+        // Sửa 'items.product' thành 'orderItems.product' cho đúng tên trong Model
+        $order->load(['orderItems.product', 'user']);
 
-        return view('admin.orders.show', [
-            'order' => $order,
-        ]);
+        return view('admin.orders.show', compact('order'));
     }
 
-    /**
-     * Update order status: pending, approved, shipped, cancelled.
-     * Maps approved/shipped to payment_status=paid.
-     */
+    // 3. Cập nhật trạng thái
     public function updateStatus(Request $request, Order $order)
     {
-        $data = $request->validate([
-            'status' => [
-                'required',
-                Rule::in(['pending', 'approved', 'shipped', 'cancelled']),
-            ],
+        $request->validate([
+            'status' => 'required|in:pending,processing,shipped,completed,cancelled',
         ]);
 
-        $status = $data['status'];
+        $order->update(['status' => $request->status]);
 
-        $newPayment = match ($status) {
-            'pending' => 'pending',
-            'cancelled' => 'cancelled',
-            'approved', 'shipped' => 'paid',
-        };
-
-        $order->update([
-            'payment_status' => $newPayment,
-            'status' => $status,
-        ]);
-
-        $msg = match ($status) {
-            'pending' => "Order #{$order->id} set to pending.",
-            'approved' => "Order #{$order->id} approved.",
-            'shipped' => "Order #{$order->id} marked as shipped!",
-            'cancelled' => "Order #{$order->id} cancelled.",
-        };
-
-        return back()->with('success', $msg);
+        return back()->with('success', 'Order status updated to ' . ucfirst($request->status));
     }
 }

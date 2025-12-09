@@ -1,92 +1,161 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <a href="{{ route('admin.orders.index') }}"
+                class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition mb-2 block">
+                &larr; Back to Orders
+            </a>
+            <h1 class="text-3xl font-bold tracking-tighter">Order #{{ $order->id }}</h1>
+            <p class="text-xs text-neutral-400 font-mono mt-1">{{ $order->created_at->format('F j, Y \a\t H:i') }}</p>
+        </div>
 
-@php($breadcrumb = [ ['label' => 'Orders', 'url' => route('admin.orders.index')], ['label' => '#'.$order->id] ])
-
-@section('content')
-<div class="mb-6 flex items-center justify-between">
-    <h1 class="text-xl font-semibold text-ink">Order #{{ $order->id }}</h1>
-    <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Back to Orders</a>
+        {{-- Print Action --}}
+        <button onclick="window.print()"
+            class="hidden md:inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Invoice
+        </button>
     </div>
 
-@if(session('success'))
-    <div class="mb-6 rounded-md border border-green-200 bg-green-50 text-green-700 px-4 py-2">{{ session('success') }}</div>
-@endif
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="md:col-span-2 rounded-xl bg-white border border-beige p-6 shadow-soft dark:bg-slate-900 dark:border-slate-700">
-        <h2 class="text-lg font-semibold text-ink mb-4">Items</h2>
-        <ul class="divide-y divide-beige">
-            @foreach($order->orderItems as $item)
-                <li class="py-4 flex items-center gap-4">
-                    <img src="{{ Storage::url('products/' . ($item->product->image ?? '')) }}" alt="{{ $item->product->name ?? 'Product' }}" class="w-16 h-16 rounded-md object-cover" />
-                    <div class="flex-1">
-                        <div class="text-ink font-medium">{{ $item->product->name ?? 'Product' }}</div>
-                        <div class="text-sm text-gray-700">Qty: {{ $item->quantity }}</div>
+        {{-- LEFT: ITEMS LIST --}}
+        <div class="lg:col-span-2 space-y-8">
+            <div class="border-t border-neutral-200 pt-8">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-6">Line Items</h2>
+
+                <div class="space-y-6">
+                    {{-- SỬA: Dùng orderItems thay vì items --}}
+                    @foreach($order->orderItems as $item)
+                    <div class="flex gap-6 items-start">
+                        {{-- Image --}}
+                        <div class="w-20 h-24 bg-neutral-100 flex-shrink-0 overflow-hidden">
+                            @if($item->product && $item->product->image)
+                            <img src="{{ Storage::url('products/' . $item->product->image) }}"
+                                class="w-full h-full object-cover">
+                            @else
+                            <div class="w-full h-full flex items-center justify-center text-neutral-300 text-xs">NO IMG
+                            </div>
+                            @endif
+                        </div>
+
+                        {{-- Info --}}
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-neutral-900">{{ $item->product->name ?? 'Unknown Item' }}
+                                    </h3>
+                                    <p class="text-xs text-neutral-500 mt-1 font-mono">
+                                        {{-- SỬA: price_at_purchase --}}
+                                        {{ number_format($item->price_at_purchase, 0, ',', '.') }} ₫ &times; {{
+                                        $item->quantity }}
+                                    </p>
+                                    @if($item->size)
+                                    <p class="text-xs text-neutral-400 mt-1">Size: {{ $item->size }}</p>
+                                    @endif
+                                </div>
+                                <p class="font-mono font-medium text-neutral-900">
+                                    {{-- SỬA: Tính tổng tiền --}}
+                                    {{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }} ₫
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <div class="text-ink font-medium">₫{{ number_format((float)$item->price_at_purchase, 0, ',', '.') }}</div>
+                    @endforeach
+                </div>
+
+                {{-- Summary --}}
+                <div class="mt-12 border-t border-dashed border-neutral-200 pt-6 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-500">Subtotal</span>
+                        {{-- SỬA: total_amount --}}
+                        <span class="font-mono">{{ number_format($order->total_amount, 0, ',', '.') }} ₫</span>
                     </div>
-                </li>
-            @endforeach
-        </ul>
-    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-500">Shipping</span>
+                        <span class="font-mono">Free</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold mt-4 pt-4 border-t border-neutral-200">
+                        <span>Total</span>
+                        {{-- SỬA: total_amount --}}
+                        <span>{{ number_format($order->total_amount, 0, ',', '.') }} ₫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="rounded-xl bg-white border border-beige p-6 shadow-soft dark:bg-slate-900 dark:border-slate-700">
-        <h2 class="text-lg font-semibold text-ink mb-4">Summary</h2>
-        <dl class="space-y-3">
-            <div class="flex justify-between">
-                <dt class="text-sm text-gray-700">Placed</dt>
-                <dd class="text-sm text-ink">{{ $order->created_at->format('M d, Y H:i') }}</dd>
-            </div>
-            <div class="flex justify-between">
-                <dt class="text-sm text-gray-700">Customer</dt>
-                <dd class="text-sm text-ink">{{ $order->user->name ?? 'User' }}</dd>
-            </div>
-            <div class="flex justify-between">
-                <dt class="text-sm text-gray-700">Email</dt>
-                <dd class="text-sm text-ink">{{ $order->user->email ?? '' }}</dd>
-            </div>
-            <div class="flex justify-between">
-                <dt class="text-sm text-gray-700">Total</dt>
-                <dd class="text-sm text-ink">₫{{ number_format((float)$order->total_amount, 0, ',', '.') }}</dd>
-            </div>
-            <div class="flex items-center justify-between">
-                <dt class="text-sm text-gray-700">Status</dt>
-                <dd>
-                    @php($badge = match($order->status){
-                        'pending' => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-800'],
-                        'approved' => ['Approved','bg-blue-50 text-blue-700 ring-1 ring-blue-200','dark:bg-blue-900 dark:text-blue-200 dark:ring-blue-800'],
-                        'shipped' => ['Shipped','bg-green-50 text-green-700 ring-1 ring-green-200','dark:bg-green-900 dark:text-green-200 dark:ring-green-800'],
-                        'cancelled' => ['Cancelled','bg-red-50 text-red-700 ring-1 ring-red-200','dark:bg-red-900 dark:text-red-200 dark:ring-red-800'],
-                        default => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-800']
-                    })
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs {{ $badge[1] }} {{ $badge[2] }}">{{ $badge[0] }}</span>
-                </dd>
-            </div>
-        </dl>
+        {{-- RIGHT: CUSTOMER & ACTIONS --}}
+        <div class="space-y-8">
 
-        <div class="mt-6 space-y-2">
-            <form method="POST" action="{{ route('admin.orders.status', $order) }}">
-                @csrf
-                <input type="hidden" name="status" value="approved">
-            <button class="w-full inline-flex items-center justify-center px-3 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">Approve</button>
-            </form>
-            <form method="POST" action="{{ route('admin.orders.status', $order) }}">
-                @csrf
-                <input type="hidden" name="status" value="shipped">
-            <button class="w-full inline-flex items-center justify-center px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white">Mark Shipped</button>
-            </form>
-            <form method="POST" action="{{ route('admin.orders.status', $order) }}">
-                @csrf
-                <input type="hidden" name="status" value="pending">
-            <button class="w-full inline-flex items-center justify-center px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Set Pending</button>
-            </form>
-            <form method="POST" action="{{ route('admin.orders.status', $order) }}">
-                @csrf
-                <input type="hidden" name="status" value="cancelled">
-            <button class="w-full inline-flex items-center justify-center px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white">Cancel</button>
-            </form>
+            {{-- Status Control Panel --}}
+            <div class="bg-neutral-50 p-6 border border-neutral-100">
+                <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4">Fulfillment</h3>
+
+                <form action="{{ route('admin.orders.status', $order->id) }}" method="POST">
+                    @csrf
+                    <label class="block mb-2 text-sm font-medium">Update Status</label>
+                    <div class="flex gap-2">
+                        <select name="status"
+                            class="flex-1 bg-white border border-neutral-300 text-sm py-2 px-3 focus:border-black focus:ring-0 cursor-pointer">
+                            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing
+                            </option>
+                            <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed
+                            </option>
+                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled
+                            </option>
+                        </select>
+                        <button type="submit"
+                            class="bg-black text-white text-xs font-bold uppercase px-4 py-2 hover:bg-neutral-800 transition">
+                            Update
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-neutral-200/50">
+                    <p class="text-xs text-neutral-400 mb-2">Current Status</p>
+                    @php
+                    $colors = [
+                    'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                    'processing' => 'bg-blue-50 text-blue-700 border-blue-200',
+                    'shipped' => 'bg-purple-50 text-purple-700 border-purple-200',
+                    'completed' => 'bg-green-50 text-green-700 border-green-200',
+                    'cancelled' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
+                    ];
+                    $statusClass = $colors[$order->status] ?? 'bg-white text-neutral-900 border-neutral-200';
+                    @endphp
+                    <span
+                        class="inline-block px-3 py-1 border text-[10px] font-bold uppercase tracking-wider rounded-sm {{ $statusClass }}">
+                        {{ $order->status }}
+                    </span>
+                </div>
+            </div>
+
+            {{-- Customer Info --}}
+            <div>
+                <h3
+                    class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4 border-b border-neutral-100 pb-2">
+                    Customer</h3>
+                <div class="space-y-1">
+                    <p class="font-bold text-lg">{{ $order->user->name ?? 'Guest' }}</p>
+                    <p class="text-sm text-neutral-500">{{ $order->user->email ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            {{-- Shipping Address --}}
+            <div>
+                <h3
+                    class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4 border-b border-neutral-100 pb-2">
+                    Shipping To</h3>
+                <p class="text-sm text-neutral-600 leading-relaxed">
+                    {{ $order->shipping_address ?? 'No Address Provided' }}
+                </p>
+            </div>
+
         </div>
     </div>
-</div>
-@endsection
+</x-admin-layout>

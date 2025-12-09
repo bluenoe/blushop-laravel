@@ -1,80 +1,108 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    {{-- HEADER SECTION --}}
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 mb-1">Inventory</p>
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">Products</h1>
+        </div>
 
-@php($breadcrumb = [ ['label' => 'Products'] ])
+        <div class="flex items-center gap-2">
+            {{-- Search Bar (Minimal) --}}
+            <div class="relative group">
+                <input type="text" placeholder="SEARCH SKU..."
+                    class="pl-3 pr-8 py-2 bg-transparent border-b border-neutral-200 text-sm focus:border-black focus:ring-0 placeholder-neutral-400 w-40 transition-all focus:w-64">
+                <svg class="w-4 h-4 text-neutral-400 absolute right-2 top-2.5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
 
-@section('content')
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-xl font-semibold text-ink">Products</h1>
-    <a href="{{ route('admin.products.create') }}" class="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white">Add New</a>
-</div>
-
-<form method="GET" action="{{ route('admin.products.index') }}" class="mb-6">
-    <div class="flex gap-2">
-        <input type="text" name="q" value="{{ $search }}" placeholder="Search products..." class="w-full px-3 py-2 rounded-md bg-white border border-beige text-ink placeholder-gray-400 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400">
-        <button class="px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Search</button>
+            {{-- Add Button --}}
+            <a href="{{ route('admin.products.create') }}"
+                class="ml-4 px-6 py-2.5 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition">
+                + New Item
+            </a>
+        </div>
     </div>
-    @if($search !== '')
-        <p class="mt-2 text-sm text-gray-400">Showing results for "{{ $search }}"</p>
-    @endif
-    </form>
 
-<div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft dark:bg-slate-900 dark:border-slate-700">
-    <table class="min-w-full divide-y divide-beige">
-        <thead class="bg-warm dark:bg-slate-800">
-            <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-200">ID</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Image</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Name</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Category</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Price</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300 dark:text-slate-300">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-beige dark:divide-slate-700">
-            @foreach($products as $p)
-                <tr class="odd:bg-white even:bg-warm dark:odd:bg-slate-900 dark:even:bg-slate-800">
-                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $p->id }}</td>
-                    <td class="px-4 py-3">
-                        @if($p->image)
-                            <img src="{{ Storage::url($p->image) }}" alt="{{ $p->name }}" class="w-14 h-14 object-cover rounded-md border border-beige">
-                        @else
-                            <span class="text-xs text-gray-500">No image</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-sm text-ink">{{ $p->name }}</td>
-                    <td class="px-4 py-3 text-sm">
-                        @if($p->category)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-warm text-ink ring-1 ring-beige dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">{{ $p->category->name }}</span>
-                        @else
-                            <span class="text-xs text-gray-500">—</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">${{ number_format((float) $p->price, 2) }}</td>
-                    <td class="px-4 py-3 text-sm text-right">
-                        <a href="{{ route('admin.products.edit', $p) }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white mr-2">Edit</a>
-                        <div x-data="{ open:false }" class="inline">
-                            <button @click="open=true" class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
-                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20">
-                                <div class="w-full max-w-md rounded-xl bg-white border border-beige p-6 shadow-soft">
-                                    <h3 class="text-lg font-semibold text-ink">Confirm delete</h3>
-                                    <p class="mt-2 text-sm text-gray-700">This product will be soft-deleted. Continue?</p>
-                                    <div class="mt-4 flex justify-end gap-2">
-                                        <button @click="open=false" class="px-3 py-1.5 rounded-md bg-warm hover:bg-beige text-ink ring-1 ring-beige">Cancel</button>
-                                        <form method="POST" action="{{ route('admin.products.destroy', $p) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white">Delete</button>
-                                        </form>
+    {{-- TABLE SECTION --}}
+    <div class="bg-white min-h-[500px]">
+        {{-- Nếu không có sản phẩm --}}
+        @if($products->isEmpty())
+        <div class="flex flex-col items-center justify-center h-64 text-neutral-400">
+            <p class="text-sm font-light mb-4">No products found in the catalogue.</p>
+            <a href="{{ route('admin.products.create') }}"
+                class="underline decoration-1 underline-offset-4 hover:text-black">Create your first product</a>
+        </div>
+        @else
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-neutral-100 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                        <th class="py-4 pl-2 font-medium">Product</th>
+                        <th class="py-4 font-medium">Category</th>
+                        <th class="py-4 font-medium">Status</th>
+                        <th class="py-4 font-medium text-right">Price</th>
+                        <th class="py-4 pr-2 font-medium text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-neutral-50">
+                    @foreach($products as $product)
+                    <tr class="group hover:bg-neutral-50 transition duration-200">
+                        {{-- Product Info + Image --}}
+                        <td class="py-4 pl-2">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-16 bg-neutral-100 overflow-hidden relative">
+                                    {{-- Ảnh thật hoặc Placeholder --}}
+                                    <img src="{{ $product->image ? Storage::url('products/'.$product->image) : 'https://via.placeholder.com/150' }}"
+                                        class="w-full h-full object-cover mix-blend-multiply filter grayscale group-hover:grayscale-0 transition duration-500">
+                                </div>
+                                <div>
+                                    <div class="font-bold text-neutral-900 leading-tight mb-1">{{ $product->name }}
+                                    </div>
+                                    <div class="font-mono text-xs text-neutral-400">SKU: {{ $product->sku ?? 'N/A' }}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+                        </td>
 
-<div class="mt-6">{{ $products->links() }}</div>
-@endsection
+                        {{-- Category --}}
+                        <td class="py-4 text-neutral-600">
+                            {{ $product->category->name ?? 'Uncategorized' }}
+                        </td>
+
+                        {{-- Status Badge (Minimal Pill) --}}
+                        <td class="py-4">
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-neutral-200 text-[10px] font-bold uppercase tracking-wider
+                                    {{ $product->stock > 0 ? 'text-neutral-600' : 'text-neutral-400 bg-neutral-100 decoration-line-through' }}">
+                                <span
+                                    class="w-1.5 h-1.5 rounded-full {{ $product->stock > 0 ? 'bg-green-500' : 'bg-neutral-400' }}"></span>
+                                {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                            </span>
+                        </td>
+
+                        {{-- Price (Monospace) --}}
+                        <td class="py-4 text-right font-mono text-neutral-900">
+                            ₫{{ number_format($product->price, 0, ',', '.') }}
+                        </td>
+
+                        {{-- Actions --}}
+                        <td class="py-4 pr-2 text-right">
+                            <a href="{{ route('admin.products.edit', $product->id) }}"
+                                class="text-neutral-400 hover:text-black transition p-2">Edit</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination Minimal --}}
+        <div class="mt-8">
+            {{ $products->links() }}
+        </div>
+        @endif
+    </div>
+</x-admin-layout>

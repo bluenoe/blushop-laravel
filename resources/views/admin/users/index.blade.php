@@ -1,88 +1,80 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 mb-1">Community</p>
+            <h1 class="text-3xl font-bold tracking-tighter">Customers</h1>
+        </div>
 
-@php($breadcrumb = [ ['label' => 'Users'] ])
-
-@section('content')
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-xl font-semibold text-ink">Users</h1>
-</div>
-
-<form method="GET" action="{{ route('admin.users.index') }}" class="mb-6">
-    <div class="flex flex-wrap items-center gap-2">
-        <input type="text" name="q" value="{{ $search }}" placeholder="Search users..."
-            class="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400">
-        <select name="role"
-            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200">
-            <option value="">All roles</option>
-            <option value="admin" @selected(($role ?? '' )==='admin' )>Admin</option>
-            <option value="user" @selected(($role ?? '' )==='user' )>User</option>
-        </select>
-        <button class="px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Apply</button>
-        <a href="{{ route('admin.users.index') }}"
-            class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Clear</a>
+        {{-- Search (Minimal) --}}
+        <div class="relative group">
+            <input type="text" placeholder="FIND CLIENT..."
+                class="pl-3 pr-8 py-2 bg-transparent border-b border-neutral-200 text-sm focus:border-black focus:ring-0 placeholder-neutral-400 w-40 transition-all focus:w-64">
+            <svg class="w-4 h-4 text-neutral-400 absolute right-2 top-2.5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
     </div>
-    @if(($search ?? '') !== '')
-    <p class="mt-2 text-sm text-gray-400">Showing results for "{{ $search }}"</p>
-    @endif
-</form>
 
-<div class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft dark:bg-slate-900 dark:border-slate-700">
-    <table class="min-w-full divide-y divide-beige">
-        <thead class="bg-warm dark:bg-slate-800">
-            <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">ID</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Name</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Email</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Admin</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300 dark:text-slate-300">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-beige dark:divide-slate-700">
-            @foreach($users as $u)
-            <tr class="odd:bg-white even:bg-warm dark:odd:bg-slate-900 dark:even:bg-slate-800">
-                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $u->id }}</td>
-                <td class="px-4 py-3 text-sm text-ink dark:text-slate-200">{{ $u->name }}</td>
-                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $u->email }}</td>
-                <td class="px-4 py-3 text-sm">
-                    @if($u->is_admin)
-                    <span
-                        class="inline-flex items-center px-2 py-0.5 rounded bg-green-50 text-green-700 ring-1 ring-green-200 text-xs">Admin</span>
-                    @else
-                    <span
-                        class="inline-flex items-center px-2 py-0.5 rounded bg-warm text-ink ring-1 ring-beige text-xs dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">User</span>
-                    @endif
-                </td>
-                <td class="px-4 py-3 text-sm text-right">
-                    <a href="{{ route('admin.users.edit', $u) }}"
-                        class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white mr-2">Edit</a>
-                    <div x-data="{ open:false }" class="inline">
-                        <button @click="open=true"
-                            class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
-                        <div x-show="open" x-cloak
-                            class="fixed inset-0 z-50 flex items-center justify-center bg-ink/20">
-                            <div class="w-full max-w-md rounded-xl bg-white border border-beige p-6 shadow-soft">
-                                <h3 class="text-lg font-semibold text-ink">Confirm delete</h3>
-                                <p class="mt-2 text-sm text-gray-700">This will permanently remove the user. Continue?
-                                </p>
-                                <div class="mt-4 flex justify-end gap-2">
-                                    <button @click="open=false"
-                                        class="px-3 py-1.5 rounded-md bg-warm hover:bg-beige text-ink ring-1 ring-beige">Cancel</button>
-                                    <form method="POST" action="{{ route('admin.users.destroy', $u) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button
-                                            class="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Delete</button>
-                                    </form>
+    <div class="bg-white">
+        @if($users->isEmpty())
+        <div class="text-center py-24 border-t border-neutral-100">
+            <p class="text-neutral-400">No customers found.</p>
+        </div>
+        @else
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-neutral-100 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                        <th class="py-4 pl-2 font-medium">Client Profile</th>
+                        <th class="py-4 font-medium">Joined Date</th>
+                        <th class="py-4 font-medium text-right">Orders</th>
+                        <th class="py-4 pr-2 font-medium text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-50 text-sm">
+                    @foreach($users as $user)
+                    <tr class="group hover:bg-neutral-50 transition">
+                        {{-- Profile Info --}}
+                        <td class="py-4 pl-2">
+                            <div class="flex items-center gap-4">
+                                {{-- Avatar Placeholder --}}
+                                <div
+                                    class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-xs">
+                                    {{ substr($user->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-neutral-900">{{ $user->name }}</div>
+                                    <div class="text-xs text-neutral-400">{{ $user->email }}</div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+                        </td>
 
-<div class="mt-6">{{ $users->links() }}</div>
-@endsection
+                        {{-- Joined --}}
+                        <td class="py-4 text-neutral-500 font-mono text-xs">
+                            {{ $user->created_at->format('M d, Y') }}
+                        </td>
+
+                        {{-- Stats --}}
+                        <td class="py-4 text-right">
+                            <span class="font-mono text-neutral-900">{{ $user->orders_count }}</span>
+                            <span class="text-xs text-neutral-400 ml-1">orders</span>
+                        </td>
+
+                        {{-- Actions --}}
+                        <td class="py-4 pr-2 text-right">
+                            <a href="{{ route('admin.users.show', $user->id) }}"
+                                class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition border border-neutral-200 px-3 py-1.5 rounded hover:border-black">
+                                Profile
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-6">{{ $users->links() }}</div>
+        @endif
+    </div>
+</x-admin-layout>

@@ -1,34 +1,48 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data"
+        class="max-w-2xl mx-auto mt-12">
+        @csrf
 
-@php($breadcrumb = [ ['label' => 'Categories', 'url' => route('admin.categories.index')], ['label' => 'Create'] ])
-
-@section('content')
-<h1 class="text-xl font-semibold text-ink mb-6">Add Category</h1>
-
-<form method="POST" action="{{ route('admin.categories.store') }}" class="max-w-xl space-y-4">
-    @csrf
-    <div>
-        <label class="block text-sm text-ink mb-1">Name</label>
-        <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-    </div>
-    <div>
-        <label class="block text-sm text-ink mb-1">Slug</label>
-        <div class="flex items-center gap-2">
-            <input type="text" name="slug" value="{{ old('slug') }}" x-ref="slug" readonly class="flex-1 px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-            <label class="inline-flex items-center gap-2 text-xs text-gray-700">
-                <input type="checkbox" x-on:change="$refs.slug.readOnly = !$refs.slug.readOnly" class="rounded">
-                Edit
-            </label>
+        <div class="flex items-center justify-between mb-10 border-b border-neutral-100 pb-6">
+            <h1 class="text-2xl font-bold tracking-tighter">New Category</h1>
+            <a href="{{ route('admin.categories.index') }}"
+                class="text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black">Cancel</a>
         </div>
-        <p class="mt-1 text-xs text-gray-600">Auto-generated from name; toggle to override.</p>
-    </div>
-    <div>
-        <label class="block text-sm text-ink mb-1">Description</label>
-        <textarea name="description" rows="4" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">{{ old('description') }}</textarea>
-    </div>
-    <div class="flex gap-2">
-        <a href="{{ route('admin.categories.index') }}" class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Cancel</a>
-        <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Create</button>
-    </div>
-</form>
-@endsection
+
+        <div class="space-y-8">
+            {{-- Name --}}
+            <div class="w-full">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Category
+                    Name</label>
+                <input type="text" name="name" required
+                    class="w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-xl font-bold text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-200"
+                    placeholder="E.g. Accessories" />
+            </div>
+
+            {{-- Image Upload (Minimal) --}}
+            <div x-data="{ imagePreview: null }">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-4">Category
+                    Image</label>
+                <label
+                    class="block w-full h-48 bg-neutral-50 border border-dashed border-neutral-300 hover:border-black cursor-pointer relative transition-colors flex flex-col items-center justify-center">
+                    <input type="file" name="image" class="hidden" accept="image/*" @change="const file = $event.target.files[0]; 
+                                    const reader = new FileReader(); 
+                                    reader.onload = (e) => { imagePreview = e.target.result }; 
+                                    reader.readAsDataURL(file)">
+
+                    <div class="text-neutral-400 flex flex-col items-center" x-show="!imagePreview">
+                        <span class="text-2xl mb-2">+</span>
+                        <span class="text-[10px] uppercase tracking-widest">Upload Banner</span>
+                    </div>
+                    <img :src="imagePreview" x-show="imagePreview" class="absolute inset-0 w-full h-full object-cover"
+                        style="display: none;">
+                </label>
+            </div>
+
+            <button type="submit"
+                class="w-full py-4 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition">
+                Create Category
+            </button>
+        </div>
+    </form>
+</x-admin-layout>

@@ -1,33 +1,60 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data"
+        class="max-w-2xl mx-auto mt-12">
+        @csrf
+        @method('PUT')
 
-@section('content')
-<h1 class="text-xl font-semibold text-ink mb-6">Edit Category</h1>
-
-<form method="POST" action="{{ route('admin.categories.update', $category) }}" class="max-w-xl space-y-4">
-    @csrf
-    @method('PUT')
-    <div>
-        <label class="block text-sm text-ink mb-1">Name</label>
-        <input type="text" name="name" value="{{ old('name', $category->name) }}" required class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-    </div>
-    <div>
-        <label class="block text-sm text-ink mb-1">Slug</label>
-        <div class="flex items-center gap-2">
-            <input type="text" name="slug" value="{{ old('slug', $category->slug) }}" x-ref="slug" readonly class="flex-1 px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">
-            <label class="inline-flex items-center gap-2 text-xs text-gray-700">
-                <input type="checkbox" x-on:change="$refs.slug.readOnly = !$refs.slug.readOnly" class="rounded">
-                Edit
-            </label>
+        <div class="flex items-center justify-between mb-10 border-b border-neutral-100 pb-6">
+            <h1 class="text-2xl font-bold tracking-tighter">Edit Category</h1>
+            <a href="{{ route('admin.categories.index') }}"
+                class="text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black">Cancel</a>
         </div>
-        <p class="mt-1 text-xs text-gray-600">Auto-generated from name; toggle to override.</p>
-    </div>
-    <div>
-        <label class="block text-sm text-ink mb-1">Description</label>
-        <textarea name="description" rows="4" class="w-full px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft">{{ old('description', $category->description) }}</textarea>
-    </div>
-    <div class="flex gap-2">
-        <a href="{{ route('admin.categories.index') }}" class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Cancel</a>
-        <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Save Changes</button>
-    </div>
-</form>
-@endsection
+
+        <div class="space-y-8">
+            <div class="w-full">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Category
+                    Name</label>
+                <input type="text" name="name" value="{{ old('name', $category->name) }}" required
+                    class="w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-xl font-bold text-neutral-900 focus:border-black focus:ring-0" />
+            </div>
+
+            <div
+                x-data="{ imagePreview: '{{ $category->image ? Storage::url('categories/'.$category->image) : '' }}' }">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-4">Category
+                    Image</label>
+                <label
+                    class="block w-full h-48 bg-neutral-50 border border-dashed border-neutral-300 hover:border-black cursor-pointer relative transition-colors">
+                    <input type="file" name="image" class="hidden" accept="image/*" @change="const file = $event.target.files[0]; 
+                                    const reader = new FileReader(); 
+                                    reader.onload = (e) => { imagePreview = e.target.result }; 
+                                    reader.readAsDataURL(file)">
+
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-neutral-400"
+                        x-show="!imagePreview">
+                        <span class="text-2xl mb-2">+</span>
+                        <span class="text-[10px] uppercase tracking-widest">Change Banner</span>
+                    </div>
+                    <img :src="imagePreview" x-show="imagePreview" class="absolute inset-0 w-full h-full object-cover">
+                </label>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit"
+                    class="flex-1 py-4 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition">
+                    Update Category
+                </button>
+
+                {{-- Nút xóa luôn cho tiện --}}
+                <button type="button"
+                    onclick="if(confirm('Delete this category? Products inside will become uncategorized.')) document.getElementById('delete-form').submit()"
+                    class="px-8 py-4 border border-red-200 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-50 transition">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <form id="delete-form" action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="hidden">
+        @csrf @method('DELETE')
+    </form>
+</x-admin-layout>

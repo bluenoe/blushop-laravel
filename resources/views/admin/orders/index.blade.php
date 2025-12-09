@@ -1,112 +1,110 @@
-@extends('layouts.admin')
+<x-admin-layout>
+    {{-- HEADER & TABS --}}
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 mb-1">Logistics</p>
+            <h1 class="text-3xl font-bold tracking-tighter">Orders</h1>
+        </div>
 
-@php($breadcrumb = [ ['label' => 'Orders'] ])
+        {{-- Status Filter Tabs --}}
+        <div class="flex overflow-x-auto hide-scrollbar border-b border-neutral-200 md:border-none pb-2 md:pb-0">
+            @php
+            $currentStatus = request('status', 'all');
+            $statuses = ['all', 'pending', 'processing', 'shipped', 'completed', 'cancelled'];
+            @endphp
 
-@section('content')
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-xl font-semibold text-ink">Orders</h1>
-    <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-wrap items-center gap-2">
-        <input type="text" name="q" value="{{ $search }}" placeholder="Search by user or status..."
-            class="w-40 sm:w-64 px-3 py-2 rounded-lg bg-white border border-beige text-ink placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400">
-        <input type="date" name="from" value="{{ $from }}"
-            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200"
-            aria-label="From date">
-        <span class="text-gray-600">–</span>
-        <input type="date" name="to" value="{{ $to }}"
-            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200"
-            aria-label="To date">
-        <select name="status"
-            class="px-3 py-2 rounded-lg bg-white border border-beige text-ink focus:border-indigo-500 focus:ring-indigo-500 shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200">
-            <option value="">All</option>
-            <option value="pending" @selected(($status ?? '' )==='pending' )>Pending</option>
-            <option value="approved" @selected(($status ?? '' )==='approved' )>Approved</option>
-            <option value="shipped" @selected(($status ?? '' )==='shipped' )>Shipped</option>
-            <option value="cancelled" @selected(($status ?? '' )==='cancelled' )>Cancelled</option>
-        </select>
-        <button class="px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Apply</button>
-        <a href="{{ route('admin.orders.index') }}"
-            class="px-3 py-2 rounded-md border border-beige text-ink hover:bg-beige">Clear</a>
-    </form>
-</div>
+            <div class="flex p-1 bg-neutral-100 rounded-lg">
+                @foreach($statuses as $status)
+                <a href="{{ route('admin.orders.index', ['status' => $status]) }}"
+                    class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all
+                       {{ $currentStatus === $status ? 'bg-white text-black shadow-sm' : 'text-neutral-500 hover:text-neutral-900' }}">
+                    {{ $status }}
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
 
-@if(session('success'))
-<div class="mb-6 rounded-md border border-green-200 bg-green-50 text-green-700 px-4 py-2">{{ session('success') }}</div>
-@endif
+    {{-- ORDER LIST TABLE --}}
+    <div class="bg-white">
+        @if($orders->isEmpty())
+        <div class="text-center py-24 border-t border-neutral-100">
+            <p class="text-neutral-400">No orders found in this category.</p>
+        </div>
+        @else
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-neutral-100 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                        <th class="py-4 pl-2 font-medium">Order ID</th>
+                        <th class="py-4 font-medium">Customer</th>
+                        <th class="py-4 font-medium">Date</th>
+                        <th class="py-4 font-medium">Status</th>
+                        <th class="py-4 font-medium text-right">Total</th>
+                        <th class="py-4 pr-2 font-medium text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-50 text-sm">
+                    @foreach($orders as $order)
+                    <tr class="group hover:bg-neutral-50 transition">
+                        {{-- ID --}}
+                        <td class="py-4 pl-2 font-mono text-xs font-medium">
+                            <a href="{{ route('admin.orders.show', $order->id) }}"
+                                class="underline decoration-neutral-300 underline-offset-4 hover:text-black hover:decoration-black transition">
+                                #{{ $order->id }}
+                            </a>
+                        </td>
 
-<div
-    class="overflow-hidden rounded-xl border border-beige bg-white shadow-soft dark:bg-slate-900 dark:border-slate-700">
-    <table class="min-w-full divide-y divide-beige">
-        <thead class="bg-warm dark:bg-slate-800">
-            <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-200">ID</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Date</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">User</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Total</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 dark:text-slate-300">Status</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300 dark:text-slate-300">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-beige dark:divide-slate-700">
-            @forelse($orders as $order)
-            <tr class="odd:bg-white even:bg-warm dark:odd:bg-slate-900 dark:even:bg-slate-800">
-                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">#{{ $order->id }}</td>
-                <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-200">{{ $order->created_at->format('M d, Y
-                    H:i') }}</td>
-                <td class="px-4 py-3 text-sm text-ink dark:text-slate-200">
-                    <div>{{ $order->user->name ?? 'User' }}</div>
-                    <div class="text-gray-600 text-xs dark:text-slate-400">{{ $order->user->email ?? '' }}</div>
-                </td>
-                <td class="px-4 py-3 text-sm text-ink dark:text-slate-200">₫{{
-                    number_format((float)$order->total_amount, 0, ',', '.') }}</td>
-                <td class="px-4 py-3 text-sm">
-                    @php($badge = match($order->status){
-                    'pending' => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900
-                    dark:text-yellow-200 dark:ring-yellow-800'],
-                    'approved' => ['Approved','bg-blue-50 text-blue-700 ring-1 ring-blue-200','dark:bg-blue-900
-                    dark:text-blue-200 dark:ring-blue-800'],
-                    'shipped' => ['Shipped','bg-green-50 text-green-700 ring-1 ring-green-200','dark:bg-green-900
-                    dark:text-green-200 dark:ring-green-800'],
-                    'cancelled' => ['Cancelled','bg-red-50 text-red-700 ring-1 ring-red-200','dark:bg-red-900
-                    dark:text-red-200 dark:ring-red-800'],
-                    default => ['Pending','bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200','dark:bg-yellow-900
-                    dark:text-yellow-200 dark:ring-yellow-800']
-                    })
-                    <span
-                        class="inline-flex items-center px-2 py-0.5 rounded text-xs {{ $badge[1] }} {{ $badge[2] }}">{{
-                        $badge[0] }}</span>
-                </td>
-                <td class="px-4 py-3 text-sm text-right">
-                    <a href="{{ route('admin.orders.show', $order) }}"
-                        class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white mr-2">View</a>
-                    <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="inline">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button
-                            class="inline-flex items-center px-3 py-1.5 rounded-md bg-green-600 hover:bg-green-500 text-white mr-2">Approve</button>
-                    </form>
-                    <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="inline">
-                        @csrf
-                        <input type="hidden" name="status" value="shipped">
-                        <button
-                            class="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white mr-2">Mark
-                            Shipped</button>
-                    </form>
-                    <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="inline">
-                        @csrf
-                        <input type="hidden" name="status" value="cancelled">
-                        <button
-                            class="inline-flex items-center px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white">Cancel</button>
-                    </form>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="px-4 py-6 text-sm text-center text-gray-300">No orders found.</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+                        {{-- Customer --}}
+                        <td class="py-4">
+                            <div class="font-bold text-neutral-900">{{ $order->user->name ?? 'Guest' }}</div>
+                            <div class="text-xs text-neutral-400">{{ $order->user->email ?? $order->email ?? 'N/A' }}
+                            </div>
+                        </td>
 
-<div class="mt-6">{{ $orders->links() }}</div>
-@endsection
+                        {{-- Date --}}
+                        <td class="py-4 text-neutral-500 font-light">
+                            {{ $order->created_at->format('M d, Y') }}
+                            <span class="text-xs text-neutral-300 ml-1">{{ $order->created_at->format('H:i') }}</span>
+                        </td>
+
+                        {{-- Minimal Status Badge --}}
+                        <td class="py-4">
+                            @php
+                            $colors = [
+                            'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                            'processing' => 'bg-blue-50 text-blue-700 border-blue-200',
+                            'shipped' => 'bg-purple-50 text-purple-700 border-purple-200',
+                            'completed' => 'bg-green-50 text-green-700 border-green-200',
+                            'cancelled' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
+                            ];
+                            $statusClass = $colors[$order->status] ?? 'bg-neutral-50 text-neutral-900
+                            border-neutral-200';
+                            @endphp
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wide {{ $statusClass }}">
+                                {{ $order->status }}
+                            </span>
+                        </td>
+
+                        {{-- Total --}}
+                        <td class="py-4 text-right font-mono text-neutral-900">
+                            ₫{{ number_format($order->total_amount ?? $order->total, 0, ',', '.') }}
+                        </td>
+
+                        {{-- Action --}}
+                        <td class="py-4 pr-2 text-right">
+                            <a href="{{ route('admin.orders.show', $order->id) }}"
+                                class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition border border-neutral-200 px-3 py-1.5 rounded hover:border-black">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-6">{{ $orders->appends(request()->query())->links() }}</div>
+        @endif
+    </div>
+</x-admin-layout>

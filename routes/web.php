@@ -111,9 +111,8 @@ Route::prefix('admin')
         // Categories
         Route::resource('categories', AdminCategoryController::class);
 
-        // Users
-        Route::resource('users', AdminUserController::class)->except(['show', 'create', 'store']);
-
+        // Users (Chỉ cấm create và store (vì mình không tạo user từ admin), nhưng CHO PHÉP 'show')
+        Route::resource('users', AdminUserController::class)->except(['create', 'store']);
         // Orders
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [AdminOrderController::class, 'index'])->name('index');
