@@ -66,8 +66,10 @@
                 <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mt-8 mb-4 px-2">Management
                 </div>
 
-                <a href="#"
-                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-md group transition-colors">
+                {{-- 1. PRODUCTS LINK --}}
+                <a href="{{ route('admin.products.index') }}"
+                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium rounded-md group transition-colors 
+   {{ request()->routeIs('admin.products.*') ? 'bg-black text-white' : 'text-neutral-600 hover:bg-neutral-50 hover:text-black' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -75,8 +77,10 @@
                     Products
                 </a>
 
-                <a href="#"
-                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-md group transition-colors">
+                {{-- 2. ORDERS LINK --}}
+                <a href="{{ route('admin.orders.index') }}"
+                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium rounded-md group transition-colors 
+   {{ request()->routeIs('admin.orders.*') ? 'bg-black text-white' : 'text-neutral-600 hover:bg-neutral-50 hover:text-black' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -84,8 +88,10 @@
                     Orders
                 </a>
 
-                <a href="#"
-                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-md group transition-colors">
+                {{-- 3. CUSTOMERS LINK --}}
+                <a href="{{ route('admin.users.index') }}"
+                    class="flex items-center gap-3 px-2 py-3 text-sm font-medium rounded-md group transition-colors 
+   {{ request()->routeIs('admin.users.*') ? 'bg-black text-white' : 'text-neutral-600 hover:bg-neutral-50 hover:text-black' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
