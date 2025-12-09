@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
 
 
 // --- ADMIN ROUTES ---
-/* Route::prefix('admin')
+Route::prefix('admin')
     ->middleware(['auth', 'is_admin']) // Ensure you have is_admin middleware or alias
     ->name('admin.')
     ->group(function () {
@@ -122,12 +122,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-// Fallback for Admin Dashboard legacy link */
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
-});
+// Fallback for Admin Dashboard legacy link
 Route::get('/dashboard', function () {
     return auth()->user()->is_admin ? redirect()->route('admin.dashboard') : redirect()->route('home');
 })->middleware(['auth'])->name('dashboard');
