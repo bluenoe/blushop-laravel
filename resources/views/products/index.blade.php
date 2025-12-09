@@ -150,8 +150,8 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                     .then(data => {
                         $el.innerHTML = 'Added';
                         $dispatch('notify', { message: data.message }); // Bắn thông báo
-                        // Cập nhật số lượng trên icon giỏ hàng (nếu bà dùng Alpine store cho cart)
-                        // Alpine.store('cart').count = data.cart_count; 
+                        // THÊM DÒNG NÀY ĐỂ UPDATE HEADER:
+                        Alpine.store('cart').set(data.cart_count);
                         setTimeout(() => $el.innerHTML = 'Quick Add +', 2000);
                     })
                     .catch(err => console.error(err));
