@@ -112,6 +112,17 @@
                     </div>
                 </div>
             </div>
+
+            <a href="{{ route('admin.categories.index') }}"
+                class="flex items-center gap-3 px-2 py-3 text-sm font-medium rounded-md group transition-colors 
+   {{ request()->routeIs('admin.categories.*') ? 'bg-black text-white' : 'text-neutral-600 hover:bg-neutral-50 hover:text-black' }}">
+                {{-- Icon Folder/Collection --}}
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Categories
+            </a>
         </aside>
 
         {{-- ==========================================
