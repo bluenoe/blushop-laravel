@@ -23,6 +23,10 @@
     @stack('head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+
+</head>
+
+<body class="font-sans antialiased">
     <!-- Alpine.js store for cart count  -->
     <script>
         document.addEventListener('alpine:init', () => {
@@ -37,9 +41,6 @@
         });
     });
     </script>
-</head>
-
-<body class="font-sans antialiased">
     <div class="min-h-screen bg-warm">
         {{-- Navigation (updated to include Home link to /) --}}
         @include('layouts.navigation')
