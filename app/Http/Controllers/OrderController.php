@@ -1,25 +1,46 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Show list of orders for the authenticated user.
-     */
-    public function index()
+    // 1. Danh sách đơn hàng
+    public function index(Request $request)
     {
-        $orders = Order::query()
-            ->where('user_id', Auth::id())
-            ->with(['orderItems.product'])
-            ->latest('created_at')
-            ->get();
+        $query = Order::query()->with('user'); // Eager load user để tránh query N+1
 
-        return view('orders', [
-            'orders' => $orders,
+        // Filter đơn giản theo Status (dùng cho các Tabs)
+        if ($request->has('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->latest()->paginate(10);
+
+        return view('admin.orders.index', compact('orders'));
+    }
+
+    // 2. Chi tiết đơn hàng (Invoice View)
+    public function show(Order $order)
+    {
+        // Load thêm chi tiết sản phẩm trong đơn
+        $order->load(['items.product', 'user']);
+
+        return view('admin.orders.show', compact('order'));
+    }
+
+    // 3. Cập nhật trạng thái (Update Status)
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,processing,shipped,completed,cancelled',
         ]);
+
+        $order->update(['status' => $request->status]);
+
+        return back()->with('success', 'Order status updated to ' . ucfirst($request->status));
     }
 }
