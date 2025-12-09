@@ -60,7 +60,7 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Added to bag',
-                'cart_count' => count($cart), // Hoặc collect($cart)->sum('quantity') nếu muốn tổng số lượng
+                'cart_count' => collect(session('cart'))->sum('quantity'),
             ]);
         }
 
@@ -94,7 +94,7 @@ class CartController extends Controller
                         'message' => 'Quantity updated',
                         'item_subtotal' => number_format($itemSubtotal, 0, ',', '.'),
                         'total' => number_format($total, 0, ',', '.'),
-                        'cart_count' => count($cart)
+                        'cart_count' => collect(session('cart'))->sum('quantity'),
                     ]);
                 }
             }
@@ -126,7 +126,7 @@ class CartController extends Controller
                     'success' => true,
                     'message' => 'Item removed',
                     'total' => number_format($total, 0, ',', '.'),
-                    'cart_count' => count($cart),
+                    'cart_count' => collect(session('cart'))->sum('quantity'),
                     'is_empty' => empty($cart)
                 ]);
             }
