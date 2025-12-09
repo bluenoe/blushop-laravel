@@ -22,6 +22,21 @@
     <script>window.__CART_COUNT = {{ (int) $cartQty }};</script>
     @stack('head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js store for cart count  -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('cart', {
+                count: {{ collect(session('cart', [])) -> sum('quantity')
+        }}, // Lấy số lượng ban đầu từ PHP session
+
+            // Hàm cập nhật số lượng (gọi khi thêm/sửa/xóa)
+            set(newCount) {
+            this.count = parseInt(newCount);
+        }
+        });
+    });
+    </script>
 </head>
 
 <body class="font-sans antialiased">

@@ -108,18 +108,16 @@ $categories = \App\Models\Category::query()
                     </div>
                 </div>
 
-                {{-- Cart --}}
+                {{-- Cart Icon trong Header --}}
                 <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    {{-- Minimalist Badge --}}
-                    @php($cartQty = collect(session('cart', []))->sum('quantity'))
-                    <span x-show="$store.cart && $store.cart.count > 0 || {{ $cartQty > 0 ? 'true' : 'false' }}"
-                        class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full"
-                        x-text="$store.cart ? $store.cart.count : '{{ $cartQty }}'">
-                        {{ $cartQty }}
+
+                    {{-- Badge Số lượng: Dùng x-text để bind vào Alpine Store --}}
+                    <span x-show="$store.cart.count > 0" x-text="$store.cart.count" x-transition.scale
+                        class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                     </span>
                 </a>
             </div>
