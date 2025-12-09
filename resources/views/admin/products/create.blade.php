@@ -1,7 +1,7 @@
 <x-admin-layout>
     {{-- Form Wrapper --}}
     <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data"
-        class="max-w-5xl mx-auto">
+        class="max-w-6xl mx-auto">
         @csrf
 
         {{-- HEADER & ACTIONS --}}
@@ -22,11 +22,11 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
 
             {{-- LEFT COLUMN: MEDIA (IMAGE UPLOAD) --}}
             <div class="lg:col-span-4 space-y-6">
-                <div x-data="{ imagePreview: null }" class="relative group">
+                <div x-data="{ imagePreview: null }" class="relative group w-full">
                     <label
                         class="block w-full aspect-[3/4] bg-neutral-50 border border-neutral-200 cursor-pointer overflow-hidden relative transition hover:border-black hover:bg-neutral-100">
                         {{-- Hidden Input --}}
@@ -56,84 +56,78 @@
             </div>
 
             {{-- RIGHT COLUMN: SPECIFICATIONS --}}
-            <div class="lg:col-span-8 space-y-10">
+            <div class="lg:col-span-8 space-y-12">
 
                 {{-- 1. BASIC INFO --}}
                 <div class="space-y-8">
-                    {{-- Product Name (Floating Label) --}}
-                    <div class="relative z-0 w-full group">
-                        <input type="text" name="name" id="name" required
-                            class="block py-2.5 px-0 w-full text-xl font-bold text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                            placeholder=" " />
+                    {{-- Product Name --}}
+                    <div class="group">
                         <label for="name"
-                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                            Product Name
-                        </label>
+                            class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Product
+                            Name</label>
+                        <input type="text" name="name" id="name" required
+                            class="block w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-3xl font-bold text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-200 transition-colors"
+                            placeholder="E.g. Oversized Hoodie" />
                     </div>
 
                     {{-- Category & SKU Row --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {{-- Category Select --}}
-                        <div class="relative z-0 w-full group">
+                        <div>
+                            <label for="category_id"
+                                class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Category</label>
                             <select name="category_id" id="category_id"
-                                class="block py-2.5 px-0 w-full text-sm text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer">
+                                class="block w-full border-0 border-b border-neutral-200 bg-transparent py-3 px-0 text-sm font-medium text-neutral-900 focus:border-black focus:ring-0 cursor-pointer">
                                 <option value="" disabled selected>Select Category</option>
                                 @foreach($categories ?? [] as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
-                            <label for="category_id"
-                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                                Category
-                            </label>
                         </div>
 
                         {{-- SKU Input --}}
-                        <div class="relative z-0 w-full group">
-                            <input type="text" name="sku" id="sku"
-                                class="block py-2.5 px-0 w-full text-sm font-mono text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                                placeholder=" " />
+                        <div>
                             <label for="sku"
-                                class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                                SKU / Code
-                            </label>
+                                class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">SKU
+                                / Code</label>
+                            <input type="text" name="sku" id="sku"
+                                class="block w-full border-0 border-b border-neutral-200 bg-transparent py-3 px-0 text-sm font-mono text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-300"
+                                placeholder="AUTO-GENERATED" />
                         </div>
                     </div>
                 </div>
 
                 {{-- 2. PRICING & STOCK --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-neutral-50">
                     {{-- Price --}}
-                    <div class="relative z-0 w-full group">
-                        <input type="number" name="price" id="price" required
-                            class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                            placeholder=" " />
+                    <div>
                         <label for="price"
-                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                            Price (VND)
-                        </label>
+                            class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Price
+                            (VND)</label>
+                        <input type="number" name="price" id="price" required
+                            class="block w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-xl font-mono font-medium text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-200"
+                            placeholder="0" />
                     </div>
 
                     {{-- Stock --}}
-                    <div class="relative z-0 w-full group">
-                        <input type="number" name="stock" id="stock" value="0"
-                            class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                            placeholder=" " />
+                    <div>
                         <label for="stock"
-                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                            Stock Qty
-                        </label>
+                            class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-2">Stock
+                            Quantity</label>
+                        <input type="number" name="stock" id="stock" value="0"
+                            class="block w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-xl font-mono font-medium text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-200"
+                            placeholder="0" />
                     </div>
                 </div>
 
                 {{-- 3. DESCRIPTION --}}
                 <div class="pt-4">
                     <label for="description"
-                        class="block mb-4 text-xs font-bold uppercase tracking-widest text-neutral-400">Description /
-                        Details</label>
-                    <textarea name="description" id="description" rows="6"
-                        class="block p-4 w-full text-sm text-neutral-900 bg-neutral-50 border-0 focus:ring-1 focus:ring-black placeholder-neutral-400 font-light leading-relaxed"
-                        placeholder="Describe the silhouette, fabric, and fit..."></textarea>
+                        class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-4">Description
+                        / Details</label>
+                    <textarea name="description" id="description" rows="8"
+                        class="block w-full bg-neutral-50 border-0 p-4 text-sm text-neutral-900 font-light leading-relaxed focus:ring-1 focus:ring-black placeholder-neutral-400 resize-none"
+                        placeholder="Write a description about the material, fit, and style..."></textarea>
                 </div>
 
             </div>
