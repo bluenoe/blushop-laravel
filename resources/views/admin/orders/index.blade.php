@@ -89,7 +89,7 @@
 
                         {{-- Total --}}
                         <td class="py-4 text-right font-mono text-neutral-900">
-                            ₫{{ number_format($order->total_price ?? $order->total, 0, ',', '.') }}
+                            ₫{{ number_format($order->total_amount ?? $order->total, 0, ',', '.') }}
                         </td>
 
                         {{-- Action --}}

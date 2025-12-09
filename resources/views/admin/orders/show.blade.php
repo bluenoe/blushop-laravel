@@ -9,7 +9,7 @@
             <p class="text-xs text-neutral-400 font-mono mt-1">{{ $order->created_at->format('F j, Y \a\t H:i') }}</p>
         </div>
 
-        {{-- Print Action (Fake button for aesthetics) --}}
+        {{-- Print Action --}}
         <button onclick="window.print()"
             class="hidden md:inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,10 +28,11 @@
                 <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-6">Line Items</h2>
 
                 <div class="space-y-6">
-                    @foreach($order->items as $item)
+                    {{-- SỬA: Dùng orderItems thay vì items --}}
+                    @foreach($order->orderItems as $item)
                     <div class="flex gap-6 items-start">
                         {{-- Image --}}
-                        <div class="w-20 h-24 bg-neutral-100 flex-shrink-0">
+                        <div class="w-20 h-24 bg-neutral-100 flex-shrink-0 overflow-hidden">
                             @if($item->product && $item->product->image)
                             <img src="{{ Storage::url('products/' . $item->product->image) }}"
                                 class="w-full h-full object-cover">
@@ -45,17 +46,20 @@
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h3 class="font-bold text-neutral-900">{{ $item->product_name ??
-                                        $item->product->name ?? 'Unknown Item' }}</h3>
+                                    <h3 class="font-bold text-neutral-900">{{ $item->product->name ?? 'Unknown Item' }}
+                                    </h3>
                                     <p class="text-xs text-neutral-500 mt-1 font-mono">
-                                        {{ number_format($item->price, 0, ',', '.') }} ₫ &times; {{ $item->quantity }}
+                                        {{-- SỬA: price_at_purchase --}}
+                                        {{ number_format($item->price_at_purchase, 0, ',', '.') }} ₫ &times; {{
+                                        $item->quantity }}
                                     </p>
                                     @if($item->size)
                                     <p class="text-xs text-neutral-400 mt-1">Size: {{ $item->size }}</p>
                                     @endif
                                 </div>
                                 <p class="font-mono font-medium text-neutral-900">
-                                    {{ number_format($item->price * $item->quantity, 0, ',', '.') }} ₫
+                                    {{-- SỬA: Tính tổng tiền --}}
+                                    {{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }} ₫
                                 </p>
                             </div>
                         </div>
@@ -67,15 +71,17 @@
                 <div class="mt-12 border-t border-dashed border-neutral-200 pt-6 space-y-2">
                     <div class="flex justify-between text-sm">
                         <span class="text-neutral-500">Subtotal</span>
-                        <span class="font-mono">{{ number_format($order->total_price, 0, ',', '.') }} ₫</span>
+                        {{-- SỬA: total_amount --}}
+                        <span class="font-mono">{{ number_format($order->total_amount, 0, ',', '.') }} ₫</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-neutral-500">Shipping</span>
-                        <span class="font-mono">Free</span> {{-- Hoặc biến shipping nếu có --}}
+                        <span class="font-mono">Free</span>
                     </div>
                     <div class="flex justify-between text-xl font-bold mt-4 pt-4 border-t border-neutral-200">
                         <span>Total</span>
-                        <span>{{ number_format($order->total_price, 0, ',', '.') }} ₫</span>
+                        {{-- SỬA: total_amount --}}
+                        <span>{{ number_format($order->total_amount, 0, ',', '.') }} ₫</span>
                     </div>
                 </div>
             </div>
@@ -93,7 +99,7 @@
                     <label class="block mb-2 text-sm font-medium">Update Status</label>
                     <div class="flex gap-2">
                         <select name="status"
-                            class="flex-1 bg-white border border-neutral-300 text-sm py-2 px-3 focus:border-black focus:ring-0">
+                            class="flex-1 bg-white border border-neutral-300 text-sm py-2 px-3 focus:border-black focus:ring-0 cursor-pointer">
                             <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing
                             </option>
@@ -104,7 +110,7 @@
                             </option>
                         </select>
                         <button type="submit"
-                            class="bg-black text-white text-xs font-bold uppercase px-4 py-2 hover:bg-neutral-800">
+                            class="bg-black text-white text-xs font-bold uppercase px-4 py-2 hover:bg-neutral-800 transition">
                             Update
                         </button>
                     </div>
@@ -112,8 +118,18 @@
 
                 <div class="mt-6 pt-6 border-t border-neutral-200/50">
                     <p class="text-xs text-neutral-400 mb-2">Current Status</p>
+                    @php
+                    $colors = [
+                    'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                    'processing' => 'bg-blue-50 text-blue-700 border-blue-200',
+                    'shipped' => 'bg-purple-50 text-purple-700 border-purple-200',
+                    'completed' => 'bg-green-50 text-green-700 border-green-200',
+                    'cancelled' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
+                    ];
+                    $statusClass = $colors[$order->status] ?? 'bg-white text-neutral-900 border-neutral-200';
+                    @endphp
                     <span
-                        class="inline-block px-3 py-1 bg-white border border-neutral-200 text-xs font-bold uppercase tracking-wider rounded-sm">
+                        class="inline-block px-3 py-1 border text-[10px] font-bold uppercase tracking-wider rounded-sm {{ $statusClass }}">
                         {{ $order->status }}
                     </span>
                 </div>
@@ -125,9 +141,8 @@
                     class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4 border-b border-neutral-100 pb-2">
                     Customer</h3>
                 <div class="space-y-1">
-                    <p class="font-bold text-lg">{{ $order->user->name ?? $order->name }}</p>
-                    <p class="text-sm text-neutral-500">{{ $order->user->email ?? $order->email }}</p>
-                    <p class="text-sm text-neutral-500">{{ $order->phone ?? 'No Phone' }}</p>
+                    <p class="font-bold text-lg">{{ $order->user->name ?? 'Guest' }}</p>
+                    <p class="text-sm text-neutral-500">{{ $order->user->email ?? 'N/A' }}</p>
                 </div>
             </div>
 
@@ -137,8 +152,7 @@
                     class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4 border-b border-neutral-100 pb-2">
                     Shipping To</h3>
                 <p class="text-sm text-neutral-600 leading-relaxed">
-                    {{ $order->address ?? 'No Address Provided' }}<br>
-                    {{ $order->city ?? '' }}
+                    {{ $order->shipping_address ?? 'No Address Provided' }}
                 </p>
             </div>
 
