@@ -1,123 +1,94 @@
 <x-app-layout>
     <main class="bg-white min-h-screen text-neutral-900">
-        {{-- Header --}}
-        <div class="pt-24 pb-8 px-6 border-b border-neutral-100">
-            <div class="max-w-[1400px] mx-auto">
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tighter mb-2">My Account</h1>
-                <p class="text-neutral-500 font-light text-sm">Welcome back, {{ Auth::user()->name }}</p>
-            </div>
-        </div>
+        <div class="max-w-[1400px] mx-auto px-6 py-20 lg:py-32">
 
-        {{-- Main Layout --}}
-        <div class="max-w-[1400px] mx-auto px-6 py-12" x-data="{ tab: 'account' }">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
 
-                {{-- SIDEBAR NAVIGATION --}}
-                <aside class="lg:col-span-3">
-                    <nav class="sticky top-32 space-y-1">
-                        {{-- Account --}}
-                        <button @click="tab='account'"
-                            class="w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-widest transition border-l-2"
-                            :class="tab==='account' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
-                            Profile & Settings
-                        </button>
+                {{-- LEFT: ACCOUNT NAVIGATION (Đồng bộ với trang Order History) --}}
+                <div class="lg:col-span-3 lg:sticky lg:top-32">
+                    <div class="mb-10">
+                        <h2 class="text-3xl font-bold tracking-tighter">My Account.</h2>
+                        <p class="text-sm text-neutral-400 mt-2 font-light">Welcome back, {{ Auth::user()->name }}</p>
+                    </div>
 
-                        {{-- Orders --}}
-                        <button @click="tab='orders'"
-                            class="w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-widest transition border-l-2"
-                            :class="tab==='orders' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
+                    <nav class="space-y-1 border-l-2 border-neutral-100 pl-6">
+                        {{-- Profile (Active) --}}
+                        <a href="{{ route('profile.edit') }}"
+                            class="block py-2 text-xs font-bold uppercase tracking-widest text-black border-l-2 border-black -ml-[26px] pl-6 transition">
+                            Settings
+                        </a>
+
+                        {{-- Orders (Link sang trang riêng) --}}
+                        <a href="{{ route('orders.index') }}"
+                            class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
                             Order History
-                        </button>
+                        </a>
 
-                        {{-- Wishlist --}}
-                        <button @click="tab='wishlist'"
-                            class="w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-widest transition border-l-2"
-                            :class="tab==='wishlist' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
+                        {{-- Wishlist (Link sang trang riêng) --}}
+                        <a href="{{ route('wishlist.index') }}"
+                            class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
                             Wishlist
-                        </button>
-
-                        {{-- Password --}}
-                        <button @click="tab='password'"
-                            class="w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-widest transition border-l-2"
-                            :class="tab==='password' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
-                            Security
-                        </button>
+                        </a>
 
                         {{-- Logout --}}
                         <form method="POST" action="{{ route('logout') }}" class="pt-8">
                             @csrf
                             <button type="submit"
-                                class="w-full text-left px-4 text-xs font-bold uppercase tracking-widest text-red-600 hover:text-red-800 transition">
+                                class="text-xs text-red-500 uppercase tracking-widest hover:text-red-700 hover:underline underline-offset-4">
                                 Log Out
                             </button>
                         </form>
                     </nav>
-                </aside>
+                </div>
 
-                {{-- CONTENT AREA --}}
-                <div class="lg:col-span-9 min-h-[500px]">
+                {{-- RIGHT: CONTENT AREA --}}
+                <div class="lg:col-span-9">
 
-                    {{-- TAB: ACCOUNT --}}
-                    <div x-show="tab==='account'" x-transition.opacity>
-                        <div class="max-w-2xl">
-                            <h2 class="text-xl font-bold mb-8">Personal Information</h2>
-                            @include('profile.partials.update-profile-information-form')
+                    {{-- Alpine Tab cho nội bộ Profile (Info vs Password) --}}
+                    <div x-data="{ tab: 'info' }">
 
-                            <div class="mt-16 pt-16 border-t border-neutral-100">
-                                <h2 class="text-xl font-bold mb-4 text-red-600">Danger Zone</h2>
-                                @include('profile.partials.delete-user-form')
+                        {{-- Inner Tabs Header --}}
+                        <div class="flex gap-8 border-b border-neutral-200 mb-12 pb-1">
+                            <button @click="tab='info'"
+                                class="text-xs font-bold uppercase tracking-widest pb-4 transition border-b-2"
+                                :class="tab==='info' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
+                                Personal Info
+                            </button>
+                            <button @click="tab='password'"
+                                class="text-xs font-bold uppercase tracking-widest pb-4 transition border-b-2"
+                                :class="tab==='password' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
+                                Security
+                            </button>
+                        </div>
+
+                        {{-- TAB 1: INFO --}}
+                        <div x-show="tab==='info'" x-transition.opacity>
+                            <div class="max-w-xl space-y-12">
+                                <div>
+                                    <h3 class="text-lg font-bold mb-6">Details</h3>
+                                    @include('profile.partials.update-profile-information-form')
+                                </div>
+
+                                <div class="pt-12 border-t border-neutral-100">
+                                    <h3 class="text-lg font-bold mb-4 text-red-600">Danger Zone</h3>
+                                    <p class="text-sm text-neutral-500 mb-6">Once you delete your account, there is no
+                                        going back. Please be certain.</p>
+                                    @include('profile.partials.delete-user-form')
+                                </div>
                             </div>
                         </div>
+
+                        {{-- TAB 2: PASSWORD --}}
+                        <div x-show="tab==='password'" x-cloak x-transition.opacity>
+                            <div class="max-w-xl">
+                                <h3 class="text-lg font-bold mb-6">Change Password</h3>
+                                @include('profile.partials.update-password-form')
+                            </div>
+                        </div>
+
                     </div>
-
-                    {{-- TAB: ORDERS (Placeholder) --}}
-                    <div x-show="tab==='orders'" x-cloak x-transition.opacity>
-                        <h2 class="text-xl font-bold mb-8">Order History</h2>
-                        <div class="border border-neutral-100 bg-neutral-50 p-12 text-center">
-                            <p class="text-neutral-500 font-light">You haven't placed any orders yet.</p>
-                            <a href="{{ route('products.index') }}"
-                                class="inline-block mt-4 text-xs font-bold uppercase tracking-widest border-b border-black pb-1">Start
-                                Shopping</a>
-                        </div>
-                    </div>
-
-                    {{-- TAB: WISHLIST --}}
-                    <div x-show="tab==='wishlist'" x-cloak x-transition.opacity>
-                        <div class="flex items-center justify-between mb-8">
-                            <h2 class="text-xl font-bold">My Wishlist</h2>
-                            @if(($products ?? collect())->isNotEmpty())
-                            <form method="POST" action="{{ route('wishlist.clear') }}">
-                                @csrf
-                                <button type="submit"
-                                    class="text-xs text-neutral-400 hover:text-red-600 underline">Clear All</button>
-                            </form>
-                            @endif
-                        </div>
-
-                        @if(($products ?? collect())->isEmpty())
-                        <div class="border border-neutral-100 bg-neutral-50 p-12 text-center">
-                            <p class="text-neutral-500 font-light">Your wishlist is empty.</p>
-                        </div>
-                        @else
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                            @foreach(($products ?? collect()) as $product)
-                            <x-cart :product="$product" :is-wished="in_array($product->id, ($wishedIds ?? []))" />
-                            @endforeach
-                        </div>
-                        @endif
-                    </div>
-
-                    {{-- TAB: PASSWORD --}}
-                    <div x-show="tab==='password'" x-cloak x-transition.opacity>
-                        <div class="max-w-2xl">
-                            <h2 class="text-xl font-bold mb-8">Change Password</h2>
-                            @include('profile.partials.update-password-form')
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
     </main>
-    @include('partials.wishlist-script')
 </x-app-layout>
