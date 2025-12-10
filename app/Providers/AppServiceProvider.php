@@ -24,24 +24,36 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Console-only auto seeding of admin account
-        if (app()->runningInConsole()) {
-            try {
-                if (Schema::hasTable('users')) {
-                    $existing = User::query()->where('email', 'admin@blushop.local')->first();
-                    if (! $existing) {
-                        User::query()->create([
-                            'name' => 'Admin User',
-                            'email' => 'admin@blushop.local',
-                            'password' => bcrypt('12345678'),
-                            'is_admin' => true,
-                        ]);
-                        $this->app['log']->info('✔ Admin account ready!');
-                    }
+        // Fix lỗi độ dài key string cho một số DB cũ
+        Schema::defaultStringLength(191);
+
+        // CHIA SẺ DỮ LIỆU CHO TOÀN BỘ VIEW
+        // Chỉ chạy khi không phải trong console (để tránh lỗi khi chạy migrate)
+        if (!app()->runningInConsole()) {
+
+            // 1. Chia sẻ Global Settings (Lấy về dạng mảng key => value)
+            // Cache lại 60 phút để đỡ tốn query database mỗi lần load trang
+            $globalSettings = cache()->remember('global_settings', 3600, function () {
+                // Nếu bảng settings chưa có (lúc mới migrate), trả về mảng rỗng
+                try {
+                    return Setting::all()->pluck('value', 'key')->toArray();
+                } catch (\Exception $e) {
+                    return [];
                 }
-            } catch (\Throwable $e) {
-                // Silently ignore during migrations when table may not exist
-            }
+            });
+
+            // 2. Chia sẻ Categories cho Menu
+            $globalCategories = cache()->remember('global_categories', 3600, function () {
+                try {
+                    return Category::withCount('products')->get();
+                } catch (\Exception $e) {
+                    return [];
+                }
+            });
+
+            // Share biến $settings và $categories ra toàn bộ view
+            View::share('settings', $globalSettings);
+            View::share('categories', $globalCategories);
         }
     }
 }
