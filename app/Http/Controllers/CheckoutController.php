@@ -77,4 +77,16 @@ class CheckoutController extends Controller
             ->route('orders.index')
             ->with('success', 'Order placed successfully.');
     }
+
+    /**
+     * Hiển thị trang thành công sau khi đặt hàng.
+     */
+    public function success(\App\Models\Order $order)
+    {
+        // Bảo mật: Chỉ cho phép xem nếu đơn hàng thuộc về user đang login
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+        return redirect()->route('checkout.success', $order->id);
+    }
 }

@@ -117,6 +117,8 @@ Route::prefix('admin')
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
     });
 
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+
 
 // Fallback
 Route::get('/dashboard', function () {
