@@ -72,10 +72,7 @@ class CheckoutController extends Controller
 
         // Xoá giỏ sau khi đặt hàng
         $request->session()->forget('cart');
-
-        return redirect()
-            ->route('orders.index')
-            ->with('success', 'Order placed successfully.');
+        return redirect()->route('checkout.success', $order->id);
     }
 
     /**
@@ -83,10 +80,11 @@ class CheckoutController extends Controller
      */
     public function success(\App\Models\Order $order)
     {
-        // Bảo mật: Chỉ cho phép xem nếu đơn hàng thuộc về user đang login
         if ($order->user_id !== auth()->id()) {
             abort(403);
         }
-        return redirect()->route('checkout.success', $order->id);
+
+        // TRẢ VỀ VIEW, KHÔNG REDIRECT
+        return view('checkout.success', compact('order'));
     }
 }
