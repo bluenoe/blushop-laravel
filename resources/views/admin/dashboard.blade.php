@@ -16,57 +16,46 @@
 
     {{-- Stats Grid --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        {{-- Stat 1 --}}
+        {{-- Stat 1: Revenue --}}
         <div
             class="p-8 bg-white border border-neutral-100 md:border-transparent md:bg-white md:shadow-[0_0_40px_-15px_rgba(0,0,0,0.05)] rounded-sm group hover:border-black transition duration-500">
             <div class="flex justify-between items-start mb-8">
                 <span class="text-[10px] uppercase tracking-widest text-neutral-400">Total Revenue</span>
                 <span
                     class="text-xs font-medium text-green-600 flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
-                    +12.5%
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
+                    +12.5% <span class="text-[10px] text-green-400">(Demo)</span>
                 </span>
             </div>
             <div class="text-4xl lg:text-5xl font-bold tracking-tighter text-neutral-900 mb-2">
-                ₫85.2m
+                ₫{{ number_format($revenue, 0, ',', '.') }}
             </div>
-            <p class="text-xs text-neutral-400 font-light">Last 30 days</p>
+            <p class="text-xs text-neutral-400 font-light">Paid Orders</p>
         </div>
 
-        {{-- Stat 2 --}}
+        {{-- Stat 2: Orders --}}
         <div
             class="p-8 bg-white border border-neutral-100 md:border-transparent md:bg-white md:shadow-[0_0_40px_-15px_rgba(0,0,0,0.05)] rounded-sm group hover:border-black transition duration-500">
             <div class="flex justify-between items-start mb-8">
                 <span class="text-[10px] uppercase tracking-widest text-neutral-400">Total Orders</span>
                 <span
                     class="text-xs font-medium text-neutral-500 flex items-center gap-1 bg-neutral-100 px-2 py-1 rounded-full">
-                    0.0%
+                    Active
                 </span>
             </div>
             <div class="text-4xl lg:text-5xl font-bold tracking-tighter text-neutral-900 mb-2">
-                142
+                {{ $totalOrders }}
             </div>
-            <p class="text-xs text-neutral-400 font-light">Processing: 12</p>
+            <p class="text-xs text-neutral-400 font-light">Processing: {{ $processingOrders }}</p>
         </div>
 
-        {{-- Stat 3 --}}
+        {{-- Stat 3: AOV --}}
         <div
             class="p-8 bg-white border border-neutral-100 md:border-transparent md:bg-white md:shadow-[0_0_40px_-15px_rgba(0,0,0,0.05)] rounded-sm group hover:border-black transition duration-500">
             <div class="flex justify-between items-start mb-8">
                 <span class="text-[10px] uppercase tracking-widest text-neutral-400">Avg. Order Value</span>
-                <span class="text-xs font-medium text-red-600 flex items-center gap-1 bg-red-50 px-2 py-1 rounded-full">
-                    -2.1%
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </span>
             </div>
             <div class="text-4xl lg:text-5xl font-bold tracking-tighter text-neutral-900 mb-2">
-                ₫600k
+                ₫{{ number_format($aov, 0, ',', '.') }}
             </div>
             <p class="text-xs text-neutral-400 font-light">Per customer</p>
         </div>
@@ -77,9 +66,10 @@
         class="bg-white border border-neutral-100 md:border-transparent md:shadow-[0_0_40px_-15px_rgba(0,0,0,0.05)] rounded-sm overflow-hidden">
         <div class="px-8 py-6 border-b border-neutral-100 flex justify-between items-center">
             <h2 class="text-lg font-bold tracking-tight">Recent Orders</h2>
-            <a href="#"
-                class="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 hover:opacity-60 transition">View
-                All</a>
+            <a href="{{ route('admin.orders.index') }}"
+                class="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 hover:opacity-60 transition">
+                View All
+            </a>
         </div>
 
         <div class="overflow-x-auto">
@@ -94,33 +84,61 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-neutral-100 text-sm">
-                    {{-- Loop Placeholder --}}
-                    @for($i = 0; $i < 5; $i++) <tr class="group hover:bg-neutral-50 transition duration-200">
-                        <td class="px-8 py-5 font-mono text-xs">#BLU-{{ rand(1000, 9999) }}</td>
-                        <td class="px-8 py-5 font-medium">
-                            Minh Khanh
-                            <span class="block text-xs text-neutral-400 font-light mt-0.5">khanh@example.com</span>
+                    @forelse($recentOrders as $order)
+                    <tr class="group hover:bg-neutral-50 transition duration-200 cursor-pointer"
+                        onclick="window.location='{{ route('admin.orders.show', $order->id) }}'">
+
+                        {{-- ID --}}
+                        <td class="px-8 py-5 font-mono text-xs font-medium text-black">
+                            #{{ $order->id }}
                         </td>
-                        <td class="px-8 py-5">
-                            @php $status = ['Pending', 'Processing', 'Shipped'][rand(0,2)]; @endphp
-                            <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border
-                                {{ $status === 'Shipped' ? 'border-green-200 text-green-700 bg-green-50' : '' }}
-                                {{ $status === 'Processing' ? 'border-blue-200 text-blue-700 bg-blue-50' : '' }}
-                                {{ $status === 'Pending' ? 'border-neutral-200 text-neutral-600 bg-neutral-50' : '' }}
-                            ">
-                                <span
-                                    class="w-1.5 h-1.5 rounded-full {{ $status === 'Shipped' ? 'bg-green-500' : ($status === 'Processing' ? 'bg-blue-500' : 'bg-neutral-400') }}"></span>
-                                {{ $status }}
+
+                        {{-- Customer --}}
+                        <td class="px-8 py-5 font-medium">
+                            {{ $order->user->name ?? 'Guest Customer' }}
+                            <span class="block text-xs text-neutral-400 font-light mt-0.5">
+                                {{ $order->user->email ?? $order->email ?? 'No Email' }}
                             </span>
                         </td>
+
+                        {{-- Status Badge --}}
+                        <td class="px-8 py-5">
+                            @php
+                            $colors = [
+                            'pending' => 'border-yellow-200 text-yellow-700 bg-yellow-50',
+                            'processing' => 'border-blue-200 text-blue-700 bg-blue-50',
+                            'shipped' => 'border-purple-200 text-purple-700 bg-purple-50',
+                            'completed' => 'border-green-200 text-green-700 bg-green-50',
+                            'cancelled' => 'border-neutral-200 text-neutral-500 bg-neutral-50',
+                            ];
+                            $statusClass = $colors[$order->status] ?? 'border-neutral-200 text-neutral-600
+                            bg-neutral-50';
+                            @endphp
+                            <span
+                                class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide border {{ $statusClass }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                                {{ $order->status }}
+                            </span>
+                        </td>
+
+                        {{-- Date --}}
                         <td class="px-8 py-5 text-neutral-500 font-light">
-                            {{ now()->subHours($i*2)->format('M d, H:i') }}
+                            {{ $order->created_at->format('M d, H:i') }}
                         </td>
+
+                        {{-- Total --}}
                         <td class="px-8 py-5 text-right font-mono font-medium">
-                            ₫{{ number_format(rand(500000, 2000000), 0, ',', '.') }}
+                            ₫{{ number_format($order->total_amount, 0, ',', '.') }}
                         </td>
-                        </tr>
-                        @endfor
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-8 py-12 text-center text-neutral-400">
+                            <p class="mb-2">No orders placed yet.</p>
+                            <p class="text-xs uppercase tracking-widest">Waiting for the first sale!</p>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
