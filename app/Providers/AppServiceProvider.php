@@ -6,6 +6,9 @@ use App\Http\Responses\LoginResponse;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use \App\Models\Setting;
+use \App\Models\Category;
+use Illuminate\Support\Facades\View;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class AppServiceProvider extends ServiceProvider
