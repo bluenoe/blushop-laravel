@@ -31,7 +31,7 @@
                 </span>
             </div>
             <div class="text-4xl lg:text-5xl font-bold tracking-tighter text-neutral-900 mb-2">
-                ₫85.2m
+                {{ number_format($revenue, 0, ',', '.') }}
             </div>
             <p class="text-xs text-neutral-400 font-light">Last 30 days</p>
         </div>
@@ -47,9 +47,9 @@
                 </span>
             </div>
             <div class="text-4xl lg:text-5xl font-bold tracking-tighter text-neutral-900 mb-2">
-                142
+                {{ $totalOrders }}
             </div>
-            <p class="text-xs text-neutral-400 font-light">Processing: 12</p>
+            <p class="text-xs text-neutral-400 font-light">Processing: {{ $processingOrders }}</p>
         </div>
 
         {{-- Stat 3 --}}
