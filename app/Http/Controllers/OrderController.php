@@ -2,45 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    // 1. Danh sách đơn hàng
-    public function index(Request $request)
+    /**
+     * Danh sách đơn hàng của khách (My Orders)
+     */
+    public function index()
     {
-        $query = Order::query()->with('user'); // Eager load user để tránh query N+1
+        // Chỉ lấy đơn hàng của user hiện tại
+        $orders = Order::where('user_id', Auth::id())
+            ->with('orderItems.product') // Eager load để lấy ảnh sản phẩm
+            ->latest()
+            ->paginate(10);
 
-        // Filter đơn giản theo Status (dùng cho các Tabs)
-        if ($request->has('status') && $request->status != 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $orders = $query->latest()->paginate(10);
-
-        return view('admin.orders.index', compact('orders'));
+        return view('orders.index', compact('orders'));
     }
 
-    // 2. Chi tiết đơn hàng (Invoice View)
+    /**
+     * Chi tiết đơn hàng của khách
+     */
     public function show(Order $order)
     {
-        // Load thêm chi tiết sản phẩm trong đơn
-        $order->load(['items.product', 'user']);
+        // Bảo mật: Chặn nếu xem đơn của người khác
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        return view('admin.orders.show', compact('order'));
-    }
+        $order->load('orderItems.product');
 
-    // 3. Cập nhật trạng thái (Update Status)
-    public function updateStatus(Request $request, Order $order)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,processing,shipped,completed,cancelled',
-        ]);
-
-        $order->update(['status' => $request->status]);
-
-        return back()->with('success', 'Order status updated to ' . ucfirst($request->status));
+        return view('orders.show', compact('order'));
     }
 }

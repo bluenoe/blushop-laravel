@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
