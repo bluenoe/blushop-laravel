@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+// [TUI SỬA]: Thêm import alias cho SettingController ở đây bà nhé
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +34,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 // Landing Page
 Route::get('/', function () {
-    return view('landing'); // Hoặc dùng LandingController nếu có logic
+    return view('landing');
 })->name('landing');
 
 // Shop Home (Alternative Home)
@@ -42,22 +44,14 @@ Route::get('/home', [LandingController::class, 'index'])->name('home');
 Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-// Legacy support
 Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
 
 // Cart (Session-based, AJAX Compatible)
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
-
-    // Add item (có ID trên URL vì thường gọi từ trang Product/List)
     Route::post('/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
-
-    // Update & Remove (AJAX body sends ID, so no ID in URL needed for cleaner API)
-    // Support cả POST (cho form thường) và PATCH/DELETE (cho AJAX chuẩn)
     Route::match(['post', 'patch'], '/update', [CartController::class, 'update'])->name('cart.update');
     Route::match(['post', 'delete'], '/remove', [CartController::class, 'remove'])->name('cart.remove');
-
-    // Clear all
     Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 
@@ -74,33 +68,29 @@ require __DIR__ . '/auth.php';
 
 // --- AUTHENTICATED USER ROUTES ---
 Route::middleware('auth')->group(function () {
-    // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
 
-    // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
 
-    // Orders History
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
-    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Shortcut
     Route::get('/profile/wishlist', [WishlistController::class, 'index']);
 });
 
 
 // --- ADMIN ROUTES ---
 Route::prefix('admin')
-    ->middleware(['auth', 'is_admin']) // Ensure you have is_admin middleware or alias
-    ->name('admin.')
+    ->middleware(['auth', 'is_admin'])
+    ->name('admin.') // [TUI KIỂM TRA]: name('admin.') này cực kỳ quan trọng để các link sidebar hoạt động
     ->group(function () {
+
         // Dashboard
         Route::redirect('/', '/admin/dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -111,8 +101,10 @@ Route::prefix('admin')
         // Categories
         Route::resource('categories', AdminCategoryController::class);
 
-        // Users (Chỉ cấm create và store (vì mình không tạo user từ admin), nhưng CHO PHÉP 'show')
+        // Users
+        // [TUI KIỂM TRA]: Phải giữ logic nãy để xem được profile khách hàng nhé
         Route::resource('users', AdminUserController::class)->except(['create', 'store']);
+
         // Orders
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [AdminOrderController::class, 'index'])->name('index');
@@ -120,18 +112,17 @@ Route::prefix('admin')
             Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('status');
         });
 
-        // Settings (Optional)
-        Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+        // [TUI SỬA]: Viết lại đoạn settings dùng Alias AdminSettingController cho đồng bộ và sạch đẹp
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
     });
 
 
-// Fallback for Admin Dashboard legacy link
+// Fallback
 Route::get('/dashboard', function () {
     return auth()->user()->is_admin ? redirect()->route('admin.dashboard') : redirect()->route('home');
 })->middleware(['auth'])->name('dashboard');
 
-// 404 Handling
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
