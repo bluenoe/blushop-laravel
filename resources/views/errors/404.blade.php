@@ -1,7 +1,7 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop 404 Error - High-End Editorial Style
-Concept: Massive Typography, Clean Search, Monochromatic
+BluShop 404 Error - High-End Editorial Style (Updated)
+Concept: Massive Outline Typography, Clean Search
 ═══════════════════════════════════════════════════════════════
 --}}
 
@@ -10,14 +10,18 @@ Concept: Massive Typography, Clean Search, Monochromatic
         class="bg-white min-h-[80vh] flex flex-col items-center justify-center text-neutral-900 px-6 relative overflow-hidden">
 
         {{-- Background "404" Watermark --}}
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-            <span class="text-[20vw] font-bold text-neutral-50 tracking-tighter leading-none translate-y-10">
+        {{-- UPDATE: Dùng Outline Text để rõ hơn nhưng vẫn tinh tế --}}
+        <div
+            class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
+            <span class="text-[25vw] font-black tracking-tighter leading-none translate-y-10"
+                style="-webkit-text-stroke: 2px #E5E5E5; color: transparent;">
                 404
             </span>
         </div>
 
         {{-- Content --}}
-        <div class="relative z-10 max-w-xl w-full text-center space-y-10">
+        <div
+            class="relative z-10 max-w-xl w-full text-center space-y-10 bg-white/60 backdrop-blur-[2px] py-10 rounded-3xl">
 
             {{-- Header --}}
             <div class="space-y-4">
