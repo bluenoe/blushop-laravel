@@ -123,6 +123,7 @@ Route::get('/dashboard', function () {
     return auth()->user()->is_admin ? redirect()->route('admin.dashboard') : redirect()->route('home');
 })->middleware(['auth'])->name('dashboard');
 
-Route::fallback(function () {
+/* Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
+ */
