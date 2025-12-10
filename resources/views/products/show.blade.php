@@ -99,13 +99,21 @@ Concept: Sticky Sidebar & Vertical Gallery
                                 {{ $product->name }}
                             </h1>
 
-                            {{-- Wishlist Button --}}
-                            <div x-data="{ id: {{ $product->id }}, active: $store.wishlist.isFav({{ $product->id }}) }">
-                                <button @click="$store.wishlist.toggle(id); active = $store.wishlist.isFav(id)"
-                                    class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition">
-                                    <svg class="w-6 h-6 transition-colors"
-                                        :class="active ? 'text-red-600 fill-current' : 'text-neutral-400 group-hover:text-black'"
-                                        viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+                            {{-- Wishlist Button - Minimalist Style --}}
+                            {{-- Không cần tạo biến 'active' cục bộ nữa, chỉ cần giữ ID --}}
+                            <div x-data="{ id: {{ $product->id }} }">
+                                {{-- Khi click chỉ cần gọi hàm toggle, không cần làm gì thêm --}}
+                                <button @click="$store.wishlist.toggle(id)"
+                                    class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition-colors duration-300">
+
+                                    {{-- Đoạn này quan trọng !! --}}
+                                    <svg class="w-6 h-6 transition-all duration-300" {{-- Nếu store báo đã thích: Tô màu
+                                        đen (text-black) và đổ đầy màu đen (fill-current) --}} {{-- Nếu chưa thích: Màu
+                                        xám (text-neutral-400), không đổ màu (fill-none), khi di chuột vào thì chuyển
+                                        đen --}} :class="$store.wishlist.isFav(id)
+                        ? 'text-black fill-current transform scale-110'
+                        : 'text-neutral-400 fill-none group-hover:text-black group-hover:scale-105'"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
