@@ -69,7 +69,7 @@ class User extends Authenticatable
         $url = Storage::url($this->avatar);
         $v = $version ?? optional($this->updated_at)->getTimestamp() ?? time();
 
-        return $url.'?v='.$v;
+        return $url . '?v=' . $v;
     }
 
     /**
@@ -79,21 +79,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
-
     /**
-     * Products the user has wishlisted.
+     * The products that the user has in their wishlist.
      */
-    public function wishlistedProducts()
+
+    // 1. Hàm chính (Dùng cho nút bấm Wishlist Toggle)
+    public function wishlist()
     {
-        return $this->belongsToMany(Product::class, 'wishlists')
+        // Giả sử bảng trung gian tên là 'wishlists'
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')
             ->withTimestamps();
     }
 
-    /**
-     * Check if product is in user's wishlist.
-     */
-    public function hasWishlisted(int $productId): bool
+    // 2. Hàm phụ (Alias - Dùng cho trang Profile để không bị lỗi code cũ)
+    public function wishlistedProducts()
     {
-        return $this->wishlistedProducts()->where('products.id', $productId)->exists();
+        return $this->wishlist();
     }
 }
