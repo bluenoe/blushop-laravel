@@ -9,23 +9,37 @@ class WishlistController extends Controller
 {
     public function index()
     {
-        // Lấy user hiện tại
         $user = Auth::user();
-
-        // Lấy danh sách sản phẩm trong wishlist (kèm quan hệ category để hiển thị đẹp)
-        // Giả sử đã setup quan hệ belongsToMany giữa User và Product tên là 'wishlist'
-        // Hoặc nếu bà dùng bảng 'wishlists' riêng thì query tương ứng.
-        // Dưới đây là cách chuẩn Laravel dùng belongsToMany:
+        // Lấy danh sách wishlist
         $products = $user->wishlist()->with('category')->latest()->paginate(12);
 
         return view('wishlist.index', compact('products'));
     }
 
-    // Các hàm toggle/clear giữ nguyên...
+    // --- CHỈ GIỮ LẠI MỘT HÀM TOGGLE NÀY THÔI NHÉ ---
     public function toggle($productId)
     {
         $user = Auth::user();
-        $user->wishlist()->toggle($productId);
-        return back()->with('success', 'Wishlist updated.');
+
+        // 1. Thực hiện toggle
+        $changes = $user->wishlist()->toggle($productId);
+
+        // 2. Kiểm tra xem vừa thêm vào hay xóa ra
+        // Nếu mảng 'attached' có dữ liệu -> tức là vừa thêm vào
+        $isWished = count($changes['attached']) > 0;
+
+        // 3. Trả về JSON (Quan trọng)
+        return response()->json([
+            'success' => true,
+            'wished' => $isWished,
+            'message' => $isWished ? 'Added to wishlist' : 'Removed from wishlist'
+        ]);
+    }
+
+    // Hàm xóa toàn bộ (nếu có dùng ở file JS)
+    public function clear()
+    {
+        Auth::user()->wishlist()->detach();
+        return response()->json(['success' => true]);
     }
 }

@@ -91,7 +91,7 @@ class ProductController extends Controller
             'activeCategory' => (string) $request->input('category', ''),
             // Qualify column to avoid ambiguous "id" when joining products and wishlists
             'wishedIds' => auth()->check()
-                ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
+                ? auth()->user()->wishlist()->pluck('products.id')->all()
                 : [],
             'breadcrumbs' => $breadcrumbs,
             'priceMinBound' => $priceMinBound,
@@ -106,29 +106,14 @@ class ProductController extends Controller
     {
         $product = Product::query()->findOrFail($id);
 
-        // Fetch related products: simple strategy - random others
-        $relatedProducts = Product::query()
-            ->select(['id', 'name', 'price', 'image', 'is_new', 'is_bestseller', 'is_on_sale'])
-            ->where('id', '!=', $product->id)
-            ->inRandomOrder()
-            ->limit(4)
-            ->get();
+        // Lấy danh sách ID các sản phẩm user đã thích (nếu user đã đăng nhập)
+        $wishedIds = [];
+        if (auth()->check()) {
+            $wishedIds = auth()->user()->wishlist()->pluck('products.id')->toArray();
+        }
 
-        $breadcrumbs = [
-            ['label' => 'Home', 'url' => route('home')],
-            ['label' => 'Shop', 'url' => route('products.index')],
-            ['label' => $product->name],
-        ];
-
-        return view('products.show', [
-            'product' => $product,
-            'relatedProducts' => $relatedProducts,
-            // Qualify column to avoid ambiguous "id" when joining products and wishlists
-            'wishedIds' => auth()->check()
-                ? auth()->user()->wishlistedProducts()->pluck('products.id')->all()
-                : [],
-            'breadcrumbs' => $breadcrumbs,
-        ]);
+        // Nhớ truyền 'wishedIds' vào view nhé
+        return view('products.show', compact('product', 'wishedIds'));
     }
 
     /**
