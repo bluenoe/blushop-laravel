@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-// [TUI SỬA]: Thêm import alias cho SettingController ở đây bà nhé
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 
 /*
@@ -34,15 +33,11 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 // --- PUBLIC ROUTES ---
 
 // Landing Page
-Route::get('/', function () {
-    return view('landing');
-})->name('landing');
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 
-// Home Page
-Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Shop Home (Alternative Home)
-Route::get('/home', [LandingController::class, 'index'])->name('home');
+// Home Page (Alternative Home)
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Products
 Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');

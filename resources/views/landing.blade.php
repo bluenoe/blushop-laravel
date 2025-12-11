@@ -145,10 +145,11 @@ Laravel Blade + Tailwind CSS
             </div>
         </section>
 
+
         {{-- ============================================
-        CATEGORY SPOTLIGHT - Image + Text blocks
+        CATEGORY SPOTLIGHT
         ============================================ --}}
-        <section class="py-16 sm:py-24 bg-warm/20">
+        <section class="py-16 sm:py-24 bg-orange-50/20"> {{-- bg-warm/20 tui đổi tạm thành màu có sẵn --}}
             <div class="max-w-7xl mx-auto px-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     @php
@@ -156,7 +157,9 @@ Laravel Blade + Tailwind CSS
                     [
                     'name' => 'Women',
                     'desc' => 'Effortless elegance for the modern woman',
+                    // Tên file ảnh phải khớp với file trong public/images
                     'image' => 'category-women.jpg',
+                    // Link này trỏ về trang shop, lọc theo category 'women'
                     'link' => route('products.index', ['category' => 'women'])
                     ],
                     [
@@ -169,13 +172,17 @@ Laravel Blade + Tailwind CSS
                     @endphp
 
                     @foreach($categories as $cat)
-                    <article data-reveal class="group relative overflow-hidden">
+                    <article class="group relative overflow-hidden rounded-lg shadow-sm">
                         <a href="{{ $cat['link'] }}" class="block">
-                            {{-- Category Image --}}
-                            <div class="relative overflow-hidden bg-warm/40" style="aspect-ratio: 4/5">
+                            {{-- Category Image Container --}}
+                            <div class="relative overflow-hidden bg-gray-200 aspect-[4/5]">
+
+                                {{-- QUAN TRỌNG: Hàm asset() sẽ tìm trong folder public --}}
                                 <img src="{{ asset('images/' . $cat['image']) }}" alt="{{ $cat['name'] }} Collection"
-                                    class="w-full h-full object-cover transition-transform duration-700 
-                                           group-hover:scale-105" loading="lazy" />
+                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    loading="lazy" onerror="this.src='https://placehold.co/600x800?text=No+Image'" />
+                                {{-- Dòng onerror này giúp nếu sai ảnh nó hiện ảnh xám thay vì lỗi trắng bóc --}}
+
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
                                 </div>
@@ -185,8 +192,8 @@ Laravel Blade + Tailwind CSS
                             <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
                                 <h3 class="text-3xl font-light mb-2">{{ $cat['name'] }}</h3>
                                 <p class="text-sm text-white/90 mb-4">{{ $cat['desc'] }}</p>
-                                <span class="inline-flex items-center gap-2 text-sm font-medium 
-                                             border-b border-white/50 group-hover:border-white transition pb-1">
+                                <span
+                                    class="inline-flex items-center gap-2 text-sm font-medium border-b border-white/50 group-hover:border-white transition pb-1">
                                     Shop Now
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
