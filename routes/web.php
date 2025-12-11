@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 // Controllers
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -36,6 +37,9 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
+
+// Home Page
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Shop Home (Alternative Home)
 Route::get('/home', [LandingController::class, 'index'])->name('home');
