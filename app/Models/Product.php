@@ -48,4 +48,21 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'wishlists')
             ->withTimestamps();
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true)->latest();
+    }
+
+    // Hàm tính điểm trung bình sao
+    public function getAvgRatingAttribute()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    // Hàm tính độ vừa vặn trung bình (để hiển thị slider)
+    public function getAvgFitAttribute()
+    {
+        return $this->reviews()->avg('fit_rating') ?? 3; // Mặc định là 3 (Vừa)
+    }
 }

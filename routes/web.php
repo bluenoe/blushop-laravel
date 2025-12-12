@@ -12,6 +12,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ReviewController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -59,6 +60,11 @@ Route::get('/contact', [ContactController::class, 'show'])->name('contact.index'
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
+
+// Reviews
+Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])
+    ->middleware('auth')
+    ->name('reviews.store');
 
 
 // --- AUTH ROUTES (Breeze) ---
