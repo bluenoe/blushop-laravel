@@ -19,6 +19,7 @@ return new class extends Migration
 
             // Hướng dẫn bảo quản (Text dài)
             //$table->text('care_guide')->nullable();
+            //$table->text('care_guide')->nullable();
         });
     }
 

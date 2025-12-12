@@ -3,156 +3,158 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
     /**
-     * Display the shopping cart.
+     * Add product to cart
+     */
+    public function add(Request $request, Product $product)
+    {
+        // Validate request
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'color_id' => 'required|exists:colors,id',
+            'size_id' => 'required|exists:sizes,id',
+            'quantity' => 'required|integer|min:1|max:' . $product->stock,
+        ]);
+
+        // Check stock availability
+        if ($product->stock < $validated['quantity']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient stock available'
+            ], 400);
+        }
+
+        // For authenticated users, save to database
+        if (Auth::check()) {
+            $cart = Cart::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'product_id' => $validated['product_id'],
+                    'color_id' => $validated['color_id'],
+                    'size_id' => $validated['size_id'],
+                ],
+                [
+                    'quantity' => \DB::raw('quantity + ' . $validated['quantity']),
+                    'price' => $product->price,
+                ]
+            );
+
+            $cartCount = Cart::where('user_id', Auth::id())->sum('quantity');
+        }
+        // For guests, use session
+        else {
+            $cart = Session::get('cart', []);
+
+            // Create unique key for cart item
+            $key = $validated['product_id'] . '-' . $validated['color_id'] . '-' . $validated['size_id'];
+
+            if (isset($cart[$key])) {
+                $cart[$key]['quantity'] += $validated['quantity'];
+            } else {
+                $cart[$key] = [
+                    'product_id' => $validated['product_id'],
+                    'product_name' => $product->name,
+                    'product_image' => $product->images->first()?->url,
+                    'color_id' => $validated['color_id'],
+                    'size_id' => $validated['size_id'],
+                    'quantity' => $validated['quantity'],
+                    'price' => $product->price,
+                ];
+            }
+
+            Session::put('cart', $cart);
+            $cartCount = array_sum(array_column($cart, 'quantity'));
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to cart successfully',
+            'cartCount' => $cartCount
+        ]);
+    }
+
+    /**
+     * Display cart page
      */
     public function index()
     {
-        $cart = Session::get('cart', []);
-        $total = $this->calculateTotal($cart);
+        if (Auth::check()) {
+            $cartItems = Cart::with(['product.images', 'color', 'size'])
+                ->where('user_id', Auth::id())
+                ->get();
 
-        return view('cart', [
-            'cart' => $cart,
-            'total' => $total,
-        ]);
-    }
-
-    /**
-     * Add item to cart (AJAX & Normal).
-     */
-    public function add(Request $request, int $id)
-    {
-        // 1. Validate
-        $request->validate([
-            'quantity' => ['nullable', 'integer', 'min:1'],
-            'size' => ['nullable', 'string'],
-            'color' => ['nullable', 'string'],
-        ]);
-
-        $quantity = (int) $request->input('quantity', 1);
-        $product = Product::findOrFail($id);
-        $cart = Session::get('cart', []);
-
-        // 2. Logic thêm/cập nhật
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+            $total = $cartItems->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
         } else {
-            $cart[$id] = [
-                "name" => $product->name,
-                "quantity" => $quantity,
-                "price" => (float) $product->price,
-                "image" => $product->image,
-                "size" => $request->input('size'),
-                "color" => $request->input('color')
-            ];
+            $cart = Session::get('cart', []);
+            $cartItems = collect($cart);
+            $total = $cartItems->sum(function ($item) {
+                return $item['price'] * $item['quantity'];
+            });
         }
 
-        Session::put('cart', $cart);
-
-        // 3. Phản hồi
-        // Nếu là AJAX (từ nút Quick Add hoặc trang Detail dùng fetch)
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Added to bag',
-                'cart_count' => collect(session('cart'))->sum('quantity'),
-            ]);
-        }
-
-        // Nếu request thường (fallback)
-        return redirect()->back()->with('success', 'Product added to bag successfully!');
+        return view('cart.index', compact('cartItems', 'total'));
     }
 
     /**
-     * Update item quantity (AJAX mainly).
+     * Update cart item quantity
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        // Nhận ID từ body JSON hoặc route param đều được
-        $id = $request->input('id');
-        $quantity = (int) $request->input('quantity');
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
 
-        if ($id && $quantity > 0) {
-            $cart = Session::get('cart', []);
+        if (Auth::check()) {
+            $cart = Cart::where('user_id', Auth::id())->findOrFail($id);
 
-            if (isset($cart[$id])) {
-                $cart[$id]['quantity'] = $quantity;
-                Session::put('cart', $cart);
-
-                // Tính toán số liệu mới để trả về
-                $itemSubtotal = $cart[$id]['price'] * $quantity;
-                $total = $this->calculateTotal($cart);
-
-                if ($request->wantsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Quantity updated',
-                        'item_subtotal' => number_format($itemSubtotal, 0, ',', '.'),
-                        'total' => number_format($total, 0, ',', '.'),
-                        'cart_count' => collect(session('cart'))->sum('quantity'),
-                    ]);
-                }
-            }
-        }
-
-        return redirect()->route('cart.index')->with('success', 'Cart updated');
-    }
-
-    /**
-     * Remove item from cart (AJAX mainly).
-     */
-    public function remove(Request $request)
-    {
-        $id = $request->input('id') ?? $request->route('id'); // Support both POST body and Route param
-
-        if ($id) {
-            $cart = Session::get('cart', []);
-
-            if (isset($cart[$id])) {
-                unset($cart[$id]);
-                Session::put('cart', $cart);
-            }
-
-            // Tính lại tổng sau khi xóa
-            $total = $this->calculateTotal($cart);
-
-            if ($request->wantsJson()) {
+            // Check stock
+            if ($cart->product->stock < $validated['quantity']) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Item removed',
-                    'total' => number_format($total, 0, ',', '.'),
-                    'cart_count' => collect(session('cart'))->sum('quantity'),
-                    'is_empty' => empty($cart)
-                ]);
+                    'success' => false,
+                    'message' => 'Insufficient stock'
+                ], 400);
+            }
+
+            $cart->update(['quantity' => $validated['quantity']]);
+        } else {
+            $cart = Session::get('cart', []);
+            if (isset($cart[$id])) {
+                $cart[$id]['quantity'] = $validated['quantity'];
+                Session::put('cart', $cart);
             }
         }
 
-        return redirect()->route('cart.index')->with('success', 'Item removed from bag');
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart updated successfully'
+        ]);
     }
 
     /**
-     * Clear entire cart.
+     * Remove item from cart
      */
-    public function clear()
+    public function remove($id)
     {
-        Session::forget('cart');
-        return redirect()->route('cart.index')->with('success', 'Shopping bag cleared');
-    }
-
-    /**
-     * Helper: Calculate Cart Total
-     */
-    private function calculateTotal(array $cart): float
-    {
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
+        if (Auth::check()) {
+            Cart::where('user_id', Auth::id())->where('id', $id)->delete();
+        } else {
+            $cart = Session::get('cart', []);
+            unset($cart[$id]);
+            Session::put('cart', $cart);
         }
-        return $total;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Item removed from cart'
+        ]);
     }
 }

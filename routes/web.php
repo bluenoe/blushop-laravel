@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Controllers
+// --- Controllers (Tổng hợp từ cả 2 file) ---
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
@@ -26,34 +26,15 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-| - Public: Landing, Product, Cart, Contact, Static Pages
-| - Auth: Checkout, Wishlist, Profile, Orders
-| - Admin: Dashboard + CRUD
 */
 
-// --- PUBLIC ROUTES ---
+// --- PUBLIC ROUTES (Landing & Static Pages) ---
 
 // Landing Page
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
-
 // Home Page (Alternative Home)
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-// Products
-Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
-
-// Cart (Session-based, AJAX Compatible)
-Route::prefix('cart')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/add/{id}', [CartController::class, 'add'])->whereNumber('id')->name('cart.add');
-    Route::match(['post', 'patch'], '/update', [CartController::class, 'update'])->name('cart.update');
-    Route::match(['post', 'delete'], '/remove', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
-});
 
 // Contact & Pages
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.index');
@@ -61,40 +42,81 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
 
-// Reviews
-Route::post('/products/{id}/reviews', [ReviewController::class, 'store'])
-    ->middleware('auth')
-    ->name('reviews.store');
+
+// --- PRODUCT ROUTES ---
+
+// Listing & Filters (Giữ lại từ file trên)
+Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// Product Detail (Lấy logic XỊN từ file dưới - dùng Slug)
+Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+// Fallback cho link cũ dùng ID nếu cần (Optional)
+Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
+
+
+// --- CART ROUTES (Lấy logic XỊN từ file dưới) ---
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
+    Route::patch('/update/{id}', [CartController::class, 'update'])->name('update');
+    Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('remove');
+    // Giữ lại route clear từ file trên nhưng đưa vào group này cho tiện
+    Route::post('/clear', [CartController::class, 'clear'])->name('clear');
+});
+
+
+// --- WISHLIST ROUTES (Lấy logic XỊN từ file dưới) ---
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    // Public routes (AJAX toggle thường không cần Auth cứng ở route mà check trong controller hoặc FE xử lý)
+    Route::post('/toggle', [WishlistController::class, 'toggle'])->name('toggle');
+
+    // Authenticated routes
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/', [WishlistController::class, 'index'])->name('index');
+        Route::delete('/remove/{id}', [WishlistController::class, 'remove'])->name('remove');
+        Route::delete('/clear', [WishlistController::class, 'clear'])->name('clear');
+        Route::post('/move-to-cart', [WishlistController::class, 'moveToCart'])->name('moveToCart');
+    });
+});
+
+
+// --- REVIEW ROUTES (Lấy logic XỊN từ file dưới) ---
+Route::middleware(['auth'])->prefix('reviews')->name('reviews.')->group(function () {
+    Route::post('/products/{product}', [ReviewController::class, 'store'])->name('store');
+    Route::patch('/{review}', [ReviewController::class, 'update'])->name('update');
+    Route::delete('/{review}', [ReviewController::class, 'destroy'])->name('destroy');
+    Route::post('/{review}/helpful', [ReviewController::class, 'markHelpful'])->name('helpful');
+});
 
 
 // --- AUTH ROUTES (Breeze) ---
 require __DIR__ . '/auth.php';
 
 
-// --- AUTHENTICATED USER ROUTES ---
+// --- AUTHENTICATED USER ROUTES (Checkout, Orders, Profile) ---
 Route::middleware('auth')->group(function () {
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::post('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
 
+    // Checkout (Giữ lại từ file trên)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/place', [CheckoutController::class, 'place'])->name('checkout.place');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
+    // Orders (Giữ lại từ file trên)
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
+    // Profile (Giữ lại từ file trên)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/profile/wishlist', [WishlistController::class, 'index']);
 });
 
 
-// --- ADMIN ROUTES ---
+// --- ADMIN ROUTES (Giữ nguyên từ file trên) ---
 Route::prefix('admin')
     ->middleware(['auth', 'is_admin'])
-    ->name('admin.') // [TUI KIỂM TRA]: name('admin.') này cực kỳ quan trọng để các link sidebar hoạt động
+    ->name('admin.')
     ->group(function () {
 
         // Dashboard
@@ -108,7 +130,6 @@ Route::prefix('admin')
         Route::resource('categories', AdminCategoryController::class);
 
         // Users
-        // [TUI KIỂM TRA]: Phải giữ logic nãy để xem được profile khách hàng nhé
         Route::resource('users', AdminUserController::class)->except(['create', 'store']);
 
         // Orders
@@ -118,20 +139,17 @@ Route::prefix('admin')
             Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('status');
         });
 
-        // [TUI SỬA]: Viết lại đoạn settings dùng Alias AdminSettingController cho đồng bộ và sạch đẹp
+        // Settings
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
     });
 
-Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
-
-// Fallback
+// --- FALLBACK & REDIRECTS ---
 Route::get('/dashboard', function () {
     return auth()->user()->is_admin ? redirect()->route('admin.dashboard') : redirect()->route('home');
 })->middleware(['auth'])->name('dashboard');
 
-/* Route::fallback(function () {
+Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
- */

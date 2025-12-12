@@ -5,25 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductImage extends Model
+class Size extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'product_id',
-        'url',
-        'alt_text',
+        'name',
+        'code',
         'sort_order',
-        'is_primary',
+        'is_active',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
-        'is_primary' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class, 'product_sizes')
+            ->withPivot('stock')
+            ->withTimestamps();
     }
 }

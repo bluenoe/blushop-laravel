@@ -2,137 +2,168 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
 
 class ProductController extends Controller
 {
     /**
-     * Hiển thị danh sách sản phẩm ra trang chủ.
+     * Hiển thị danh sách sản phẩm (Shop page)
+     * Logic: Lấy từ file 1 (Filter, Sort, Search)
      */
     public function index(Request $request)
     {
-        // 1. Khởi tạo Query & Eager Loading
-        // Select cụ thể các cột cần thiết để tối ưu hiệu năng
         $query = Product::query()
             ->select(['id', 'name', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
             ->with(['category:id,name,slug']);
 
-        // 2. Áp dụng các bộ lọc (Sử dụng 'when' để code gọn gàng hơn)
-
-        // Filter: Category
-        $query->when($request->input('category'), function (Builder $q, $slug) {
-            $q->whereHas('category', fn($cat) => $cat->where('slug', $slug));
-        });
-
-        // Filter: Search Keyword
-        $query->when($request->input('q'), function (Builder $q, $keyword) {
-            $keyword = trim($keyword);
-            $q->where(function ($sub) use ($keyword) {
-                $sub->where('name', 'like', "%{$keyword}%")
-                    ->orWhere('description', 'like', "%{$keyword}%");
+        // Category filter by slug
+        if ($request->filled('category')) {
+            $slug = (string) $request->input('category');
+            $query->whereHas('category', function ($q) use ($slug) {
+                $q->where('slug', $slug);
             });
-        });
-
-        // Filter: Price Range
-        $query->when($request->input('price_min'), fn($q, $min) => $q->where('price', '>=', (float)$min));
-        $query->when($request->input('price_max'), fn($q, $max) => $q->where('price', '<=', (float)$max));
-
-        // Filter: On Sale (Logic tính toán ngưỡng giảm giá)
-        // Lưu ý: Logic này hơi nặng nếu DB lớn, nên cân nhắc cache con số avg này.
-        if ($request->boolean('on_sale')) {
-            $avg = (float) Product::avg('price'); // Query trực tiếp gọn hơn
-            $query->where('price', '<=', $avg * 0.8);
         }
 
-        // Filter: Featured
+        // Search by keyword
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        // Price range filters
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', (float) $request->input('price_min'));
+        }
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', (float) $request->input('price_max'));
+        }
+
+        // Sorting
+        $sort = (string) $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'featured':
+                $query->inRandomOrder();
+                break;
+            case 'newest':
+            default:
+                $query->latest('id');
+                break;
+        }
+
+        // Boolean filters
+        if ($request->boolean('on_sale')) {
+            $avg = (float) Product::query()->avg('price');
+            $query->where('price', '<=', $avg * 0.8);
+        }
         if ($request->boolean('featured')) {
             $query->inRandomOrder();
         }
 
-        // 3. Xử lý Sắp xếp (Sorting)
-        $sort = $request->input('sort', 'newest');
-        match ($sort) {
-            'price_asc'  => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
-            'featured'   => $query->inRandomOrder(),
-            default      => $query->latest('id'),
-        };
-
-        // 4. Lấy dữ liệu phụ trợ cho View
         $products = $query->paginate(9)->withQueryString();
 
-        $categories = Category::select(['id', 'name', 'slug'])
+        $categories = Category::query()
+            ->select(['id', 'name', 'slug'])
             ->where('name', '!=', 'Uncategorized')
             ->orderBy('name')
             ->get();
 
-        $priceMinBound = (float) Product::min('price');
-        $priceMaxBound = (float) Product::max('price');
-
-        // Breadcrumbs đơn giản
         $breadcrumbs = [
             ['label' => 'Home', 'url' => route('home')],
             ['label' => 'Shop', 'url' => route('products.index')],
         ];
 
         return view('products.index', [
-            'products'       => $products,
-            'categories'     => $categories,
+            'products' => $products,
+            'categories' => $categories,
             'activeCategory' => (string) $request->input('category', ''),
-            'wishedIds'      => $this->getUserWishedProductIds(),
-            'breadcrumbs'    => $breadcrumbs,
-            'priceMinBound'  => $priceMinBound,
-            'priceMaxBound'  => $priceMaxBound,
+            'wishedIds' => auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->all() : [],
+            'breadcrumbs' => $breadcrumbs,
+            'priceMinBound' => (float) Product::query()->min('price'),
+            'priceMaxBound' => (float) Product::query()->max('price'),
         ]);
     }
 
     /**
      * Trang chi tiết sản phẩm.
-     * Đã gộp 2 hàm show cũ thành 1 và tối ưu query.
+     * Logic: Ưu tiên file 2 (Deep load relations) + Merge wishedIds từ file 1.
      */
-    public function show($id)
+    public function show(Product $product)
     {
-        // Eager load các relation cần thiết cho trang chi tiết
-        $product = Product::with(['category', 'reviews', 'completeLookProducts'])
-            ->findOrFail($id);
-
-        // Lấy sản phẩm tương tự (Sử dụng Scope đã định nghĩa trong Model)
-        $relatedProducts = Product::related($product)->get();
-
-        return view('products.show', [
-            'product'         => $product,
-            'relatedProducts' => $relatedProducts,
-            'wishedIds'       => $this->getUserWishedProductIds(),
+        // 1. Load relationships (Logic xịn từ file 2)
+        $product->load([
+            'images' => function ($query) {
+                $query->orderBy('sort_order', 'asc');
+            },
+            'colors' => function ($query) {
+                $query->where('is_active', true)->orderBy('name');
+            },
+            'sizes' => function ($query) {
+                $query->where('is_active', true)->orderBy('sort_order');
+            },
+            'category',
+            'reviews' => function ($query) {
+                $query->with('user')->latest()->limit(20);
+            },
+            'completeLookProducts' => function ($query) {
+                $query->with(['images' => function ($q) {
+                    $q->orderBy('sort_order')->limit(1);
+                }])->where('is_active', true)->limit(4);
+            }
         ]);
+
+        // 2. Calculations (File 2)
+        $product->avg_rating = $product->reviews->avg('rating') ?? 0;
+        $product->avg_fit = $product->reviews->avg('fit_rating') ?? 3;
+
+        // 3. Related Products (File 2)
+        $relatedProducts = Product::query()
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->with(['images' => function ($query) {
+                $query->orderBy('sort_order')->limit(1);
+            }])
+            ->inRandomOrder()
+            ->limit(8)
+            ->get();
+
+        // 4. Analytics (File 2)
+        $this->trackProductView($product);
+
+        // 5. [MERGE QUAN TRỌNG] Lấy wishlist ID để hiển thị nút tim (File 1)
+        $wishedIds = auth()->check()
+            ? auth()->user()->wishlist()->pluck('products.id')->toArray()
+            : [];
+
+        return view('products.show', compact('product', 'relatedProducts', 'wishedIds'));
     }
 
     /**
-     * Hiển thị danh sách sản phẩm mới nhất.
+     * Helper: Track views (File 2)
+     */
+    private function trackProductView(Product $product)
+    {
+        $product->increment('views_count');
+    }
+
+    /**
+     * Trang hàng mới về (File 1)
      */
     public function newArrivals()
     {
         $products = Product::latest()->paginate(12);
-
-        return view('products.new-arrivals', [
-            'products' => $products
-        ]);
-    }
-
-    /**
-     * Helper: Lấy danh sách ID sản phẩm user đã thích.
-     * Giúp tránh lặp code (DRY).
-     */
-    private function getUserWishedProductIds(): array
-    {
-        if (!Auth::check()) {
-            return [];
-        }
-
-        // Sử dụng relation wishlist() của User model
-        return Auth::user()->wishlist()->pluck('products.id')->all();
+        return view('products.new-arrivals', compact('products'));
     }
 }
+// End of File
