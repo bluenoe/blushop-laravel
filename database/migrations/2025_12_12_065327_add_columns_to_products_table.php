@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             // Lưu các thông số kỹ thuật dạng Key-Value: {"Gót": "9cm", "Chất liệu": "Da bò"}
-            $table->json('specifications')->nullable();
+            //$table->json('specifications')->nullable();
 
             // Hướng dẫn bảo quản (Text dài)
-            $table->text('care_guide')->nullable();
+            //$table->text('care_guide')->nullable();
         });
     }
 
