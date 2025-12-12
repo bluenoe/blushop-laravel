@@ -6,20 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (! Schema::hasColumn('products', 'name')) {
+            if (!Schema::hasColumn('products', 'name')) {
                 $table->string('name')->after('id');
             }
-            if (! Schema::hasColumn('products', 'price')) {
+
+            if (!Schema::hasColumn('products', 'price')) {
                 $table->decimal('price', 10, 2)->default(0);
             }
-            if (! Schema::hasColumn('products', 'image')) {
+
+            if (!Schema::hasColumn('products', 'image')) {
                 $table->string('image')->nullable();
+            }
+
+            if (!Schema::hasColumn('products', 'specifications')) {
+                $table->json('specifications')->nullable();
+            }
+
+            if (!Schema::hasColumn('products', 'care_guide')) {
+                $table->text('care_guide')->nullable();
             }
         });
     }
@@ -27,14 +34,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (Schema::hasColumn('products', 'image')) {
-                $table->dropColumn('image');
-            }
-            if (Schema::hasColumn('products', 'price')) {
-                $table->dropColumn('price');
-            }
-            if (Schema::hasColumn('products', 'name')) {
-                $table->dropColumn('name');
+            foreach (['care_guide', 'specifications', 'image', 'price', 'name'] as $col) {
+                if (Schema::hasColumn('products', $col)) {
+                    $table->dropColumn($col);
+                }
             }
         });
     }
