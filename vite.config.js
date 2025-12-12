@@ -3,14 +3,14 @@ import laravel from "laravel-vite-plugin";
 
 export default defineConfig({
     server: {
-        host: process.env.VITE_HOST ?? "0.0.0.0",
-        port: parseInt(process.env.VITE_PORT ?? "5174"),
+        host: "0.0.0.0",
+        port: 5174,
         strictPort: true,
         hmr: {
-            host: process.env.VITE_HMR_HOST ?? "localhost",
-            port: parseInt(process.env.VITE_PORT ?? "5174"),
+            // Bây giờ nó sẽ đọc IP từ file .env, bà không cần sửa ở đây nữa
+            host: process.env.VITE_HMR_HOST || "localhost",
+            port: 5174,
         },
-        watch: { usePolling: true },
     },
     plugins: [
         laravel({

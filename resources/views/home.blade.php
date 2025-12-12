@@ -7,8 +7,24 @@ Concept: Art Gallery / Editorial Store
 
 <x-app-layout>
     @push('head')
+
     <link rel="preload" as="image" href="{{ asset('images/hero-bg.jpg') }}" fetchpriority="high">
     <style>
+        /* MARQUEE ANIMATION */
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+        }
+
         /* Ẩn thanh cuộn cho các thành phần cuộn ngang */
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
@@ -281,20 +297,6 @@ Concept: Art Gallery / Editorial Store
             });
         });
     </script>
-    <style>
-        @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
 
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        .animate-marquee {
-            animation: marquee 20s linear infinite;
-        }
-    </style>
     @endpush
 </x-app-layout>
