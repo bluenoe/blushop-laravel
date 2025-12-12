@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -54,6 +55,12 @@ class Product extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    public function images()
+    {
+        // Giả sử bà có bảng product_images
+        return $this->hasMany(ProductImage::class);
+    }
 
     public function category(): BelongsTo
     {
