@@ -448,71 +448,70 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                         </div>
                     </div>
 
-                    {{-- Right: Reviews List --}}
-                    <div class="lg:col-span-8">
+                    <div class="lg:col-span-12"> {{-- Tạm để full width hoặc chỉnh lại col-span-8 tùy layout trên --}}
                         @if($product->reviews->count() > 0)
-                        <div class="space-y-8">
+                        <div class="space-y-12">
                             @foreach($product->reviews as $review)
                             <div class="border-b border-neutral-100 pb-8 last:border-0">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div class="flex items-center gap-3">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-4">
                                         <div
-                                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-500">
+                                            class="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center text-xs font-bold uppercase">
                                             {{ substr($review->user->name, 0, 1) }}
                                         </div>
-                                        <span class="text-sm font-bold text-neutral-900">{{ $review->user->name
-                                            }}</span>
+                                        <div>
+                                            <div class="text-sm font-bold text-neutral-900">{{ $review->user->name }}
+                                            </div>
+                                            <div class="text-[10px] text-neutral-400 uppercase tracking-wider">{{
+                                                $review->created_at->format('M d, Y') }}</div>
+                                        </div>
                                     </div>
-                                    <span class="text-xs text-neutral-400">{{ $review->created_at->format('M d, Y')
-                                        }}</span>
-                                </div>
 
-                                <div class="flex items-center gap-4 mb-3">
-                                    <div class="flex text-black">
+                                    {{-- Stars --}}
+                                    <div class="flex text-black gap-0.5">
                                         @for($i=1; $i<=5; $i++) <svg
-                                            class="w-3 h-3 {{ $i <= $review->rating ? 'fill-current' : 'text-neutral-200' }}"
-                                            viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                                            class="w-3 h-3 {{ $i <= $review->rating ? 'fill-black' : 'text-neutral-200 fill-none' }}"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                             </svg>
                                             @endfor
                                     </div>
+                                </div>
 
+                                <div class="pl-14">
                                     {{-- Fit Badge --}}
                                     @php
                                     $fitLabel = match($review->fit_rating) {
-                                    1 => 'Runs Small',
-                                    2 => 'Slightly Small',
-                                    3 => 'True to Size',
-                                    4 => 'Slightly Large',
-                                    5 => 'Runs Large',
-                                    default => 'True to Size'
+                                    1 => 'Runs Small', 2 => 'Slightly Small', 3 => 'True to Size', 4 => 'Slightly
+                                    Large', 5 => 'Runs Large', default => 'True to Size'
                                     };
                                     @endphp
-                                    <span
-                                        class="text-[10px] uppercase tracking-wider text-neutral-500 bg-neutral-50 px-2 py-1">
-                                        Fit: {{ $fitLabel }}
-                                    </span>
-                                </div>
+                                    <div class="mb-3">
+                                        <span
+                                            class="text-[10px] font-bold uppercase tracking-widest border border-neutral-200 px-2 py-1 rounded-sm">
+                                            Fit: {{ $fitLabel }}
+                                        </span>
+                                    </div>
 
-                                <p class="text-sm text-neutral-600 leading-relaxed mb-4">
-                                    {{ $review->comment }}
-                                </p>
+                                    <p class="text-sm text-neutral-600 leading-relaxed font-light mb-4">
+                                        {{ $review->comment }}
+                                    </p>
 
-                                {{-- Review Image --}}
-                                @if($review->image)
-                                <div class="mt-3">
-                                    <img src="{{ Storage::url($review->image) }}" alt="Review photo"
-                                        class="w-24 h-24 object-cover cursor-zoom-in hover:opacity-80 transition"
-                                        onclick="window.open(this.src)">
+                                    @if($review->image)
+                                    <div>
+                                        <img src="{{ Storage::url($review->image) }}"
+                                            class="w-20 h-20 object-cover cursor-zoom-in grayscale hover:grayscale-0 transition duration-500"
+                                            onclick="window.open(this.src)">
+                                    </div>
+                                    @endif
                                 </div>
-                                @endif
                             </div>
                             @endforeach
                         </div>
                         @else
-                        <div class="py-12 text-center bg-neutral-50">
-                            <p class="text-neutral-500 text-sm">No reviews yet. Be the first to share your thoughts.</p>
+                        <div class="py-16 text-center">
+                            <p class="text-neutral-400 font-light text-sm italic">Be the first to review this piece.</p>
                         </div>
                         @endif
                     </div>
@@ -520,42 +519,82 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
             </div>
         </section>
 
-        {{-- RELATED PRODUCTS --}}
+        {{--
+        ========================================================
+        5. CURATED FOR YOU (LV / EDITORIAL STYLE)
+        Layout: Bento Grid (1 Large Left + 4 Small Grid Right)
+        ========================================================
+        --}}
         @if(isset($relatedProducts) && $relatedProducts->count() > 0)
-        <section class="border-t border-neutral-100 py-16 lg:py-24">
+        <section class="border-t border-black py-20 lg:py-24 bg-white">
             <div class="max-w-[1400px] mx-auto px-6">
-                <h2 class="text-2xl font-bold tracking-tight mb-8">You Might Also Like</h2>
 
-                {{-- Horizontal Scroll --}}
-                <div class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory no-scrollbar">
-                    @foreach($relatedProducts as $related)
-                    <div class="min-w-[200px] md:min-w-[280px] snap-start group relative flex-shrink-0">
-                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
-                            <img src="{{ Storage::url('products/' . $related->image) }}"
-                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105 mix-blend-multiply">
+                {{-- Typography Heading --}}
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <h2 class="text-4xl md:text-6xl font-light tracking-tighter leading-none text-neutral-900">
+                        Curated <br> <span class="font-serif italic text-neutral-400 pl-16">for you.</span>
+                    </h2>
+                    <a href="{{ route('products.index') }}"
+                        class="mt-6 md:mt-0 text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-600 hover:border-neutral-600 transition">View
+                        Collection</a>
+                </div>
 
-                            @if($related->is_new)
+                {{-- BENTO GRID LAYOUT --}}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
+
+                    @foreach($relatedProducts->take(5) as $index => $related)
+                    @php
+                    $imgUrl = $related->image ? Storage::url('products/' . $related->image) :
+                    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
+
+                    // LOGIC QUAN TRỌNG:
+                    // Item đầu tiên (index 0): Chiếm 2 cột, 2 dòng (To bự bên trái)
+                    // Các item còn lại: Chiếm 1 cột, 1 dòng (Vuông nhỏ bên phải)
+                    $classes = ($index === 0)
+                    ? 'col-span-2 row-span-2 md:h-full relative group'
+                    : 'col-span-1 row-span-1 relative group';
+                    @endphp
+
+                    <div class="{{ $classes }} overflow-hidden bg-neutral-100">
+                        {{-- Ảnh --}}
+                        <img src="{{ $imgUrl }}"
+                            class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105"
+                            loading="lazy">
+
+                        {{-- Badges --}}
+                        @if($index === 0)
+                        <div
+                            class="absolute top-4 left-4 bg-black text-white text-[10px] font-bold uppercase px-3 py-1.5 z-10">
+                            New Drop</div>
+                        @elseif($related->is_new)
+                        <div class="absolute top-2 left-2 w-2 h-2 bg-red-500 rounded-full z-10"></div>
+                        @endif
+
+                        {{-- Info Overlay (Hiệu ứng mờ dần từ dưới lên) --}}
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                             <div
-                                class="absolute top-2 left-2 bg-white text-black text-[10px] font-bold uppercase px-2 py-1">
-                                New</div>
-                            @endif
+                                class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 text-white">
+                                <h3 class="text-sm md:text-lg font-bold uppercase tracking-widest">{{ $related->name }}
+                                </h3>
+                                <p class="text-xs md:text-sm font-light mt-1 opacity-90">₫{{
+                                    number_format($related->price, 0, ',', '.') }}</p>
+                                <a href="{{ route('products.show', $related->id) }}"
+                                    class="inline-block mt-3 text-[10px] font-bold uppercase border-b border-white pb-0.5">Shop
+                                    Now</a>
+                            </div>
                         </div>
-                        <h3 class="text-sm font-medium">
-                            <a href="{{ route('products.show', $related->id) }}">
-                                <span class="absolute inset-0"></span>
-                                {{ $related->name }}
-                            </a>
-                        </h3>
-                        <p class="text-sm text-neutral-500 mt-1">₫{{ number_format((float)$related->price, 0, ',', '.')
-                            }}</p>
+
+                        {{-- Link bao trùm --}}
+                        <a href="{{ route('products.show', $related->id) }}" class="absolute inset-0 z-20"></a>
                     </div>
                     @endforeach
+
                 </div>
             </div>
         </section>
         @endif
 
     </main>
-
     @include('partials.wishlist-script')
 </x-app-layout>
