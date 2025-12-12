@@ -4,142 +4,261 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 
-/**
- * @mixin \Eloquent
- * @mixin IdeHelperProduct
- */
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /*
-    |--------------------------------------------------------------------------
-    | GLOBAL VARIABLES
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * The attributes that are mass assignable.
+     */
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'price',
-        'image',
+        'sale_price',
+        'cost_price',
+        'sku',
+        'stock',
         'category_id',
-        'is_new',
-        'is_bestseller',
+        'is_active',
+        'is_featured',
         'is_on_sale',
-        'specifications', // Đừng quên thêm field này vào fillable nếu bạn muốn lưu nó
+        'is_new',
+        'specifications',
+        'care_guide',
+        'avg_rating',
+        'review_count',
+        'views_count',
+        'meta_title',
+        'meta_description',
     ];
 
     /**
-     * Sửa lỗi: Gộp tất cả casts vào một mảng duy nhất.
-     * Bổ sung cast boolean cho các cờ (flag) để đảm bảo dữ liệu luôn đúng kiểu.
+     * The attributes that should be cast.
      */
     protected $casts = [
-        'price'          => 'decimal:2',
+        'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'stock' => 'integer',
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_on_sale' => 'boolean',
+        'is_new' => 'boolean',
         'specifications' => 'array',
-        'is_on_sale'     => 'boolean',
-        'is_new'         => 'boolean',       // Best practice: cast luôn các flag này
-        'is_bestseller'  => 'boolean',       // Best practice: cast luôn các flag này
-        'is_approved'    => 'boolean',
+        'avg_rating' => 'decimal:1',
+        'review_count' => 'integer',
+        'views_count' => 'integer',
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | RELATIONS
+    | Relationships
     |--------------------------------------------------------------------------
     */
 
-    public function category(): BelongsTo
+    /**
+     * Get the category that owns the product.
+     */
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function orderItems(): HasMany
+    /**
+     * Get all images for the product.
+     */
+    public function images()
     {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    public function reviews(): HasMany
-    {
-        // Lưu ý: Việc hardcode 'where' vào relation chuẩn là tiện,
-        // nhưng cẩn thận khi admin muốn xem cả review chưa duyệt.
-        return $this->hasMany(Review::class)
-            ->where('is_approved', true)
-            ->latest();
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
     /**
-     * Users who have wishlisted this product.
+     * Get available colors for the product.
      */
-    public function wishlistedByUsers(): BelongsToMany
+    public function colors()
+    {
+        return $this->belongsToMany(Color::class, 'product_colors')
+            ->withPivot('stock')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get available sizes for the product.
+     */
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class, 'product_sizes')
+            ->withPivot('stock')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all reviews for the product.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get products for "Complete the Look" section.
+     */
+    public function completeLookProducts()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look',
+            'product_id',
+            'related_product_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Get related products (inverse relationship).
+     */
+    public function relatedToProducts()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look',
+            'related_product_id',
+            'product_id'
+        );
+    }
+
+    /**
+     * Get users who wishlisted this product.
+     */
+    public function wishlistedBy()
     {
         return $this->belongsToMany(User::class, 'wishlists')
             ->withTimestamps();
     }
 
-    /**
-     * Lấy sản phẩm "Complete the Look"
-     */
-    public function completeLookProducts(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'product_relations', 'parent_product_id', 'child_product_id')
-            ->wherePivot('type', 'complete_look');
-    }
-
     /*
     |--------------------------------------------------------------------------
-    | SCOPES
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
 
     /**
-     * Logic lấy sản phẩm tương tự (Tự động theo Category, trừ chính nó)
-     * Sử dụng: Product::related($product)->get();
+     * Get the product's display price.
      */
-    public function scopeRelated(Builder $query, Product $product): Builder
+    public function getDisplayPriceAttribute()
     {
-        return $query->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->inRandomOrder()
-            ->take(8);
+        return $this->is_on_sale && $this->sale_price
+            ? $this->sale_price
+            : $this->price;
+    }
+
+    /**
+     * Check if product is in stock.
+     */
+    public function getInStockAttribute()
+    {
+        return $this->stock > 0;
+    }
+
+    /**
+     * Get discount percentage if on sale.
+     */
+    public function getDiscountPercentAttribute()
+    {
+        if ($this->is_on_sale && $this->sale_price && $this->price > 0) {
+            return round((($this->price - $this->sale_price) / $this->price) * 100);
+        }
+        return 0;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | ACCESSORS & MUTATORS
+    | Scopes
     |--------------------------------------------------------------------------
     */
 
     /**
-     * Hàm tính điểm trung bình sao
-     * Lưu ý hiệu năng: Gọi cái này trong vòng lặp (list sản phẩm) sẽ gây lỗi N+1 query.
-     * Nên dùng withAvg('reviews', 'rating') khi query từ Controller thì tốt hơn.
+     * Scope a query to only include active products.
      */
-    public function getAvgRatingAttribute(): float
+    public function scopeActive($query)
     {
-        // Dùng relation đã load nếu có để tránh query lại (Eager loading check)
-        if ($this->relationLoaded('reviews')) {
-            return $this->reviews->avg('rating') ?? 0;
-        }
-
-        return $this->reviews()->avg('rating') ?? 0;
+        return $query->where('is_active', true);
     }
 
     /**
-     * Hàm tính độ vừa vặn trung bình
+     * Scope a query to only include featured products.
      */
-    public function getAvgFitAttribute(): float
+    public function scopeFeatured($query)
     {
-        if ($this->relationLoaded('reviews')) {
-            return $this->reviews->avg('fit_rating') ?? 3;
-        }
+        return $query->where('is_featured', true);
+    }
 
-        return $this->reviews()->avg('fit_rating') ?? 3;
+    /**
+     * Scope a query to only include new products.
+     */
+    public function scopeNew($query)
+    {
+        return $query->where('is_new', true);
+    }
+
+    /**
+     * Scope a query to only include products on sale.
+     */
+    public function scopeOnSale($query)
+    {
+        return $query->where('is_on_sale', true);
+    }
+
+    /**
+     * Scope a query to filter by category.
+     */
+    public function scopeInCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope a query to search products.
+     */
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhere('sku', 'like', "%{$term}%");
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helper Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Check if user has wishlisted this product.
+     */
+    public function isWishlistedBy($userId)
+    {
+        return $this->wishlistedBy()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Check if user has reviewed this product.
+     */
+    public function isReviewedBy($userId)
+    {
+        return $this->reviews()->where('user_id', $userId)->exists();
     }
 }
