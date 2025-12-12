@@ -2,44 +2,170 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
 {
-    public function index()
+    /**
+     * Toggle product in wishlist
+     */
+    public function toggle(Request $request)
     {
-        $user = Auth::user();
-        // Lấy danh sách wishlist
-        $products = $user->wishlist()->with('category')->latest()->paginate(12);
+        // Ensure user is authenticated
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to add items to wishlist',
+                'redirect' => route('login')
+            ], 401);
+        }
 
-        return view('wishlist.index', compact('products'));
-    }
+        // Validate product ID
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id'
+        ]);
 
-    // --- CHỈ GIỮ LẠI MỘT HÀM TOGGLE NÀY THÔI NHÉ ---
-    public function toggle($productId)
-    {
-        $user = Auth::user();
+        $productId = $validated['product_id'];
+        $userId = Auth::id();
 
-        // 1. Thực hiện toggle
-        $changes = $user->wishlist()->toggle($productId);
+        // Check if item already in wishlist
+        $wishlistItem = Wishlist::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
 
-        // 2. Kiểm tra xem vừa thêm vào hay xóa ra
-        // Nếu mảng 'attached' có dữ liệu -> tức là vừa thêm vào
-        $isWished = count($changes['attached']) > 0;
+        if ($wishlistItem) {
+            // Remove from wishlist
+            $wishlistItem->delete();
+            $action = 'removed';
+            $isWishlisted = false;
+        } else {
+            // Add to wishlist
+            Wishlist::create([
+                'user_id' => $userId,
+                'product_id' => $productId,
+            ]);
+            $action = 'added';
+            $isWishlisted = true;
+        }
 
-        // 3. Trả về JSON (Quan trọng)
+        // Get updated wishlist count
+        $wishlistCount = Wishlist::where('user_id', $userId)->count();
+
         return response()->json([
             'success' => true,
-            'wished' => $isWished,
-            'message' => $isWished ? 'Added to wishlist' : 'Removed from wishlist'
+            'action' => $action,
+            'is_wishlisted' => $isWishlisted,
+            'wishlist_count' => $wishlistCount,
+            'message' => $action === 'added'
+                ? 'Product added to wishlist'
+                : 'Product removed from wishlist'
         ]);
     }
 
-    // Hàm xóa toàn bộ (nếu có dùng ở file JS)
+    /**
+     * Display user's wishlist
+     */
+    public function index()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to view your wishlist');
+        }
+
+        $wishlistItems = Wishlist::with(['product.images', 'product.category'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(12);
+
+        return view('wishlist.index', compact('wishlistItems'));
+    }
+
+    /**
+     * Remove single item from wishlist
+     */
+    public function remove($id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $wishlistItem = Wishlist::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $wishlistItem->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Item removed from wishlist'
+        ]);
+    }
+
+    /**
+     * Clear entire wishlist
+     */
     public function clear()
     {
-        Auth::user()->wishlist()->detach();
-        return response()->json(['success' => true]);
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        Wishlist::where('user_id', Auth::id())->delete();
+
+        return redirect()->back()->with('success', 'Wishlist cleared successfully');
+    }
+
+    /**
+     * Move wishlist items to cart
+     */
+    public function moveToCart(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $validated = $request->validate([
+            'wishlist_id' => 'required|exists:wishlists,id',
+            'color_id' => 'required|exists:colors,id',
+            'size_id' => 'required|exists:sizes,id',
+            'quantity' => 'nullable|integer|min:1',
+        ]);
+
+        $wishlistItem = Wishlist::with('product')
+            ->where('user_id', Auth::id())
+            ->findOrFail($validated['wishlist_id']);
+
+        // Check stock availability
+        $quantity = $validated['quantity'] ?? 1;
+        if ($wishlistItem->product->stock < $quantity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient stock available'
+            ], 400);
+        }
+
+        // Add to cart
+        \App\Models\Cart::updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'product_id' => $wishlistItem->product_id,
+                'color_id' => $validated['color_id'],
+                'size_id' => $validated['size_id'],
+            ],
+            [
+                'quantity' => \DB::raw('quantity + ' . $quantity),
+                'price' => $wishlistItem->product->price,
+            ]
+        );
+
+        // Remove from wishlist
+        $wishlistItem->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Item moved to cart successfully'
+        ]);
     }
 }
