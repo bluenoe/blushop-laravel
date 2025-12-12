@@ -14,8 +14,12 @@ class Product extends Model
     /**
      * The attributes that are mass assignable.
      */
+    /**
+     * The attributes that are mass assignable.
+     */
     protected $fillable = [
         'name',
+        'slug',
         'slug',
         'description',
         'price',
@@ -23,10 +27,24 @@ class Product extends Model
         'cost_price',
         'sku',
         'stock',
+        'sale_price',
+        'cost_price',
+        'sku',
+        'stock',
         'category_id',
         'is_active',
         'is_featured',
+        'is_active',
+        'is_featured',
         'is_on_sale',
+        'is_new',
+        'specifications',
+        'care_guide',
+        'avg_rating',
+        'review_count',
+        'views_count',
+        'meta_title',
+        'meta_description',
         'is_new',
         'specifications',
         'care_guide',
@@ -39,8 +57,17 @@ class Product extends Model
 
     /**
      * The attributes that should be cast.
+     * The attributes that should be cast.
      */
     protected $casts = [
+        'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'stock' => 'integer',
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_on_sale' => 'boolean',
+        'is_new' => 'boolean',
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
         'cost_price' => 'decimal:2',
@@ -62,9 +89,22 @@ class Product extends Model
     {
         return 'slug';
     }
+        'avg_rating' => 'decimal:1',
+        'review_count' => 'integer',
+        'views_count' => 'integer',
+    ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     /*
     |--------------------------------------------------------------------------
+    | Relationships
     | Relationships
     |--------------------------------------------------------------------------
     */
@@ -84,10 +124,67 @@ class Product extends Model
      * Get all images for the product.
      */
     public function images()
+    /**
+     * Get all images for the product.
+     */
+    public function images()
     {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    /**
+     * Get available colors for the product.
+     */
+    public function colors()
+    {
+        return $this->belongsToMany(Color::class, 'product_colors')
+            ->withPivot('stock')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get available sizes for the product.
+     */
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class, 'product_sizes')
+            ->withPivot('stock')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all reviews for the product.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get products for "Complete the Look" section.
+     */
+    public function completeLookProducts()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look',
+            'product_id',
+            'related_product_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Get related products (inverse relationship).
+     */
+    public function relatedToProducts()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look',
+            'related_product_id',
+            'product_id'
+        );
     /**
      * Get available colors for the product.
      */
@@ -144,7 +241,9 @@ class Product extends Model
 
     /**
      * Get users who wishlisted this product.
+     * Get users who wishlisted this product.
      */
+    public function wishlistedBy()
     public function wishlistedBy()
     {
         return $this->belongsToMany(User::class, 'wishlists')
@@ -159,7 +258,26 @@ class Product extends Model
 
     /**
      * Get the product's display price.
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the product's display price.
      */
+    public function getDisplayPriceAttribute()
+    {
+        return $this->is_on_sale && $this->sale_price
+            ? $this->sale_price
+            : $this->price;
+    }
+
+    /**
+     * Check if product is in stock.
+     */
+    public function getInStockAttribute()
     public function getDisplayPriceAttribute()
     {
         return $this->is_on_sale && $this->sale_price
@@ -184,10 +302,23 @@ class Product extends Model
             return round((($this->price - $this->sale_price) / $this->price) * 100);
         }
         return 0;
+        return $this->stock > 0;
+    }
+
+    /**
+     * Get discount percentage if on sale.
+     */
+    public function getDiscountPercentAttribute()
+    {
+        if ($this->is_on_sale && $this->sale_price && $this->price > 0) {
+            return round((($this->price - $this->sale_price) / $this->price) * 100);
+        }
+        return 0;
     }
 
     /*
     |--------------------------------------------------------------------------
+    | Scopes
     | Scopes
     |--------------------------------------------------------------------------
     */
@@ -202,7 +333,25 @@ class Product extends Model
 
     /**
      * Scope a query to only include featured products.
+     * Scope a query to only include active products.
      */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope a query to only include featured products.
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope a query to only include new products.
+     */
+    public function scopeNew($query)
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
@@ -242,17 +391,51 @@ class Product extends Model
                 ->orWhere('description', 'like', "%{$term}%")
                 ->orWhere('sku', 'like', "%{$term}%");
         });
+        return $query->where('is_new', true);
+    }
+
+    /**
+     * Scope a query to only include products on sale.
+     */
+    public function scopeOnSale($query)
+    {
+        return $query->where('is_on_sale', true);
+    }
+
+    /**
+     * Scope a query to filter by category.
+     */
+    public function scopeInCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    /**
+     * Scope a query to search products.
+     */
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhere('sku', 'like', "%{$term}%");
+        });
     }
 
     /*
     |--------------------------------------------------------------------------
+    | Helper Methods
     | Helper Methods
     |--------------------------------------------------------------------------
     */
 
     /**
      * Check if user has wishlisted this product.
+     * Check if user has wishlisted this product.
      */
+    public function isWishlistedBy($userId)
+    {
+        return $this->wishlistedBy()->where('user_id', $userId)->exists();
     public function isWishlistedBy($userId)
     {
         return $this->wishlistedBy()->where('user_id', $userId)->exists();
@@ -260,7 +443,11 @@ class Product extends Model
 
     /**
      * Check if user has reviewed this product.
+     * Check if user has reviewed this product.
      */
+    public function isReviewedBy($userId)
+    {
+        return $this->reviews()->where('user_id', $userId)->exists();
     public function isReviewedBy($userId)
     {
         return $this->reviews()->where('user_id', $userId)->exists();
