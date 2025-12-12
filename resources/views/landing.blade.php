@@ -89,43 +89,67 @@ Laravel Blade + Tailwind CSS
                     <h2 class="text-3xl sm:text-4xl font-light text-ink">Featured Collection</h2>
                 </div>
 
-                {{-- Product Grid - Asymmetric Layout --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse(($featured ?? collect())->take(6) as $index => $product)
-                    <article data-reveal
-                        class="group relative overflow-hidden {{ $index === 0 ? 'lg:row-span-2' : '' }}">
-                        {{-- Product Image --}}
-                        <a href="{{ route('products.show', $product->slug ?? $product->id) }}"
-                            class="block relative overflow-hidden bg-warm/20"
-                            style="aspect-ratio: {{ $index === 0 ? '3/4' : '4/5' }}">
-                            <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                class="w-full h-full object-cover transition-transform duration-700 
-                                           group-hover:scale-105" loading="lazy" />
-                            {{-- Hover Overlay --}}
-                            <div
-                                class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300">
-                            </div>
-                        </a>
+                {{-- Product Grid - Clean Uniform Layout --}}
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                    {{-- Lưu ý: Xóa cái ->take(6) ở view đi vì controller đã xử lý rồi --}}
+                    @forelse($featured as $product)
 
-                        {{-- Product Info - Minimal --}}
-                        <div class="mt-4 space-y-1">
-                            <h3 class="text-sm font-medium text-ink group-hover:text-indigo-600 transition">
-                                <a href="{{ route('products.show', $product->slug ?? $product->id) }}">
+                    <article class="group relative">
+                        {{-- Product Image --}}
+                        <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
+                            {{-- Link tới chi tiết --}}
+                            <a href="{{ route('products.show', $product->id) }}" class="block w-full h-full">
+                                <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
+                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    loading="lazy" />
+                            </a>
+
+                            {{-- Nút Wishlist (Tận dụng code xịn nãy bà làm) --}}
+                            <div
+                                class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div x-data="{ id: {{ $product->id }} }">
+                                    <button @click.prevent="$store.wishlist.toggle(id)"
+                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-black hover:text-white transition">
+                                        <svg class="w-4 h-4 transition-colors"
+                                            :class="$store.wishlist.isFav(id) ? 'text-red-500 fill-current' : 'text-current fill-none'"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Badge Mới / Sale (Option) --}}
+                            @if($loop->iteration <= 2) {{-- Ví dụ: 2 cái đầu tiên hiện chữ NEW --}} <span
+                                class="absolute top-3 left-3 bg-white text-black text-[10px] font-bold uppercase px-2 py-1 tracking-widest">
+                                New
+                                </span>
+                                @endif
+                        </div>
+
+                        {{-- Product Info --}}
+                        <div class="space-y-1 text-center"> {{-- Căn giữa cho sang --}}
+                            <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-600 transition">
+                                <a href="{{ route('products.show', $product->id) }}">
                                     {{ $product->name }}
                                 </a>
                             </h3>
-                            @if($product->category && $product->category->name != 'Uncategorized')
-                            <p class="text-xs text-gray-500">{{ $product->category->name }}</p>
+
+                            {{-- Hiện Category nếu có --}}
+                            @if($product->category)
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">{{ $product->category->name }}</p>
                             @endif
-                            <p class="text-sm font-medium text-ink">
+
+                            <p class="text-sm font-medium text-gray-900 mt-1">
                                 ₫{{ number_format((float)$product->price, 0, ',', '.') }}
                             </p>
                         </div>
                     </article>
+
                     @empty
-                    {{-- Empty State --}}
-                    <div class="col-span-full py-12 text-center">
-                        <p class="text-gray-500">Collection coming soon</p>
+                    <div class="col-span-full py-12 text-center text-gray-400">
+                        No featured products found.
                     </div>
                     @endforelse
                 </div>
@@ -276,36 +300,72 @@ Laravel Blade + Tailwind CSS
         </section>
 
         {{-- ============================================
-        INSTAGRAM FEED - Social proof
+        COMMUNITY STYLE - MOSAIC LAYOUT
         ============================================ --}}
-        <section class="py-16 sm:py-24 bg-white">
+        <section class="py-16 sm:py-24 bg-white overflow-hidden">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="text-center mb-12" data-reveal>
-                    <p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-3">#YourBrandName</p>
-                    <h2 class="text-3xl sm:text-4xl font-light text-ink">Community Style</h2>
+                {{-- Header --}}
+                <div class="text-center mb-10 md:mb-16" data-reveal>
+                    <p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-3">#BluCommunity</p>
+                    <h2 class="text-3xl sm:text-4xl font-light text-ink">Styled by You</h2>
+                    <p class="mt-4 text-gray-500 max-w-lg mx-auto text-sm">
+                        Tag us @blushop to be featured in our weekly lookbook.
+                    </p>
                 </div>
 
-                {{-- Instagram Grid --}}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    @for($i = 1; $i <= 8; $i++) <a href="#" data-reveal
-                        class="group relative overflow-hidden bg-warm/20" style="aspect-ratio: 1">
-                        <img src="{{ asset('images/instagram-' . $i . '.jpg') }}" alt="Instagram post {{ $i }}" class="w-full h-full object-cover transition-transform duration-500 
-                                   group-hover:scale-110" loading="lazy" />
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
+                {{-- MOSAIC GRID --}}
+                {{-- Mobile: Slider trượt ngang | Desktop: Grid Mosaic --}}
+                <div
+                    class="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 md:gap-4 md:h-[600px] snap-x snap-mandatory no-scrollbar pb-6 md:pb-0">
+
+                    @foreach($socialFeed as $index => $item)
+                    {{-- Logic bố cục Mosaic:
+                    - Ảnh đầu tiên ($index == 0): To nhất (chiếm 2 cột, 2 hàng)
+                    - Ảnh thứ 2 ($index == 1): Cao (chiếm 1 cột, 2 hàng)
+                    - Các ảnh còn lại: Vuông nhỏ (1 cột, 1 hàng)
+                    --}}
+                    @php
+                    $classes = 'min-w-[80vw] md:min-w-0 snap-center relative group overflow-hidden bg-gray-100';
+
+                    if ($index === 0) {
+                    // Desktop: Ảnh to bự bên trái
+                    $classes .= ' md:col-span-2 md:row-span-2';
+                    } elseif ($index === 1) {
+                    // Desktop: Ảnh cao bên phải
+                    $classes .= ' md:col-span-1 md:row-span-2';
+                    } else {
+                    // Desktop: Ảnh nhỏ lấp chỗ trống
+                    $classes .= ' md:col-span-1 md:row-span-1';
+                    }
+                    @endphp
+
+                    <a href="{{ $item['link'] }}" class="{{ $classes }}">
+                        {{-- Ảnh --}}
+                        <img src="{{ Storage::url('products/' . $item['image']) }}" alt="Community Style"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy" />
+
+                        {{-- Overlay (Chỉ hiện khi hover) --}}
+                        <div
+                            class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
                         </div>
-                        </a>
-                        @endfor
+
+                        {{-- Instagram Icon & Handle --}}
+                        <div
+                            class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <svg class="w-8 h-8 text-white mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                            <span class="text-white text-sm font-medium tracking-wide">Shop the look</span>
+                        </div>
+                    </a>
+                    @endforeach
                 </div>
 
-                <div class="mt-8 text-center" data-reveal>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-ink 
-                              hover:text-indigo-600 transition">
-                        Follow us on Instagram
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.25a1.25 1.25 0 0 0-2.5 0 1.25 1.25 0 0 0 2.5 0zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
-                        </svg>
-                    </a>
+                {{-- Footer Link --}}
+                <div class="mt-8 text-center md:hidden">
+                    <span class="text-xs text-gray-400">Swipe to explore →</span>
                 </div>
             </div>
         </section>

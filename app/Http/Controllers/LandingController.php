@@ -23,13 +23,21 @@ class LandingController extends Controller
             ->take(8) // Lấy 8 cái cho đầy đặn grid (giao diện bà set grid 4 cột mà)
             ->get();
 
+        $socialFeed = Product::inRandomOrder()
+            ->limit(6) // Lấy 6 ảnh thôi cho bố cục Mosaic
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'image' => $product->image, // Tận dụng ảnh sản phẩm
+                    'link'  => route('products.show', $product->id),
+                    'handle' => '@blu.shop' // Tên Instagram giả
+                ];
+            });
+
         return view('landing', [
             'featured' => $featured,
-
-            // Fix lại tên relationship thành 'wishlist' cho khớp với User Model
-            'wishedIds' => Auth::check()
-                ? Auth::user()->wishlist()->pluck('products.id')->all()
-                : [],
+            'socialFeed' => $socialFeed, // <--- Truyền biến này sang View
+            'wishedIds' => Auth::check() ? Auth::user()->wishlist()->pluck('products.id')->all() : [],
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use \App\Models\Setting;
@@ -27,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        if ($this->app->environment('production') || $this->app->environment('local')) {
+            URL::forceScheme('https');
+        }
+
         // Fix lỗi độ dài key string cho một số DB cũ
         Schema::defaultStringLength(191);
 
