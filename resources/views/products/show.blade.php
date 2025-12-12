@@ -1,3 +1,5 @@
+code review:
+
 {{--
 ═══════════════════════════════════════════════════════════════
 BluShop Product Detail v3 - High-End Minimalist
@@ -88,7 +90,7 @@ Concept: Sticky Sidebar & Vertical Gallery
                     </div>
                 </div>
 
-                {{-- RIGHT COLUMN: PRODUCT INFO (Sticky) --}}
+                {{-- RIGHT COLUMN: PRODUCT INFO --}}
                 <div class="lg:col-span-5 col-span-12 px-6 lg:px-0 mt-8 lg:mt-0 lg:sticky lg:top-24">
 
                     {{-- Header --}}
@@ -218,48 +220,103 @@ Concept: Sticky Sidebar & Vertical Gallery
                         </div>
                     </form>
 
-                    {{-- DETAILS ACCORDION --}}
-                    <div class="mt-10 border-t border-neutral-200" x-data="{ activeTab: 'desc' }">
-                        {{-- Item 1 --}}
+                    {{-- ========================================================
+                    ACCORDION SECTIONS (Animation Mượt & Đầm)
+                    ======================================================== --}}
+                    <div class="mt-12 border-t border-neutral-200" x-data="{ activeTab: 'details' }">
+
+                        {{-- 1. DESCRIPTION & DETAILS (JSON Attributes) --}}
                         <div class="border-b border-neutral-200">
-                            <button @click="activeTab = activeTab === 'desc' ? null : 'desc'"
-                                class="w-full py-4 flex justify-between items-center text-left group">
+                            <button @click="activeTab = activeTab === 'details' ? null : 'details'"
+                                class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Description</span>
-                                <span class="text-lg leading-none transition-transform duration-300"
-                                    :class="activeTab === 'desc' ? 'rotate-45' : ''">+</span>
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
+                                    Details & Composition
+                                </span>
+                                {{-- Icon xoay mượt --}}
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div x-show="activeTab === 'desc'" x-collapse
-                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
-                                <p class="mb-4">
-                                    @if($product->description) {{ $product->description }} @else
-                                    Crafted with precision for the modern student. This piece combines functional
-                                    utility with a minimalist aesthetic, ensuring you look sharp from the lecture hall
-                                    to the coffee shop.
+
+                            {{-- Nội dung sổ xuống --}}
+                            <div x-show="activeTab === 'details'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
+                                    {{-- Mô tả chung --}}
+                                    <p class="mb-5">
+                                        {{ $product->description ?? 'Timeless design meets modern functionality.' }}
+                                    </p>
+
+                                    {{-- Thông số kỹ thuật (Từ JSON) --}}
+                                    @if(!empty($product->specifications))
+                                    <dl class="space-y-2">
+                                        @foreach($product->specifications as $key => $value)
+                                        <div
+                                            class="flex justify-between py-2 border-b border-dashed border-neutral-100 last:border-0">
+                                            <dt class="text-neutral-900 font-medium">{{ $key }}</dt>
+                                            <dd class="text-neutral-500">{{ $value }}</dd>
+                                        </div>
+                                        @endforeach
+                                        {{-- Fallback mẫu nếu chưa có dữ liệu DB --}}
+                                        @if(count($product->specifications) == 0)
+                                        <div class="flex justify-between py-1">
+                                            <dt>Product Code</dt>
+                                            <dd>REF-{{ $product->id }}</dd>
+                                        </div>
+                                        <div class="flex justify-between py-1">
+                                            <dt>Heel Height</dt>
+                                            <dd>9 cm</dd>
+                                        </div>
+                                        <div class="flex justify-between py-1">
+                                            <dt>Composition</dt>
+                                            <dd>100% Calf Leather</dd>
+                                        </div>
+                                        @endif
+                                    </dl>
                                     @endif
-                                </p>
-                                <ul class="list-disc list-inside space-y-1 text-neutral-500 marker:text-neutral-300">
-                                    <li>Premium durable fabric</li>
-                                    <li>Relaxed fit for comfort</li>
-                                    <li>Machine washable</li>
-                                </ul>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Item 2 --}}
+                        {{-- 2. CARE GUIDE --}}
+                        <div class="border-b border-neutral-200">
+                            <button @click="activeTab = activeTab === 'care' ? null : 'care'"
+                                class="w-full py-5 flex justify-between items-center text-left group">
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Care
+                                    Guide</span>
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
+                            </button>
+                            <div x-show="activeTab === 'care'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
+                                    @if($product->care_guide)
+                                    {!! nl2br(e($product->care_guide)) !!}
+                                    @else
+                                    {{-- Mẫu --}}
+                                    <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
+                                    <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 3. SHIPPING (Giữ nguyên logic cũ) --}}
                         <div class="border-b border-neutral-200">
                             <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
-                                class="w-full py-4 flex justify-between items-center text-left group">
+                                class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Shipping
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping
                                     & Returns</span>
-                                <span class="text-lg leading-none transition-transform duration-300"
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                     :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                             </button>
-                            <div x-show="activeTab === 'ship'" x-collapse
-                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
-                                <p>Standard shipping (2-4 business days). Free returns within 14 days of purchase. Items
-                                    must be unworn and in original packaging.</p>
+                            <div x-show="activeTab === 'ship'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light">
+                                    Free standard shipping on orders over 500k. Returns accepted within 30 days.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -268,9 +325,50 @@ Concept: Sticky Sidebar & Vertical Gallery
             </div>
         </section>
 
+        {{-- ========================================================
+        SECTION: COMPLETE THE LOOK (Curated Set)
+        Style: Clean Grid, tập trung vào ảnh
+        ======================================================== --}}
+        @if($product->completeLookProducts->count() > 0)
+        <section class="max-w-[1400px] mx-auto px-6 py-20 border-t border-neutral-100">
+            <div class="md:flex md:items-end md:justify-between mb-8">
+                <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Complete The Look</h2>
+                <a href="#"
+                    class="hidden md:block text-xs border-b border-black pb-0.5 hover:text-neutral-600 transition">Shop
+                    the full set</a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
+                @foreach($product->completeLookProducts as $lookItem)
+                <div class="group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
+                        <img src="{{ Storage::url('products/' . $lookItem->image) }}"
+                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                    </div>
+                    <h3 class="text-sm font-medium">
+                        <a href="{{ route('products.show', $lookItem->id) }}">
+                            <span class="absolute inset-0"></span>
+                            {{ $lookItem->name }}
+                        </a>
+                    </h3>
+                    <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($lookItem->price, 0, ',', '.') }}</p>
+
+                    {{-- Quick Add Button (Optional - hiện khi hover) --}}
+                    <button
+                        class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
+                @endforeach
+            </div>
+        </section>
+        @endif
+
         {{--
         ═══════════════════════════════════════════════════════════════
-        REVIEWS & COMMUNITY SECTION (Minimalist / ASOS Style)
+        REVIEWS SECTION
         ═══════════════════════════════════════════════════════════════
         --}}
         <section class="border-t border-neutral-100 py-16 lg:py-24" id="reviews">
@@ -506,6 +604,37 @@ Concept: Sticky Sidebar & Vertical Gallery
                         More essentials coming soon.
                     </div>
                     @endforelse
+                </div>
+            </div>
+        </section>
+
+        {{-- ========================================================
+        SECTION: YOU MIGHT ALSO LIKE (Slider vô tận)
+        Style: Slider lướt ngang, ẩn scrollbar
+        ======================================================== --}}
+        <section class="border-t border-neutral-100 py-20">
+            <div class="max-w-[1400px] mx-auto px-6">
+                <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">You Might Also Like</h2>
+
+                {{-- Horizontal Scroll Container --}}
+                <div class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory no-scrollbar">
+                    @foreach($relatedProducts as $related)
+                    <div class="min-w-[200px] md:min-w-[280px] snap-start group relative">
+                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
+                            <img src="{{ Storage::url('products/' . $related->image) }}"
+                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+
+                            {{-- Wishlist Toggle nhỏ --}}
+                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                {{-- (Code nút tim nhỏ ở đây nếu muốn) --}}
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-medium">
+                            <a href="{{ route('products.show', $related->id) }}">{{ $related->name }}</a>
+                        </h3>
+                        <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($related->price, 0, ',', '.') }}</p>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </section>
