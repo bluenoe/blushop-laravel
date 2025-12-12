@@ -48,4 +48,20 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'wishlists')
             ->withTimestamps();
     }
+
+    public function completeLookProducts()
+    {
+        // pivot table: complete_look_product (xem migration bên dưới)
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look_product',
+            'product_id',       // product chính
+            'look_product_id'   // product trong "complete the look"
+        )->withTimestamps();
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
 }

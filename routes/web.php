@@ -12,6 +12,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ReviewController;
+
 
 // Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -44,6 +46,10 @@ Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('ne
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
+
+Route::post('products/{product}/reviews', [ReviewController::class, 'store'])
+    ->name('reviews.store')
+    ->middleware('auth'); // thêm auth nếu chỉ cho user đăng nhập review
 
 // Cart (Session-based, AJAX Compatible)
 Route::prefix('cart')->group(function () {

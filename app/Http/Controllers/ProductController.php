@@ -104,17 +104,18 @@ class ProductController extends Controller
      */
     public function show(int $id)
     {
-        $product = Product::query()->findOrFail($id);
+        $product = Product::with(['completeLookProducts', 'reviews'])
+            ->withCount(['completeLookProducts', 'reviews'])
+            ->findOrFail($id);
 
-        // Lấy danh sách ID các sản phẩm user đã thích (nếu user đã đăng nhập)
-        $wishedIds = [];
-        if (auth()->check()) {
-            $wishedIds = auth()->user()->wishlist()->pluck('products.id')->toArray();
-        }
+        $wishedIds = auth()->check()
+            ? auth()->user()->wishlist()->pluck('products.id')->toArray()
+            : [];
 
-        // Nhớ truyền 'wishedIds' vào view nhé
         return view('products.show', compact('product', 'wishedIds'));
     }
+
+
 
     /**
      * Hiển thị danh sách sản phẩm mới nhất.
