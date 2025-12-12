@@ -1,7 +1,7 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Product Detail v3 - High-End Minimalist
-Concept: Sticky Sidebar & Vertical Gallery
+BluShop Product Detail v3 - Optimized Flow
+Luồng: Product → Gallery → Variants → Complete Look → Reviews → Related
 ═══════════════════════════════════════════════════════════════
 --}}
 
@@ -22,7 +22,7 @@ Concept: Sticky Sidebar & Vertical Gallery
 
     <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
 
-        {{-- BREADCRUMBS: Minimal --}}
+        {{-- BREADCRUMBS --}}
         <div class="max-w-[1400px] mx-auto px-6 pt-6 pb-2">
             <nav class="flex text-xs uppercase tracking-widest text-neutral-500">
                 <a href="{{ route('home') }}" class="hover:text-black transition">Home</a>
@@ -41,32 +41,28 @@ Concept: Sticky Sidebar & Vertical Gallery
         {{-- MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-8 lg:py-12">
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                    activeImage: 0,
-                    size: null,
-                    color: null,
-                    qty: 1,
-                    loading: false,
-                    added: false,
-                    // Giả lập nhiều ảnh nếu DB chỉ có 1 ảnh
-                    images: [
-                        '{{ Storage::url('products/' . $product->image) }}',
-                        // Thêm ảnh placeholder để demo layout gallery
-                        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
-                        'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1000',
-                        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=1000'
-                    ]
-                 }">
+                activeImage: 0,
+                size: null,
+                color: null,
+                qty: 1,
+                loading: false,
+                added: false,
+                images: [
+                    '{{ Storage::url('products/' . $product->image) }}',
+                    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
+                    'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1000',
+                    'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=1000'
+                ]
+            }">
 
-                {{-- LEFT COLUMN: GALLERY (Mobile Slider / Desktop Grid) --}}
+                {{-- LEFT: GALLERY --}}
                 <div class="lg:col-span-7 col-span-12 w-full">
-
-                    {{-- Mobile View: Horizontal Slider --}}
+                    {{-- Mobile Slider --}}
                     <div
                         class="lg:hidden relative w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar aspect-[3/4]">
                         <template x-for="(img, index) in images" :key="index">
                             <div class="snap-center min-w-full w-full h-full bg-neutral-100 relative">
                                 <img :src="img" class="w-full h-full object-cover">
-                                {{-- Counter badge --}}
                                 <div
                                     class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full">
                                     <span x-text="index + 1"></span> / <span x-text="images.length"></span>
@@ -75,7 +71,7 @@ Concept: Sticky Sidebar & Vertical Gallery
                         </template>
                     </div>
 
-                    {{-- Desktop View: Vertical Masonry/Grid --}}
+                    {{-- Desktop Grid --}}
                     <div class="hidden lg:grid grid-cols-2 gap-4">
                         <template x-for="(img, index) in images" :key="index">
                             <div class="bg-neutral-50 relative group cursor-zoom-in"
@@ -88,7 +84,7 @@ Concept: Sticky Sidebar & Vertical Gallery
                     </div>
                 </div>
 
-                {{-- RIGHT COLUMN: PRODUCT INFO (Sticky) --}}
+                {{-- RIGHT: PRODUCT INFO (Sticky) --}}
                 <div class="lg:col-span-5 col-span-12 px-6 lg:px-0 mt-8 lg:mt-0 lg:sticky lg:top-24">
 
                     {{-- Header --}}
@@ -99,21 +95,15 @@ Concept: Sticky Sidebar & Vertical Gallery
                                 {{ $product->name }}
                             </h1>
 
-                            {{-- Wishlist Button - Minimalist Style --}}
-                            {{-- Không cần tạo biến 'active' cục bộ nữa, chỉ cần giữ ID --}}
+                            {{-- Wishlist Button --}}
                             <div x-data="{ id: {{ $product->id }} }">
-                                {{-- Khi click chỉ cần gọi hàm toggle, không cần làm gì thêm --}}
                                 <button @click="$store.wishlist.toggle(id)"
                                     class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition-colors duration-300">
-
-                                    {{-- Đoạn này quan trọng !! --}}
-                                    <svg class="w-6 h-6 transition-all duration-300" {{-- Nếu store báo đã thích: Tô màu
-                                        đen (text-black) và đổ đầy màu đen (fill-current) --}} {{-- Nếu chưa thích: Màu
-                                        xám (text-neutral-400), không đổ màu (fill-none), khi di chuột vào thì chuyển
-                                        đen --}} :class="$store.wishlist.isFav(id)
-                        ? 'text-black fill-current transform scale-110'
-                        : 'text-neutral-400 fill-none group-hover:text-black group-hover:scale-105'"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <svg class="w-6 h-6 transition-all duration-300"
+                                        :class="$store.wishlist.isFav(id) 
+                                            ? 'text-black fill-current transform scale-110' 
+                                            : 'text-neutral-400 fill-none group-hover:text-black group-hover:scale-105'" viewBox="0 0 24 24" stroke="currentColor"
+                                        stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
@@ -133,29 +123,28 @@ Concept: Sticky Sidebar & Vertical Gallery
 
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                            if(!size) { alert('Please select a size'); return; }
-                            loading = true;
-                            // Simulate API call logic here...
-                            fetch($el.action, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
-                                },
-                                body: JSON.stringify({ quantity: qty, size: size, color: color })
-                            }).then(r => r.ok ? r.json() : Promise.reject(r))
-                            .then(data => {
-                                if (data && data.success) { 
-                                    Alpine.store('cart').set(data.cart_count);
-                                    added = true; 
-                                    setTimeout(() => added = false, 3000);
-                                }
-                            }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
-                          ">
+                        if(!size) { alert('Please select a size'); return; }
+                        loading = true;
+                        fetch($el.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
+                            },
+                            body: JSON.stringify({ quantity: qty, size: size, color: color })
+                        }).then(r => r.ok ? r.json() : Promise.reject(r))
+                        .then(data => {
+                            if (data && data.success) { 
+                                Alpine.store('cart').set(data.cart_count);
+                                added = true; 
+                                setTimeout(() => added = false, 3000);
+                            }
+                        }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
+                    ">
                         @csrf
 
-                        {{-- 1. COLOR SELECTION --}}
+                        {{-- Color Selection --}}
                         <div class="mb-6">
                             <div class="flex justify-between mb-2">
                                 <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
@@ -177,7 +166,7 @@ Concept: Sticky Sidebar & Vertical Gallery
                             </div>
                         </div>
 
-                        {{-- 2. SIZE SELECTION --}}
+                        {{-- Size Selection --}}
                         <div class="mb-8">
                             <div class="flex justify-between mb-2">
                                 <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
@@ -189,15 +178,15 @@ Concept: Sticky Sidebar & Vertical Gallery
                                     <button type="button" @click="size = s"
                                         class="py-3 border text-sm font-medium transition-all duration-200"
                                         :class="size === s 
-                                                ? 'border-black bg-black text-white' 
-                                                : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                            ? 'border-black bg-black text-white' 
+                                            : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
                                         <span x-text="s"></span>
                                     </button>
                                 </template>
                             </div>
                         </div>
 
-                        {{-- 3. ACTION BUTTONS --}}
+                        {{-- Action Buttons --}}
                         <div class="space-y-3">
                             <button type="submit" :disabled="loading"
                                 class="w-full py-4 bg-neutral-900 text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed relative">
@@ -211,98 +200,360 @@ Concept: Sticky Sidebar & Vertical Gallery
                                     </svg>
                                 </span>
                             </button>
-
                             <p class="text-center text-[10px] text-neutral-400 uppercase tracking-widest">
                                 Free shipping on orders over 500k
                             </p>
                         </div>
                     </form>
 
-                    {{-- DETAILS ACCORDION --}}
-                    <div class="mt-10 border-t border-neutral-200" x-data="{ activeTab: 'desc' }">
-                        {{-- Item 1 --}}
+                    {{-- Accordion Sections --}}
+                    <div class="mt-12 border-t border-neutral-200" x-data="{ activeTab: 'details' }">
+
+                        {{-- Details --}}
                         <div class="border-b border-neutral-200">
-                            <button @click="activeTab = activeTab === 'desc' ? null : 'desc'"
-                                class="w-full py-4 flex justify-between items-center text-left group">
+                            <button @click="activeTab = activeTab === 'details' ? null : 'details'"
+                                class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Description</span>
-                                <span class="text-lg leading-none transition-transform duration-300"
-                                    :class="activeTab === 'desc' ? 'rotate-45' : ''">+</span>
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
+                                    Details & Composition
+                                </span>
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div x-show="activeTab === 'desc'" x-collapse
-                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
-                                <p class="mb-4">
-                                    @if($product->description) {{ $product->description }} @else
-                                    Crafted with precision for the modern student. This piece combines functional
-                                    utility with a minimalist aesthetic, ensuring you look sharp from the lecture hall
-                                    to the coffee shop.
+                            <div x-show="activeTab === 'details'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
+                                    <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
+                                        functionality.' }}</p>
+                                    @if(!empty($product->specifications))
+                                    <dl class="space-y-2">
+                                        @foreach($product->specifications as $key => $value)
+                                        <div
+                                            class="flex justify-between py-2 border-b border-dashed border-neutral-100 last:border-0">
+                                            <dt class="text-neutral-900 font-medium">{{ $key }}</dt>
+                                            <dd class="text-neutral-500">{{ $value }}</dd>
+                                        </div>
+                                        @endforeach
+                                    </dl>
                                     @endif
-                                </p>
-                                <ul class="list-disc list-inside space-y-1 text-neutral-500 marker:text-neutral-300">
-                                    <li>Premium durable fabric</li>
-                                    <li>Relaxed fit for comfort</li>
-                                    <li>Machine washable</li>
-                                </ul>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Item 2 --}}
+                        {{-- Care Guide --}}
+                        <div class="border-b border-neutral-200">
+                            <button @click="activeTab = activeTab === 'care' ? null : 'care'"
+                                class="w-full py-5 flex justify-between items-center text-left group">
+                                <span
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Care
+                                    Guide</span>
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
+                            </button>
+                            <div x-show="activeTab === 'care'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
+                                    @if($product->care_guide)
+                                    {!! nl2br(e($product->care_guide)) !!}
+                                    @else
+                                    <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
+                                    <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Shipping --}}
                         <div class="border-b border-neutral-200">
                             <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
-                                class="w-full py-4 flex justify-between items-center text-left group">
+                                class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:opacity-70 transition">Shipping
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping
                                     & Returns</span>
-                                <span class="text-lg leading-none transition-transform duration-300"
+                                <span
+                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                     :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                             </button>
-                            <div x-show="activeTab === 'ship'" x-collapse
-                                class="pb-6 text-sm text-neutral-600 leading-relaxed font-light">
-                                <p>Standard shipping (2-4 business days). Free returns within 14 days of purchase. Items
-                                    must be unworn and in original packaging.</p>
+                            <div x-show="activeTab === 'ship'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div class="pb-6 text-sm text-neutral-600 font-light">
+                                    Free standard shipping on orders over 500k. Returns accepted within 30 days.
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </section>
+
+        {{-- COMPLETE THE LOOK --}}
+        @if($product->completeLookProducts->count() > 0)
+        <section class="max-w-[1400px] mx-auto px-6 py-20 border-t border-neutral-100">
+            <div class="md:flex md:items-end md:justify-between mb-8">
+                <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Complete The Look</h2>
+                <a href="#"
+                    class="hidden md:block text-xs border-b border-black pb-0.5 hover:text-neutral-600 transition">Shop
+                    the full set</a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
+                @foreach($product->completeLookProducts as $lookItem)
+                <div class="group relative">
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
+                        <img src="{{ Storage::url('products/' . $lookItem->image) }}"
+                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                    </div>
+                    <h3 class="text-sm font-medium">
+                        <a href="{{ route('products.show', $lookItem->id) }}">
+                            <span class="absolute inset-0"></span>
+                            {{ $lookItem->name }}
+                        </a>
+                    </h3>
+                    <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($lookItem->price, 0, ',', '.') }}</p>
+
+                    <button
+                        class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
+                @endforeach
+            </div>
+        </section>
+        @endif
+
+        {{-- REVIEWS SECTION --}}
+        <section class="border-t border-neutral-100 py-16 lg:py-24" id="reviews">
+            <div class="max-w-[1400px] mx-auto px-6">
+                <div class="lg:grid lg:grid-cols-12 lg:gap-16">
+
+                    {{-- Left: Summary --}}
+                    <div class="lg:col-span-4 mb-12 lg:mb-0">
+                        <h2 class="text-2xl font-bold tracking-tight mb-6">Reviews</h2>
+
+                        {{-- Overall Rating --}}
+                        <div class="flex items-baseline gap-4 mb-8">
+                            <span class="text-5xl font-bold tracking-tighter">{{ number_format($product->avg_rating, 1)
+                                }}</span>
+                            <div class="flex flex-col">
+                                <div class="flex text-black">
+                                    @for($i=1; $i<=5; $i++) <svg
+                                        class="w-4 h-4 {{ $i <= round($product->avg_rating) ? 'fill-current' : 'text-neutral-300' }}"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                        </svg>
+                                        @endfor
+                                </div>
+                                <span class="text-xs text-neutral-500 mt-1">Based on {{ $product->reviews->count() }}
+                                    reviews</span>
+                            </div>
+                        </div>
+
+                        {{-- Fit Scale --}}
+                        <div class="mb-8">
+                            <p class="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4">Fit Scale</p>
+                            <div class="relative h-2 bg-neutral-100 rounded-full w-full mt-2">
+                                @php
+                                $fitPercent = ($product->avg_fit - 1) / 4 * 100;
+                                $fitPercent = max(0, min(100, $fitPercent));
+                                @endphp
+                                <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-black rounded-full border-2 border-white shadow-sm transition-all duration-1000"
+                                    style="left: {{ $fitPercent }}%"></div>
+                            </div>
+                            <div
+                                class="flex justify-between text-[10px] text-neutral-400 uppercase tracking-wider mt-2 font-medium">
+                                <span>Tight</span>
+                                <span>True to Size</span>
+                                <span>Loose</span>
+                            </div>
+                        </div>
+
+                        {{-- Write Review Button --}}
+                        <div x-data="{ open: false }">
+                            @auth
+                            <button @click="open = !open"
+                                class="w-full py-3 border border-black text-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">
+                                Write a Review
+                            </button>
+                            @else
+                            <a href="{{ route('login') }}"
+                                class="block text-center w-full py-3 border border-neutral-200 text-neutral-500 text-xs font-bold uppercase tracking-widest hover:border-black hover:text-black transition">
+                                Login to Review
+                            </a>
+                            @endauth
+
+                            {{-- Review Form --}}
+                            <div x-show="open" x-collapse class="mt-6 p-6 bg-neutral-50">
+                                <form action="{{ route('reviews.store', $product->id) }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+
+                                    {{-- Star Rating --}}
+                                    <div class="mb-4" x-data="{ rating: 0, hoverRating: 0 }">
+                                        <label
+                                            class="block text-xs font-bold uppercase tracking-widest mb-2">Rating</label>
+                                        <div class="flex gap-1 cursor-pointer" @mouseleave="hoverRating = 0">
+                                            <template x-for="i in 5">
+                                                <svg @click="rating = i" @mouseover="hoverRating = i"
+                                                    class="w-6 h-6 transition-colors"
+                                                    :class="(hoverRating || rating) >= i ? 'fill-black text-black' : 'text-neutral-300 fill-none'"
+                                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                </svg>
+                                            </template>
+                                        </div>
+                                        <input type="hidden" name="rating" :value="rating" required>
+                                    </div>
+
+                                    {{-- Fit Rating --}}
+                                    <div class="mb-4" x-data="{ fit: 3 }">
+                                        <label class="block text-xs font-bold uppercase tracking-widest mb-2">How's the
+                                            fit?</label>
+                                        <input type="range" name="fit_rating" min="1" max="5" step="1" x-model="fit"
+                                            class="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black">
+                                        <div
+                                            class="flex justify-between text-[10px] text-neutral-500 mt-2 uppercase font-medium">
+                                            <span :class="fit == 1 ? 'text-black font-bold' : ''">Tight</span>
+                                            <span :class="fit == 3 ? 'text-black font-bold' : ''">True to Size</span>
+                                            <span :class="fit == 5 ? 'text-black font-bold' : ''">Loose</span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Comment --}}
+                                    <div class="mb-4">
+                                        <label
+                                            class="block text-xs font-bold uppercase tracking-widest mb-2">Review</label>
+                                        <textarea name="comment" rows="3" required
+                                            class="w-full bg-white border border-neutral-200 p-3 text-sm focus:outline-none focus:border-black transition"
+                                            placeholder="Tell us what you think..."></textarea>
+                                    </div>
+
+                                    {{-- Image Upload --}}
+                                    <div class="mb-6">
+                                        <label class="block text-xs font-bold uppercase tracking-widest mb-2">Photo
+                                            (Optional)</label>
+                                        <input type="file" name="image" accept="image/*"
+                                            class="block w-full text-xs text-neutral-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-semibold file:bg-neutral-900 file:text-white hover:file:bg-neutral-700 transition" />
+                                    </div>
+
+                                    <button type="submit"
+                                        class="w-full py-3 bg-neutral-900 text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition">
+                                        Submit Review
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Right: Reviews List --}}
+                    <div class="lg:col-span-8">
+                        @if($product->reviews->count() > 0)
+                        <div class="space-y-8">
+                            @foreach($product->reviews as $review)
+                            <div class="border-b border-neutral-100 pb-8 last:border-0">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-500">
+                                            {{ substr($review->user->name, 0, 1) }}
+                                        </div>
+                                        <span class="text-sm font-bold text-neutral-900">{{ $review->user->name
+                                            }}</span>
+                                    </div>
+                                    <span class="text-xs text-neutral-400">{{ $review->created_at->format('M d, Y')
+                                        }}</span>
+                                </div>
+
+                                <div class="flex items-center gap-4 mb-3">
+                                    <div class="flex text-black">
+                                        @for($i=1; $i<=5; $i++) <svg
+                                            class="w-3 h-3 {{ $i <= $review->rating ? 'fill-current' : 'text-neutral-200' }}"
+                                            viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                            </svg>
+                                            @endfor
+                                    </div>
+
+                                    {{-- Fit Badge --}}
+                                    @php
+                                    $fitLabel = match($review->fit_rating) {
+                                    1 => 'Runs Small',
+                                    2 => 'Slightly Small',
+                                    3 => 'True to Size',
+                                    4 => 'Slightly Large',
+                                    5 => 'Runs Large',
+                                    default => 'True to Size'
+                                    };
+                                    @endphp
+                                    <span
+                                        class="text-[10px] uppercase tracking-wider text-neutral-500 bg-neutral-50 px-2 py-1">
+                                        Fit: {{ $fitLabel }}
+                                    </span>
+                                </div>
+
+                                <p class="text-sm text-neutral-600 leading-relaxed mb-4">
+                                    {{ $review->comment }}
+                                </p>
+
+                                {{-- Review Image --}}
+                                @if($review->image)
+                                <div class="mt-3">
+                                    <img src="{{ Storage::url($review->image) }}" alt="Review photo"
+                                        class="w-24 h-24 object-cover cursor-zoom-in hover:opacity-80 transition"
+                                        onclick="window.open(this.src)">
+                                </div>
+                                @endif
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="py-12 text-center bg-neutral-50">
+                            <p class="text-neutral-500 text-sm">No reviews yet. Be the first to share your thoughts.</p>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </section>
 
         {{-- RELATED PRODUCTS --}}
+        @if(isset($relatedProducts) && $relatedProducts->count() > 0)
         <section class="border-t border-neutral-100 py-16 lg:py-24">
             <div class="max-w-[1400px] mx-auto px-6">
-                <h2 class="text-2xl font-bold tracking-tight mb-8">Complete the Look</h2>
+                <h2 class="text-2xl font-bold tracking-tight mb-8">You Might Also Like</h2>
 
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    @forelse(($relatedProducts ?? []) as $r)
-                    <div class="group relative">
+                {{-- Horizontal Scroll --}}
+                <div class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory no-scrollbar">
+                    @foreach($relatedProducts as $related)
+                    <div class="min-w-[200px] md:min-w-[280px] snap-start group relative flex-shrink-0">
                         <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
-                            <img src="{{ Storage::url('products/' . $r->image) }}" alt="{{ $r->name }}"
-                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0">
+                            <img src="{{ Storage::url('products/' . $related->image) }}"
+                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105 mix-blend-multiply">
 
-                            @if($r->is_new)
+                            @if($related->is_new)
                             <div
                                 class="absolute top-2 left-2 bg-white text-black text-[10px] font-bold uppercase px-2 py-1">
                                 New</div>
                             @endif
                         </div>
-                        <h3 class="text-sm font-bold">
-                            <a href="{{ route('products.show', $r) }}">
+                        <h3 class="text-sm font-medium">
+                            <a href="{{ route('products.show', $related->id) }}">
                                 <span class="absolute inset-0"></span>
-                                {{ $r->name }}
+                                {{ $related->name }}
                             </a>
                         </h3>
-                        <p class="text-sm text-neutral-500 mt-1">₫{{ number_format((float)$r->price, 0, ',', '.') }}</p>
+                        <p class="text-sm text-neutral-500 mt-1">₫{{ number_format((float)$related->price, 0, ',', '.')
+                            }}</p>
                     </div>
-                    @empty
-                    {{-- Skeleton for empty related --}}
-                    <div class="col-span-full text-center py-12 text-neutral-400 text-sm">
-                        More essentials coming soon.
-                    </div>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
         </section>
+        @endif
 
     </main>
 
