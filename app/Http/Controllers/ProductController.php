@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -132,5 +133,39 @@ class ProductController extends Controller
     {
         $products = Product::latest()->paginate(12);
         return view('products.new-arrivals', compact('products'));
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $term = trim((string) $request->input('q', ''));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([
+                'data' => [],
+            ]);
+        }
+
+        $safeTerm = str_replace(['%', '_'], ['\\%', '\\_'], $term);
+
+        $products = Product::query()
+            ->select(['id', 'name', 'price', 'image'])
+            ->where('name', 'like', '%' . $safeTerm . '%')
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        $results = $products->map(function (Product $product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'image' => $product->image ? Storage::url('products/' . $product->image) : null,
+                'url' => route('products.show', $product->id),
+            ];
+        });
+
+        return response()->json([
+            'data' => $results,
+        ]);
     }
 }

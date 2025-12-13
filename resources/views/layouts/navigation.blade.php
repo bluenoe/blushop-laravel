@@ -12,7 +12,65 @@ $categories = \App\Models\Category::query()
         mobileMenuOpen: false, 
         searchOpen: false, 
         shopHover: false,
-        scrolled: false 
+        scrolled: false,
+        searchQuery: '',
+        searchResults: [],
+        searchLoading: false,
+        searchTimeout: null,
+        highlightedIndex: -1,
+        updateSearch(query) {
+            this.searchQuery = query;
+            this.highlightedIndex = -1;
+
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+
+            if (!query || query.length < 2) {
+                this.searchResults = [];
+                this.searchLoading = false;
+                return;
+            }
+
+            this.searchLoading = true;
+
+            this.searchTimeout = setTimeout(() => {
+                fetch('{{ route('products.autocomplete') }}?q=' + encodeURIComponent(this.searchQuery))
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .then(data => {
+                        this.searchResults = Array.isArray(data.data) ? data.data : [];
+                    })
+                    .catch(() => {
+                        this.searchResults = [];
+                    })
+                    .finally(() => {
+                        this.searchLoading = false;
+                    });
+            }, 250);
+        },
+        selectResult(index) {
+            const item = this.searchResults[index];
+            if (!item || !item.url) return;
+            window.location.href = item.url;
+        },
+        handleKeydown(event) {
+            if (!this.searchResults.length) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                this.highlightedIndex = (this.highlightedIndex + 1) % this.searchResults.length;
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                this.highlightedIndex = this.highlightedIndex <= 0
+                    ? this.searchResults.length - 1
+                    : this.highlightedIndex - 1;
+            } else if (event.key === 'Enter') {
+                if (this.highlightedIndex >= 0) {
+                    event.preventDefault();
+                    this.selectResult(this.highlightedIndex);
+                }
+            }
+        }
     }" @scroll.window="scrolled = (window.pageYOffset > 20)"
     @keydown.window.escape="searchOpen = false; mobileMenuOpen = false; shopHover = false"
     :class="{ 'bg-white/90 backdrop-blur-md shadow-sm': scrolled, 'bg-white': !scrolled }"
@@ -66,7 +124,7 @@ $categories = \App\Models\Category::query()
             {{-- 4. ICONS (RIGHT) --}}
             <div class="flex items-center gap-4 sm:gap-6">
                 {{-- Search Toggle --}}
-                <button @click="searchOpen = !searchOpen; $nextTick(() => $refs.searchInput.focus())"
+                <button @click="searchOpen = !searchOpen; searchResults = []; searchQuery = ''; $nextTick(() => $refs.searchInput.focus())"
                     class="text-gray-900 hover:opacity-60 transition">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
@@ -194,11 +252,61 @@ $categories = \App\Models\Category::query()
         x-transition:leave="transition ease-in duration-150"
         class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
         <div class="max-w-4xl mx-auto relative">
-            <form action="{{ route('products.index') }}" method="GET">
-                <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..."
+            <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
+                <input
+                    x-ref="searchInput"
+                    type="text"
+                    name="q"
+                    placeholder="Type to search..."
+                    x-model="searchQuery"
+                    @input="updateSearch($event.target.value)"
+                    @keydown="handleKeydown($event)"
+                    autocomplete="off"
                     class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
             </form>
-            <button @click="searchOpen = false"
+
+            <div
+                x-show="searchQuery.length >= 2"
+                x-transition
+                class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-b-xl max-h-80 overflow-y-auto">
+                <template x-if="searchLoading">
+                    <div class="px-4 py-3 text-sm text-gray-400">
+                        Searching...
+                    </div>
+                </template>
+
+                <template x-if="!searchLoading && !searchResults.length && searchQuery.length >= 2">
+                    <div class="px-4 py-3 text-sm text-gray-400">
+                        No products found.
+                    </div>
+                </template>
+
+                <ul>
+                    <template x-for="(item, index) in searchResults" :key="item.id">
+                        <li>
+                            <button
+                                type="button"
+                                class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50"
+                                :class="index === highlightedIndex ? 'bg-gray-50' : ''"
+                                @click="selectResult(index)">
+                                <div class="w-10 h-10 bg-gray-100 flex-shrink-0 overflow-hidden rounded">
+                                    <template x-if="item.image">
+                                        <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+                                    </template>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-900" x-text="item.name"></p>
+                                    <p class="text-xs text-gray-500"
+                                        x-text="item.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(item.price) : ''">
+                                    </p>
+                                </div>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <button @click="searchOpen = false; searchResults = []; searchQuery = ''; highlightedIndex = -1"
                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black">
                 <span class="text-xs uppercase tracking-widest">Close</span>
             </button>
