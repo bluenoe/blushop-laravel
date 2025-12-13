@@ -7,7 +7,8 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 
 <x-app-layout>
     @push('head')
-    <link rel="preload" as="image" href="{{ Storage::url('products/' . $product->image) }}" fetchpriority="high">
+    <link rel="preload" as="image"
+        href="{{ ($galleryImages[0] ?? null) ?: Storage::url('products/' . $product->image) }}" fetchpriority="high">
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -47,17 +48,11 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                 qty: 1,
                 loading: false,
                 added: false,
-                images: [
-                    '{{ Storage::url('products/' . $product->image) }}',
-                    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
-                    'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1000',
-                    'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=1000'
-                ]
+                images: @json($galleryImages)
             }">
 
                 {{-- LEFT: GALLERY --}}
                 <div class="lg:col-span-7 col-span-12 w-full">
-                    {{-- Mobile Slider --}}
                     <div
                         class="lg:hidden relative w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar aspect-[3/4]">
                         <template x-for="(img, index) in images" :key="index">
@@ -71,16 +66,25 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                         </template>
                     </div>
 
-                    {{-- Desktop Grid --}}
-                    <div class="hidden lg:grid grid-cols-2 gap-4">
-                        <template x-for="(img, index) in images" :key="index">
-                            <div class="bg-neutral-50 relative group cursor-zoom-in"
-                                :class="index === 0 ? 'col-span-2 aspect-[4/5]' : 'col-span-1 aspect-[3/4]'">
-                                <img :src="img"
+                    <div class="hidden lg:flex gap-6">
+                        <div class="flex flex-col gap-3 w-20">
+                            <template x-for="(img, index) in images" :key="index">
+                                <button type="button" @click="activeImage = index"
+                                    class="relative aspect-square overflow-hidden rounded-md border transition-all duration-200"
+                                    :class="index === activeImage ? 'border-black ring-1 ring-black' : 'border-neutral-200 hover:border-neutral-400 hover:ring-1 hover:ring-neutral-300'">
+                                    <img :src="img" class="w-full h-full object-cover transform transition duration-300"
+                                        :class="index === activeImage ? 'scale-105' : 'scale-100'">
+                                </button>
+                            </template>
+                        </div>
+
+                        <div class="flex-1">
+                            <div class="relative bg-neutral-50 aspect-[4/5] overflow-hidden rounded-sm group">
+                                <img :src="images[activeImage]"
                                     class="w-full h-full object-cover mix-blend-multiply transition duration-700 group-hover:scale-[1.02]"
                                     loading="lazy">
                             </div>
-                        </template>
+                        </div>
                     </div>
                 </div>
 
@@ -221,7 +225,13 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                     class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                     :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div x-show="activeTab === 'details'" x-collapse.duration.500ms class="overflow-hidden">
+                            <div x-show="activeTab === 'details'"
+                                x-transition:enter="transition-all duration-300 ease-out"
+                                x-transition:enter-start="opacity-0 -translate-y-1 max-h-0"
+                                x-transition:enter-end="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave="transition-all duration-250 ease-in"
+                                x-transition:leave-start="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave-end="opacity-0 -translate-y-1 max-h-0" class="overflow-hidden">
                                 <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
                                     <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
                                         functionality.' }}</p>
@@ -251,7 +261,12 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                     class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                     :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
                             </button>
-                            <div x-show="activeTab === 'care'" x-collapse.duration.500ms class="overflow-hidden">
+                            <div x-show="activeTab === 'care'" x-transition:enter="transition-all duration-300 ease-out"
+                                x-transition:enter-start="opacity-0 -translate-y-1 max-h-0"
+                                x-transition:enter-end="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave="transition-all duration-250 ease-in"
+                                x-transition:leave-start="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave-end="opacity-0 -translate-y-1 max-h-0" class="overflow-hidden">
                                 <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
                                     @if($product->care_guide)
                                     {!! nl2br(e($product->care_guide)) !!}
@@ -274,7 +289,12 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                     class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                     :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                             </button>
-                            <div x-show="activeTab === 'ship'" x-collapse.duration.500ms class="overflow-hidden">
+                            <div x-show="activeTab === 'ship'" x-transition:enter="transition-all duration-300 ease-out"
+                                x-transition:enter-start="opacity-0 -translate-y-1 max-h-0"
+                                x-transition:enter-end="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave="transition-all duration-250 ease-in"
+                                x-transition:leave-start="opacity-100 translate-y-0 max-h-[600px]"
+                                x-transition:leave-end="opacity-0 -translate-y-1 max-h-0" class="overflow-hidden">
                                 <div class="pb-6 text-sm text-neutral-600 font-light">
                                     Free standard shipping on orders over 500k. Returns accepted within 30 days.
                                 </div>
@@ -333,13 +353,13 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
             <div class="max-w-[1400px] mx-auto px-6 grid lg:grid-cols-12 gap-12">
 
                 {{-- LEFT COLUMN: Summary & Form --}}
-                <div class="lg:col-span-4">
-                    <h2 class="text-2xl font-bold mb-4 tracking-tight">Reviews</h2>
+                <div class="lg:col-span-4 space-y-8">
+                    <h2 class="text-2xl font-semibold tracking-tight">Reviews</h2>
 
-                    {{-- Rating Summary --}}
-                    <div class="flex items-baseline gap-4 mb-6">
-                        <span class="text-5xl font-bold tracking-tighter">{{ number_format($product->avg_rating, 1)
-                            }}</span>
+                    <div class="flex items-center gap-4">
+                        <span class="text-4xl font-bold tracking-tighter leading-none">
+                            {{ number_format($product->avg_rating, 1) }}
+                        </span>
                         <div class="flex flex-col">
                             <div class="flex text-black text-xs">
                                 @for($i=1; $i<=5; $i++) <svg
@@ -350,8 +370,9 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                     </svg>
                                     @endfor
                             </div>
-                            <span class="text-xs text-neutral-500 mt-1 font-medium">{{ $product->reviews_count }}
-                                reviews</span>
+                            <span class="text-xs text-neutral-500 mt-1 font-medium">
+                                {{ $product->reviews_count }} reviews
+                            </span>
                         </div>
                     </div>
 
@@ -473,7 +494,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                             </form>
                         </div>
                         @else
-                        <div class="bg-neutral-50 p-6 text-center border border-neutral-100">
+                        <div class="bg-neutral-50 p-6 text-center border border-neutral-100 rounded-lg">
                             <p class="text-xs text-neutral-500 mb-3">Please login to write a review</p>
                             <a href="{{ route('login') }}"
                                 class="inline-block border-b border-black text-xs font-bold uppercase tracking-widest pb-0.5 hover:text-neutral-600 transition">Login
@@ -489,8 +510,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                     {{-- SỬA: Đổi $product->reviews thành $reviews --}}
                     @forelse($reviews as $review)
                     <div class="border-b border-neutral-200 pb-8 last:border-0 last:pb-0">
-                        {{-- (Giữ nguyên code hiển thị từng review của bà ở đây) --}}
-                        <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-start justify-between gap-4 mb-4">
                             <div class="flex items-center gap-4">
                                 <div
                                     class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-900 uppercase tracking-widest border border-neutral-200">
@@ -504,7 +524,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                             </div>
 
                             {{-- Stars Display --}}
-                            <div class="flex gap-0.5">
+                            <div class="flex gap-0.5 flex-shrink-0">
                                 @for($i=1; $i<=5; $i++) <svg
                                     class="w-3.5 h-3.5 {{ $i <= $review->rating ? 'fill-black' : 'text-neutral-200 fill-none' }}"
                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

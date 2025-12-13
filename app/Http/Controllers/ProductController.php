@@ -86,6 +86,29 @@ class ProductController extends Controller
             ->withCount('reviews') // Chỉ đếm số lượng để hiện con số tổng
             ->findOrFail($id);
 
+        $galleryImages = [];
+
+        $baseDir = 'products/' . $product->id . '/';
+
+        $candidates = [
+            'main.jpg',
+            '1.jpg',
+            '2.jpg',
+            '3.jpg',
+            '4.jpg',
+        ];
+
+        foreach ($candidates as $filename) {
+            $path = $baseDir . $filename;
+            if (Storage::disk('public')->exists($path)) {
+                $galleryImages[] = Storage::url($path);
+            }
+        }
+
+        if (empty($galleryImages)) {
+            $galleryImages[] = Storage::url('products/' . $product->image);
+        }
+
         $reviews = $product->reviews()
             ->with('user')
             ->latest()
@@ -126,7 +149,7 @@ class ProductController extends Controller
             : [];
 
         // Gửi toàn bộ dữ liệu sang View
-        return view('products.show', compact('product', 'reviews', 'relatedProducts', 'wishedIds'));
+        return view('products.show', compact('product', 'reviews', 'relatedProducts', 'wishedIds', 'galleryImages'));
     }
 
     public function newArrivals()
