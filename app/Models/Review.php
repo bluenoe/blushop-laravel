@@ -13,18 +13,18 @@ class Review extends Model
         'product_id',
         'user_id',
         'rating',
-        'content',
+        'fit_rating',
+        'comment',
+        'image',
     ];
 
-    // Quan hệ ngược về product
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    // (tuỳ nếu cần) quan hệ với user
-    public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class);
     }
 }
