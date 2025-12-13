@@ -156,59 +156,119 @@ Concept: Art Gallery / Editorial Store
         </section>
 
         {{-- 4. FEATURED PRODUCTS (Grid Layout Fixed) --}}
-        <section id="new-arrivals" class="bg-neutral-50 py-24 overflow-hidden border-y border-neutral-200">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="max-w-2xl mb-12 flex flex-col gap-3 pt-3" data-reveal>
-                    <span class="text-neutral-500 text-xs font-bold uppercase tracking-[0.2em]">
-                        Weekly Selection
-                    </span>
-                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 leading-none">
-                        Essential Pieces.
-                    </h2>
+        <section id="new-arrivals" class="bg-white py-24 border-t border-neutral-100">
+            <div class="max-w-[1400px] mx-auto px-6">
+
+                {{-- Heading --}}
+                <div class="max-w-2xl mb-12 flex flex-col gap-3" data-reveal>
+                    <span class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.2em]">Weekly
+                        Selection</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 leading-none">Essential
+                        Pieces.</h2>
                 </div>
 
-                {{-- GRID CONTAINER: Dùng grid-cols-4 để chia đều 4 cột --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-8" data-reveal>
+                {{-- Product Grid --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" data-reveal>
 
-                    {{-- Kiểm tra: Nếu KHÔNG có dữ liệu -> Hiện 4 Card Giả (Placeholder) --}}
                     @if(($featured ?? collect())->isEmpty())
-                    @for($i=0; $i<4; $i++) <div class="group relative bg-white p-4">
-                        <div
-                            class="bg-neutral-100 w-full aspect-[3/4] mb-4 flex items-center justify-center text-neutral-300">
-                            No Image
+
+                    {{-- MOCKUP DATA: Dùng khi DB trống để giao diện vẫn đẹp --}}
+                    @php
+                    $mockups = [
+                    [
+                    'name' => 'Oversized Tee',
+                    'price' => '350.000',
+                    'img' =>
+                    'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop'
+                    ],
+                    [
+                    'name' => 'Canvas Tote Bag',
+                    'price' => '150.000',
+                    'img' =>
+                    'https://images.unsplash.com/photo-1597484662317-c9310d330d26?q=80&w=800&auto=format&fit=crop'
+                    ],
+                    [
+                    'name' => 'Minimalist Hoodie',
+                    'price' => '550.000',
+                    'img' =>
+                    'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop'
+                    ],
+                    [
+                    'name' => 'Daily Cap',
+                    'price' => '200.000',
+                    'img' =>
+                    'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop'
+                    ],
+                    ];
+                    @endphp
+
+                    @foreach($mockups as $mock)
+                    <div class="group relative cursor-pointer">
+                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative mb-4">
+                            <img src="{{ $mock['img'] }}"
+                                class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105 filter grayscale-[10%] group-hover:grayscale-0">
+
+                            {{-- Quick Add Button Slide Up --}}
+                            <div
+                                class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase py-4 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-neutral-100">
+                                Quick View
+                            </div>
                         </div>
-                        <h3 class="text-sm font-bold uppercase tracking-wide">Blu Hoodie Basic</h3>
-                        <p class="text-neutral-500 text-sm mt-1">550.000 ₫</p>
-                </div>
-                @endfor
-
-                {{-- Nếu CÓ dữ liệu -> Hiện Card Thật từ DB --}}
-                @else
-                @foreach($featured as $product)
-                <div class="group relative">
-                    <div class="aspect-[3/4] overflow-hidden bg-white relative mb-4">
-                        <img src="{{ $product->image }}" alt="{{ $product->name }}" loading="lazy"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105 filter grayscale-[20%] group-hover:grayscale-0">
-
-                        <button
-                            class="absolute bottom-0 left-0 w-full bg-black text-white text-xs font-bold uppercase py-3 translate-y-full group-hover:translate-y-0 transition duration-300">
-                            Add to Cart
-                        </button>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-sm font-bold text-neutral-900 leading-none mb-1">
+                                    <a href="#" class="hover:underline decoration-1 underline-offset-4">{{ $mock['name']
+                                        }}</a>
+                                </h3>
+                                <p class="text-[10px] text-neutral-400 uppercase tracking-widest">New Arrival</p>
+                            </div>
+                            <p class="text-sm font-medium text-neutral-900">{{ $mock['price'] }} ₫</p>
+                        </div>
                     </div>
+                    @endforeach
 
-                    <h3 class="text-sm font-bold text-neutral-900 leading-none">
-                        <a href="{{ route('products.show', $product) }}">
-                            <span class="absolute inset-0"></span>
-                            {{ $product->name }}
-                        </a>
-                    </h3>
-                    <p class="text-sm text-neutral-500 mt-2 font-medium">
-                        {{ number_format($product->price, 0, ',', '.') }} ₫
-                    </p>
+                    @else
+
+                    {{-- REAL DATA FROM DB --}}
+                    @foreach($featured as $product)
+                    <div class="group relative cursor-pointer">
+                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative mb-4">
+                            {{-- Logic ảnh fallback an toàn tuyệt đối --}}
+                            @php
+                            // Fallback image (Grey Hoodie style minimalist)
+                            $fallback =
+                            'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop';
+                            $pImg = $product->image ? Storage::url('products/'.$product->image) : $fallback;
+                            @endphp
+                            <img src="{{ $pImg }}" alt="{{ $product->name }}"
+                                class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105">
+
+                            <div
+                                class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase py-4 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-neutral-100">
+                                View Detail
+                            </div>
+                            {{-- Link bao trùm --}}
+                            <a href="{{ route('products.show', $product->id) }}" class="absolute inset-0 z-10"></a>
+                        </div>
+
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-sm font-bold text-neutral-900 leading-none mb-1">
+                                    <a href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
+                                </h3>
+                                <p class="text-[10px] text-neutral-400 uppercase tracking-widest">
+                                    {{ $product->category->name ?? 'Essential' }}
+                                </p>
+                            </div>
+                            <p class="text-sm font-medium text-neutral-900">
+                                {{ number_format($product->price, 0, ',', '.') }} ₫
+                            </p>
+                        </div>
+                    </div>
+                    @endforeach
+                    @endif
+
                 </div>
-                @endforeach
-                @endif
-            </div>
             </div>
         </section>
 
