@@ -485,8 +485,11 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 
                 {{-- RIGHT COLUMN: Reviews List --}}
                 <div class="lg:col-span-8 space-y-10">
-                    @forelse($product->reviews as $review)
+
+                    {{-- SỬA: Đổi $product->reviews thành $reviews --}}
+                    @forelse($reviews as $review)
                     <div class="border-b border-neutral-200 pb-8 last:border-0 last:pb-0">
+                        {{-- (Giữ nguyên code hiển thị từng review của bà ở đây) --}}
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex items-center gap-4">
                                 <div
@@ -542,12 +545,17 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                     </div>
                     @empty
                     <div class="py-16 text-center border border-dashed border-neutral-200 rounded-lg">
-                        <p class="text-neutral-400 font-light text-sm italic">No reviews yet. Be the first to tell us
-                            what you think.</p>
+                        <p class="text-neutral-400 font-light text-sm italic">No reviews yet.</p>
                     </div>
                     @endforelse
+
+                    {{-- PHẦN MỚI THÊM: Pagination Links --}}
+                    {{-- fragment('reviews'): Giúp trình duyệt tự cuộn xuống #reviews sau khi bấm trang mới --}}
+                    <div class="mt-8">
+                        {{ $reviews->fragment('reviews')->links() }}
+                    </div>
+
                 </div>
-            </div>
         </section>
 
         {{--

@@ -76,14 +76,19 @@ class ProductController extends Controller
     }
 
     /**
-     * TRANG CHI TIẾT SẢN PHẨM (Đã sửa logic để hiển thị đầy đủ)
+     * TRANG CHI TIẾT SẢN PHẨM 
      */
     public function show(int $id)
     {
         // 1. Lấy thông tin sản phẩm chính
-        $product = Product::with(['category', 'reviews.user'])
-            ->withCount('reviews') // Đếm số review
+        $product = Product::with(['category', 'completeLookProducts'])
+            ->withCount('reviews') // Chỉ đếm số lượng để hiện con số tổng
             ->findOrFail($id);
+
+        $reviews = $product->reviews()
+            ->with('user')
+            ->latest()
+            ->paginate(5); // <--- QUAN TRỌNG: Chỉ lấy 5 cái
 
         // 2. RELATED PRODUCTS (Sản phẩm liên quan)
         // Logic: Lấy cùng danh mục, trừ sản phẩm hiện tại ra
@@ -120,7 +125,7 @@ class ProductController extends Controller
             : [];
 
         // Gửi toàn bộ dữ liệu sang View
-        return view('products.show', compact('product', 'relatedProducts', 'wishedIds'));
+        return view('products.show', compact('product', 'reviews', 'relatedProducts', 'wishedIds'));
     }
 
     public function newArrivals()

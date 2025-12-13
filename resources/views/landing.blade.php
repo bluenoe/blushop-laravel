@@ -34,7 +34,7 @@ Laravel Blade + Tailwind CSS
                         Curated wardrobe pieces designed for everyday elegance
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-950 
+                        <a href="{{ route('home') }}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-950 
                                   text-sm font-medium tracking-wide uppercase hover:bg-slate-100 
                                   transition-all duration-300 hover:scale-105">
                             Discover Collection
