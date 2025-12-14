@@ -124,7 +124,8 @@ $categories = \App\Models\Category::query()
             {{-- 4. ICONS (RIGHT) --}}
             <div class="flex items-center gap-4 sm:gap-6">
                 {{-- Search Toggle --}}
-                <button @click="searchOpen = !searchOpen; searchResults = []; searchQuery = ''; $nextTick(() => $refs.searchInput.focus())"
+                <button
+                    @click="searchOpen = !searchOpen; searchResults = []; searchQuery = ''; $nextTick(() => $refs.searchInput.focus())"
                     class="text-gray-900 hover:opacity-60 transition">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
@@ -167,14 +168,17 @@ $categories = \App\Models\Category::query()
                 </div>
 
                 {{-- Cart Icon trong Header --}}
-                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition">
+                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition"
+                    x-data="{ count: {{ \App\Helpers\Cart::count() ?? 0 }} }"
+                    @cart-updated.window="count = $event.detail.count">
+
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
 
-                    {{-- Badge Số lượng: Dùng x-text để bind vào Alpine Store --}}
-                    <span x-show="$store.cart.count > 0" x-text="$store.cart.count" x-transition.scale x-cloak
+                    {{-- Badge Số lượng: Tự cập nhật khi nghe sự kiện 'cart-updated' --}}
+                    <span x-show="count > 0" x-text="count" x-transition.scale x-cloak
                         class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                     </span>
                 </a>
@@ -253,21 +257,12 @@ $categories = \App\Models\Category::query()
         class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
         <div class="max-w-4xl mx-auto relative">
             <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
-                <input
-                    x-ref="searchInput"
-                    type="text"
-                    name="q"
-                    placeholder="Type to search..."
-                    x-model="searchQuery"
-                    @input="updateSearch($event.target.value)"
-                    @keydown="handleKeydown($event)"
-                    autocomplete="off"
+                <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..." x-model="searchQuery"
+                    @input="updateSearch($event.target.value)" @keydown="handleKeydown($event)" autocomplete="off"
                     class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
             </form>
 
-            <div
-                x-show="searchQuery.length >= 2"
-                x-transition
+            <div x-show="searchQuery.length >= 2" x-transition
                 class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-b-xl max-h-80 overflow-y-auto">
                 <template x-if="searchLoading">
                     <div class="px-4 py-3 text-sm text-gray-400">
@@ -284,11 +279,9 @@ $categories = \App\Models\Category::query()
                 <ul>
                     <template x-for="(item, index) in searchResults" :key="item.id">
                         <li>
-                            <button
-                                type="button"
+                            <button type="button"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50"
-                                :class="index === highlightedIndex ? 'bg-gray-50' : ''"
-                                @click="selectResult(index)">
+                                :class="index === highlightedIndex ? 'bg-gray-50' : ''" @click="selectResult(index)">
                                 <div class="w-10 h-10 bg-gray-100 flex-shrink-0 overflow-hidden rounded">
                                     <template x-if="item.image">
                                         <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">

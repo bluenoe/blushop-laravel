@@ -1,33 +1,58 @@
 @if ($paginator->hasPages())
-    <nav role="navigation" aria-label="Pagination" class="inline-flex items-center justify-center">
-        <div class="inline-flex items-center gap-2">
-            @if ($paginator->onFirstPage())
-                <span class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-beige bg-warm text-gray-400 cursor-not-allowed shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-500" aria-disabled="true" aria-label="Previous">Prev</span>
-            @else
-                <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-beige bg-warm text-ink hover:bg-beige transition-colors shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Prev</a>
-            @endif
+<nav role="navigation" aria-label="Pagination" class="flex items-center justify-center mt-8">
+    <div class="flex flex-wrap items-center gap-2">
+        {{-- Nút Previous --}}
+        @if ($paginator->onFirstPage())
+        <span
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-neutral-300 border border-neutral-100 cursor-not-allowed">
+            Prev
+        </span>
+        @else
+        <a href="{{ $paginator->previousPageUrl() }}" rel="prev"
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-black border border-neutral-200 hover:bg-black hover:text-white transition duration-300">
+            Prev
+        </a>
+        @endif
 
-            @foreach ($elements as $element)
-                @if (is_string($element))
-                    <span class="px-2 py-1 text-gray-500 dark:text-slate-400">{{ $element }}</span>
-                @endif
+        {{-- Các con số (Pagination Elements) --}}
+        @foreach ($elements as $element)
+        {{-- "Three Dots" Separator --}}
+        @if (is_string($element))
+        <span class="px-2 py-2 text-neutral-400 text-xs font-medium">{{ $element }}</span>
+        @endif
 
-                @if (is_array($element))
-                    @foreach ($element as $page => $url)
-                        @if ($page == $paginator->currentPage())
-                            <span aria-current="page" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-indigo-600 text-white border border-indigo-600 shadow-soft">{{ $page }}</span>
-                        @else
-                            <a href="{{ $url }}" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-beige bg-warm text-ink hover:bg-beige hover:text-ink transition-colors shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">{{ $page }}</a>
-                        @endif
-                    @endforeach
-                @endif
-            @endforeach
+        {{-- Array Of Links --}}
+        @if (is_array($element))
+        @foreach ($element as $page => $url)
+        @if ($page == $paginator->currentPage())
+        {{-- Trang hiện tại (Màu đen, chữ trắng) --}}
+        <span aria-current="page"
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold border border-black bg-black text-white">
+            {{ $page }}
+        </span>
+        @else
+        {{-- Các trang khác (Trắng, chữ đen, hover đen) --}}
+        <a href="{{ $url }}"
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-neutral-600 border border-neutral-100 hover:border-black hover:text-black transition duration-300">
+            {{ $page }}
+        </a>
+        @endif
+        @endforeach
+        @endif
+        @endforeach
 
-            @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-beige bg-warm text-ink hover:bg-beige transition-colors shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Next</a>
-            @else
-                <span class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-beige bg-warm text-gray-400 cursor-not-allowed shadow-soft dark:bg-slate-900 dark:border-slate-700 dark:text-slate-500" aria-disabled="true" aria-label="Next">Next</span>
-            @endif
-        </div>
-    </nav>
+        {{-- Nút Next --}}
+        @if ($paginator->hasMorePages())
+        <a href="{{ $paginator->nextPageUrl() }}" rel="next"
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-black border border-neutral-200 hover:bg-black hover:text-white transition duration-300">
+            Next
+        </a>
+        @else
+        <span
+            class="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-widest text-neutral-300 border border-neutral-100 cursor-not-allowed">
+            Next
+        </span>
+        @endif
+    </div>
+</nav>
 @endif
