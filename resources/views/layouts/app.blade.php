@@ -4,7 +4,7 @@
 </html>
 
 <head>
-    // Smooth scroll behavior for in-page links
+    <!-- Smooth scroll behavior for in-page links -->
     <style>
         html,
         body {
