@@ -1,68 +1,86 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Cart v4.1 - Payment Icons & Badge Fix
+BluShop Cart v5.0 - RowID Fix & Header Sync
 Concept: Clean Product List, Sticky Summary Sidebar
+Updated by Senior Mentor for rowId compatibility
 ═══════════════════════════════════════════════════════════════
 --}}
 
 <x-app-layout>
     <main class="bg-white min-h-screen text-neutral-900" x-data="{
-              total: '{{ number_format($total ?? 0, 0, ',', '.') }}',
-              isEmpty: {{ empty($cart) ? 'true' : 'false' }},
-              
-              updateQty(id, newQty) {
-                  if (newQty < 1) return;
-                  fetch('{{ route('cart.update') }}', {
-                      method: 'PATCH',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'Accept': 'application/json',
-                          'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                      },
-                      body: JSON.stringify({ id: id, quantity: newQty })
-                  })
-                  .then(res => res.json())
-                  .then(data => {
-                      if(data.success) {
-                          document.getElementById('subtotal-'+id).innerText = '₫' + data.item_subtotal;
-                          this.total = data.total;
-                          
-                          // CẬP NHẬT BADGE TRÊN HEADER
-                          Alpine.store('cart').set(data.cart_count);
-                          
-                          $dispatch('notify', { message: 'Quantity Updated' });
-                      }
-                  });
-              },
+             total: '{{ number_format($total ?? 0, 0, ',', '.') }}',
+             isEmpty: {{ empty($cart) ? 'true' : 'false' }},
+             
+             updateQty(rowId, newQty) {
+                 if (newQty < 1) return;
+                 
+                 // Gửi request lên server
+                 fetch('{{ route('cart.update') }}', {
+                     method: 'PATCH',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'Accept': 'application/json',
+                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                     },
+                     // LƯU Ý: Gửi 'rowId' chứ không phải 'id'
+                     body: JSON.stringify({ rowId: rowId, quantity: newQty })
+                 })
+                 .then(res => res.json())
+                 .then(data => {
+                     if(data.success) {
+                         // Cập nhật Subtotal của dòng đó (dùng rowId làm ID DOM)
+                         // Escape ký tự đặc biệt trong rowId nếu cần, nhưng thường document.getElementById xử được
+                         const subEl = document.getElementById('subtotal-' + rowId);
+                         if(subEl) subEl.innerText = '₫' + data.item_subtotal;
+                         
+                         this.total = data.total;
+                         
+                         // CẬP NHẬT HEADER (Bắn sự kiện Global)
+                         window.dispatchEvent(new CustomEvent('cart-updated', { 
+                            detail: { count: data.cart_count } 
+                         }));
+                         
+                         // Hiển thị thông báo (nếu có Toast component)
+                         $dispatch('notify', { message: 'Quantity Updated' });
+                     }
+                 });
+             },
 
-              removeItem(id) {
-                  if(!confirm('Remove this item?')) return;
-                  fetch('{{ route('cart.remove') }}', {
-                      method: 'DELETE',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'Accept': 'application/json',
-                          'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                      },
-                      body: JSON.stringify({ id: id })
-                  })
-                  .then(res => res.json())
-                  .then(data => {
-                      if(data.success) {
-                          document.getElementById('row-'+id).remove();
-                          this.total = data.total;
-                          this.isEmpty = data.is_empty;
-                          
-                          // CẬP NHẬT BADGE TRÊN HEADER
-                          Alpine.store('cart').set(data.cart_count);
+             removeItem(rowId) {
+                 if(!confirm('Remove this item?')) return;
+                 
+                 fetch('{{ route('cart.remove') }}', {
+                     method: 'DELETE',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'Accept': 'application/json',
+                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                     },
+                     // Gửi rowId để xóa đúng biến thể
+                     body: JSON.stringify({ rowId: rowId })
+                 })
+                 .then(res => res.json())
+                 .then(data => {
+                     if(data.success) {
+                         // Xóa dòng khỏi giao diện
+                         const rowEl = document.getElementById('row-' + rowId);
+                         if(rowEl) rowEl.remove();
+                         
+                         this.total = data.total;
+                         this.isEmpty = data.is_empty;
+                         
+                         // CẬP NHẬT HEADER (Bắn sự kiện Global)
+                         window.dispatchEvent(new CustomEvent('cart-updated', { 
+                            detail: { count: data.cart_count } 
+                         }));
 
-                          $dispatch('notify', { message: 'Item Removed' });
-                          
-                          if(data.is_empty) window.location.reload();
-                      }
-                  });
-              }
-          }">
+                         $dispatch('notify', { message: 'Item Removed' });
+                         
+                         if(data.is_empty) window.location.reload();
+                     }
+                 });
+             }
+         }">
 
         <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-20">
 
@@ -86,12 +104,16 @@ Concept: Clean Product List, Sticky Summary Sidebar
 
                     {{-- LEFT: PRODUCT LIST --}}
                     <div class="lg:col-span-7 space-y-8">
-                        @foreach($cart as $id => $item)
-                        <div id="row-{{ $id }}" class="flex gap-6 py-6 border-b border-neutral-100 last:border-0 group">
+                        {{-- LƯU Ý: Key ở đây là $rowId (Ví dụ: 1_M_Black) --}}
+                        @foreach($cart as $rowId => $item)
+                        <div id="row-{{ $rowId }}"
+                            class="flex gap-6 py-6 border-b border-neutral-100 last:border-0 group">
+
                             {{-- Image --}}
                             <div
                                 class="w-24 h-32 sm:w-32 sm:h-40 bg-neutral-100 flex-shrink-0 relative overflow-hidden">
-                                <a href="{{ route('products.show', $id) }}">
+                                {{-- Link về trang chi tiết thì phải dùng product_id gốc --}}
+                                <a href="{{ route('products.show', $item['product_id'] ?? $item['id'] ?? 0) }}">
                                     <img src="{{ Storage::url('products/' . $item['image']) }}"
                                         alt="{{ $item['name'] }}"
                                         class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
@@ -103,18 +125,27 @@ Concept: Clean Product List, Sticky Summary Sidebar
                                 <div>
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="text-sm font-bold uppercase tracking-wide">
-                                            <a href="{{ route('products.show', $id) }}" class="hover:underline">{{
-                                                $item['name'] }}</a>
+                                            <a href="{{ route('products.show', $item['product_id'] ?? $item['id'] ?? 0) }}"
+                                                class="hover:underline">
+                                                {{ $item['name'] }}
+                                            </a>
                                         </h3>
-                                        <span id="subtotal-{{ $id }}" class="text-sm font-medium">
+                                        {{-- ID cho Subtotal cũng phải theo rowId --}}
+                                        <span id="subtotal-{{ $rowId }}" class="text-sm font-medium">
                                             ₫{{ number_format((float)$item['price'] * (int)$item['quantity'], 0, ',',
                                             '.') }}
                                         </span>
                                     </div>
                                     <p class="text-xs text-neutral-500 mb-1">Price: ₫{{
                                         number_format((float)$item['price'], 0, ',', '.') }}</p>
-                                    @if(isset($item['size'])) <p class="text-xs text-neutral-500">Size: {{ $item['size']
-                                        }}</p> @endif
+
+                                    {{-- Hiển thị Size/Color nếu có --}}
+                                    @if(isset($item['size']) && $item['size'] !== 'Freesize')
+                                    <p class="text-xs text-neutral-500">Size: {{ $item['size'] }}</p>
+                                    @endif
+                                    @if(isset($item['color']) && $item['color'] !== 'Default')
+                                    <p class="text-xs text-neutral-500">Color: {{ $item['color'] }}</p>
+                                    @endif
                                 </div>
 
                                 <div class="flex justify-between items-end mt-4">
@@ -122,16 +153,17 @@ Concept: Clean Product List, Sticky Summary Sidebar
                                     <div class="flex items-center border border-neutral-200"
                                         x-data="{ qty: {{ $item['quantity'] }} }">
                                         <button type="button"
-                                            @click="qty > 1 ? qty-- : null; updateQty('{{ $id }}', qty)"
+                                            @click="qty > 1 ? qty-- : null; updateQty('{{ $rowId }}', qty)"
                                             class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition"
                                             :disabled="qty <= 1">-</button>
                                         <span class="w-8 text-center text-sm font-medium" x-text="qty"></span>
-                                        <button type="button" @click="qty++; updateQty('{{ $id }}', qty)"
+                                        <button type="button" @click="qty++; updateQty('{{ $rowId }}', qty)"
                                             class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition">+</button>
                                     </div>
 
                                     {{-- Remove (AJAX) --}}
-                                    <button type="button" @click="removeItem('{{ $id }}')"
+                                    {{-- Gọi hàm removeItem với rowId --}}
+                                    <button type="button" @click="removeItem('{{ $rowId }}')"
                                         class="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-red-600 underline transition">
                                         Remove
                                     </button>
@@ -193,7 +225,6 @@ Concept: Clean Product List, Sticky Summary Sidebar
                                             fill="#1434CB" />
                                     </svg>
                                 </div>
-
                                 {{-- Mastercard --}}
                                 <div
                                     class="bg-white border border-neutral-200 rounded px-2 py-1.5 hover:border-neutral-400 transition">
@@ -207,7 +238,6 @@ Concept: Clean Product List, Sticky Summary Sidebar
                                             fill="#FF5F00" />
                                     </svg>
                                 </div>
-
                                 {{-- PayPal --}}
                                 <div
                                     class="bg-white border border-neutral-200 rounded px-2 py-1.5 hover:border-neutral-400 transition">
@@ -226,7 +256,6 @@ Concept: Clean Product List, Sticky Summary Sidebar
                         </div>
 
                     </div>
-
                 </div>
             </template>
         </div>
