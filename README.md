@@ -179,13 +179,33 @@ While the current MVP (Minimum Viable Product) meets all functional requirements
 
 ---
 
-## 📸 Screenshots (Suggested)
+## 📸 Project Screenshots
 
-To best showcase the project, you can add screenshots with these filenames:
-
--   `screenshots/day2-home-grid.png` — Homepage product grid
--   `screenshots/day3-cart.png` — Cart page
--   `screenshots/day4-login.png` — Breeze login
--   `screenshots/day4-checkout-summary.png` — Checkout summary
--   `screenshots/day4-checkout-success.png` — Order success
--   `screenshots/day5-contact.png` — Contact form (with success flash)
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%" align="center">
+        <h3>🏠 Homepage / Product Grid</h3>
+        <p>Minimalist design with dynamic product loading.</p>
+        <img src="screenshots/home.png" width="100%" alt="BluShop Homepage">
+      </td>
+      <td width="50%" align="center">
+        <h3>🛒 Shopping Cart</h3>
+        <p>Session-based cart management & calculations.</p>
+        <img src="screenshots/cart.png" width="100%" alt="BluShop Cart">
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" align="center">
+        <h3>💳 Checkout Process</h3>
+        <p>Streamlined checkout flow with mock payment integration.</p>
+        <img src="screenshots/checkout.png" width="100%" alt="BluShop Checkout">
+      </td>
+      <td width="50%" align="center">
+        <h3>📱 Responsive / Success</h3>
+        <p>Fully responsive UI for mobile devices.</p>
+        <img src="screenshots/responsive.png" width="100%" alt="BluShop Responsive">
+      </td>
+    </tr>
+  </table>
+</div>
