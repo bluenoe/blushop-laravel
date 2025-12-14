@@ -161,7 +161,7 @@ Concept: Art Gallery / Editorial Store
 
                 {{-- Heading --}}
                 <div class="max-w-2xl mb-12 flex flex-col gap-3" data-reveal>
-                    <span class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.2em]">Weekly
+                    <span class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.2em] pt-3">Weekly
                         Selection</span>
                     <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 leading-none">Essential
                         Pieces.</h2>
