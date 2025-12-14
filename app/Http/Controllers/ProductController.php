@@ -56,7 +56,7 @@ class ProductController extends Controller
             $query->where('price', '<=', $avg * 0.8);
         }
 
-        $products = $query->paginate(9)->withQueryString();
+        $products = $query->paginate(12)->withQueryString();
 
         $categories = \App\Models\Category::where('name', '!=', 'Uncategorized')->orderBy('name')->get();
 

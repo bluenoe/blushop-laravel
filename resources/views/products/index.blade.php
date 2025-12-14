@@ -97,8 +97,7 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
             </div>
         </div>
 
-        {{-- 2. PRODUCT GRID (Đã tăng Padding Top để không bị che) --}}
-        {{-- Sửa: pt-8 -> pt-12 sm:pt-16 --}}
+        {{-- 2. PRODUCT GRID --}}
         <section class="max-w-[1600px] mx-auto px-6 pb-24 pt-20 sm:pt-28">
             @if(($products ?? collect())->isEmpty())
             <div class="flex flex-col items-center justify-center py-24 text-center">
