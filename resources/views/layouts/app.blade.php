@@ -102,6 +102,42 @@
             </button>
         </div>
     </div>
+
+    {{--
+    BACK TO TOP BUTTON - MINIMALIST STYLE
+    Vibe: High-end Fashion (Hidden by default, smooth fade in)
+    --}}
+    <div x-data="{ 
+        show: false,
+        init() {
+            // Chỉ hiện khi cuộn xuống quá 400px
+            window.addEventListener('scroll', () => {
+                this.show = window.pageYOffset > 400;
+            });
+        },
+        scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }" class="fixed z-50 bottom-6 right-6 lg:bottom-10 lg:right-10 pointer-events-none"> {{-- pointer-events-none để
+        lớp bao ngoài không chặn click --}}
+
+        {{-- Button --}}
+        <button @click="scrollToTop()" x-show="show" x-transition:enter="transition ease-out duration-500"
+            x-transition:enter-start="opacity-0 translate-y-10 scale-90"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 translate-y-10 scale-90"
+            class="pointer-events-auto w-10 h-10 lg:w-12 lg:h-12 bg-black text-white flex items-center justify-center rounded-full shadow-2xl hover:bg-neutral-800 hover:-translate-y-1 transition-all duration-300 focus:outline-none group"
+            aria-label="Back to top">
+
+            {{-- Icon Mũi tên mảnh (Minimalist Arrow) --}}
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 transition-transform duration-300 group-hover:-translate-y-0.5"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+            </svg>
+        </button>
+    </div>
 </body>
 
 </html>
