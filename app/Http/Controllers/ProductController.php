@@ -80,8 +80,8 @@ class ProductController extends Controller
 
         // 8. Categories Tree (Cho Sidebar)
         // Lấy danh mục Cha (parent_id null) kèm theo Con (children)
-        // Nếu bà đã dùng ViewComposer thì có thể xóa dòng này để đỡ query thừa
         $categories = Category::whereNull('parent_id')
+            ->where('slug', '!=', 'uncategorized')
             ->with('children')
             ->orderBy('name')
             ->get();
