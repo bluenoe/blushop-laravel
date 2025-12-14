@@ -23,6 +23,7 @@ class Product extends Model
         'is_new',
         'is_bestseller',
         'is_on_sale',
+        'slug',
     ];
 
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)

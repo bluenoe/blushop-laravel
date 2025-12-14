@@ -8,90 +8,91 @@ use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
-    /**
-     * Display the shopping cart.
-     */
     public function index()
     {
         $cart = Session::get('cart', []);
         $total = $this->calculateTotal($cart);
 
-        return view('cart', [
+        return view('cart.index', [ // Lưu ý: view thường nằm trong folder cart/index.blade.php
             'cart' => $cart,
             'total' => $total,
         ]);
     }
 
-    /**
-     * Add item to cart (AJAX & Normal).
-     */
     public function add(Request $request, int $id)
     {
-        // 1. Validate
+        // 1. Validate kỹ hơn
         $request->validate([
             'quantity' => ['nullable', 'integer', 'min:1'],
             'size' => ['nullable', 'string'],
             'color' => ['nullable', 'string'],
         ]);
 
-        $quantity = (int) $request->input('quantity', 1);
         $product = Product::findOrFail($id);
+        $quantity = (int) $request->input('quantity', 1);
+
+        // --- LOGIC QUAN TRỌNG: TẠO ROW ID ---
+        // Tạo key độc nhất: ID_Size_Color (Ví dụ: 10_M_Black)
+        $size = $request->input('size', 'Freesize'); // Mặc định nếu không chọn là Freesize
+        $color = $request->input('color', 'Default');
+
+        // Tạo mã định danh riêng cho biến thể này
+        $rowId = $id . '_' . $size . '_' . $color;
+
         $cart = Session::get('cart', []);
 
-        // 2. Logic thêm/cập nhật
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+        // 2. Logic thêm/cập nhật dựa trên ROW ID
+        if (isset($cart[$rowId])) {
+            $cart[$rowId]['quantity'] += $quantity;
         } else {
-            $cart[$id] = [
+            $cart[$rowId] = [
+                "product_id" => $product->id, // Lưu thêm ID gốc để dễ query sau này
                 "name" => $product->name,
                 "quantity" => $quantity,
                 "price" => (float) $product->price,
                 "image" => $product->image,
-                "size" => $request->input('size'),
-                "color" => $request->input('color')
+                "size" => $size,
+                "color" => $color,
+                "rowId" => $rowId // Lưu chính cái key này vào để tiện xóa/sửa
             ];
         }
 
         Session::put('cart', $cart);
 
-        // 3. Phản hồi
-        // Nếu là AJAX (từ nút Quick Add hoặc trang Detail dùng fetch)
+        // 3. Phản hồi AJAX chuẩn form
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Added to bag',
+                'message' => "Added {$product->name} ({$size}/{$color}) to bag",
+                // Dùng Helper Cart::count() hôm qua tui chỉ, hoặc dùng collect tính tổng quantity
                 'cart_count' => collect(session('cart'))->sum('quantity'),
             ]);
         }
 
-        // Nếu request thường (fallback)
-        return redirect()->back()->with('success', 'Product added to bag successfully!');
+        return redirect()->back()->with('success', 'Added to bag!');
     }
 
-    /**
-     * Update item quantity (AJAX mainly).
-     */
     public function update(Request $request)
     {
-        // Nhận ID từ body JSON hoặc route param đều được
-        $id = $request->input('id');
+        // Ở đây ta nhận vào rowId chứ không phải product id
+        $rowId = $request->input('rowId');
         $quantity = (int) $request->input('quantity');
 
-        if ($id && $quantity > 0) {
+        if ($rowId && $quantity > 0) {
             $cart = Session::get('cart', []);
 
-            if (isset($cart[$id])) {
-                $cart[$id]['quantity'] = $quantity;
+            if (isset($cart[$rowId])) {
+                $cart[$rowId]['quantity'] = $quantity;
                 Session::put('cart', $cart);
 
-                // Tính toán số liệu mới để trả về
-                $itemSubtotal = $cart[$id]['price'] * $quantity;
+                // Tính toán lại
+                $itemSubtotal = $cart[$rowId]['price'] * $quantity;
                 $total = $this->calculateTotal($cart);
 
                 if ($request->wantsJson()) {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Quantity updated',
+                        'message' => 'Cart updated',
                         'item_subtotal' => number_format($itemSubtotal, 0, ',', '.'),
                         'total' => number_format($total, 0, ',', '.'),
                         'cart_count' => collect(session('cart'))->sum('quantity'),
@@ -100,25 +101,22 @@ class CartController extends Controller
             }
         }
 
-        return redirect()->route('cart.index')->with('success', 'Cart updated');
+        return redirect()->route('cart.index');
     }
 
-    /**
-     * Remove item from cart (AJAX mainly).
-     */
     public function remove(Request $request)
     {
-        $id = $request->input('id') ?? $request->route('id'); // Support both POST body and Route param
+        // Nhận rowId (Ví dụ: 10_M_Black)
+        $rowId = $request->input('rowId');
 
-        if ($id) {
+        if ($rowId) {
             $cart = Session::get('cart', []);
 
-            if (isset($cart[$id])) {
-                unset($cart[$id]);
+            if (isset($cart[$rowId])) {
+                unset($cart[$rowId]);
                 Session::put('cart', $cart);
             }
 
-            // Tính lại tổng sau khi xóa
             $total = $this->calculateTotal($cart);
 
             if ($request->wantsJson()) {
@@ -132,21 +130,15 @@ class CartController extends Controller
             }
         }
 
-        return redirect()->route('cart.index')->with('success', 'Item removed from bag');
+        return redirect()->route('cart.index')->with('success', 'Item removed');
     }
 
-    /**
-     * Clear entire cart.
-     */
     public function clear()
     {
         Session::forget('cart');
-        return redirect()->route('cart.index')->with('success', 'Shopping bag cleared');
+        return redirect()->route('cart.index');
     }
 
-    /**
-     * Helper: Calculate Cart Total
-     */
     private function calculateTotal(array $cart): float
     {
         $total = 0;

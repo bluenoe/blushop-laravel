@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            if (!Schema::hasColumn('reviews', 'content')) {
-                $table->text('content')->nullable()->after('rating');
-            }
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('slug')->nullable()->after('name');
+            // nullable() để tránh lỗi dữ liệu cũ chưa có slug
         });
     }
 
-
-
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn('content');
+        Schema::table('products', function (Blueprint $table) {
+            //
         });
     }
 };

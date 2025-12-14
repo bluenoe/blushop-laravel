@@ -7,19 +7,16 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // 1) Admin account (idempotent)
+        // 1) Admin account
         $admin = User::query()->firstOrCreate(
             ['email' => 'admin@blushop.local'],
             [
@@ -32,83 +29,55 @@ class DatabaseSeeder extends Seeder
         // 2) Example users
         $users = User::factory(3)->create();
 
-        // 3) Categories (seed demo + ensure Uncategorized exists)
+        // 3) Categories (Chạy trước để có ID cho Product dùng)
+        // Lưu ý: CategorySeeder đã tự xử lý logic tạo cha/con
         $this->call(CategorySeeder::class);
 
-        $uncat = Category::query()->firstOrCreate(
-            ['slug' => 'uncategorized'],
-            ['name' => 'Uncategorized', 'description' => 'Default catch-all category']
-        );
-
-        // 4) Products: dùng ProductSeeder của Blu (18 sản phẩm BluShop)
+        // 4) Products (Chạy sau, sử dụng ID từ Category đã tạo)
+        // Lưu ý: ProductSeeder mới đã tự gán đúng category_id, KHÔNG CẦN logic map lại ở đây nữa
         $this->call(ProductSeeder::class);
 
-        // Lấy toàn bộ sản phẩm sau khi seed
+        // 5) Fake orders per user (3 each) - Để test tính năng Order
         $products = Product::all();
 
-        // Gán category hợp lý dựa vào tên, nếu không match thì gán Uncategorized
-        $cats = Category::query()->pluck('id', 'slug');
-
-        foreach ($products as $product) {
-            $name = strtolower($product->name);
-            $categoryId = null;
-
-            if (str_contains($name, 'hoodie')) {
-                $categoryId = $cats['hoodies'] ?? null;
-            } elseif (str_contains($name, 'shirt') || str_contains($name, 't-shirt')) {
-                $categoryId = $cats['t-shirts'] ?? null;
-            } elseif (str_contains($name, 'mug')) {
-                $categoryId = $cats['mugs'] ?? null;
-            } elseif (str_contains($name, 'sticker')) {
-                $categoryId = $cats['stickers'] ?? null;
-            } elseif (str_contains($name, 'cap')) {
-                $categoryId = $cats['caps'] ?? null;
-            } elseif (str_contains($name, 'bag')) {
-                $categoryId = $cats['bags'] ?? null;
-            } elseif (str_contains($name, 'note') || str_contains($name, 'book')) {
-                $categoryId = $cats['stationery'] ?? null;
-            }
-
-            $product->category_id = $categoryId ?? $uncat->id;
-            $product->save();
-        }
-
-        // 5) Fake orders per user (3 each)
-        foreach ($users as $user) {
-            for ($i = 0; $i < 3; $i++) {
-                $order = Order::factory()->create([
-                    'user_id' => $user->id,
-                    'payment_status' => 'paid',
-                ]);
-
-                $itemCount = random_int(1, 4);
-                $total = 0;
-
-                for ($j = 0; $j < $itemCount; $j++) {
-                    $product = $products->random();
-                    $qty = random_int(1, 3);
-                    $price = (float) $product->price;
-
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $product->id,
-                        'quantity' => $qty,
-                        'price_at_purchase' => $price,
+        if ($products->count() > 0) {
+            foreach ($users as $user) {
+                for ($i = 0; $i < 3; $i++) {
+                    $order = Order::factory()->create([
+                        'user_id' => $user->id,
+                        'payment_status' => 'paid',
                     ]);
 
-                    $total += $price * $qty;
-                }
+                    $itemCount = random_int(1, 4);
+                    $total = 0;
 
-                $order->update(['total_amount' => $total]);
+                    for ($j = 0; $j < $itemCount; $j++) {
+                        $product = $products->random();
+                        $qty = random_int(1, 3);
+                        $price = (float) $product->price;
+
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $product->id,
+                            'quantity' => $qty,
+                            'price_at_purchase' => $price,
+                        ]);
+
+                        $total += $price * $qty;
+                    }
+
+                    $order->update(['total_amount' => $total]);
+                }
             }
         }
 
         // Console summary output
-        $this->command?->info('✔ Admin account ready!');
-        $this->command?->info('Seeded users: '.(User::query()->count()));
-        $this->command?->info('Seeded products: '.(Product::query()->count()));
-        $this->command?->info('Seeded categories: '.(Category::query()->count()));
-        $this->command?->info('Seeded orders: '.(Order::query()->count()));
-        $this->command?->info('Seeded order items: '.(OrderItem::query()->count()));
+        $this->command?->info('--------------------------------------');
+        $this->command?->info('✔ Admin account ready: admin@blushop.local / 12345678');
+        $this->command?->info('✔ Seeded users: ' . (User::query()->count()));
+        $this->command?->info('✔ Seeded categories: ' . (Category::query()->count()));
+        $this->command?->info('✔ Seeded products: ' . (Product::query()->count()));
+        $this->command?->info('✔ Seeded orders: ' . (Order::query()->count()));
+        $this->command?->info('--------------------------------------');
     }
 }
