@@ -1,13 +1,15 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Product Detail v3 - Optimized Flow
-Luồng: Product → Gallery → Variants → Complete Look → Reviews → Related
+BluShop Product Detail v4 - Smart & Minimalist
+Updated: Fix Gallery & Variants Logic
 ═══════════════════════════════════════════════════════════════
 --}}
 
 <x-app-layout>
     @push('head')
+    @if($product->image)
     <link rel="preload" as="image" href="{{ Storage::url('products/' . $product->image) }}" fetchpriority="high">
+    @endif
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -17,10 +19,47 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
     @endpush
 
     <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
+
+        {{--
+        ⚡️ PHP LOGIC LAYER
+        Xử lý dữ liệu ngay tại server để view chỉ việc hiển thị
+        --}}
+        @php
+        // 1. Xác định đây có phải đồ thời trang không (Case-insensitive)
+        $categorySlug = $product->category ? strtolower($product->category->slug) : '';
+        // Bà có thể thêm các slug khác vào mảng này ví dụ ['fashion', 'quan-ao', 'thoi-trang']
+        $isFashion = in_array($categorySlug, ['fashion', 'clothing', 'quan-ao']);
+
+        // 2. Logic Ảnh Gallery
+        $mainImage = $product->image ? Storage::url('products/' . $product->image) :
+        'https://placehold.co/600x800?text=No+Image';
+        $galleryImages = [$mainImage];
+
+        // Nếu là Fashion -> Thêm 3 ảnh mẫu random (giả lập)
+        if ($isFashion) {
+        $galleryImages = array_merge($galleryImages, [
+        'https://loremflickr.com/1000/1200/fashion,model,outfit?lock=' . $product->id . '1',
+        'https://loremflickr.com/1000/1200/clothing,detail?lock=' . $product->id . '2',
+        'https://loremflickr.com/1000/1200/streetwear?lock=' . $product->id . '3'
+        ]);
+        }
+
+        // 3. Logic Size (Nếu có size trong DB hoặc là Fashion thì bắt buộc chọn size)
+        $dbSizes = $product->sizes ?? [];
+        // Nếu DB chưa có sizes nhưng là fashion -> Fake tạm sizes để demo giao diện (sau này bà xóa đoạn fake này đi)
+        if(empty($dbSizes) && $isFashion) {
+        $dbSizes = ['S', 'M', 'L', 'XL'];
+        }
+        $hasVariants = !empty($dbSizes);
+        @endphp
 
         {{-- BREADCRUMBS --}}
         <div class="max-w-[1400px] mx-auto px-6 pt-6 pb-2">
@@ -40,31 +79,35 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 
         {{-- MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-8 lg:py-12">
-            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                activeImage: 0,
-                size: null,
-                color: null,
-                qty: 1,
-                loading: false,
-                added: false,
-                images: [
-                    '{{ Storage::url('products/' . $product->image) }}',
-                    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
-                    'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?auto=format&fit=crop&q=80&w=1000',
-                    'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=1000'
-                ]
-            }">
 
-                {{-- LEFT: GALLERY --}}
+            {{-- ALPINE DATA ROOT --}}
+            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
+                    activeImage: 0,
+                    
+                    // Dữ liệu từ PHP
+                    images: {{ json_encode($galleryImages) }},
+                    availableSizes: {{ json_encode($dbSizes) }},
+                    requiresVariant: {{ $hasVariants ? 'true' : 'false' }},
+
+                    // State giỏ hàng
+                    size: null,
+                    color: null,
+                    qty: 1,
+                    loading: false,
+                    added: false
+                }">
+
+                {{-- LEFT: GALLERY (Hiện ảnh dựa trên mảng images) --}}
                 <div class="lg:col-span-7 col-span-12 w-full">
+
                     {{-- Mobile Slider --}}
                     <div
                         class="lg:hidden relative w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar aspect-[3/4]">
                         <template x-for="(img, index) in images" :key="index">
                             <div class="snap-center min-w-full w-full h-full bg-neutral-100 relative">
                                 <img :src="img" class="w-full h-full object-cover">
-                                <div
-                                    class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full">
+                                <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full"
+                                    x-show="images.length > 1">
                                     <span x-text="index + 1"></span> / <span x-text="images.length"></span>
                                 </div>
                             </div>
@@ -72,12 +115,13 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                     </div>
 
                     {{-- Desktop Grid --}}
-                    <div class="hidden lg:grid grid-cols-2 gap-4">
+                    {{-- Logic: Nếu chỉ 1 ảnh -> Hiện full. Nếu nhiều ảnh -> Hiện Grid --}}
+                    <div class="hidden lg:grid gap-4" :class="images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'">
                         <template x-for="(img, index) in images" :key="index">
-                            <div class="bg-neutral-50 relative group cursor-zoom-in"
-                                :class="index === 0 ? 'col-span-2 aspect-[4/5]' : 'col-span-1 aspect-[3/4]'">
+                            <div class="bg-neutral-50 relative group cursor-zoom-in overflow-hidden"
+                                :class="(index === 0 && images.length > 1) ? 'col-span-2 aspect-[4/5]' : 'col-span-1 aspect-[3/4]'">
                                 <img :src="img"
-                                    class="w-full h-full object-cover mix-blend-multiply transition duration-700 group-hover:scale-[1.02]"
+                                    class="w-full h-full object-cover mix-blend-multiply transition duration-1000 group-hover:scale-105"
                                     loading="lazy">
                             </div>
                         </template>
@@ -94,16 +138,13 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                 class="text-3xl md:text-4xl font-bold tracking-tighter leading-tight text-neutral-900 mb-2">
                                 {{ $product->name }}
                             </h1>
-
                             {{-- Wishlist Button --}}
                             <div x-data="{ id: {{ $product->id }} }">
                                 <button @click="$store.wishlist.toggle(id)"
-                                    class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition-colors duration-300">
-                                    <svg class="w-6 h-6 transition-all duration-300"
-                                        :class="$store.wishlist.isFav(id) 
-                                            ? 'text-black fill-current transform scale-110' 
-                                            : 'text-neutral-400 fill-none group-hover:text-black group-hover:scale-105'" viewBox="0 0 24 24" stroke="currentColor"
-                                        stroke-width="1.5">
+                                    class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition-colors">
+                                    <svg class="w-6 h-6 transition-all"
+                                        :class="$store.wishlist.isFav(id) ? 'text-black fill-current scale-110' : 'text-neutral-400 fill-none group-hover:text-black'"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
@@ -121,80 +162,85 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                         </div>
                     </div>
 
-                    {{-- Add to Cart Form --}}
+                    {{-- Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                        if(!size) { alert('Please select a size'); return; }
-                        loading = true;
-                        fetch($el.action, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
-                            },
-                            body: JSON.stringify({ quantity: qty, size: size, color: color })
-                        }).then(r => r.ok ? r.json() : Promise.reject(r))
-                        .then(data => {
-                            if (data && data.success) { 
-                                Alpine.store('cart').set(data.cart_count);
-                                added = true; 
-                                setTimeout(() => added = false, 3000);
-                            }
-                        }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
-                    ">
+                            if(requiresVariant && !size) { alert('Please select a size'); return; }
+                            loading = true;
+                            fetch($el.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
+                                },
+                                body: JSON.stringify({ quantity: qty, size: size, color: color })
+                            }).then(r => r.ok ? r.json() : Promise.reject(r))
+                            .then(data => {
+                                if (data && data.success) { 
+                                    Alpine.store('cart').set(data.cart_count);
+                                    added = true; 
+                                    setTimeout(() => added = false, 3000);
+                                }
+                            }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
+                        ">
                         @csrf
 
-                        {{-- Color Selection --}}
-                        <div class="mb-6">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
-                                <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
-                            </div>
-                            <div class="flex gap-3">
-                                <template x-for="c in [
-                                    {id:'black', cls:'bg-neutral-900'},
-                                    {id:'white', cls:'bg-white border border-gray-200'},
-                                    {id:'beige', cls:'bg-[#E8E0D5]'},
-                                    {id:'navy',  cls:'bg-[#1F2937]'}
-                                ]" :key="c.id">
-                                    <button type="button" @click="color = c.id"
-                                        class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                        :class="color === c.id ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-                                        <div :class="c.cls" class="w-full h-full rounded-full"></div>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
+                        {{-- VARIANTS SELECTION (Chỉ hiện khi requiresVariant = true) --}}
+                        <template x-if="requiresVariant">
+                            <div class="space-y-6">
+                                {{-- Color --}}
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span
+                                            class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
+                                        <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <template x-for="c in [
+                                            {id:'Black', cls:'bg-neutral-900'},
+                                            {id:'White', cls:'bg-white border border-gray-200'},
+                                            {id:'Beige', cls:'bg-[#E8E0D5]'},
+                                            {id:'Navy',  cls:'bg-[#1F2937]'}
+                                        ]" :key="c.id">
+                                            <button type="button" @click="color = c.id"
+                                                class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
+                                                :class="color === c.id ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
+                                                <div :class="c.cls" class="w-full h-full rounded-full"></div>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
 
-                        {{-- Size Selection --}}
-                        <div class="mb-8">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
-                                <button type="button" class="text-xs underline text-neutral-400 hover:text-black">Size
-                                    Guide</button>
+                                {{-- Size --}}
+                                <div class="mb-8">
+                                    <div class="flex justify-between mb-2">
+                                        <span
+                                            class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
+                                        <button type="button"
+                                            class="text-xs underline text-neutral-400 hover:text-black">Size
+                                            Guide</button>
+                                    </div>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <template x-for="s in availableSizes" :key="s">
+                                            <button type="button" @click="size = s"
+                                                class="py-3 border text-sm font-medium transition-all duration-200"
+                                                :class="size === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                                <span x-text="s"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="grid grid-cols-4 gap-2">
-                                <template x-for="s in ['S','M','L','XL']" :key="s">
-                                    <button type="button" @click="size = s"
-                                        class="py-3 border text-sm font-medium transition-all duration-200"
-                                        :class="size === s 
-                                            ? 'border-black bg-black text-white' 
-                                            : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
-                                        <span x-text="s"></span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
+                        </template>
 
                         {{-- Action Buttons --}}
-                        <div class="space-y-3">
+                        <div class="space-y-3 mt-8">
                             <button type="submit" :disabled="loading"
                                 class="w-full py-4 bg-neutral-900 text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed relative">
                                 <span x-show="!loading && !added">Add to Bag</span>
                                 <span x-show="loading" class="animate-pulse">Processing...</span>
                                 <span x-show="added" class="flex items-center justify-center gap-2">
-                                    Added
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    Added <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7" />
                                     </svg>
@@ -208,20 +254,16 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 
                     {{-- Accordion Sections --}}
                     <div class="mt-12 border-t border-neutral-200" x-data="{ activeTab: 'details' }">
-
                         {{-- Details --}}
                         <div class="border-b border-neutral-200">
                             <button @click="activeTab = activeTab === 'details' ? null : 'details'"
                                 class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
-                                    Details & Composition
-                                </span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Details</span>
+                                <span class="text-xl leading-none transition-transform duration-500"
                                     :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div x-show="activeTab === 'details'" x-collapse.duration.500ms class="overflow-hidden">
+                            <div x-show="activeTab === 'details'" x-collapse class="overflow-hidden">
                                 <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
                                     <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
                                         functionality.' }}</p>
@@ -240,41 +282,16 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                             </div>
                         </div>
 
-                        {{-- Care Guide --}}
-                        <div class="border-b border-neutral-200">
-                            <button @click="activeTab = activeTab === 'care' ? null : 'care'"
-                                class="w-full py-5 flex justify-between items-center text-left group">
-                                <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Care
-                                    Guide</span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                                    :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
-                            </button>
-                            <div x-show="activeTab === 'care'" x-collapse.duration.500ms class="overflow-hidden">
-                                <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
-                                    @if($product->care_guide)
-                                    {!! nl2br(e($product->care_guide)) !!}
-                                    @else
-                                    <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
-                                    <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Shipping --}}
+                        {{-- Shipping (Giữ lại 1 cái demo gọn thôi) --}}
                         <div class="border-b border-neutral-200">
                             <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
                                 class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping
-                                    & Returns</span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                                    :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping</span>
+                                <span class="text-xl leading-none transition-transform duration-500"
+                                    :class="activeTab === 'ship' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div x-show="activeTab === 'ship'" x-collapse.duration.500ms class="overflow-hidden">
+                            <div x-show="activeTab === 'ship'" x-collapse class="overflow-hidden">
                                 <div class="pb-6 text-sm text-neutral-600 font-light">
                                     Free standard shipping on orders over 500k. Returns accepted within 30 days.
                                 </div>
@@ -289,13 +306,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
         {{-- COMPLETE THE LOOK --}}
         @if($product->completeLookProducts->count() > 0)
         <section class="max-w-[1400px] mx-auto px-6 py-20 border-t border-neutral-100">
-            <div class="md:flex md:items-end md:justify-between mb-8">
-                <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Complete The Look</h2>
-                <a href="#"
-                    class="hidden md:block text-xs border-b border-black pb-0.5 hover:text-neutral-600 transition">Shop
-                    the full set</a>
-            </div>
-
+            <h2 class="text-2xl font-bold tracking-tight text-neutral-900 mb-8">Complete The Look</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
                 @foreach($product->completeLookProducts as $lookItem)
                 <div class="group relative">
@@ -305,18 +316,10 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                     </div>
                     <h3 class="text-sm font-medium">
                         <a href="{{ route('products.show', $lookItem->id) }}">
-                            <span class="absolute inset-0"></span>
-                            {{ $lookItem->name }}
+                            <span class="absolute inset-0"></span>{{ $lookItem->name }}
                         </a>
                     </h3>
                     <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($lookItem->price, 0, ',', '.') }}</p>
-
-                    <button
-                        class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </button>
                 </div>
                 @endforeach
             </div>
@@ -523,12 +526,14 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                             'Runs Large', default => 'True to Size'
                             };
                             @endphp
+                            @if($product->category->slug === 'fashion' || !empty($product->sizes))
                             <div class="mb-3">
                                 <span
                                     class="inline-block text-[9px] font-bold uppercase tracking-widest border border-neutral-200 px-2 py-1 bg-white text-neutral-600">
                                     Fit: {{ $fitLabel }}
                                 </span>
                             </div>
+                            @endif
 
                             <p class="text-sm text-neutral-700 leading-relaxed font-light mb-4">
                                 {!! nl2br(e($review->comment)) !!}
