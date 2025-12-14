@@ -226,38 +226,68 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                     @if(request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
                     @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
 
-                    {{-- Categories Group --}}
+                    {{-- Categories Group (Accordion Style) --}}
                     <div>
                         <h3 class="text-xs font-bold uppercase tracking-widest mb-4">Categories</h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="category" value="" class="hidden"
-                                    onchange="this.form.submit()" {{ !request('category') ? 'checked' : '' }}>
-                                <span
-                                    class="w-4 h-4 border border-neutral-300 rounded-full flex items-center justify-center group-hover:border-black transition">
-                                    <span
-                                        class="w-2 h-2 rounded-full bg-black opacity-0 {{ !request('category') ? 'opacity-100' : '' }}"></span>
-                                </span>
-                                <span
-                                    class="text-sm text-neutral-600 group-hover:text-black {{ !request('category') ? 'font-bold text-black' : '' }}">All
-                                    Products</span>
-                            </label>
+                        <div class="space-y-1">
 
-                            @foreach($categories as $cat)
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="category" value="{{ $cat->slug }}" class="hidden"
-                                    onchange="this.form.submit()" {{ request('category')==$cat->slug ? 'checked' : ''
-                                }}>
-                                <span
-                                    class="w-4 h-4 border border-neutral-300 rounded-full flex items-center justify-center group-hover:border-black transition">
+                            {{-- 1. Link "All Products" --}}
+                            <a href="{{ route('products.index') }}"
+                                class="block py-1 text-sm {{ !request('category') ? 'font-bold text-black' : 'text-neutral-500 hover:text-black' }}">
+                                All Products
+                            </a>
+
+                            {{-- 2. Vòng lặp Danh mục Cha --}}
+                            @foreach($categories as $parent)
+                            {{-- Kiểm tra xem danh mục này có đang được active không (để tự động mở) --}}
+                            @php
+                            // Kiểm tra xem user đang chọn danh mục cha này HOẶC con của nó
+                            $isActive = (request('category') == $parent->slug) || $parent->children->contains('slug',
+                            request('category'));
+                            @endphp
+
+                            <div x-data="{ expanded: {{ $isActive ? 'true' : 'false' }} }">
+                                {{-- Dòng tiêu đề Cha (Bấm để đóng/mở) --}}
+                                <button @click="expanded = !expanded" type="button"
+                                    class="flex items-center justify-between w-full py-1 text-sm group text-left">
                                     <span
-                                        class="w-2 h-2 rounded-full bg-black opacity-0 {{ request('category') == $cat->slug ? 'opacity-100' : '' }}"></span>
-                                </span>
-                                <span
-                                    class="text-sm text-neutral-600 group-hover:text-black {{ request('category') == $cat->slug ? 'font-bold text-black' : '' }}">{{
-                                    $cat->name }}</span>
-                            </label>
+                                        class="{{ $isActive ? 'font-bold text-black' : 'text-neutral-600 group-hover:text-black' }}">
+                                        {{ $parent->name }}
+                                    </span>
+                                    {{-- Mũi tên chỉ xuống/lên --}}
+                                    @if($parent->children->count() > 0)
+                                    <svg class="w-3 h-3 transition-transform duration-200 text-neutral-400"
+                                        :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    @endif
+                                </button>
+
+                                {{-- List con (Xổ xuống) --}}
+                                @if($parent->children->count() > 0)
+                                <div x-show="expanded" x-collapse
+                                    class="pl-3 mt-1 space-y-1 border-l border-neutral-200 ml-1">
+
+                                    {{-- Link chọn chính danh mục Cha --}}
+                                    <a href="{{ route('products.index', ['category' => $parent->slug]) }}"
+                                        class="block py-1 text-sm {{ request('category') == $parent->slug ? 'font-bold text-black' : 'text-neutral-500 hover:text-black' }}">
+                                        Shop All {{ $parent->name }}
+                                    </a>
+
+                                    {{-- Loop danh mục Con --}}
+                                    @foreach($parent->children as $child)
+                                    <a href="{{ route('products.index', ['category' => $child->slug]) }}"
+                                        class="block py-1 text-sm {{ request('category') == $child->slug ? 'font-bold text-black' : 'text-neutral-500 hover:text-black' }}">
+                                        {{ $child->name }}
+                                    </a>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
                             @endforeach
+
                         </div>
                     </div>
 
