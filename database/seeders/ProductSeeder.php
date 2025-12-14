@@ -13,13 +13,13 @@ class ProductSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // 1. Helper lấy Category ID (An toàn, không lỗi nếu thiếu DB)
+        // 1. Helper lấy Category ID an toàn (Nếu không tìm thấy sẽ lấy ID 1 để không lỗi)
         $getCatId = function ($slug) {
             return DB::table('categories')->where('slug', $slug)->value('id')
-                ?? DB::table('categories')->first()->id; // Fallback nếu không tìm thấy
+                ?? DB::table('categories')->value('id');
         };
 
-        // 2. Map ID danh mục (Khớp với CategorySeeder chuẩn)
+        // 2. Map ID danh mục (Dựa trên CategorySeeder chuẩn)
         $cats = [
             'men_tops'    => $getCatId('men-t-shirts'),
             'men_hoodies' => $getCatId('men-hoodies'),
@@ -28,18 +28,18 @@ class ProductSeeder extends Seeder
 
             'wmn_tops'    => $getCatId('women-t-shirts'),
             'wmn_dresses' => $getCatId('women-dresses'),
-            'wmn_bottoms' => $getCatId('women-skirts'),
+            'wmn_bottoms' => $getCatId('women-skirts'), // Bao gồm cả váy và quần nữ
 
             'acc_bags'    => $getCatId('accessories-bags'),
-            'acc_head'    => $getCatId('accessories-caps'),
-            'acc_feet'    => $getCatId('accessories-socks'),
+            'acc_caps'    => $getCatId('accessories-caps'),
+            'acc_socks'   => $getCatId('accessories-socks'),
             'stationery'  => $getCatId('stationery-notebooks'),
             'tech'        => $getCatId('stationery-tech'),
         ];
 
         $items = [
             // ==========================================
-            // 👔 MEN COLLECTION (Minimalist & Clean)
+            // 👔 MEN COLLECTION (Original + 10 New Items)
             // ==========================================
             ['name' => 'Essential Tee - Black',      'price' => 199000, 'cat' => $cats['men_tops'],    'img' => 'men_tee_black.jpg'],
             ['name' => 'Essential Tee - White',      'price' => 199000, 'cat' => $cats['men_tops'],    'img' => 'men_tee_white.jpg'],
@@ -71,9 +71,20 @@ class ProductSeeder extends Seeder
             ['name' => 'Retro Track Jacket',         'price' => 429000, 'cat' => $cats['men_outer'],   'img' => 'men_track_jacket.jpg'],
             ['name' => 'Nylon Swim Shorts',          'price' => 249000, 'cat' => $cats['men_bottoms'], 'img' => 'men_swim_shorts.jpg'],
             ['name' => 'Structured Boxy Tee',        'price' => 259000, 'cat' => $cats['men_tops'],    'img' => 'men_boxy_tee.jpg'],
+            // --- 10 NEW MEN ITEMS ---
+            ['name' => 'Relaxed Fit Jeans',          'price' => 529000, 'cat' => $cats['men_bottoms'], 'img' => 'men_jeans_relaxed.jpg'],
+            ['name' => 'Corduroy Button Down',       'price' => 459000, 'cat' => $cats['men_tops'],    'img' => 'men_corduroy_shirt.jpg'],
+            ['name' => 'Performance Active Tee',     'price' => 229000, 'cat' => $cats['men_tops'],    'img' => 'men_active_tee.jpg'],
+            ['name' => 'Lightweight Running Shorts', 'price' => 259000, 'cat' => $cats['men_bottoms'], 'img' => 'men_running_shorts.jpg'],
+            ['name' => 'Graphic Hoodie - Abstract',  'price' => 429000, 'cat' => $cats['men_hoodies'], 'img' => 'men_hoodie_abstract.jpg'],
+            ['name' => 'Quarter-Zip Fleece',         'price' => 489000, 'cat' => $cats['men_hoodies'], 'img' => 'men_fleece_zip.jpg'],
+            ['name' => 'Slim Fit Dress Shirt',       'price' => 389000, 'cat' => $cats['men_tops'],    'img' => 'men_dress_shirt.jpg'],
+            ['name' => 'Pleated Trousers - Black',   'price' => 499000, 'cat' => $cats['men_bottoms'], 'img' => 'men_trousers_pleated.jpg'],
+            ['name' => 'Denim Workshirt',            'price' => 459000, 'cat' => $cats['men_tops'],    'img' => 'men_denim_workshirt.jpg'],
+            ['name' => 'Faux Leather Biker Jacket',  'price' => 899000, 'cat' => $cats['men_outer'],   'img' => 'men_leather_biker.jpg'],
 
             // ==========================================
-            // 👗 WOMEN COLLECTION (Chic & Elegant)
+            // 👗 WOMEN COLLECTION (Original + 10 New Items)
             // ==========================================
             ['name' => 'Cropped Tee - White',        'price' => 189000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_cropped_white.jpg'],
             ['name' => 'Baby Tee - Soft Pink',       'price' => 199000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_baby_pink.jpg'],
@@ -105,9 +116,20 @@ class ProductSeeder extends Seeder
             ['name' => 'Soft Hoodie - Pink',         'price' => 389000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_hoodie_pink.jpg'],
             ['name' => 'Basic Leggings',             'price' => 229000, 'cat' => $cats['wmn_bottoms'], 'img' => 'wmn_leggings.jpg'],
             ['name' => 'Cozy Lounge Set',            'price' => 499000, 'cat' => $cats['wmn_dresses'], 'img' => 'wmn_lounge_set.jpg'],
+            // --- 10 NEW WOMEN ITEMS ---
+            ['name' => 'High-Waisted Mom Jeans',     'price' => 459000, 'cat' => $cats['wmn_bottoms'], 'img' => 'wmn_jeans_mom.jpg'],
+            ['name' => 'Ribbed Midi Dress',          'price' => 499000, 'cat' => $cats['wmn_dresses'], 'img' => 'wmn_dress_ribbed.jpg'],
+            ['name' => 'Satin Button Down',          'price' => 359000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_satin_blouse.jpg'],
+            ['name' => 'Graphic Sweatshirt',         'price' => 389000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_sweatshirt_graphic.jpg'],
+            ['name' => 'Faux Leather Leggings',      'price' => 299000, 'cat' => $cats['wmn_bottoms'], 'img' => 'wmn_leggings_leather.jpg'],
+            ['name' => 'Cropped Knit Cardigan',      'price' => 329000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_cardigan_cropped.jpg'],
+            ['name' => 'Puff Sleeve Top',            'price' => 259000, 'cat' => $cats['wmn_tops'],    'img' => 'wmn_top_puffsleeve.jpg'],
+            ['name' => 'Velvet Slip Dress',          'price' => 559000, 'cat' => $cats['wmn_dresses'], 'img' => 'wmn_dress_velvet.jpg'],
+            ['name' => 'Wide Leg Linen Trousers',    'price' => 429000, 'cat' => $cats['wmn_bottoms'], 'img' => 'wmn_trousers_linen.jpg'],
+            ['name' => 'Teddy Bear Coat',            'price' => 799000, 'cat' => $cats['wmn_dresses'], 'img' => 'wmn_coat_teddy.jpg'],
 
             // ==========================================
-            // 🎒 ACCESSORIES & LIFESTYLE (The Finishing Touch)
+            // 🎒 ACCESSORIES & LIFESTYLE
             // ==========================================
             ['name' => 'Canvas Tote Bag',            'price' => 159000, 'cat' => $cats['acc_bags'],    'img' => 'acc_tote_canvas.jpg'],
             ['name' => 'Minimalist Backpack',        'price' => 349000, 'cat' => $cats['acc_bags'],    'img' => 'acc_backpack_minimal.jpg'],
@@ -116,13 +138,13 @@ class ProductSeeder extends Seeder
             ['name' => 'Laptop Sleeve',              'price' => 199000, 'cat' => $cats['acc_bags'],    'img' => 'acc_laptop_sleeve.jpg'],
             ['name' => 'Travel Duffle',              'price' => 399000, 'cat' => $cats['acc_bags'],    'img' => 'acc_duffle.jpg'],
             ['name' => 'Mini Pouch',                 'price' => 89000,  'cat' => $cats['acc_bags'],    'img' => 'acc_pouch.jpg'],
-            ['name' => 'Baseball Cap - Black',       'price' => 149000, 'cat' => $cats['acc_head'],    'img' => 'acc_cap_black.jpg'],
-            ['name' => 'Baseball Cap - Navy',        'price' => 149000, 'cat' => $cats['acc_head'],    'img' => 'acc_cap_navy.jpg'],
-            ['name' => 'Bucket Hat',                 'price' => 159000, 'cat' => $cats['acc_head'],    'img' => 'acc_bucket_hat.jpg'],
-            ['name' => 'Knitted Beanie',             'price' => 129000, 'cat' => $cats['acc_head'],    'img' => 'acc_beanie.jpg'],
-            ['name' => 'Crew Socks - White (3pk)',   'price' => 99000,  'cat' => $cats['acc_feet'],    'img' => 'acc_socks_white.jpg'],
-            ['name' => 'Crew Socks - Black (3pk)',   'price' => 99000,  'cat' => $cats['acc_feet'],    'img' => 'acc_socks_black.jpg'],
-            ['name' => 'Patterned Socks',            'price' => 89000,  'cat' => $cats['acc_feet'],    'img' => 'acc_socks_pattern.jpg'],
+            ['name' => 'Baseball Cap - Black',       'price' => 149000, 'cat' => $cats['acc_caps'],    'img' => 'acc_cap_black.jpg'],
+            ['name' => 'Baseball Cap - Navy',        'price' => 149000, 'cat' => $cats['acc_caps'],    'img' => 'acc_cap_navy.jpg'],
+            ['name' => 'Bucket Hat',                 'price' => 159000, 'cat' => $cats['acc_caps'],    'img' => 'acc_bucket_hat.jpg'],
+            ['name' => 'Knitted Beanie',             'price' => 129000, 'cat' => $cats['acc_caps'],    'img' => 'acc_beanie.jpg'],
+            ['name' => 'Crew Socks - White (3pk)',   'price' => 99000,  'cat' => $cats['acc_socks'],   'img' => 'acc_socks_white.jpg'],
+            ['name' => 'Crew Socks - Black (3pk)',   'price' => 99000,  'cat' => $cats['acc_socks'],   'img' => 'acc_socks_black.jpg'],
+            ['name' => 'Patterned Socks',            'price' => 89000,  'cat' => $cats['acc_socks'],   'img' => 'acc_socks_pattern.jpg'],
             ['name' => 'Ceramic Mug',                'price' => 99000,  'cat' => $cats['stationery'],  'img' => 'sta_mug_ceramic.jpg'],
             ['name' => 'Enamel Camp Mug',            'price' => 119000, 'cat' => $cats['stationery'],  'img' => 'sta_mug_enamel.jpg'],
             ['name' => 'Steel Tumbler',              'price' => 159000, 'cat' => $cats['stationery'],  'img' => 'sta_tumbler.jpg'],
@@ -145,7 +167,7 @@ class ProductSeeder extends Seeder
             ['name' => 'ID Lanyard',                 'price' => 49000,  'cat' => $cats['acc_bags'],    'img' => 'acc_lanyard.jpg'],
             ['name' => 'Slim Leather Wallet',        'price' => 299000, 'cat' => $cats['acc_bags'],    'img' => 'acc_wallet.jpg'],
             ['name' => 'Card Holder',                'price' => 159000, 'cat' => $cats['acc_bags'],    'img' => 'acc_cardholder.jpg'],
-            ['name' => 'Retro Sunglasses',           'price' => 199000, 'cat' => $cats['acc_head'],    'img' => 'acc_sunglasses.jpg'],
+            ['name' => 'Retro Sunglasses',           'price' => 199000, 'cat' => $cats['acc_caps'],    'img' => 'acc_sunglasses.jpg'],
             ['name' => 'Compact Umbrella',           'price' => 179000, 'cat' => $cats['acc_bags'],    'img' => 'acc_umbrella.jpg'],
             ['name' => 'EVA Raincoat',               'price' => 199000, 'cat' => $cats['men_outer'],   'img' => 'acc_raincoat.jpg'],
             ['name' => 'TPE Yoga Mat',               'price' => 359000, 'cat' => $cats['acc_bags'],    'img' => 'acc_yogamat.jpg'],
@@ -156,14 +178,14 @@ class ProductSeeder extends Seeder
         foreach ($items as $item) {
             $data[] = [
                 'name'          => $item['name'],
-                'slug'          => Str::slug($item['name']), // TẠO SLUG TỰ ĐỘNG Ở ĐÂY
+                'slug'          => Str::slug($item['name']), // Đảm bảo có slug để không lỗi
                 'description'   => "Designed for modern living. The " . $item['name'] . " features premium materials and a minimalist aesthetic typical of BluShop.",
                 'price'         => $item['price'],
                 'image'         => $item['img'],
                 'category_id'   => $item['cat'],
-                'is_new'        => rand(0, 1) > 0.7, // 30% cơ hội là New
-                'is_bestseller' => rand(0, 1) > 0.8, // 20% cơ hội Bestseller
-                'is_on_sale'    => rand(0, 1) > 0.8, // 20% cơ hội Sale
+                'is_new'        => rand(0, 1) > 0.7,
+                'is_bestseller' => rand(0, 1) > 0.8,
+                'is_on_sale'    => rand(0, 1) > 0.8,
                 'created_at'    => $now,
                 'updated_at'    => $now,
             ];
