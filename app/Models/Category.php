@@ -5,22 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @mixin IdeHelperCategory
- */
 class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'description'];
+    protected $fillable = ['name', 'slug', 'parent_id', 'description', 'image'];
 
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
-
+    /**
+     * Mối quan hệ: Một danh mục Cha có nhiều danh mục Con
+     * Ví dụ: Men -> có T-Shirts, Pants...
+     */
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * Mối quan hệ: Một danh mục Con thuộc về một danh mục Cha
+     * Ví dụ: T-Shirts -> thuộc về Men
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    /**
+     * Mối quan hệ: Một danh mục có nhiều sản phẩm
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 }

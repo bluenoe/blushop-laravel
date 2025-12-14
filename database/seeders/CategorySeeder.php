@@ -5,61 +5,68 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $now = now();
+        $now = Carbon::now();
 
-        // 1. Định nghĩa Danh mục Cha (Root)
-        $roots = ['Men', 'Women', 'Accessories', 'Stationery'];
-
-        $rootIds = [];
-        foreach ($roots as $root) {
-            $slug = Str::slug($root);
-            // Kiểm tra hoặc tạo mới
-            $id = DB::table('categories')->where('slug', $slug)->value('id');
-            if (!$id) {
-                $id = DB::table('categories')->insertGetId([
-                    'name' => $root,
-                    'slug' => $slug,
-                    'parent_id' => null, // Cha thì không có parent_id
-                    'description' => "Danh mục chính $root",
-                    'created_at' => $now,
-                    'updated_at' => $now
-                ]);
-            }
-            $rootIds[$root] = $id;
-        }
-
-        // 2. Định nghĩa Danh mục Con (Children)
-        // Cấu trúc: 'Tên Cha' => ['Con 1', 'Con 2'...]
-        $tree = [
-            'Men' => ['T-Shirts', 'Hoodies', 'Jackets', 'Pants', 'Shorts'],
-            'Women' => ['T-Shirts', 'Dresses', 'Skirts', 'Blouses', 'Cardigans'],
-            'Accessories' => ['Bags', 'Caps', 'Socks', 'Jewelry', 'Watches'],
-            'Stationery' => ['Mugs', 'Notebooks', 'Pens', 'Stickers', 'Tech'],
+        // 1. Tạo Danh Mục CHA (Root)
+        $roots = [
+            'Men' => [
+                'T-Shirts',
+                'Hoodies',
+                'Jackets',
+                'Pants',
+                'Shorts'
+            ],
+            'Women' => [
+                'T-Shirts',
+                'Dresses',
+                'Skirts',
+                'Blouses',
+                'Cardigans'
+            ],
+            'Accessories' => [
+                'Bags',
+                'Caps',
+                'Socks',
+                'Jewelry',
+                'Watches'
+            ],
+            'Stationery' => [
+                'Mugs',
+                'Notebooks',
+                'Pens',
+                'Stickers',
+                'Tech'
+            ]
         ];
 
-        foreach ($tree as $rootName => $children) {
-            $parentId = $rootIds[$rootName];
+        foreach ($roots as $rootName => $children) {
+            // Tạo cha
+            $parentId = DB::table('categories')->insertGetId([
+                'name' => $rootName,
+                'slug' => Str::slug($rootName), // vd: men
+                'parent_id' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
 
+            // Tạo con
             foreach ($children as $childName) {
-                // Tạo slug kết hợp để tránh trùng (vd: men-t-shirts vs women-t-shirts)
-                $slug = Str::slug($rootName . ' ' . $childName);
+                // Tạo slug riêng biệt: men-t-shirts vs women-t-shirts
+                $childSlug = Str::slug($rootName . ' ' . $childName);
 
-                $exists = DB::table('categories')->where('slug', $slug)->exists();
-                if (!$exists) {
-                    DB::table('categories')->insert([
-                        'name' => $childName,
-                        'slug' => $slug, // Slug là duy nhất
-                        'parent_id' => $parentId, // Gắn vào cha
-                        'description' => "$childName dành cho $rootName",
-                        'created_at' => $now,
-                        'updated_at' => $now
-                    ]);
-                }
+                DB::table('categories')->insert([
+                    'name' => $childName, // Tên hiển thị vẫn là "T-Shirts"
+                    'slug' => $childSlug, // Slug thì là "men-t-shirts"
+                    'parent_id' => $parentId, // Gắn vào cha
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
             }
         }
     }
