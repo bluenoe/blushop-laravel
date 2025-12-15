@@ -359,57 +359,98 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                         </div>
                     </div>
 
+                    {{-- Minimalist Validation --}}
                     <div x-data="{ 
-                        open: false, 
-                        submitting: false, 
-                        success: false,
-                        rating: 5, 
-                        hoverRating: 0,
-                        fit: 3,
-                        submitReview(e) {
-                            this.submitting = true;
-                            const formData = new FormData(e.target);
-                            fetch(e.target.action, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                                    'Accept': 'application/json'
-                                },
-                                body: formData
-                            }).then(response => {
-                                if (!response.ok) throw response;
-                                return response.json();
-                            }).then(data => {
-                                this.success = true;
-                                this.submitting = false;
-                                this.open = false;
-                                setTimeout(() => { window.location.reload(); }, 1500);
-                            }).catch(err => {
-                                this.submitting = false;
-                                alert('Please check your inputs and try again.');
-                            });
-                        }
-                    }">
+    open: false, 
+    submitting: false, 
+    success: false,
+    rating: 5, 
+    hoverRating: 0,
+    fit: 3,
+    errors: {}, // 1. Biến chứa lỗi từ Server
+    imagePreview: null,
+
+    // Hàm xử lý file ảnh review
+    handleImage(e) {
+        const file = e.target.files[0];
+        if(file) {
+            this.imagePreview = URL.createObjectURL(file);
+        }
+    },
+
+    submitReview(e) {
+        this.submitting = true;
+        this.errors = {}; // Reset lỗi cũ
+        const formData = new FormData(e.target);
+
+        fetch(e.target.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                'Accept': 'application/json' // Bắt buộc để Laravel trả về JSON
+            },
+            body: formData
+        }).then(response => {
+            // 2. Nếu lỗi Validate (422), ném ra catch
+            if (response.status === 422) {
+                return response.json().then(data => {
+                    this.errors = data.errors;
+                    throw new Error('Validation Failed');
+                });
+            }
+            if (!response.ok) throw response;
+            return response.json();
+        }).then(data => {
+            // 3. Thành công
+            this.success = true;
+            this.submitting = false;
+            this.open = false;
+            setTimeout(() => { window.location.reload(); }, 1500);
+        }).catch(err => {
+            this.submitting = false;
+            // Nếu không phải lỗi validate thì mới alert
+            if (!this.errors || Object.keys(this.errors).length === 0) {
+                console.error(err);
+                alert('Something went wrong. Please try again.');
+            }
+        });
+    }
+}">
                         @auth
                         <button @click="open = !open" x-show="!success"
                             class="w-full py-4 border border-black text-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition duration-300">
                             <span x-text="open ? 'Close' : 'Write a Review'"></span>
                         </button>
+
+                        {{-- Thông báo thành công --}}
                         <div x-show="success" x-transition
-                            class="p-4 bg-green-50 border border-green-100 text-green-800 text-center text-sm mb-4">
-                            <p class="font-bold">Thank you!</p>
-                            <p class="text-xs mt-1">Your review has been submitted.</p>
+                            class="p-4 bg-black text-white text-center text-sm mb-4 flex flex-col items-center justify-center">
+                            <svg class="w-6 h-6 mb-2 text-green-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <p class="font-bold uppercase tracking-widest text-xs">Review Submitted</p>
                         </div>
-                        <div x-show="open && !success" x-collapse class="mt-6">
+
+                        {{-- Form Area --}}
+                        <div x-show="open && !success" x-collapse class="mt-8">
+                            {{-- Thêm novalidate để tắt popup trình duyệt --}}
                             <form action="{{ route('reviews.store', $product->id) }}" method="POST"
-                                enctype="multipart/form-data" @submit.prevent="submitReview">
-                                <div class="mb-5">
+                                enctype="multipart/form-data" @submit.prevent="submitReview" novalidate>
+
+                                {{-- 1. RATING --}}
+                                <div class="mb-8">
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500">Rating</label>
-                                    <div class="flex gap-1 cursor-pointer" @mouseleave="hoverRating = 0">
+                                        class="block text-[10px] font-bold uppercase tracking-widest mb-3 transition-colors duration-300"
+                                        :class="errors.rating ? 'text-red-500 animate-pulse' : 'text-neutral-500'">
+                                        Rating <span x-show="errors.rating" x-text="'(* Required)'"
+                                            class="normal-case font-medium"></span>
+                                    </label>
+                                    <div class="flex gap-2 cursor-pointer" @mouseleave="hoverRating = 0">
                                         <template x-for="i in 5">
                                             <svg @click="rating = i" @mouseover="hoverRating = i"
-                                                class="w-6 h-6 transition-colors duration-200"
+                                                class="w-8 h-8 transition-all duration-200 transform hover:scale-110"
                                                 :class="(hoverRating || rating) >= i ? 'fill-black text-black' : 'text-neutral-200 fill-none'"
                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -418,47 +459,100 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                         </template>
                                     </div>
                                     <input type="hidden" name="rating" :value="rating">
+                                    <p x-show="errors.rating" x-text="errors.rating[0]"
+                                        class="mt-2 text-[10px] text-red-500 font-bold uppercase tracking-wide"></p>
                                 </div>
-                                <div class="mb-5">
+
+                                {{-- 2. FIT RATING (Slider) --}}
+                                <div class="mb-8">
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-widest mb-3 text-neutral-500">How's
-                                        the fit?</label>
-                                    <input type="range" name="fit_rating" min="1" max="5" step="1" x-model="fit"
-                                        class="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black">
-                                    <div
-                                        class="flex justify-between text-[9px] text-neutral-400 uppercase mt-2 font-bold tracking-wider">
-                                        <span :class="fit == 1 ? 'text-black' : ''">Tight</span>
-                                        <span :class="fit == 3 ? 'text-black' : ''">True</span>
-                                        <span :class="fit == 5 ? 'text-black' : ''">Loose</span>
+                                        class="block text-[10px] font-bold uppercase tracking-widest mb-4 transition-colors duration-300"
+                                        :class="errors.fit_rating ? 'text-red-500 animate-pulse' : 'text-neutral-500'">
+                                        How's the fit?
+                                    </label>
+                                    <div class="relative pt-1">
+                                        <input type="range" name="fit_rating" min="1" max="5" step="1" x-model="fit"
+                                            class="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black focus:outline-none">
+                                        <div
+                                            class="flex justify-between text-[9px] text-neutral-400 uppercase mt-3 font-bold tracking-wider">
+                                            <span :class="fit == 1 ? 'text-black' : ''">Tight</span>
+                                            <span :class="fit == 3 ? 'text-black' : ''">True to Size</span>
+                                            <span :class="fit == 5 ? 'text-black' : ''">Loose</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="mb-5">
-                                    <label
-                                        class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500">Your
-                                        Review</label>
-                                    <textarea name="content" rows="4" required
-                                        placeholder="Tell us about the quality, fit, and style..."
-                                        class="w-full bg-neutral-50 border border-transparent p-4 text-sm focus:bg-white focus:border-black focus:ring-0 transition duration-300 resize-none placeholder-neutral-400"></textarea>
+
+                                {{-- 3. REVIEW CONTENT (Floating Label - Minimalist Style) --}}
+                                <div class="relative z-0 w-full mb-8 group">
+                                    <textarea name="content" id="content" rows="4" placeholder=" "
+                                        class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer resize-none transition-colors duration-300"
+                                        :class="errors.content 
+                        ? 'border-red-500 text-red-900 focus:border-red-500 placeholder-red-300' 
+                        : 'border-neutral-300 text-neutral-900 focus:border-black'"></textarea>
+
+                                    {{-- Label bay lên --}}
+                                    <label for="content"
+                                        class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest"
+                                        :class="errors.content ? 'text-red-500' : 'text-neutral-500 peer-focus:text-black'">
+                                        Your Review
+                                    </label>
+
+                                    {{-- Lỗi hiển thị bên dưới --}}
+                                    <p x-show="errors.content" x-text="errors.content[0]"
+                                        class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
+                                    </p>
                                 </div>
-                                <div class="mb-6">
+
+                                {{-- 4. IMAGE UPLOAD (Custom Minimalist Button) --}}
+                                <div class="mb-8">
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500">Add
-                                        a Photo (Optional)</label>
-                                    <input type="file" name="image" accept="image/*"
-                                        class="block w-full text-xs text-neutral-500 file:mr-4 file:py-2.5 file:px-4 file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-neutral-900 file:text-white hover:file:bg-black transition cursor-pointer">
+                                        class="block text-[10px] font-bold uppercase tracking-widest mb-3 text-neutral-500">
+                                        Add Photo (Optional)
+                                    </label>
+
+                                    <div class="flex items-center gap-4">
+                                        {{-- Nút upload giả --}}
+                                        <label
+                                            class="cursor-pointer group flex items-center gap-2 px-4 py-3 border border-neutral-300 hover:border-black transition duration-300">
+                                            <svg class="w-4 h-4 text-neutral-500 group-hover:text-black" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span
+                                                class="text-[10px] font-bold uppercase tracking-wider text-neutral-600 group-hover:text-black">Choose
+                                                File</span>
+                                            <input type="file" name="image" accept="image/*" class="hidden"
+                                                @change="handleImage">
+                                        </label>
+
+                                        {{-- Preview Ảnh --}}
+                                        <template x-if="imagePreview">
+                                            <div class="relative w-12 h-12 border border-neutral-200 overflow-hidden">
+                                                <img :src="imagePreview" class="w-full h-full object-cover">
+                                                <button type="button"
+                                                    @click="imagePreview = null; $el.closest('form').querySelector('input[type=file]').value = ''"
+                                                    class="absolute top-0 right-0 bg-black text-white w-4 h-4 flex items-center justify-center text-[10px] hover:bg-red-600 transition">&times;</button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <p x-show="errors.image" x-text="errors.image[0]"
+                                        class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-wide"></p>
                                 </div>
+
                                 <button type="submit" :disabled="submitting"
-                                    class="w-full py-4 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50">
+                                    class="w-full py-4 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span x-text="submitting ? 'Submitting...' : 'Post Review'"></span>
                                 </button>
                             </form>
                         </div>
                         @else
-                        <div class="bg-neutral-50 p-6 text-center border border-neutral-100">
-                            <p class="text-xs text-neutral-500 mb-3">Please login to write a review</p>
+                        <div class="bg-neutral-50 p-8 text-center border border-neutral-100">
+                            <p class="text-xs text-neutral-500 mb-4 font-light">Please login to share your thoughts.</p>
                             <a href="{{ route('login') }}"
-                                class="inline-block border-b border-black text-xs font-bold uppercase tracking-widest pb-0.5 hover:text-neutral-600 transition">Login
-                                Here</a>
+                                class="inline-block border-b border-black text-xs font-bold uppercase tracking-widest pb-0.5 hover:text-neutral-600 hover:border-neutral-600 transition">
+                                Login / Register
+                            </a>
                         </div>
                         @endauth
                     </div>
