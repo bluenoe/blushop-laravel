@@ -243,77 +243,96 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                             </div>
                         </form>
 
+                        {{-- Dung CSS thuan de xu ly Accordion thay vi dung x-show/x-collapse de tranh loi render anh
+                        huong den chuyen dong --}}
                         {{-- Accordion Sections --}}
                         <div class="mt-12 border-t border-neutral-200" x-data="{ activeTab: 'details' }">
 
-                            {{-- Details --}}
+                            {{-- 1. DETAILS TAB --}}
                             <div class="border-b border-neutral-200">
                                 <button @click="activeTab = activeTab === 'details' ? null : 'details'"
-                                    class="w-full py-5 flex justify-between items-center text-left group">
+                                    class="w-full py-5 flex justify-between items-center text-left group select-none">
                                     <span
                                         class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
                                         Details & Composition
                                     </span>
                                     <span
-                                        class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                        class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                                 </button>
-                                <div x-show="activeTab === 'details'" x-collapse.duration.300ms class="overflow-hidden">
-                                    <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
-                                        <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
-                                            functionality.' }}</p>
-                                        @if(!empty($product->specifications))
-                                        <dl class="space-y-2">
-                                            @foreach($product->specifications as $key => $value)
-                                            <div
-                                                class="flex justify-between py-2 border-b border-dashed border-neutral-100 last:border-0">
-                                                <dt class="text-neutral-900 font-medium">{{ $key }}</dt>
-                                                <dd class="text-neutral-500">{{ $value }}</dd>
-                                            </div>
-                                            @endforeach
-                                        </dl>
-                                        @endif
+
+                                {{-- CSS GRID MAGIC: Không dùng x-show/x-collapse nữa --}}
+                                <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'details' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+
+                                    {{-- Wrapper này BẮT BUỘC phải có overflow-hidden --}}
+                                    <div class="overflow-hidden">
+                                        <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
+                                            <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
+                                                functionality.' }}</p>
+                                            @if(!empty($product->specifications))
+                                            <dl class="space-y-2">
+                                                @foreach($product->specifications as $key => $value)
+                                                <div
+                                                    class="flex justify-between py-2 border-b border-dashed border-neutral-100 last:border-0">
+                                                    <dt class="text-neutral-900 font-medium">{{ $key }}</dt>
+                                                    <dd class="text-neutral-500">{{ $value }}</dd>
+                                                </div>
+                                                @endforeach
+                                            </dl>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Care Guide --}}
+                            {{-- 2. CARE GUIDE TAB --}}
                             <div class="border-b border-neutral-200">
                                 <button @click="activeTab = activeTab === 'care' ? null : 'care'"
-                                    class="w-full py-5 flex justify-between items-center text-left group">
+                                    class="w-full py-5 flex justify-between items-center text-left group select-none">
                                     <span
-                                        class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Care
-                                        Guide</span>
+                                        class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
+                                        Care Guide
+                                    </span>
                                     <span
-                                        class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                        class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
                                 </button>
-                                <div x-show="activeTab === 'care'" x-collapse.duration.300ms class="overflow-hidden">
-                                    <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
-                                        @if($product->care_guide)
-                                        {!! nl2br(e($product->care_guide)) !!}
-                                        @else
-                                        <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
-                                        <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
-                                        @endif
+
+                                <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'care' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+                                    <div class="overflow-hidden">
+                                        <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
+                                            @if($product->care_guide)
+                                            {!! nl2br(e($product->care_guide)) !!}
+                                            @else
+                                            <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
+                                            <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Shipping --}}
+                            {{-- 3. SHIPPING TAB --}}
                             <div class="border-b border-neutral-200">
                                 <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
-                                    class="w-full py-5 flex justify-between items-center text-left group">
+                                    class="w-full py-5 flex justify-between items-center text-left group select-none">
                                     <span
-                                        class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping
-                                        & Returns</span>
+                                        class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
+                                        Shipping & Returns
+                                    </span>
                                     <span
-                                        class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                        class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                                 </button>
-                                <div x-show="activeTab === 'ship'" x-collapse.duration.300ms class="overflow-hidden">
-                                    <div class="pb-6 text-sm text-neutral-600 font-light">
-                                        Free standard shipping on orders over 500k. Returns accepted within 30 days.
+
+                                <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    :class="activeTab === 'ship' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+                                    <div class="overflow-hidden">
+                                        <div class="pb-6 text-sm text-neutral-600 font-light">
+                                            Free standard shipping on orders over 500k. Returns accepted within 30 days.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -577,7 +596,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                 @if($review->image)
                                 <div class="mt-4">
                                     <img src="{{ Storage::url($review->image) }}"
-                                        class="w-24 h-24 object-cover cursor-zoom-in grayscale hover:grayscale-0 transition duration-500 border border-neutral-100"
+                                        class="w-24 h-24 object-cover cursor-zoom-in grayscale hover:grayscale-0 transition duration-300 border border-neutral-100"
                                         onclick="window.open(this.src)">
                                 </div>
                                 @endif
@@ -651,9 +670,9 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 
                             {{-- Info Overlay (Hiệu ứng mờ dần từ dưới lên) --}}
                             <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                                class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                                 <div
-                                    class="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 text-white">
+                                    class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300 text-white">
                                     <h3 class="text-sm md:text-lg font-bold uppercase tracking-widest">{{ $related->name
                                         }}
                                     </h3>

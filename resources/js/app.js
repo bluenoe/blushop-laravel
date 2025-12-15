@@ -1,8 +1,6 @@
 import "./bootstrap";
 
 import Alpine from "alpinejs";
-import collapse from "@alpinejs/collapse";
-
 window.Alpine = Alpine;
 
 // Initialize a global Alpine store for avatar
@@ -25,8 +23,6 @@ document.addEventListener("alpine:init", () => {
         },
     });
 });
-
-Alpine.plugin(collapse);
 
 Alpine.start();
 
