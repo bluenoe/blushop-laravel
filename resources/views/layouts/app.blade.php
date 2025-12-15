@@ -3,8 +3,6 @@
 
 <head>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Smooth scroll behavior for in-page links -->
     <style>
         html,
@@ -37,29 +35,35 @@
     </script>
     @endauth
 
-    {{-- Tính toán số lượng cart 1 lần duy nhất ở đây --}}
-    @php
-    $cartQty = collect(session('cart', []))->sum('quantity');
-    @endphp
+    <head>
+        {{-- Tính toán số lượng cart từ PHP --}}
+        @php
+        $cartQty = collect(session('cart', []))->sum('quantity');
+        @endphp
 
-    <script>
-        window.__CART_COUNT = {{ (int) $cartQty }};
+        {{-- Khai báo biến global và khởi tạo Store --}}
+        <script>
+            // 1. Nhận dữ liệu từ PHP
+            window.__CART_COUNT = {{ (int) $cartQty }};
 
-        // Khởi tạo Store ngay khi Alpine load, sử dụng biến window ở trên
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('cart', {
-                count: window.__CART_COUNT || 0,
+            // 2. Khởi tạo Alpine Store
+            document.addEventListener('alpine:init', () => {
+                Alpine.store('cart', {
+                    count: window.__CART_COUNT || 0, // Lấy số ban đầu
 
-                set(newCount) {
-                    this.count = parseInt(newCount);
-                }
+                    // Hàm cập nhật số lượng mới
+                    set(newCount) {
+                        this.count = parseInt(newCount);
+                    }
+                });
             });
-        });
-    </script>
+        </script>
 
-    @stack('head')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+
+
+        @stack('head')
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-warm">

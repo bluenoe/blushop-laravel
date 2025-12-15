@@ -167,18 +167,21 @@ $categories = \App\Models\Category::query()
                     </div>
                 </div>
 
-                {{-- Cart Icon trong Header --}}
-                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition"
-                    x-data="{ count: {{ \App\Helpers\Cart::count() ?? 0 }} }"
-                    @cart-updated.window="count = $event.detail.count">
+                {{-- Cart Icon --}}
+                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition" {{-- 1.
+                    Khởi tạo số lượng từ PHP --}}
+                    x-data="{ count: {{ (int) collect(session('cart', []))->sum('quantity') }} }" {{-- 2. Lắng nghe sự
+                    kiện. Khi nghe thấy -> In log -> Cập nhật số --}}
+                    @cart-updated.window="console.log('✅ Header đã nhận tin! Số mới:', $event.detail.count); count =
+                    $event.detail.count">
 
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
 
-                    {{-- Badge Số lượng: Tự cập nhật khi nghe sự kiện 'cart-updated' --}}
-                    <span x-show="count > 0" x-text="count" x-transition.scale x-cloak
+                    {{-- Badge Số lượng --}}
+                    <span x-show="count > 0" x-text="count" x-transition.scale
                         class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                     </span>
                 </a>
