@@ -164,8 +164,7 @@
                                     {{-- Icon Mới: Banknote tối giản --}}
                                     <svg class="w-6 h-6 text-neutral-400" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
                                     </svg>
                                 </div>
                                 <div class="pl-9 mt-2 text-xs text-neutral-500 font-light"
@@ -199,8 +198,7 @@
                                     {{-- Icon Mới: QR Code tối giản --}}
                                     <svg class="w-6 h-6 text-neutral-400" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M12 4v1m6 11h2m-6 0h-2v4h2v-4zM6 19h2v-4H6v4zm8-12V5a2 2 0 00-2-2H4a2 2 0 00-2 2v7a2 2 0 002 2h4l2 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
                                     </svg>
                                 </div>
 
