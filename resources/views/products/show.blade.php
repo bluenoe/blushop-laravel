@@ -128,12 +128,21 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                             body: JSON.stringify({ quantity: qty, size: size, color: color })
                         }).then(r => r.ok ? r.json() : Promise.reject(r))
                         .then(data => {
-                            if (data && data.success) { 
-                                Alpine.store('cart').set(data.cart_count);
-                                added = true; 
-                                setTimeout(() => added = false, 3000);
-                            }
-                        }).catch(() => alert('Something went wrong')).finally(() => { loading = false; });
+    // [DEBUG] Xem server trả về cái gì
+    console.log('Dữ liệu server trả về:', data); 
+
+    if (data && data.success) { 
+        // Bắn pháo hiệu cho Header biết
+        // Chú ý: data.cart_count phải khớp với cái log ở trên
+        window.dispatchEvent(new CustomEvent('cart-updated', {
+            detail: { count: data.cart_count }
+        }));
+        
+        // Hiệu ứng nút bấm (Giữ nguyên)
+        added = true; 
+        setTimeout(() => added = false, 3000);
+    }
+});
                     ">
                         @csrf
 
