@@ -14,7 +14,7 @@ class Review extends Model
         'user_id',
         'rating',
         'fit_rating',
-        'comment',
+        'content',
         'image',
     ];
 
