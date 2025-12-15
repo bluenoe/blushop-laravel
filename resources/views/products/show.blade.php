@@ -128,8 +128,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                             body: JSON.stringify({ quantity: qty, size: size, color: color })
                         }).then(r => r.ok ? r.json() : Promise.reject(r))
                         .then(data => {
-    // [DEBUG] Xem server trả về cái gì
-    console.log('Dữ liệu server trả về:', data); 
+        loading = false;
 
     if (data && data.success) { 
         // Bắn pháo hiệu cho Header biết
