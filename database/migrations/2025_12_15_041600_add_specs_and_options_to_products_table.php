@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('type')->default('apparel')->after('category_id')->index(); // apparel, accessories, electronics
-            $table->json('specifications')->nullable()->after('description');
-            $table->json('options')->nullable()->after('specifications'); // colors, sizes, etc.
-            $table->text('care_guide')->nullable()->after('options');
+            //
         });
     }
 
@@ -25,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['type', 'specifications', 'options', 'care_guide']);
+            //
         });
     }
 };

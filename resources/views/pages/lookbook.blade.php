@@ -117,10 +117,14 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                         </div>
 
                         {{-- Supporting Image (Small) --}}
-                        <div
-                            class="aspect-[4/5] w-2/3 ml-auto overflow-hidden bg-neutral-100 grayscale hover:grayscale-0 transition duration-700">
-                            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
-                                class="w-full h-full object-cover">
+                        <div class="relative w-full aspect-[4/5] md:aspect-square overflow-hidden bg-neutral-100 group">
+                            <img src="{{ Storage::url('products/look-01.jpg') }}"
+                                class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
+                                alt="Detail Shot">
+
+                            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-2">
+                                <p class="text-[10px] font-bold uppercase tracking-widest">Detail Shot</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,7 +148,7 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                 {{-- Col 1 --}}
                 <div class="space-y-4" data-reveal>
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative group cursor-pointer">
-                        <img src="https://images.unsplash.com/photo-1550614000-4b9519e02a29?q=80&w=2000&auto=format&fit=crop"
+                        <img src="{{ Storage::url('products/look-02.jpg') }}"
                             class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
                         {{-- Quick Shop Overlay --}}
                         <div
@@ -167,7 +171,7 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                 {{-- Col 2 (Offset Down) --}}
                 <div class="space-y-4 md:mb-[-100px]" data-reveal style="transition-delay: 150ms">
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative group cursor-pointer">
-                        <img src="https://images.unsplash.com/photo-1509631179647-b84928d50f0d?q=80&w=1974&auto=format&fit=crop"
+                        <img src="{{ Storage::url('products/look-05.jpg') }}"
                             class="w-full h-full object-cover transition duration-1000 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
