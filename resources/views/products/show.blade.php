@@ -8,6 +8,8 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
 <x-app-layout>
     @push('head')
     <link rel="preload" as="image" href="{{ Storage::url('products/' . $product->image) }}" fetchpriority="high">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -16,6 +18,11 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        /* Tối ưu chuyển động cho Accordion mượt hơn */
+        [x-cloak] {
+            display: none !important;
         }
     </style>
     @endpush
@@ -251,7 +258,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                         class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                                 </button>
-                                <div x-show="activeTab === 'details'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div x-show="activeTab === 'details'" x-collapse.duration.300ms class="overflow-hidden">
                                     <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
                                         <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
                                             functionality.' }}</p>
@@ -281,7 +288,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                         class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
                                 </button>
-                                <div x-show="activeTab === 'care'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div x-show="activeTab === 'care'" x-collapse.duration.300ms class="overflow-hidden">
                                     <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
                                         @if($product->care_guide)
                                         {!! nl2br(e($product->care_guide)) !!}
@@ -304,7 +311,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Rela
                                         class="text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                                         :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                                 </button>
-                                <div x-show="activeTab === 'ship'" x-collapse.duration.500ms class="overflow-hidden">
+                                <div x-show="activeTab === 'ship'" x-collapse.duration.300ms class="overflow-hidden">
                                     <div class="pb-6 text-sm text-neutral-600 font-light">
                                         Free standard shipping on orders over 500k. Returns accepted within 30 days.
                                     </div>
