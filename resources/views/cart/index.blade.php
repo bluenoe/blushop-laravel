@@ -84,12 +84,25 @@ Updated by Senior Mentor for rowId compatibility
 
         <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-20">
 
-            {{-- Header --}}
-            <div class="mb-12 flex items-baseline justify-between border-b border-neutral-100 pb-6">
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tighter uppercase">Shopping Bag</h1>
+            {{-- Header Cart: Chuẩn hóa chiều cao --}}
+            <div class="mb-12">
+                {{-- 1. Breadcrumb: Luôn nằm dòng riêng, padding cố định --}}
+                <nav class="flex items-center gap-3 text-[10px] uppercase tracking-widest text-neutral-400 mb-4 h-5">
+                    <a href="{{ route('home') }}" class="hover:text-black transition">Home</a>
+                    <span class="text-neutral-300">/</span> {{-- Dùng dấu gạch chéo text cho gọn, đỡ lệch icon --}}
+                    <span class="text-black font-bold">Cart</span>
+                </nav>
+
+                {{-- 2. Title & Border --}}
+                <div class="flex items-end justify-between border-b border-neutral-100 pb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none">
+                        Shopping Bag
+                    </h1>
+                </div>
             </div>
 
             <template x-if="isEmpty">
+                {{-- Giữ nguyên phần empty --}}
                 <div class="py-24 text-center">
                     <p class="text-neutral-400 mb-6 text-lg font-light">Your bag is currently empty.</p>
                     <a href="{{ route('products.index') }}"
