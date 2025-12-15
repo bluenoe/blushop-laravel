@@ -67,6 +67,9 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
 
+// Lookbook
+Route::view('/lookbook', 'pages.lookbook')->name('lookbook');
+
 
 // --- AUTH ROUTES (Breeze) ---
 require __DIR__ . '/auth.php';
