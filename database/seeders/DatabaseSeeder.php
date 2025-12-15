@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(ProductSeeder::class);
 
+        $this->call(UserSeeder::class);
         // 5) Fake orders per user (3 each) - Để test tính năng Order
         $products = Product::all();
 
