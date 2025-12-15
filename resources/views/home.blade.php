@@ -264,7 +264,7 @@ Concept: Modern Luxury / Minimalist / Storytelling
                                 stand out through texture and silhouette.
                             </p>
                         </div>
-                        <a href="#"
+                        <a href="{{ route('lookbook') }}"
                             class="inline-block bg-white text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition">View
                             Lookbook</a>
                     </div>
