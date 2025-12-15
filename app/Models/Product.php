@@ -24,6 +24,8 @@ class Product extends Model
         'is_bestseller',
         'is_on_sale',
         'slug',
+        'avg_rating',
+        'reviews_count',
     ];
 
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
