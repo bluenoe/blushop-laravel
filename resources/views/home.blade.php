@@ -1,16 +1,21 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Home v3 - Professional Minimalist
-Concept: Art Gallery / Editorial Store
+BluShop Home v4 - The Editorial Update
+Concept: Modern Luxury / Minimalist / Storytelling
 ═══════════════════════════════════════════════════════════════
 --}}
 
 <x-app-layout>
     @push('head')
-
+    {{-- Preload Hero Image for LCP Score --}}
     <link rel="preload" as="image" href="{{ asset('images/hero-bg.jpg') }}" fetchpriority="high">
     <style>
-        /* MARQUEE ANIMATION */
+        /* Smooth Scrolling Behaviour */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Marquee */
         @keyframes marquee {
             0% {
                 transform: translateX(0);
@@ -22,10 +27,10 @@ Concept: Art Gallery / Editorial Store
         }
 
         .animate-marquee {
-            animation: marquee 20s linear infinite;
+            animation: marquee 30s linear infinite;
         }
 
-        /* Ẩn thanh cuộn cho các thành phần cuộn ngang */
+        /* Hide Scrollbar but keep functionality */
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -34,305 +39,279 @@ Concept: Art Gallery / Editorial Store
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Text Stroke Effect for High-end feel */
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+            color: transparent;
+        }
     </style>
     @endpush
 
-    <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
+    <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white overflow-x-hidden">
 
-        {{-- 1. HERO SECTION: Clean Split or Centered --}}
-        <section class="relative min-h-[85vh] flex items-center bg-neutral-100 overflow-hidden">
-            {{-- Background with Parallax effect --}}
+        {{-- ==========================================
+        1. HERO SECTION: Cinematic & Editorial
+        ========================================== --}}
+        <section class="relative h-screen min-h-[700px] w-full overflow-hidden flex items-end pb-24 md:pb-32">
+            {{-- Background Video/Image --}}
             <div class="absolute inset-0 z-0">
-                <img src="{{ asset('images/hero-bg.jpg') }}" alt="BluShop Essence"
-                    class="w-full h-full object-cover opacity-90" style="object-position: center 30%;" loading="eager"
+                <img src="{{ asset('images/hero-bg.jpg') }}" alt="BluShop Campaign"
+                    class="w-full h-full object-cover object-center" style="filter: brightness(0.85);"
                     fetchpriority="high">
-                <div class="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div> {{-- Light overlay --}}
-                <div class="absolute inset-0 bg-gradient-to-t from-neutral-900/40 via-transparent to-transparent"></div>
             </div>
 
-            <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-20">
-                <div class="max-w-3xl">
-                    <p data-reveal class="text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-white mb-6 pl-1">
-                        Since 2025 • Student Essentials
+            {{-- Content --}}
+            <div
+                class="relative z-10 w-full max-w-[1600px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                <div class="md:col-span-8">
+                    <p data-reveal class="text-white/80 text-xs md:text-sm font-bold tracking-[0.3em] uppercase mb-4">
+                        Spring / Summer 2025
                     </p>
                     <h1 data-reveal style="transition-delay: 100ms"
-                        class="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tighter leading-[0.9] mb-8">
-                        Simplicity <br>
-                        <span class="font-serif italic font-light ml-4">in Motion.</span>
+                        class="text-6xl md:text-8xl lg:text-9xl font-bold text-white tracking-tighter leading-[0.85]">
+                        SILENT <br> <span class="font-serif italic font-light">Motion.</span>
                     </h1>
-                    <p data-reveal style="transition-delay: 200ms"
-                        class="text-lg md:text-xl text-white/80 max-w-lg mb-10 font-light leading-relaxed pl-1 border-l border-white/30 pl-6">
-                        Curated gear for the modern student. <br>
-                        Minimalist design, maximum utility.
-                    </p>
+                </div>
 
-                    <div data-reveal style="transition-delay: 300ms" class="flex flex-col sm:flex-row gap-4 pl-1">
-                        <a href="{{ route('products.index') }}"
-                            class="inline-flex items-center justify-center px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition duration-300">
-                            Shop Collection
-                        </a>
-                        <a href="#new-arrivals"
-                            class="inline-flex items-center justify-center px-8 py-4 border border-white text-white text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition duration-300">
-                            New Arrivals
-                        </a>
+                <div class="md:col-span-4 md:border-l md:border-white/30 md:pl-8 pb-2" data-reveal
+                    style="transition-delay: 200ms">
+                    <p class="text-white/90 text-lg font-light leading-relaxed mb-8 max-w-sm">
+                        Curated essentials for the modern student. Where minimalism meets absolute utility.
+                    </p>
+                    <a href="{{ route('products.index') }}"
+                        class="group inline-flex items-center gap-3 text-white uppercase tracking-widest text-xs font-bold border-b border-white pb-2 hover:opacity-70 transition">
+                        Explore Collection
+                        <svg class="w-4 h-4 transform group-hover:translate-x-2 transition duration-300" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        {{-- ==========================================
+        2. PHILOSOPHY: The "Why" (High-end Brand Trait)
+        ========================================== --}}
+        <section class="py-32 px-6 bg-white">
+            <div class="max-w-4xl mx-auto text-center" data-reveal>
+                <span class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.3em] mb-6 block">The
+                    Philosophy</span>
+                <h2 class="text-3xl md:text-5xl font-serif leading-tight text-neutral-900 mb-8">
+                    "We believe that chaos in life <br> starts with chaos in style."
+                </h2>
+                <p class="text-neutral-500 text-sm md:text-base leading-relaxed max-w-2xl mx-auto font-light">
+                    BluShop isn't just a store. It's an attempt to organize the student lifestyle through carefully
+                    selected items. We strip away the unnecessary, leaving only what truly matters: Quality, Function,
+                    and Form.
+                </p>
+            </div>
+        </section>
+
+        {{-- ==========================================
+        3. CURATED CATEGORIES (Bento Grid)
+        ========================================== --}}
+        <section class="pb-24 px-4 md:px-8 max-w-[1600px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 h-auto md:h-[650px]">
+                {{-- Large Item --}}
+                <div class="md:col-span-6 relative group overflow-hidden h-[500px] md:h-full cursor-pointer"
+                    data-reveal>
+                    <img src="{{ Storage::url('home/home-campus.jpg') }}" alt="Campus" loading="lazy"
+                        class="w-full h-full object-cover transition duration-1000 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-bold tracking-tighter mb-2">Campus</h3>
+                        <p
+                            class="text-sm font-light opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition duration-500">
+                            Everyday carry for the academic grind.</p>
+                    </div>
+                    <a href="{{ route('products.index', ['cat' => 'campus']) }}" class="absolute inset-0 z-20"></a>
+                </div>
+
+                <div class="md:col-span-6 grid grid-rows-2 gap-4">
+                    {{-- Wide Item --}}
+                    <div class="relative group overflow-hidden h-[300px] md:h-auto cursor-pointer" data-reveal
+                        style="transition-delay: 100ms">
+                        <img src="{{ Storage::url('home/home-desk.jpg') }}" alt="Workspace" loading="lazy"
+                            class="w-full h-full object-cover transition duration-1000 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/10 transition"></div>
+                        <div class="absolute bottom-8 left-8 text-white">
+                            <h3 class="text-3xl font-bold tracking-tighter">Workspace</h3>
+                        </div>
+                        <a href="{{ route('products.index', ['cat' => 'tech']) }}" class="absolute inset-0 z-20"></a>
+                    </div>
+
+                    {{-- Split Items --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative group overflow-hidden bg-neutral-100 cursor-pointer" data-reveal
+                            style="transition-delay: 200ms">
+                            <img src="{{ Storage::url('home/home-accessories.jpg') }}" alt="Accessories" loading="lazy"
+                                class="w-full h-full object-cover transition duration-1000 group-hover:scale-105">
+                            <div class="absolute bottom-6 left-6 text-neutral-900 z-10 mix-blend-difference text-white">
+                                <h3 class="text-xl font-bold">Objects</h3>
+                            </div>
+                            <a href="{{ route('products.index', ['cat' => 'accessories']) }}"
+                                class="absolute inset-0 z-20"></a>
+                        </div>
+                        <div
+                            class="relative group bg-neutral-900 flex flex-col items-center justify-center text-center p-6 cursor-pointer overflow-hidden">
+                            <div class="absolute inset-0 border border-white/10 m-2 pointer-events-none"></div>
+                            <h3 class="text-white text-2xl font-serif italic z-10">New Drop</h3>
+                            <p class="text-neutral-400 text-[10px] uppercase tracking-widest mt-2 z-10">Coming Soon</p>
+                            {{-- Abstract hover effect --}}
+                            <div
+                                class="absolute inset-0 bg-neutral-800 transform translate-y-full group-hover:translate-y-0 transition duration-500 ease-out">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        {{-- 2. MARQUEE STRIP (Chạy chữ) --}}
-        <div class="bg-neutral-900 text-white py-3 overflow-hidden whitespace-nowrap border-y border-neutral-800">
-            <div class="animate-marquee inline-block">
-                @for($i=0; $i<6; $i++) <span class="mx-8 text-xs font-medium uppercase tracking-[0.2em]">
-                    Free Shipping over 500k <span class="mx-4 text-neutral-600">•</span>
-                    Student Discount Available <span class="mx-4 text-neutral-600">•</span>
-                    30-Day Returns
-                    </span>
-                    @endfor
+        {{-- ==========================================
+        4. SELECTED PRODUCTS (Clean Grid)
+        ========================================== --}}
+        <section class="py-24 px-6 max-w-[1600px] mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6" data-reveal>
+                <div>
+                    <h2 class="text-4xl font-bold tracking-tighter text-neutral-900">Weekly Essentials</h2>
+                    <p class="text-neutral-500 mt-2 font-light">Hand-picked items trending this week.</p>
+                </div>
+                <a href="{{ route('products.index') }}"
+                    class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 transition">View
+                    All Products</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-16 gap-x-8">
+                @if(($featured ?? collect())->isEmpty())
+                {{-- Mockup Data for Dev --}}
+                @php
+                $mockups = [
+                ['name' => 'Oversized Tee', 'price' => '350.000', 'cat'=>'Apparel', 'img' =>
+                'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop'],
+                ['name' => 'Canvas Tote', 'price' => '150.000', 'cat'=>'Bags', 'img' =>
+                'https://images.unsplash.com/photo-1597484662317-c9310d330d26?q=80&w=800&auto=format&fit=crop'],
+                ['name' => 'Essential Hoodie', 'price' => '550.000', 'cat'=>'Apparel', 'img' =>
+                'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop'],
+                ['name' => 'Daily Cap', 'price' => '200.000', 'cat'=>'Accessories', 'img' =>
+                'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop'],
+                ];
+                @endphp
+                @foreach($mockups as $mock)
+                <x-product-card-minimal :product="(object)$mock" />
+                @endforeach
+                @else
+                {{-- Real Data --}}
+                @foreach($featured as $product)
+                <div class="group relative cursor-pointer" data-reveal>
+                    <div class="aspect-[3/4] w-full overflow-hidden bg-neutral-100 relative mb-5">
+                        @php
+                        $fallback =
+                        'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop';
+                        $pImg = $product->image ? Storage::url('products/'.$product->image) : $fallback;
+                        @endphp
+                        <img src="{{ $pImg }}" alt="{{ $product->name }}" loading="lazy"
+                            class="w-full h-full object-cover transition duration-[1.2s] ease-out group-hover:scale-105">
+
+                        {{-- Action --}}
+                        <div
+                            class="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                            <span
+                                class="bg-white text-black text-[10px] font-bold uppercase px-6 py-3 tracking-widest hover:bg-black hover:text-white transition">Quick
+                                View</span>
+                        </div>
+                        <a href="{{ route('products.show', $product->id) }}" class="absolute inset-0 z-10"></a>
+                    </div>
+
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3
+                                class="text-base font-medium text-neutral-900 group-hover:underline underline-offset-4 decoration-1">
+                                {{ $product->name }}</h3>
+                            <p class="text-xs text-neutral-500 mt-1 uppercase tracking-wider">{{
+                                $product->category->name ?? 'Essential' }}</p>
+                        </div>
+                        <span class="text-sm font-bold">{{ number_format($product->price, 0, ',', '.') }} ₫</span>
+                    </div>
+                </div>
+                @endforeach
+                @endif
+            </div>
+        </section>
+
+        {{-- ==========================================
+        5. CAMPAIGN / LOOKBOOK (Dark Mode Break)
+        ========================================== --}}
+        <section class="bg-neutral-900 text-white py-24 md:py-32 overflow-hidden relative">
+            {{-- Decorative Large Text Background --}}
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none opacity-5 whitespace-nowrap select-none">
+                <span class="text-[20vw] font-bold uppercase tracking-tighter leading-none">BluShop</span>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    <div class="order-2 md:order-1" data-reveal>
+                        <div class="mb-8">
+                            <span
+                                class="inline-block border border-white/30 px-3 py-1 text-[10px] uppercase tracking-widest mb-4 rounded-full">Editorial</span>
+                            <h2 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">The Monochrome <br> Edit.
+                            </h2>
+                            <p class="text-neutral-400 text-lg font-light leading-relaxed max-w-md">
+                                Focusing on shades of grey, black, and white. A collection designed to blend in, yet
+                                stand out through texture and silhouette.
+                            </p>
+                        </div>
+                        <a href="{{ route('lookbook') }}"
+                            class="inline-block bg-white text-black px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition">View
+                            Lookbook</a>
+                    </div>
+                    <div class="order-1 md:order-2 relative" data-reveal style="transition-delay: 200ms">
+                        <div class="aspect-[4/5] overflow-hidden bg-neutral-800 relative z-10">
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop"
+                                alt="Lookbook" loading="lazy" class="w-full h-full object-cover opacity-90">
+                        </div>
+                        {{-- Parallax Element --}}
+                        <div
+                            class="absolute -bottom-10 -left-10 w-2/3 h-1/2 bg-neutral-800 -z-0 hidden md:block border border-white/10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- ==========================================
+        6. MARQUEE (Social Proof)
+        ========================================== --}}
+        <div class="bg-white py-8 border-b border-neutral-100 overflow-hidden">
+            <div
+                class="animate-marquee whitespace-nowrap flex gap-12 text-neutral-300 font-bold text-4xl md:text-6xl uppercase tracking-tighter select-none">
+                <span>Fast Shipping</span> • <span>Premium Quality</span> • <span>Student Friendly</span> •
+                <span>Fast Shipping</span> • <span>Premium Quality</span> • <span>Student Friendly</span> •
+                <span>Fast Shipping</span> • <span>Premium Quality</span> • <span>Student Friendly</span>
             </div>
         </div>
 
-        {{-- 3. CURATED EDITS (Category) - Bento Grid Style --}}
-        <section class="py-24 px-6 max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-12" data-reveal>
-                <h2 class="text-3xl font-bold tracking-tight">Curated Edits</h2>
-                <a href="{{ route('products.index') }}"
-                    class="hidden md:inline-block text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:opacity-60 transition">View
-                    All</a>
-            </div>
+        {{-- ==========================================
+        7. NEWSLETTER (Minimalist Center)
+        ========================================== --}}
+        <section class="py-32 px-6 bg-white text-center">
+            <div class="max-w-xl mx-auto" data-reveal>
+                <h2 class="text-3xl font-bold tracking-tight mb-4">Join the Inner Circle</h2>
+                <p class="text-neutral-500 font-light mb-10">Sign up for exclusive drops, student discounts, and early
+                    access.</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 h-auto md:h-[600px]">
-                {{-- Edit 1: Large Left --}}
-                <div class="md:col-span-5 relative group overflow-hidden bg-neutral-100 h-[400px] md:h-full cursor-pointer"
-                    data-reveal>
-                    <img src="{{ Storage::url('home/home-campus.jpg') }}" alt="Campus Ready"
-                        class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-500"></div>
-                    <div class="absolute bottom-6 left-6 text-white">
-                        <span
-                            class="text-[10px] uppercase tracking-widest border border-white/50 px-2 py-1 mb-2 inline-block backdrop-blur-sm">Everyday</span>
-                        <h3 class="text-2xl font-bold">Campus Life</h3>
-                    </div>
-                    <a href="{{ route('products.index', ['cat' => 'campus']) }}" class="absolute inset-0 z-10"></a>
-                </div>
-
-                <div class="md:col-span-7 grid grid-rows-2 gap-4 md:gap-6">
-                    {{-- Edit 2: Top Right --}}
-                    <div class="relative group overflow-hidden bg-neutral-100 h-[300px] md:h-auto cursor-pointer"
-                        data-reveal style="transition-delay: 100ms">
-                        <img src="{{ Storage::url('home/home-desk.jpg') }}" alt="Tech Essentials"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-500"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                            <span
-                                class="text-[10px] uppercase tracking-widest border border-white/50 px-2 py-1 mb-2 inline-block backdrop-blur-sm">Tech</span>
-                            <h3 class="text-2xl font-bold">Desk Setup</h3>
-                        </div>
-                        <a href="{{ route('products.index', ['cat' => 'tech']) }}" class="absolute inset-0 z-10"></a>
-                    </div>
-
-                    {{-- Edit 3 & 4: Bottom Right Split --}}
-                    <div class="grid grid-cols-2 gap-4 md:gap-6">
-                        <div class="relative group overflow-hidden bg-neutral-100 h-[250px] md:h-auto cursor-pointer"
-                            data-reveal style="transition-delay: 200ms">
-                            <img src="{{ Storage::url('home/home-accessories.jpg') }}" alt="Accessories"
-                                class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                            <div class="absolute bottom-6 left-6 text-white z-10">
-                                <h3 class="text-lg font-bold">Accessories</h3>
-                            </div>
-                            <a href="{{ route('products.index', ['cat' => 'accessories']) }}"
-                                class="absolute inset-0 z-10"></a>
-                        </div>
-                        <div class="relative group overflow-hidden bg-neutral-900 h-[250px] md:h-auto flex items-center justify-center text-center cursor-pointer"
-                            data-reveal style="transition-delay: 300ms">
-                            <div class="p-6">
-                                <h3 class="text-white text-xl font-serif italic mb-2">New Drop</h3>
-                                <p class="text-neutral-400 text-xs uppercase tracking-widest">Coming Soon</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        {{-- 4. FEATURED PRODUCTS (Grid Layout Fixed) --}}
-        <section id="new-arrivals" class="bg-white py-24 border-t border-neutral-100">
-            <div class="max-w-[1400px] mx-auto px-6">
-
-                {{-- Heading --}}
-                <div class="max-w-2xl mb-12 flex flex-col gap-3" data-reveal>
-                    <span class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.2em] pt-3">Weekly
-                        Selection</span>
-                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 leading-none">Essential
-                        Pieces.</h2>
-                </div>
-
-                {{-- Product Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" data-reveal>
-
-                    @if(($featured ?? collect())->isEmpty())
-
-                    {{-- MOCKUP DATA: Dùng khi DB trống để giao diện vẫn đẹp --}}
-                    @php
-                    $mockups = [
-                    [
-                    'name' => 'Oversized Tee',
-                    'price' => '350.000',
-                    'img' =>
-                    'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop'
-                    ],
-                    [
-                    'name' => 'Canvas Tote Bag',
-                    'price' => '150.000',
-                    'img' =>
-                    'https://images.unsplash.com/photo-1597484662317-c9310d330d26?q=80&w=800&auto=format&fit=crop'
-                    ],
-                    [
-                    'name' => 'Minimalist Hoodie',
-                    'price' => '550.000',
-                    'img' =>
-                    'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop'
-                    ],
-                    [
-                    'name' => 'Daily Cap',
-                    'price' => '200.000',
-                    'img' =>
-                    'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop'
-                    ],
-                    ];
-                    @endphp
-
-                    @foreach($mockups as $mock)
-                    <div class="group relative cursor-pointer">
-                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative mb-4">
-                            <img src="{{ $mock['img'] }}"
-                                class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105 filter grayscale-[10%] group-hover:grayscale-0">
-
-                            {{-- Quick Add Button Slide Up --}}
-                            <div
-                                class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase py-4 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-neutral-100">
-                                Quick View
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-sm font-bold text-neutral-900 leading-none mb-1">
-                                    <a href="#" class="hover:underline decoration-1 underline-offset-4">{{ $mock['name']
-                                        }}</a>
-                                </h3>
-                                <p class="text-[10px] text-neutral-400 uppercase tracking-widest">New Arrival</p>
-                            </div>
-                            <p class="text-sm font-medium text-neutral-900">{{ $mock['price'] }} ₫</p>
-                        </div>
-                    </div>
-                    @endforeach
-
-                    @else
-
-                    {{-- REAL DATA FROM DB --}}
-                    @foreach($featured as $product)
-                    <div class="group relative cursor-pointer">
-                        <div class="aspect-[3/4] overflow-hidden bg-neutral-100 relative mb-4">
-                            {{-- Logic ảnh fallback an toàn tuyệt đối --}}
-                            @php
-                            // Fallback image (Grey Hoodie style minimalist)
-                            $fallback =
-                            'https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?q=80&w=800&auto=format&fit=crop';
-                            $pImg = $product->image ? Storage::url('products/'.$product->image) : $fallback;
-                            @endphp
-                            <img src="{{ $pImg }}" alt="{{ $product->name }}"
-                                class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105">
-
-                            <div
-                                class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur text-black text-[10px] font-bold uppercase py-4 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-neutral-100">
-                                View Detail
-                            </div>
-                            {{-- Link bao trùm --}}
-                            <a href="{{ route('products.show', $product->id) }}" class="absolute inset-0 z-10"></a>
-                        </div>
-
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-sm font-bold text-neutral-900 leading-none mb-1">
-                                    <a href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
-                                </h3>
-                                <p class="text-[10px] text-neutral-400 uppercase tracking-widest">
-                                    {{ $product->category->name ?? 'Essential' }}
-                                </p>
-                            </div>
-                            <p class="text-sm font-medium text-neutral-900">
-                                {{ number_format($product->price, 0, ',', '.') }} ₫
-                            </p>
-                        </div>
-                    </div>
-                    @endforeach
-                    @endif
-
-                </div>
-            </div>
-        </section>
-
-        {{-- 5. SOCIAL PROOF: Minimal Typography --}}
-        <section class="py-24 px-6 max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div data-reveal>
-                    <h2
-                        class="text-6xl md:text-8xl font-bold tracking-tighter text-neutral-100 leading-none select-none">
-                        TRUST<br>PILOT
-                    </h2>
-                    <div class="mt-[-2rem] ml-2 relative z-10">
-                        <p class="text-lg font-medium mb-6">"Not just a brand, it's a student survival kit. <br>The
-                            quality is unexpectedly good."</p>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-neutral-200 rounded-full overflow-hidden">
-                                {{-- Avatar --}}
-                                <svg class="w-full h-full text-neutral-400 p-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold">Minh Nguyen</p>
-                                <p class="text-xs text-neutral-500 uppercase tracking-wider">Verified Buyer</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-8 border-l border-neutral-100 pl-8 md:pl-16" data-reveal
-                    style="transition-delay: 200ms">
-                    <div>
-                        <span class="block text-4xl font-bold tracking-tighter mb-1">10k+</span>
-                        <span class="text-xs text-neutral-500 uppercase tracking-widest">Community</span>
-                    </div>
-                    <div>
-                        <span class="block text-4xl font-bold tracking-tighter mb-1">4.9</span>
-                        <span class="text-xs text-neutral-500 uppercase tracking-widest">Star Rating</span>
-                    </div>
-                    <div>
-                        <span class="block text-4xl font-bold tracking-tighter mb-1">24h</span>
-                        <span class="text-xs text-neutral-500 uppercase tracking-widest">Dispatch</span>
-                    </div>
-                    <div>
-                        <span class="block text-4xl font-bold tracking-tighter mb-1">VN</span>
-                        <span class="text-xs text-neutral-500 uppercase tracking-widest">Local Made</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        {{-- 6. FOOTER CTA --}}
-        <section class="bg-black text-white py-20 text-center px-6">
-            <div class="max-w-2xl mx-auto" data-reveal>
-                <h2 class="text-3xl font-bold mb-6">Join the Inner Circle</h2>
-                <p class="text-neutral-400 mb-8 font-light">Get early access to drops and exclusive student discounts.
-                </p>
-                <form class="flex max-w-md mx-auto border-b border-white/30 pb-2">
-                    <input type="email" placeholder="Enter your email"
-                        class="bg-transparent border-none w-full text-white placeholder-neutral-600 focus:ring-0 px-0">
+                <form class="flex flex-col sm:flex-row gap-4">
+                    <input type="email" placeholder="Email address"
+                        class="w-full bg-neutral-50 border-neutral-200 focus:border-black focus:ring-0 text-sm px-4 py-3 placeholder-neutral-400">
                     <button type="submit"
-                        class="text-xs font-bold uppercase tracking-widest hover:text-neutral-300">Subscribe</button>
+                        class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition whitespace-nowrap">
+                        Subscribe
+                    </button>
                 </form>
+                <p class="text-[10px] text-neutral-400 mt-4">No spam. Unsubscribe anytime.</p>
             </div>
         </section>
 
@@ -340,23 +319,25 @@ Concept: Art Gallery / Editorial Store
 
     @push('scripts')
     <script>
-        // Simple Reveal Effect
+        // Minimalist Reveal Animation
         document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.remove('opacity-0', 'translate-y-4');
+                        entry.target.classList.remove('opacity-0', 'translate-y-8');
                         entry.target.classList.add('opacity-100', 'translate-y-0');
+                        observer.unobserve(entry.target); // Only animate once
                     }
                 });
-            }, { threshold: 0.1 });
+            }, observerOptions);
 
             document.querySelectorAll('[data-reveal]').forEach(el => {
-                el.classList.add('opacity-0', 'translate-y-4', 'transition', 'duration-1000', 'ease-out');
+                el.classList.add('opacity-0', 'translate-y-8', 'transition', 'duration-1000', 'ease-out');
                 observer.observe(el);
             });
         });
     </script>
-
     @endpush
 </x-app-layout>

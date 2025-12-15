@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CategorySeeder::class);
 
         // 4) Products (Chạy sau, sử dụng ID từ Category đã tạo)
-        // Lưu ý: ProductSeeder mới đã tự gán đúng category_id, KHÔNG CẦN logic map lại ở đây nữa
+
         $this->call(ProductSeeder::class);
 
         // 5) Fake orders per user (3 each) - Để test tính năng Order
