@@ -14,7 +14,7 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rating'     => 'required|integer|min:1|max:5',
             'fit_rating' => 'required|integer|min:1|max:5', // Thêm cái này
-            'comment'    => 'required|string|max:1000',      // Đổi 'content' thành 'comment'
+            'content'    => 'required|string|max:1000',      // Đổi 'content' thành 'content'
             'image'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Xử lý ảnh
         ]);
 
@@ -34,7 +34,7 @@ class ReviewController extends Controller
                 'user_id'    => auth()->id(),
                 'rating'     => $validated['rating'],
                 'fit_rating' => $validated['fit_rating'],
-                'comment'    => $validated['comment'],
+                'content'    => $validated['content'],
                 'image'      => $imagePath,
             ]);
 

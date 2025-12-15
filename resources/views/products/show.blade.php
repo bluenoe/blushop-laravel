@@ -428,7 +428,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                     <label
                                         class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500">Your
                                         Review</label>
-                                    <textarea name="comment" rows="4" required
+                                    <textarea name="content" rows="4" required
                                         placeholder="Tell us about the quality, fit, and style..."
                                         class="w-full bg-neutral-50 border border-transparent p-4 text-sm focus:bg-white focus:border-black focus:ring-0 transition duration-300 resize-none placeholder-neutral-400"></textarea>
                                 </div>
@@ -496,7 +496,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                 </span>
                             </div>
                             <p class="text-sm text-neutral-700 leading-relaxed font-light mb-4">
-                                {!! nl2br(e($review->comment)) !!}
+                                {!! nl2br(e($review->content)) !!}
                             </p>
                             @if($review->image)
                             <div class="mt-4">
@@ -561,7 +561,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                         <div class="absolute top-2 left-2 w-2 h-2 bg-red-500 rounded-full z-10"></div>
                         @endif
 
-                        {{-- Info Overlay (300ms transition) --}}
+                        {{-- Info Overlay --}}
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                             <div
