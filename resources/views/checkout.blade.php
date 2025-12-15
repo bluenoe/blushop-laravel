@@ -23,12 +23,27 @@
 
         <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-20">
             {{-- Header --}}
-            <div class="mb-12 flex items-center gap-4 text-[10px] uppercase tracking-widest text-neutral-400 pt-3">
-                <a href="{{ route('cart.index') }}" class="hover:text-black transition">Cart</a>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <span class="text-black font-bold">Checkout</span>
+            <div class="mb-12">
+                {{-- 1. Breadcrumb: Chiều cao h-5 cố định --}}
+                <nav class="flex items-center gap-3 text-[10px] uppercase tracking-widest text-neutral-400 mb-4 h-5">
+                    <a href="{{ route('cart.index') }}" class="hover:text-black transition">Cart</a>
+                    <span class="text-neutral-300">/</span>
+                    <span class="text-black font-bold">Checkout</span>
+                </nav>
+
+                {{-- 2. Title & Border --}}
+                <div class="flex items-end justify-between border-b border-neutral-100 pb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none">
+                        Checkout
+                    </h1>
+                    <div class="hidden md:flex items-center gap-2 text-neutral-400">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span class="text-[10px] uppercase tracking-widest">Secure</span>
+                    </div>
+                </div>
             </div>
 
             @if(empty($cart))
