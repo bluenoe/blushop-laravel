@@ -175,16 +175,29 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                 @foreach($availableColors as $c)
                                 {{-- Logic hiển thị màu Background --}}
                                 @php
-                                // Map tên màu sang mã Hex để hiển thị cái chấm tròn (Bà có thể mở rộng cái này sau)
                                 $bgClass = match(strtolower($c)) {
-                                'black' => 'bg-neutral-900',
-                                'white' => 'bg-white border border-gray-200',
-                                'beige' => 'bg-[#E8E0D5]',
-                                'navy' => 'bg-[#1F2937]',
-                                'red' => 'bg-red-600',
-                                'blue' => 'bg-blue-600',
-                                'green' => 'bg-green-600',
-                                default => 'bg-gray-200' // Fallback nếu màu lạ
+                                // Basic Monochromes
+                                'black' => 'bg-[#171717]', // Neutral-900 (Đen lì)
+                                'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]', // Trắng tinh khôi
+                                'grey', 'gray', 'charcoal' => 'bg-[#52525B]', // Zinc-600 (Xám chuột)
+
+                                // Minimalist Earth Tones (Màu đất dịu mắt)
+                                'beige', 'cream' => 'bg-[#E8E0D5]', // Beige (Màu kem)
+                                'brown', 'khaki' => 'bg-[#5D4037]', // Nâu đất
+                                'olive' => 'bg-[#556B2F]', // Xanh rêu trầm
+                                'taupe' => 'bg-[#8B8589]', // Màu nâu xám
+
+                                // Muted Colors (Màu trầm sang trọng)
+                                'navy' => 'bg-[#1F2937]', // Xanh than (Gray-800)
+                                'blue' => 'bg-[#64748B]', // Slate-500 (Xanh ghi, không phải xanh dương chói)
+                                'red', 'burgundy' => 'bg-[#7F1D1D]', // Red-900 (Đỏ rượu vang)
+                                'green' => 'bg-[#3F6212]', // Green-800 (Xanh lá già)
+                                'yellow', 'mustard' => 'bg-[#CA8A04]', // Yellow-700 (Vàng mù tạt)
+                                'pink', 'rose' => 'bg-[#FB7185]', // Rose-400 (Hồng đất)
+                                'purple' => 'bg-[#581C87]', // Tím than
+
+                                // Fallback (Màu mặc định nếu lạ)
+                                default => 'bg-[#D4D4D4]' // Xám nhạt
                                 };
                                 @endphp
 
