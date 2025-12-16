@@ -18,6 +18,19 @@ $categories = \App\Models\Category::query()
         searchLoading: false,
         searchTimeout: null,
         highlightedIndex: -1,
+        
+        {{-- [FIX START] Thêm hàm khởi tạo để KHÓA CUỘN BODY khi mở menu mobile --}}
+        init() {
+            this.$watch('mobileMenuOpen', value => {
+                if (value) {
+                    document.body.classList.add('overflow-hidden'); // Khóa cuộn trang web
+                } else {
+                    document.body.classList.remove('overflow-hidden'); // Mở lại cuộn
+                }
+            })
+        },
+        {{-- [FIX END] --}}
+
         updateSearch(query) {
             this.searchQuery = query;
             this.highlightedIndex = -1;
@@ -310,7 +323,9 @@ $categories = \App\Models\Category::query()
     </div>
 
     {{-- MOBILE MENU (SLIDE OVER) --}}
-    <div x-show="mobileMenuOpen" class="sm:hidden fixed inset-0 z-50 flex">
+    {{-- [FIX START] Tăng z-index lên z-[60] để đè lên thanh header (header là z-50) --}}
+    <div x-show="mobileMenuOpen" class="sm:hidden fixed inset-0 z-[60] flex">
+        {{-- [FIX END] --}}
         {{-- Backdrop --}}
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false" x-show="mobileMenuOpen"
             x-transition.opacity></div>
