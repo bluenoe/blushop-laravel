@@ -2,8 +2,6 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
-
-    <!-- Smooth scroll behavior for in-page links -->
     <style>
         html,
         body {
@@ -16,7 +14,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'BluShop') }}</title>
-    <!-- Favicon -->
+
     <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-96x96.png') }}" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon/favicon.svg') }}" />
     <link rel="shortcut icon" href="{{ asset('images/favicon/favicon.ico') }}" />
@@ -28,42 +26,63 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- Truyền biến avatar URL cho JS sử dụng --}}
-
     @auth
     <script>
         window.__INITIAL_AVATAR_URL = @json(Auth:: user() -> avatarUrl());
     </script>
     @endauth
 
-    <head>
-        {{-- Tính toán số lượng cart từ PHP --}}
-        @php
-        $cartQty = collect(session('cart', []))->sum('quantity');
-        @endphp
+    {{-- CART LOGIC --}}
+    @php
+    $cartQty = collect(session('cart', []))->sum('quantity');
+    @endphp
 
-        {{-- Khai báo biến global và khởi tạo Store --}}
-        <script>
-            // 1. Nhận dữ liệu từ PHP
-            window.__CART_COUNT = {{ (int) $cartQty }};
+    <script>
+        // 1. Nhận dữ liệu từ PHP
+        window.__CART_COUNT = {{ (int) $cartQty }};
 
-            // 2. Khởi tạo Alpine Store
-            document.addEventListener('alpine:init', () => {
-                Alpine.store('cart', {
-                    count: window.__CART_COUNT || 0, // Lấy số ban đầu
-
-                    // Hàm cập nhật số lượng mới
-                    set(newCount) {
-                        this.count = parseInt(newCount);
-                    }
-                });
+        // 2. Khởi tạo Alpine Store
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('cart', {
+                count: window.__CART_COUNT || 0,
+                set(newCount) {
+                    this.count = parseInt(newCount);
+                }
             });
-        </script>
+        });
+    </script>
 
+    {{-- [FIX AUTOFILL] SỬA LỖI MẤT LABEL KHI TRÌNH DUYỆT TỰ ĐIỀN --}}
+    <style>
+        /* 1. Tắt nền màu xanh/vàng của trình duyệt */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: #171717;
+            /* Màu chữ đen */
+            transition: background-color 5000s ease-in-out 0s;
+            box-shadow: inset 0 0 20px 20px #ffffff00;
+            /* Trong suốt */
+        }
 
+        /* 2. Bắt buộc Label phải BAY LÊN khi có Autofill */
+        input:-webkit-autofill+label {
+            transform: translateY(-1.5rem) scale(0.75) !important;
+            top: 0.75rem !important;
+            /* top-3 */
+            left: 0 !important;
+            color: #171717 !important;
+            /* text-black */
+            font-weight: 500 !important;
+            /* font-medium */
+        }
+    </style>
 
-        @stack('head')
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
+    @stack('head')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-warm">
