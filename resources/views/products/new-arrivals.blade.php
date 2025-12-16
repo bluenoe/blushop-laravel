@@ -39,7 +39,7 @@ Location: resources/views/products/new-arrivals.blade.php
             {{-- Filter Bar (Minimal) --}}
             <div
                 class="flex justify-between items-center py-8 mb-8 sticky top-[64px] z-20 bg-white/95 backdrop-blur-sm">
-                <span class="text-xs font-bold uppercase tracking-widest">{{ $products->total() }} Items</span>
+                <span class="text-xs font-bold uppercase tracking-widest">{{ $products->count() }} Items</span>
                 <div class="flex gap-4">
                     {{-- Chỉ là nút giả lập vibe, vì đây là trang New In --}}
                     <button
@@ -113,11 +113,7 @@ Location: resources/views/products/new-arrivals.blade.php
 
             {{-- Load More / Pagination --}}
             <div class="mt-24 text-center border-t border-neutral-100 pt-12">
-                @if($products->hasPages())
-                {{ $products->links('pagination::simple-tailwind') }}
-                @else
                 <p class="text-xs uppercase tracking-widest text-neutral-400">You've reached the end</p>
-                @endif
             </div>
 
         </section>
