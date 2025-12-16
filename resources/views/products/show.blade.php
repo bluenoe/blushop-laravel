@@ -46,23 +46,40 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            $mainImage = Storage::url('products/' . $product->image);
+            $defaultImage = Storage::url($product->image); // Ảnh mặc định nếu chưa chọn màu
             @endphp
+
+            {{-- KHỞI TẠO ALPINE VỚI DỮ LIỆU TỪ PHP --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                size: null,
-                color: null,
-                qty: 1,
-                loading: false,
-                added: false,
-                images: ['{{ $mainImage }}'] 
-            }">
+        size: null,
+        color: null,
+        qty: 1,
+        loading: false,
+        added: false,
+        
+        // 1. Ảnh đang hiển thị (mặc định lấy ảnh thumbnail của product)
+        currentImage: '{{ $defaultImage }}',
+
+        // 2. Map dữ liệu PHP sang JS (Laravel tự chuyển array thành JSON object)
+        imageMap: {{ json_encode($variantImages) }},
+
+        // 3. Hàm đổi màu -> đổi ảnh
+        selectColor(selectedColor) {
+            this.color = selectedColor;
+            
+            // Nếu màu này có ảnh riêng thì đổi, không thì giữ nguyên ảnh cũ
+            if (this.imageMap[selectedColor]) {
+                this.currentImage = this.imageMap[selectedColor];
+            }
+        }
+    }">
 
                 {{-- LEFT: GALLERY (SINGLE HERO IMAGE - RESPONSIVE) --}}
                 <div class="lg:col-span-7 col-span-12 w-full mb-8 lg:mb-0">
                     <div
                         class="relative w-full aspect-[3/4] lg:aspect-[4/5] bg-neutral-100 overflow-hidden group cursor-zoom-in">
                         {{-- Main Image --}}
-                        <img src="{{ $mainImage }}" alt="{{ $product->name }}"
+                        <img :src="currentImage" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                             loading="eager" fetchpriority="high">
 
@@ -151,20 +168,41 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                 <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
                                 <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
                             </div>
+
+                            {{-- Hiển thị danh sách màu CÓ THẬT từ Database --}}
+                            @if(count($availableColors) > 0)
                             <div class="flex gap-3">
-                                <template x-for="c in [
-                                    {id:'black', cls:'bg-neutral-900'},
-                                    {id:'white', cls:'bg-white border border-gray-200'},
-                                    {id:'beige', cls:'bg-[#E8E0D5]'},
-                                    {id:'navy',  cls:'bg-[#1F2937]'}
-                                ]" :key="c.id">
-                                    <button type="button" @click="color = c.id"
-                                        class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                        :class="color === c.id ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-                                        <div :class="c.cls" class="w-full h-full rounded-full"></div>
-                                    </button>
-                                </template>
+                                @foreach($availableColors as $c)
+                                {{-- Logic hiển thị màu Background --}}
+                                @php
+                                // Map tên màu sang mã Hex để hiển thị cái chấm tròn (Bà có thể mở rộng cái này sau)
+                                $bgClass = match(strtolower($c)) {
+                                'black' => 'bg-neutral-900',
+                                'white' => 'bg-white border border-gray-200',
+                                'beige' => 'bg-[#E8E0D5]',
+                                'navy' => 'bg-[#1F2937]',
+                                'red' => 'bg-red-600',
+                                'blue' => 'bg-blue-600',
+                                'green' => 'bg-green-600',
+                                default => 'bg-gray-200' // Fallback nếu màu lạ
+                                };
+                                @endphp
+
+                                {{-- Gọi hàm selectColor khi click --}}
+                                <button type="button" @click="selectColor('{{ $c }}')"
+                                    class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
+                                    :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
+
+                                    {{-- Nếu không có class màu cụ thể thì dùng style inline --}}
+                                    <div class="{{ $bgClass }} w-full h-full rounded-full" @if($bgClass=='bg-gray-200' )
+                                        style="background-color: {{ $c }}" @endif>
+                                    </div>
+                                </button>
+                                @endforeach
                             </div>
+                            @else
+                            <p class="text-sm text-neutral-400 italic">One color only</p>
+                            @endif
                         </div>
 
                         {{-- Size Selection --}}
