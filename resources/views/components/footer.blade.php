@@ -83,7 +83,7 @@
                         <li><a href="{{ route('faq') }}" class="hover:text-black transition">FAQ</a></li>
                         <li><a href="{{ route('contact.index') }}" class="hover:text-black transition">Contact Us</a>
                         </li>
-                        <li><a href="#" class="hover:text-black transition">Size Guide</a></li>
+
                     </ul>
                 </div>
 

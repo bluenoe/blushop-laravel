@@ -235,8 +235,7 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                         <div class="mb-8">
                             <div class="flex justify-between mb-2">
                                 <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
-                                <button type="button" class="text-xs underline text-neutral-400 hover:text-black">Size
-                                    Guide</button>
+                                <x-product.size-guide-modal model-info="Model is 175cm / 65kg – Wearing size M" />
                             </div>
                             <div class="grid grid-cols-4 gap-2">
                                 <template x-for="s in ['S','M','L','XL']" :key="s">
