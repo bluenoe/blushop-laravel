@@ -1,7 +1,7 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Home v6 - Fixed Layout & Visual Hierarchy
-Status: STABLE (Flexbox Hybrid Layout)
+BluShop Home v7 - Visual Hierarchy & Infinite Scroll
+Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
 ═══════════════════════════════════════════════════════════════
 --}}
 
@@ -16,7 +16,7 @@ Status: STABLE (Flexbox Hybrid Layout)
             scroll-behavior: smooth;
         }
 
-        /* Marquee Animation */
+        /* Marquee Animation - Text */
         @keyframes marquee {
             0% {
                 transform: translateX(0);
@@ -29,6 +29,26 @@ Status: STABLE (Flexbox Hybrid Layout)
 
         .animate-marquee {
             animation: marquee 40s linear infinite;
+        }
+
+        /* Marquee Animation - Products (Slower) */
+        @keyframes scroll-product {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-scroll-product {
+            animation: scroll-product 60s linear infinite;
+        }
+
+        /* Pause on Hover Utility */
+        .hover-pause:hover {
+            animation-play-state: paused;
         }
 
         /* Utility */
@@ -49,13 +69,11 @@ Status: STABLE (Flexbox Hybrid Layout)
         1. HERO SECTION
         ========================================== --}}
         <section class="relative h-screen min-h-[600px] w-full flex items-end pb-12 md:pb-24">
-            {{-- Background --}}
             <div class="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop"
                     alt="Campaign" class="w-full h-full object-cover object-center brightness-75">
             </div>
 
-            {{-- Text Content --}}
             <div
                 class="relative z-10 w-full max-w-[1600px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
                 <div class="md:col-span-8">
@@ -107,19 +125,13 @@ Status: STABLE (Flexbox Hybrid Layout)
         3. CATEGORIES (FIXED LAYOUT)
         ========================================== --}}
         <section class="pb-24 px-4 md:px-8 max-w-[1600px] mx-auto">
-            {{-- FIX: Changed h-[800px] to min-h-[800px] to prevent content overflow --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:min-h-[800px]">
-
-                {{-- LEFT COLUMN: WOMEN (Full Height) --}}
+                {{-- LEFT COLUMN: WOMEN --}}
                 <div class="relative w-full h-[500px] md:h-auto group overflow-hidden cursor-pointer bg-neutral-100"
                     data-reveal>
                     <img src="https://images.unsplash.com/photo-1548622722-1f74fa2772a5?q=80&w=1000&auto=format&fit=crop"
                         alt="Women" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
-
-                    {{-- Overlay --}}
                     <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition z-10"></div>
-
-                    {{-- Text Content --}}
                     <div class="absolute bottom-10 left-10 text-white z-20 pointer-events-none">
                         <h3 class="text-5xl md:text-6xl font-bold tracking-tighter mb-2">Women</h3>
                         <p
@@ -127,30 +139,24 @@ Status: STABLE (Flexbox Hybrid Layout)
                             Elegance in every stitch.
                         </p>
                     </div>
-
-                    {{-- Link --}}
                     <a href="{{ route('products.index', ['category' => 'women']) }}" class="absolute inset-0 z-10"></a>
                 </div>
 
-                {{-- RIGHT COLUMN: MEN & FRAGRANCE (Flex Column) --}}
+                {{-- RIGHT COLUMN: MEN & FRAGRANCE --}}
                 <div class="flex flex-col gap-4 h-full">
-
                     {{-- TOP: MEN --}}
                     <div class="relative flex-1 min-h-[350px] group overflow-hidden cursor-pointer bg-neutral-100"
                         data-reveal style="transition-delay: 100ms">
                         <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1000&auto=format&fit=crop"
                             alt="Men"
                             class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
-
                         <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition z-10"></div>
-
                         <div class="absolute bottom-8 left-8 text-white z-20 pointer-events-none">
                             <h3 class="text-4xl md:text-5xl font-bold tracking-tighter">Men</h3>
                             <p
                                 class="text-xs uppercase tracking-widest mt-2 opacity-80 group-hover:opacity-100 transition">
                                 Modern Utility</p>
                         </div>
-
                         <a href="{{ route('products.index', ['category' => 'men']) }}"
                             class="absolute inset-0 z-10"></a>
                     </div>
@@ -161,14 +167,11 @@ Status: STABLE (Flexbox Hybrid Layout)
                         <img src="https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=1000&auto=format&fit=crop"
                             alt="Fragrance"
                             class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
-
                         <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition z-10"></div>
-
                         <div class="absolute bottom-8 left-8 text-white z-20 pointer-events-none">
                             <h3 class="text-3xl md:text-4xl font-serif italic">Fragrance</h3>
                             <p class="text-xs uppercase tracking-widest mt-2 opacity-80">Scent of a memory</p>
                         </div>
-
                         <a href="{{ route('products.index', ['category' => 'fragrance']) }}"
                             class="absolute inset-0 z-10"></a>
                     </div>
@@ -177,66 +180,87 @@ Status: STABLE (Flexbox Hybrid Layout)
         </section>
 
         {{-- ==========================================
-        4. WEEKLY ESSENTIALS
-        ========================================== --}}
-        {{-- FIX: Added relative, z-30, and bg-white to ensure stacking context and prevent overlap --}}
-        <section class="relative z-30 bg-white py-24 px-6 max-w-[1600px] mx-auto border-t border-neutral-100">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6" data-reveal>
+        4. WEEKLY ESSENTIALS (SCROLLING CAROUSEL)
+        ========================================= --}}
+        <section class="relative z-30 bg-white py-24 overflow-hidden border-t border-neutral-100">
+            {{-- Header --}}
+            <div class="px-6 max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end mb-12 gap-6"
+                data-reveal>
                 <div>
                     <h2 class="text-3xl md:text-4xl font-bold tracking-tighter text-neutral-900">Weekly Essentials</h2>
-                    <p class="text-neutral-500 mt-2 font-light">Hand-picked items trending this week.</p>
+                    <p class="text-neutral-500 mt-2 font-light">Curated pieces defining the season.</p>
                 </div>
-                <a href="{{ route('products.index') }}"
-                    class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 transition">
-                    View All Products
-                </a>
+                <div class="hidden md:block text-[10px] text-neutral-400 font-bold uppercase tracking-widest">
+                    Scroll to Explore
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8">
-                @if(isset($featured) && $featured->count() > 0)
-                @foreach($featured as $product)
-                <div class="group relative cursor-pointer" data-reveal>
-                    <div class="aspect-[3/4] w-full overflow-hidden bg-neutral-100 relative mb-4">
-                        @php
-                        $imgSrc = $product->image;
-                        if (!Str::contains($imgSrc, 'http')) {
-                        $imgSrc = Storage::url('products/' . $imgSrc);
-                        }
-                        @endphp
-                        <img src="{{ $imgSrc }}" alt="{{ $product->name }}" loading="lazy"
-                            class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105">
+            {{-- Product Carousel Track --}}
+            @if(isset($featured) && $featured->count() > 0)
+            {{-- Logic: Concat collection to itself to create seamless loop --}}
+            @php $marqueeItems = $featured->count() < 4 ? $featured->concat($featured)->concat($featured) :
+                $featured->concat($featured); @endphp
 
-                        {{-- Quick View Button --}}
-                        <div
-                            class="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition duration-300 z-20">
-                            <span
-                                class="bg-white text-black text-[10px] font-bold uppercase px-6 py-3 tracking-widest hover:bg-black hover:text-white transition shadow-lg">
-                                Quick View
-                            </span>
-                        </div>
-                        <a href="{{ route('products.show', $product->id) }}" class="absolute inset-0 z-10"></a>
+                <div class="relative w-full">
+                    {{-- Mask for edges (optional, adds fade effect) --}}
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute right-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none">
                     </div>
 
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3
-                                class="text-sm font-bold text-neutral-900 group-hover:underline underline-offset-4 decoration-1">
-                                {{ $product->name }}
-                            </h3>
-                            <p class="text-[10px] text-neutral-500 mt-1 uppercase tracking-wider">
-                                {{ $product->category->name ?? 'Collection' }}
-                            </p>
+                    {{-- Moving Track --}}
+                    <div class="flex w-max animate-scroll-product hover-pause">
+                        @foreach($marqueeItems as $index => $product)
+                        {{-- Product Card --}}
+                        <div class="w-[280px] md:w-[320px] px-3 md:px-4 group flex-shrink-0 cursor-pointer">
+                            <div class="relative aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
+                                @php
+                                $imgSrc = $product->image;
+                                if (!Str::contains($imgSrc, 'http')) {
+                                $imgSrc = Storage::url('products/' . $imgSrc);
+                                }
+                                @endphp
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" loading="lazy"
+                                    class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105 group-hover:opacity-95">
+
+                                {{-- Quick Add Overlay --}}
+                                <div
+                                    class="absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 transition duration-300 ease-in-out z-20">
+                                    <button
+                                        class="w-full bg-white/90 backdrop-blur-sm text-black text-[10px] font-bold uppercase py-4 hover:bg-black hover:text-white transition">
+                                        Quick Add
+                                    </button>
+                                </div>
+
+                                <a href="{{ route('products.show', $product->id) }}" class="absolute inset-0 z-10"></a>
+                            </div>
+
+                            {{-- Info --}}
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">
+                                    {{ $product->category->name ?? 'Essentials' }}
+                                </p>
+                                <div class="flex justify-between items-baseline">
+                                    <h3
+                                        class="text-sm font-medium text-neutral-900 group-hover:text-neutral-500 transition line-clamp-1 pr-4">
+                                        {{ $product->name }}
+                                    </h3>
+                                    <span class="text-sm font-medium whitespace-nowrap">
+                                        {{ number_format($product->price, 0, ',', '.') }} ₫
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <span class="text-sm font-medium">{{ number_format($product->price, 0, ',', '.') }} ₫</span>
+                        @endforeach
                     </div>
                 </div>
-                @endforeach
                 @else
-                <div class="col-span-4 text-center py-12 border border-dashed border-neutral-200">
-                    <p class="text-neutral-400">No featured products found.</p>
+                <div class="px-6 max-w-[1600px] mx-auto text-center py-20 border-y border-dashed border-neutral-200">
+                    <p class="text-neutral-400 font-light italic">New collection dropping soon.</p>
                 </div>
                 @endif
-            </div>
         </section>
 
         {{-- ==========================================
@@ -296,7 +320,6 @@ Status: STABLE (Flexbox Hybrid Layout)
                 <h2 class="text-3xl font-bold tracking-tight mb-4">Join the Inner Circle</h2>
                 <p class="text-neutral-500 font-light mb-10">Sign up for exclusive drops, early access, and minimalist
                     inspiration.</p>
-
                 <form class="flex flex-col sm:flex-row gap-4">
                     <input type="email" placeholder="Email address"
                         class="w-full bg-neutral-50 border-neutral-200 focus:border-black focus:ring-0 text-sm px-4 py-3 placeholder-neutral-400">
@@ -313,7 +336,6 @@ Status: STABLE (Flexbox Hybrid Layout)
 
     @push('scripts')
     <script>
-        // Reveal Animation Logic
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
