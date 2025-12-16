@@ -6,7 +6,7 @@
     tab: 'chart'
 }" class="inline-block">
 
-    {{-- 1. TRIGGER BUTTON (Giữ nguyên) --}}
+    {{-- 1. TRIGGER BUTTON --}}
     <button @click="open = true" type="button"
         class="flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-black transition-colors underline underline-offset-4 decoration-1">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,21 +16,23 @@
         Size Guide
     </button>
 
-    {{-- 2. TELEPORT MAGIC (QUAN TRỌNG NHẤT) --}}
-    {{-- Bọc toàn bộ Modal trong thẻ template này để đẩy nó ra body --}}
+    {{-- 2. TELEPORT FIX --}}
     <template x-teleport="body">
 
-        <div x-show="open" style="display: none;" x-transition.opacity class="fixed inset-0 z-[9999] overflow-y-auto"
-            {{-- z-9999 khi ra body sẽ đè được header --}} aria-labelledby="modal-title" role="dialog"
-            aria-modal="true">
+        {{-- WRAPPER CHÍNH: Bỏ x-transition ở đây để tránh chớp --}}
+        <div x-show="open" style="display: none;" class="fixed inset-0 z-[9999] overflow-y-auto"
+            aria-labelledby="modal-title" role="dialog" aria-modal="true">
 
-            {{-- Backdrop (Giữ nguyên) --}}
-            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="open = false"></div>
+            {{-- BACKDROP: Thêm transition riêng cho nền đen --}}
+            <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="open = false"></div>
 
-            {{-- Modal Content Container (Giữ nguyên) --}}
+            {{-- CONTENT CONTAINER --}}
             <div class="flex min-h-full items-center justify-center p-4 text-center">
 
-                {{-- MODAL PANEL --}}
+                {{-- MODAL PANEL: Transition riêng cho bảng trắng --}}
                 <div x-show="open" x-transition:enter="ease-out duration-300"
                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -50,10 +52,10 @@
                         </button>
                     </div>
 
-                    {{-- Scrollable Content Wrapper --}}
+                    {{-- Scrollable Content --}}
                     <div class="overflow-y-auto p-6 sm:p-0">
-
                         <div class="grid grid-cols-1 lg:grid-cols-12">
+
                             {{-- SIDE A: SIZE CHART --}}
                             <div
                                 class="lg:col-span-7 p-2 sm:p-10 border-b lg:border-b-0 lg:border-r border-neutral-100">
@@ -93,7 +95,6 @@
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-neutral-50 text-neutral-600">
-                                            {{-- Data Rows (Giữ nguyên) --}}
                                             <tr class="hover:bg-neutral-50/50 transition-colors">
                                                 <td class="py-4 pr-4 font-bold text-black">XS</td>
                                                 <td class="py-4 px-4 text-center"><span
