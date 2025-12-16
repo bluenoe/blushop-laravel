@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -11,105 +12,276 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // --- BIỆN PHÁP MẠNH ---
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
         DB::table('products')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        // -----------------------
+        Schema::enableForeignKeyConstraints();
 
         $now = Carbon::now();
-        // ... (Giữ nguyên phần code mảng $items và logic insert bên dưới của bà) ...
-        // (Nếu bà cần tui gửi lại full file này thì bảo nhé, nhưng chỉ cần thay đoạn đầu là được)
 
-        // Helper lấy ID category (Copy lại cho chắc)
+        // Helper lấy ID category
         $getCat = function ($slug) {
             return DB::table('categories')->where('slug', $slug)->value('id');
         };
 
-        $items = [
-            // ==========================================
-            // 👔 MEN COLLECTION (Core)
-            // ==========================================
-            ['name' => 'Essential Tee - Black',      'price' => 199000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Essential Tee - White',      'price' => 199000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Heavy Cotton Oversized Tee', 'price' => 249000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Everyday Hoodie',            'price' => 399000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'MA-1 Bomber Jacket',         'price' => 599000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Utility Cargo Pants',        'price' => 459000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Slim Fit Chinos',            'price' => 399000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Varsity Jacket',             'price' => 699000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Performance Active Tee',     'price' => 229000, 'cat' => $getCat('men-activewear')],
-            ['name' => 'Running Shorts',             'price' => 259000, 'cat' => $getCat('men-activewear')],
+        // Hàm tự động đoán danh mục dựa trên tên sản phẩm
+        $guessCat = function ($name, $gender) use ($getCat) {
+            $n = strtolower($name);
+            $prefix = $gender === 'men' ? 'men-' : 'women-';
 
-            // --- 🆕 10 NEW MEN ITEMS (Minimalist Style) ---
-            ['name' => 'Stone Wash Denim Jacket',    'price' => 650000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Relaxed Pleated Trouser',    'price' => 480000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Heavyweight Mock Neck',      'price' => 320000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Technical Cargo Short',      'price' => 290000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Merino Wool Polo',           'price' => 450000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Canvas Chore Coat',          'price' => 590000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Drop Shoulder Sweatshirt',   'price' => 360000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Seersucker Camp Shirt',      'price' => 310000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Nylon Ripstop Vest',         'price' => 420000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Textured Knit Sweater',      'price' => 520000, 'cat' => $getCat('men-tops')],
+            if (Str::contains($n, ['tee', 'shirt', 'polo', 'top', 'henley', 'tank', 'camisole', 'bodysuit', 'blouse', 'vest', 'sweater', 'cardigan', 'crewneck', 'mock neck'])) return $getCat($prefix . 'tops');
+            if (Str::contains($n, ['hoodie', 'jacket', 'coat', 'bomber', 'blazer', 'puffer', 'trench', 'windbreaker', 'pullover', 'parka', 'overshirt'])) return $getCat($prefix . 'outerwear');
+            if (Str::contains($n, ['pant', 'jean', 'chino', 'trouser', 'jogger', 'legging', 'sweatpant', 'skirt', 'short'])) return $getCat($prefix . 'bottoms');
+            if (Str::contains($n, ['dress', 'gown', 'robe'])) return $getCat('women-dresses');
 
+            return $getCat($prefix . 'tops'); // Fallback
+        };
 
-            // ==========================================
-            // 👗 WOMEN COLLECTION (Core)
-            // ==========================================
-            ['name' => 'Silk Camisole',              'price' => 229000, 'cat' => $getCat('women-tops')],
-            ['name' => 'Flowy Maxi Dress',           'price' => 459000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Floral Midi Dress',          'price' => 499000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Cocktail Mini Dress',        'price' => 399000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Pleated Midi Skirt',         'price' => 359000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'High-Waisted Mom Jeans',     'price' => 459000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'Classic Trench Coat',        'price' => 899000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Cropped Puffer',             'price' => 599000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Oversized Blazer',           'price' => 699000, 'cat' => $getCat('women-outerwear')],
-
-            // --- 🆕 10 NEW WOMEN ITEMS (Chic Style) ---
-            ['name' => 'Satin Midi Skirt',           'price' => 380000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'Ribbed Knit Dress',          'price' => 420000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Oversized Poplin Shirt',     'price' => 350000, 'cat' => $getCat('women-tops')],
-            ['name' => 'High-Rise Wide Leg Pant',    'price' => 490000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'Cropped Tweed Jacket',       'price' => 750000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Cashmere Crewneck',          'price' => 890000, 'cat' => $getCat('women-tops')],
-            ['name' => 'Linen Wrap Blazer',          'price' => 620000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Asymmetric Hem Top',         'price' => 280000, 'cat' => $getCat('women-tops')],
-            ['name' => 'Structured Wool Coat',       'price' => 1200000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Pleated Tennis Skort',       'price' => 250000, 'cat' => $getCat('women-bottoms')],
-
-
-            // ==========================================
-            // 🧴 FRAGRANCE (Lifestyle)
-            // ==========================================
-            ['name' => 'Santal 33 - Le Labo',        'price' => 4500000, 'cat' => $getCat('fragrance-unisex')],
-            ['name' => 'Bleu de Chanel',             'price' => 3200000, 'cat' => $getCat('fragrance-for-him')],
-            ['name' => 'Dior Sauvage Elixir',        'price' => 3800000, 'cat' => $getCat('fragrance-for-him')],
-            ['name' => 'YSL Libre',                  'price' => 2900000, 'cat' => $getCat('fragrance-for-her')],
-            ['name' => 'Miss Dior Blooming',         'price' => 2800000, 'cat' => $getCat('fragrance-for-her')],
-            ['name' => 'Tom Ford Tobacco Vanille',   'price' => 6500000, 'cat' => $getCat('fragrance-unisex')],
+        // ==========================================
+        // 1. DANH SÁCH 85 SẢN PHẨM NAM (MEN)
+        // ==========================================
+        $menItems = [
+            'Essential Crew Neck Tee',
+            'Heavyweight Oversized Tee',
+            'Vintage Wash Graphic Tee',
+            'Striped Pocket Tee',
+            'Performance Active Tee',
+            'Pique Cotton Polo',
+            'Merino Wool Polo',
+            'Linen Blend Camp Shirt',
+            'Oxford Button Down',
+            'Flannel Plaid Shirt',
+            'Denim Western Shirt',
+            'Corduroy Overshirt',
+            'Mock Neck Long Sleeve',
+            'Waffle Knit Henley',
+            'Thermal Long Sleeve',
+            'Everyday Pullover Hoodie',
+            'Heavyweight Zip Hoodie',
+            'French Terry Sweatshirt',
+            'Drop Shoulder Crewneck',
+            'Vintage Wash Sweatshirt',
+            'MA-1 Bomber Jacket',
+            'Classic Denim Trucker',
+            'Varsity Letterman Jacket',
+            'Tech Windbreaker',
+            'Nylon Puffer Vest',
+            'Canvas Chore Coat',
+            'Harrington Jacket',
+            'Sherpa Lined Trucker',
+            'Waterproof Parka',
+            'Quilted Liner Jacket',
+            'Faux Leather Biker',
+            'Wool Blend Peacoat',
+            'Technical Field Jacket',
+            'Lightweight Coach Jacket',
+            'Fleece Zip Jacket',
+            'Slim Fit Chino Pant',
+            'Straight Leg Chino',
+            'Relaxed Fit Pleated Trouser',
+            'Utility Cargo Pant',
+            'Tech Fleece Jogger',
+            'Tapered Sweatpant',
+            'Slim Tapered Jeans',
+            'Straight Leg Vintage Jeans',
+            'Skinny Fit Stretch Jeans',
+            'Carpenter Work Pant',
+            'Corduroy Carpenter Pant',
+            'Linen Drawstring Trouser',
+            'Ripstop Cargo Pant',
+            'Nylon Track Pant',
+            'Hybrid Golf Pant',
+            'Chino Short 5 Inch',
+            'Chino Short 7 Inch',
+            'Nylon Swim Trunk',
+            'Board Short',
+            'Sweat Short',
+            'Mesh Athletic Short',
+            'Cargo Short',
+            'Pleated Dress Short',
+            'Linen Blend Short',
+            'Running Performance Short',
+            'Structured Boxy Tee',
+            'Raw Hem Cropped Tee',
+            'Tie Dye Graphic Tee',
+            'Bandana Print Shirt',
+            'Cuban Collar Shirt',
+            'Knitted Polo Shirt',
+            'Zip Neck Polo',
+            'Raglan Baseball Tee',
+            'Sleeveless Muscle Tee',
+            'Oversized Pocket Tee',
+            'Track Jacket Retro',
+            'Souvenir Jacket',
+            'Suede Bomber Jacket',
+            'Down Puffer Jacket',
+            'Trench Coat Beige',
+            'Wide Leg Denim',
+            'Baggy Carpenter Jean',
+            'Bootcut Jean',
+            'Raw Denim Selvedge',
+            'Double Knee Work Pant',
+            'Tech Commuter Pant',
+            'Smart Ankle Pant',
+            'Jersey Lounge Short',
+            'Retro Basketball Short',
+            'Seersucker Short'
         ];
 
+        // ==========================================
+        // 2. DANH SÁCH 81 SẢN PHẨM NỮ (WOMEN)
+        // ==========================================
+        $womenItems = [
+            'Baby Tee Cropped',
+            'Ribbed Tank Top',
+            'Silk Camisole',
+            'Oversized Graphic Tee',
+            'Boxy Fit Cotton Tee',
+            'Striped Long Sleeve',
+            'Square Neck Bodysuit',
+            'Off Shoulder Top',
+            'Puff Sleeve Blouse',
+            'Linen Button Down',
+            'Satin Wrap Top',
+            'Chiffon Peplum Top',
+            'Cropped Knit Cardigan',
+            'Cable Knit Sweater',
+            'Turtleneck Ribbed Top',
+            'Cashmere Crewneck',
+            'V-Neck Slouchy Sweater',
+            'Oversized Poplin Shirt',
+            'Tie Front Crop Top',
+            'Sheer Mesh Top',
+            'Flowy Maxi Dress',
+            'Floral Midi Dress',
+            'Satin Slip Dress',
+            'Ribbed Knit Midi Dress',
+            'Cocktail Mini Dress',
+            'Linen Shirt Dress',
+            'Wrap Midi Dress',
+            'Bodycon Mini Dress',
+            'Boho Tiered Dress',
+            'Velvet Slip Dress',
+            'Cut Out Midi Dress',
+            'Backless Summer Dress',
+            'Tweed Mini Dress',
+            'Ruched Party Dress',
+            'Denim Overall Dress',
+            'Pleated Midi Skirt',
+            'Satin Midi Skirt',
+            'Denim Mini Skirt',
+            'Tennis Skirt',
+            'A-Line Mini Skirt',
+            'Maxi Boho Skirt',
+            'Pencil Skirt Office',
+            'Cargo Mini Skirt',
+            'Leather Mini Skirt',
+            'Tiered Ruffle Skirt',
+            'High Waisted Mom Jeans',
+            'Wide Leg Dad Jeans',
+            'Straight Leg Vintage Jeans',
+            'Skinny High Rise Jeans',
+            'Flare Leg Jeans',
+            'Cargo Parachute Pant',
+            'Tailored Wide Leg Trouser',
+            'Linen Paloma Pant',
+            'Faux Leather Legging',
+            'Yoga Flare Legging',
+            'Biker Short',
+            'Denim Mom Short',
+            'Linen High Waist Short',
+            'Tailored Bermuda Short',
+            'Sweat Short Cozy',
+            'Classic Trench Coat',
+            'Oversized Blazer',
+            'Cropped Puffer Jacket',
+            'Wool Blend Coat',
+            'Denim Sherpa Jacket',
+            'Faux Fur Coat',
+            'Leather Moto Jacket',
+            'Teddy Bear Coat',
+            'Quilted Barn Jacket',
+            'Tech Windbreaker',
+            'Cropped Tweed Jacket',
+            'Soft Lounge Set',
+            'Waffle Knit Lounge Set',
+            'Velour Tracksuit',
+            'Pajama Silk Set',
+            'Active Racerback Bra',
+            'Seamless Legging Set',
+            'Tennis Dress',
+            'One Piece Swimsuit',
+            'High Waist Bikini',
+            'Sarong Wrap'
+        ];
+
+        // ==========================================
+        // 3. XỬ LÝ DỮ LIỆU
+        // ==========================================
         $data = [];
-        foreach ($items as $item) {
-            $fakeImg = Str::slug($item['name']) . '.jpg';
+
+        // Xử lý Men (85 items)
+        foreach ($menItems as $name) {
             $data[] = [
-                'name'          => $item['name'],
-                'slug'          => Str::slug($item['name']),
-                'description'   => "Designed for modern living. Minimalist aesthetic typical of BluShop.",
-                'price'         => $item['price'],
-                'image'         => $fakeImg,
-                'category_id'   => $item['cat'],
-                'type'          => str_contains($item['name'], 'Dior') || str_contains($item['name'], 'Santal') ? 'fragrance' : 'apparel',
-                'is_new'        => rand(0, 1) > 0.6,
-                'is_bestseller' => rand(0, 1) > 0.7,
+                'name'          => $name,
+                'slug'          => Str::slug($name),
+                'description'   => "Designed for modern living. The {$name} features premium materials and a minimalist aesthetic typical of BluShop.",
+                'price'         => rand(290, 890) * 1000, // Giá random từ 290k đến 890k
+                'image'         => Str::slug($name) . '.jpg',
+                'category_id'   => $guessCat($name, 'men'),
+                'type'          => 'apparel',
+                'is_new'        => rand(0, 1) > 0.7,
+                'is_bestseller' => rand(0, 1) > 0.8,
                 'is_on_sale'    => rand(0, 1) > 0.8,
                 'created_at'    => $now,
                 'updated_at'    => $now,
             ];
         }
 
-        DB::table('products')->insert($data);
+        // Xử lý Women (81 items)
+        foreach ($womenItems as $name) {
+            $data[] = [
+                'name'          => $name,
+                'slug'          => Str::slug($name),
+                'description'   => "Designed for modern living. The {$name} features premium materials and a minimalist aesthetic typical of BluShop.",
+                'price'         => rand(190, 990) * 1000,
+                'image'         => Str::slug($name) . '.jpg',
+                'category_id'   => $guessCat($name, 'women'),
+                'type'          => 'apparel',
+                'is_new'        => rand(0, 1) > 0.7,
+                'is_bestseller' => rand(0, 1) > 0.8,
+                'is_on_sale'    => rand(0, 1) > 0.8,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+            ];
+        }
+
+        // Thêm vài chai nước hoa cho sang
+        $fragrances = [
+            ['name' => 'Santal 33 - Le Labo', 'price' => 4500000, 'cat' => 'fragrance-unisex'],
+            ['name' => 'Bleu de Chanel',      'price' => 3200000, 'cat' => 'fragrance-for-him'],
+            ['name' => 'YSL Libre',           'price' => 2900000, 'cat' => 'fragrance-for-her'],
+        ];
+
+        foreach ($fragrances as $item) {
+            $data[] = [
+                'name' => $item['name'],
+                'slug' => Str::slug($item['name']),
+                'description' => 'Luxury fragrance.',
+                'price' => $item['price'],
+                'image' => Str::slug($item['name']) . '.jpg',
+                'category_id' => $getCat($item['cat']),
+                'type' => 'fragrance',
+                'is_new' => false,
+                'is_bestseller' => true,
+                'is_on_sale' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        // Insert theo chunk để không bị quá tải
+        foreach (array_chunk($data, 50) as $chunk) {
+            DB::table('products')->insert($chunk);
+        }
     }
 }
