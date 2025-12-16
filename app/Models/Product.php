@@ -67,4 +67,9 @@ class Product extends Model
     {
         return $this->hasMany(\App\Models\Review::class);
     }
+    // Thêm quan hệ với ProductImage
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
 }

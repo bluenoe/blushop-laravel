@@ -46,23 +46,53 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            $mainImage = Storage::url('products/' . $product->image);
+            // 1. Logic tìm ảnh mặc định thông minh hơn
+            // Ưu tiên 1: Lấy ảnh có cờ is_main = 1
+            $defImgObj = $product->images->firstWhere('is_main', 1);
+
+            // Ưu tiên 2: Nếu không có is_main, lấy đại cái ảnh đầu tiên trong list
+            if (!$defImgObj) {
+            $defImgObj = $product->images->first();
+            }
+
+            // 3. Tạo đường dẫn ảnh (Handle trường hợp null để không bị lỗi trắng trang)
+            $defaultImage = $defImgObj
+            ? Storage::url('products/' . $defImgObj->image_path)
+            : 'https://placehold.co/600x800?text=No+Image'; // Fallback nếu SP không có ảnh nào
+
+            // 4. Lấy luôn cái màu của ảnh đó để set mặc định
+            $defaultColor = $defImgObj ? $defImgObj->color : null;
             @endphp
+
+            {{-- KHỞI TẠO ALPINE VỚI DỮ LIỆU MẶC ĐỊNH ĐÃ TÍNH TOÁN --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                size: null,
-                color: null,
-                qty: 1,
-                loading: false,
-                added: false,
-                images: ['{{ $mainImage }}'] 
-            }">
+        // Gán màu mặc định ngay khi vào trang (thay vì null)
+        size: null,
+        color: '{{ $defaultColor }}', 
+        qty: 1,
+        loading: false,
+        added: false,
+        
+        // Ảnh đang hiển thị
+        currentImage: '{{ $defaultImage }}',
+
+        // Map dữ liệu PHP sang JS
+        imageMap: {{ json_encode($variantImages) }},
+
+        selectColor(selectedColor) {
+            this.color = selectedColor;
+            if (this.imageMap[selectedColor]) {
+                this.currentImage = this.imageMap[selectedColor];
+            }
+        }
+    }">
 
                 {{-- LEFT: GALLERY (SINGLE HERO IMAGE - RESPONSIVE) --}}
                 <div class="lg:col-span-7 col-span-12 w-full mb-8 lg:mb-0">
                     <div
                         class="relative w-full aspect-[3/4] lg:aspect-[4/5] bg-neutral-100 overflow-hidden group cursor-zoom-in">
                         {{-- Main Image --}}
-                        <img src="{{ $mainImage }}" alt="{{ $product->name }}"
+                        <img :src="currentImage" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                             loading="eager" fetchpriority="high">
 
@@ -151,20 +181,54 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                 <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
                                 <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
                             </div>
+
+                            {{-- Hiển thị danh sách màu CÓ THẬT từ Database --}}
+                            @if(count($availableColors) > 0)
                             <div class="flex gap-3">
-                                <template x-for="c in [
-                                    {id:'black', cls:'bg-neutral-900'},
-                                    {id:'white', cls:'bg-white border border-gray-200'},
-                                    {id:'beige', cls:'bg-[#E8E0D5]'},
-                                    {id:'navy',  cls:'bg-[#1F2937]'}
-                                ]" :key="c.id">
-                                    <button type="button" @click="color = c.id"
-                                        class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                        :class="color === c.id ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-                                        <div :class="c.cls" class="w-full h-full rounded-full"></div>
-                                    </button>
-                                </template>
+                                @foreach($availableColors as $c)
+                                {{-- Logic hiển thị màu Background --}}
+                                @php
+                                $bgClass = match(strtolower($c)) {
+                                // Basic Monochromes
+                                'black' => 'bg-[#171717]', // Neutral-900 (Đen lì)
+                                'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]', // Trắng tinh khôi
+                                'grey', 'gray', 'charcoal' => 'bg-[#52525B]', // Zinc-600 (Xám chuột)
+
+                                // Minimalist Earth Tones (Màu đất dịu mắt)
+                                'beige', 'cream' => 'bg-[#E8E0D5]', // Beige (Màu kem)
+                                'brown', 'khaki' => 'bg-[#5D4037]', // Nâu đất
+                                'olive' => 'bg-[#556B2F]', // Xanh rêu trầm
+                                'taupe' => 'bg-[#8B8589]', // Màu nâu xám
+
+                                // Muted Colors (Màu trầm sang trọng)
+                                'navy' => 'bg-[#1F2937]', // Xanh than (Gray-800)
+                                'blue' => 'bg-[#64748B]', // Slate-500 (Xanh ghi, không phải xanh dương chói)
+                                'red', 'burgundy' => 'bg-[#7F1D1D]', // Red-900 (Đỏ rượu vang)
+                                'green' => 'bg-[#3F6212]', // Green-800 (Xanh lá già)
+                                'yellow', 'mustard' => 'bg-[#CA8A04]', // Yellow-700 (Vàng mù tạt)
+                                'pink', 'rose' => 'bg-[#FB7185]', // Rose-400 (Hồng đất)
+                                'purple' => 'bg-[#581C87]', // Tím than
+
+                                // Fallback (Màu mặc định nếu lạ)
+                                default => 'bg-[#D4D4D4]' // Xám nhạt
+                                };
+                                @endphp
+
+                                {{-- Gọi hàm selectColor khi click --}}
+                                <button type="button" @click="selectColor('{{ $c }}')"
+                                    class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
+                                    :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
+
+                                    {{-- Nếu không có class màu cụ thể thì dùng style inline --}}
+                                    <div class="{{ $bgClass }} w-full h-full rounded-full" @if($bgClass=='bg-gray-200' )
+                                        style="background-color: {{ $c }}" @endif>
+                                    </div>
+                                </button>
+                                @endforeach
                             </div>
+                            @else
+                            <p class="text-sm text-neutral-400 italic">One color only</p>
+                            @endif
                         </div>
 
                         {{-- Size Selection --}}

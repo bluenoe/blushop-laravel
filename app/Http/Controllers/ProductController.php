@@ -6,7 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str; // Import thêm Str để xử lý chuỗi
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -15,12 +15,12 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Base Query: Chỉ select cột cần thiết
+        // 1. Base Query
         $query = Product::query()
             ->select(['id', 'name', 'slug', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
             ->with(['category:id,name,slug']);
 
-        // 2. Filter: Category (Hỗ trợ cả danh mục Cha và Con)
+        // 2. Filter: Category
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
             $category = Category::where('slug', $slug)->first();
@@ -99,22 +99,37 @@ class ProductController extends Controller
     public function show(int $id)
     {
         // 1. Fetch Product
-        $product = Product::with('category')
+        // [UPDATE] Thêm 'images' vào để load bảng product_images
+        $product = Product::with(['category', 'images'])
             ->withCount('reviews')
             ->findOrFail($id);
 
+        // [NEW LOGIC] Xử lý Color & Image Swap cho Frontend
+        // Kết quả: ['Black' => '/storage/products/img1.jpg', 'White' => '/storage/products/img2.jpg']
+        $variantImages = $product->images
+            ->whereNotNull('color')
+            ->mapWithKeys(function ($item) {
+                // Lưu ý: Nếu trong DB bà lưu full path thì dùng $item->image_path
+                // Nếu chỉ lưu filename thì nối thêm 'products/' vào như bên dưới:
+                $path = Str::startsWith($item->image_path, 'products/')
+                    ? $item->image_path
+                    : 'products/' . $item->image_path;
+
+                return [$item->color => Storage::url($path)];
+            });
+
+        // Lấy danh sách màu để tạo nút bấm
+        $availableColors = $variantImages->keys()->toArray();
+
         // 2. LOGIC THÔNG MINH: Detect Gender từ Category Name
-        // Kiểm tra xem tên danh mục có chứa từ khóa nữ không
         $catName = optional($product->category)->name ?? '';
         $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Váy', 'Đầm', 'Female']);
 
         // 3. COMPLETE THE LOOK (Chỉ lấy Apparel + Cùng giới tính)
         $completeLook = Product::query()
-            ->where('type', 'apparel') // Chỉ lấy quần áo
-            ->where('id', '!=', $id)   // Trừ sản phẩm đang xem
+            ->where('type', 'apparel')
+            ->where('id', '!=', $id)
             ->whereHas('category', function ($q) use ($isFemale) {
-                // Nếu là đồ Nữ -> Chỉ tìm danh mục có chữ Nữ/Women
-                // Nếu là đồ Nam -> Chỉ tìm danh mục có chữ Nam/Men
                 if ($isFemale) {
                     $q->where(function ($sub) {
                         $sub->where('name', 'like', '%Women%')
@@ -133,7 +148,7 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        // Fallback: Nếu không tìm thấy đồ cùng giới tính (do DB ít), lấy random apparel
+        // Fallback
         if ($completeLook->isEmpty()) {
             $completeLook = Product::where('type', 'apparel')
                 ->where('id', '!=', $id)
@@ -142,8 +157,7 @@ class ProductController extends Controller
                 ->get();
         }
 
-        // 4. CURATED FOR YOU (Chỉ lấy Apparel + Random cả Nam Nữ)
-        // Biến này sẽ thay thế cho $relatedProducts ở View cũ
+        // 4. CURATED FOR YOU
         $curated = Product::query()
             ->where('type', 'apparel')
             ->where('id', '!=', $id)
@@ -162,8 +176,16 @@ class ProductController extends Controller
             ? auth()->user()->wishlist()->pluck('products.id')->toArray()
             : [];
 
-        // Trả về view: Lưu ý biến $curated thay cho $relatedProducts để đúng ý đồ của bà
-        return view('products.show', compact('product', 'reviews', 'completeLook', 'curated', 'wishedIds'));
+        // Trả về view kèm theo biến $variantImages và $availableColors
+        return view('products.show', compact(
+            'product',
+            'reviews',
+            'completeLook',
+            'curated',
+            'wishedIds',
+            'variantImages',
+            'availableColors'
+        ));
     }
 
     public function autocomplete(Request $request)
