@@ -42,11 +42,14 @@ Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Products
-Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
 Route::get('/search/products', [ProductController::class, 'autocomplete'])->name('products.autocomplete');
+
+// New-arrivals
+Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
+
 
 Route::post('products/{product}/reviews', [ReviewController::class, 'store'])
     ->name('reviews.store')

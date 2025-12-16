@@ -217,4 +217,18 @@ class ProductController extends Controller
 
         return response()->json(['data' => $results]);
     }
+
+
+    /**
+     * Hiển thị trang New Arrivals (Sản phẩm mới nhất)
+     */
+    public function newArrivals()
+    {
+        // Lấy 20 sản phẩm mới nhất
+        $products = \App\Models\Product::latest()->take(20)->get();
+
+        // QUAN TRỌNG: Trỏ đúng vào file view bà mới tạo
+        // Dấu chấm thay cho dấu gạch chéo: products/new-arrivals -> products.new-arrivals
+        return view('products.new-arrivals', compact('products'));
+    }
 }
