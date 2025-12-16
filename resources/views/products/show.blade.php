@@ -46,28 +46,41 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            $defaultImage = Storage::url($product->image); // Ảnh mặc định nếu chưa chọn màu
+            // 1. Logic tìm ảnh mặc định thông minh hơn
+            // Ưu tiên 1: Lấy ảnh có cờ is_main = 1
+            $defImgObj = $product->images->firstWhere('is_main', 1);
+
+            // Ưu tiên 2: Nếu không có is_main, lấy đại cái ảnh đầu tiên trong list
+            if (!$defImgObj) {
+            $defImgObj = $product->images->first();
+            }
+
+            // 3. Tạo đường dẫn ảnh (Handle trường hợp null để không bị lỗi trắng trang)
+            $defaultImage = $defImgObj
+            ? Storage::url('products/' . $defImgObj->image_path)
+            : 'https://placehold.co/600x800?text=No+Image'; // Fallback nếu SP không có ảnh nào
+
+            // 4. Lấy luôn cái màu của ảnh đó để set mặc định
+            $defaultColor = $defImgObj ? $defImgObj->color : null;
             @endphp
 
-            {{-- KHỞI TẠO ALPINE VỚI DỮ LIỆU TỪ PHP --}}
+            {{-- KHỞI TẠO ALPINE VỚI DỮ LIỆU MẶC ĐỊNH ĐÃ TÍNH TOÁN --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
+        // Gán màu mặc định ngay khi vào trang (thay vì null)
         size: null,
-        color: null,
+        color: '{{ $defaultColor }}', 
         qty: 1,
         loading: false,
         added: false,
         
-        // 1. Ảnh đang hiển thị (mặc định lấy ảnh thumbnail của product)
+        // Ảnh đang hiển thị
         currentImage: '{{ $defaultImage }}',
 
-        // 2. Map dữ liệu PHP sang JS (Laravel tự chuyển array thành JSON object)
+        // Map dữ liệu PHP sang JS
         imageMap: {{ json_encode($variantImages) }},
 
-        // 3. Hàm đổi màu -> đổi ảnh
         selectColor(selectedColor) {
             this.color = selectedColor;
-            
-            // Nếu màu này có ảnh riêng thì đổi, không thì giữ nguyên ảnh cũ
             if (this.imageMap[selectedColor]) {
                 this.currentImage = this.imageMap[selectedColor];
             }
