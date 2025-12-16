@@ -11,37 +11,29 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
+        // Xóa sạch bảng cũ (phòng hờ)
+        DB::table('categories')->truncate();
+
         $now = Carbon::now();
 
-        // 1. Tạo Danh Mục CHA (Root)
+        // CẤU TRÚC MỚI: CHUẨN FASHION & LIFESTYLE
         $roots = [
             'Men' => [
-                'T-Shirts',
-                'Hoodies',
-                'Jackets',
-                'Pants',
-                'Shorts'
+                'Tops',        // Áo
+                'Bottoms',     // Quần
+                'Outerwear',   // Áo khoác
+                'Activewear'   // Đồ thể thao
             ],
             'Women' => [
-                'T-Shirts',
-                'Dresses',
-                'Skirts',
-                'Blouses',
-                'Cardigans'
+                'Dresses',     // Váy liền
+                'Tops',        // Áo
+                'Bottoms',     // Quần/Váy ngắn
+                'Outerwear',   // Áo khoác
             ],
-            'Accessories' => [
-                'Bags',
-                'Caps',
-                'Socks',
-                'Jewelry',
-                'Watches'
-            ],
-            'Stationery' => [
-                'Mugs',
-                'Notebooks',
-                'Pens',
-                'Stickers',
-                'Tech'
+            'Fragrance' => [   // DANH MỤC MỚI
+                'For Him',
+                'For Her',
+                'Unisex'
             ]
         ];
 
@@ -49,7 +41,7 @@ class CategorySeeder extends Seeder
             // Tạo cha
             $parentId = DB::table('categories')->insertGetId([
                 'name' => $rootName,
-                'slug' => Str::slug($rootName), // vd: men
+                'slug' => Str::slug($rootName),
                 'parent_id' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -57,13 +49,13 @@ class CategorySeeder extends Seeder
 
             // Tạo con
             foreach ($children as $childName) {
-                // Tạo slug riêng biệt: men-t-shirts vs women-t-shirts
+                // Slug: men-tops, women-dresses, fragrance-unisex
                 $childSlug = Str::slug($rootName . ' ' . $childName);
 
                 DB::table('categories')->insert([
-                    'name' => $childName, // Tên hiển thị vẫn là "T-Shirts"
-                    'slug' => $childSlug, // Slug thì là "men-t-shirts"
-                    'parent_id' => $parentId, // Gắn vào cha
+                    'name' => $childName,
+                    'slug' => $childSlug,
+                    'parent_id' => $parentId,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
