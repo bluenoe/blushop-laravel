@@ -1,80 +1,75 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Models;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProductSeeder extends Seeder
+/**
+ * @mixin IdeHelperProduct
+ */
+class Product extends Model
 {
-    public function run(): void
+    use HasFactory, SoftDeletes;
+
+    // Cho phép fill các field này khi cần (an toàn, ngắn gọn)
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'image',
+        'category_id',
+        'is_new',
+        'is_bestseller',
+        'is_on_sale',
+        'slug',
+        'avg_rating',
+        'reviews_count',
+    ];
+
+    // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
+    protected $casts = [
+        'price' => 'decimal:2',
+    ];
+
+    public function orderItems()
     {
-        DB::table('products')->truncate();
-        $now = Carbon::now();
+        return $this->hasMany(OrderItem::class);
+    }
 
-        // Helper lấy ID category
-        $getCat = function ($slug) {
-            return DB::table('categories')->where('slug', $slug)->value('id');
-        };
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-        $items = [
-            // ================= MEN =================
-            ['name' => 'Essential Tee - Black',      'price' => 199000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Essential Tee - White',      'price' => 199000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Heavy Cotton Oversized Tee', 'price' => 249000, 'cat' => $getCat('men-tops')],
-            ['name' => 'Everyday Hoodie',            'price' => 399000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'MA-1 Bomber Jacket',         'price' => 599000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Utility Cargo Pants',        'price' => 459000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Slim Fit Chinos',            'price' => 399000, 'cat' => $getCat('men-bottoms')],
-            ['name' => 'Varsity Jacket',             'price' => 699000, 'cat' => $getCat('men-outerwear')],
-            ['name' => 'Performance Active Tee',     'price' => 229000, 'cat' => $getCat('men-activewear')],
-            ['name' => 'Running Shorts',             'price' => 259000, 'cat' => $getCat('men-activewear')],
+    /**
+     * Users who have wishlisted this product.
+     */
+    public function wishlistedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
+    }
 
-            // ================= WOMEN =================
-            ['name' => 'Silk Camisole',              'price' => 229000, 'cat' => $getCat('women-tops')],
-            ['name' => 'Flowy Maxi Dress',           'price' => 459000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Floral Midi Dress',          'price' => 499000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Cocktail Mini Dress',        'price' => 399000, 'cat' => $getCat('women-dresses')],
-            ['name' => 'Pleated Midi Skirt',         'price' => 359000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'High-Waisted Mom Jeans',     'price' => 459000, 'cat' => $getCat('women-bottoms')],
-            ['name' => 'Classic Trench Coat',        'price' => 899000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Cropped Puffer',             'price' => 599000, 'cat' => $getCat('women-outerwear')],
-            ['name' => 'Oversized Blazer',           'price' => 699000, 'cat' => $getCat('women-outerwear')],
+    public function completeLookProducts()
+    {
+        // pivot table: complete_look_product (xem migration bên dưới)
+        return $this->belongsToMany(
+            Product::class,
+            'complete_look_product',
+            'product_id',       // product chính
+            'look_product_id'   // product trong "complete the look"
+        )->withTimestamps();
+    }
 
-            // ================= FRAGRANCE (MỚI) =================
-            ['name' => 'Santal 33 - Le Labo',        'price' => 4500000, 'cat' => $getCat('fragrance-unisex')],
-            ['name' => 'Bleu de Chanel',             'price' => 3200000, 'cat' => $getCat('fragrance-for-him')],
-            ['name' => 'Dior Sauvage Elixir',        'price' => 3800000, 'cat' => $getCat('fragrance-for-him')],
-            ['name' => 'YSL Libre',                  'price' => 2900000, 'cat' => $getCat('fragrance-for-her')],
-            ['name' => 'Miss Dior Blooming',         'price' => 2800000, 'cat' => $getCat('fragrance-for-her')],
-            ['name' => 'Tom Ford Tobacco Vanille',   'price' => 6500000, 'cat' => $getCat('fragrance-unisex')],
-        ];
-
-        // Chuẩn bị dữ liệu insert
-        $data = [];
-        foreach ($items as $item) {
-            // Logic Image: Tạm thời để null hoặc placeholder vì bà sẽ chạy ProductImageSeeder sau
-            // Nhưng để bảng products không bị lỗi, ta fake đại tên ảnh
-            $fakeImg = Str::slug($item['name']) . '.jpg';
-
-            $data[] = [
-                'name'          => $item['name'],
-                'slug'          => Str::slug($item['name']),
-                'description'   => "Designed for modern living. Minimalist aesthetic typical of BluShop.",
-                'price'         => $item['price'],
-                'image'         => $fakeImg, // Ảnh thumbnail tạm
-                'category_id'   => $item['cat'],
-                'type'          => str_contains($item['name'], 'Dior') || str_contains($item['name'], 'Santal') ? 'fragrance' : 'apparel',
-                'is_new'        => rand(0, 1) > 0.6,
-                'is_bestseller' => rand(0, 1) > 0.7,
-                'is_on_sale'    => rand(0, 1) > 0.8,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ];
-        }
-
-        DB::table('products')->insert($data);
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
+    // Thêm quan hệ với ProductImage
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
     }
 }

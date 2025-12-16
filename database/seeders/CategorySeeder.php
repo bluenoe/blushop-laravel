@@ -11,34 +11,22 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // Xóa sạch bảng cũ (phòng hờ)
+        // --- BIỆN PHÁP MẠNH: Dùng SQL thuần để tắt check khóa ngoại ---
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('categories')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // -------------------------------------------------------------
 
         $now = Carbon::now();
 
-        // CẤU TRÚC MỚI: CHUẨN FASHION & LIFESTYLE
+        // 1. Tạo Danh Mục CHA (Root)
         $roots = [
-            'Men' => [
-                'Tops',        // Áo
-                'Bottoms',     // Quần
-                'Outerwear',   // Áo khoác
-                'Activewear'   // Đồ thể thao
-            ],
-            'Women' => [
-                'Dresses',     // Váy liền
-                'Tops',        // Áo
-                'Bottoms',     // Quần/Váy ngắn
-                'Outerwear',   // Áo khoác
-            ],
-            'Fragrance' => [   // DANH MỤC MỚI
-                'For Him',
-                'For Her',
-                'Unisex'
-            ]
+            'Men' => ['Tops', 'Bottoms', 'Outerwear', 'Activewear'],
+            'Women' => ['Dresses', 'Tops', 'Bottoms', 'Outerwear'],
+            'Fragrance' => ['For Him', 'For Her', 'Unisex']
         ];
 
         foreach ($roots as $rootName => $children) {
-            // Tạo cha
             $parentId = DB::table('categories')->insertGetId([
                 'name' => $rootName,
                 'slug' => Str::slug($rootName),
@@ -47,14 +35,10 @@ class CategorySeeder extends Seeder
                 'updated_at' => $now,
             ]);
 
-            // Tạo con
             foreach ($children as $childName) {
-                // Slug: men-tops, women-dresses, fragrance-unisex
-                $childSlug = Str::slug($rootName . ' ' . $childName);
-
                 DB::table('categories')->insert([
                     'name' => $childName,
-                    'slug' => $childSlug,
+                    'slug' => Str::slug($rootName . ' ' . $childName),
                     'parent_id' => $parentId,
                     'created_at' => $now,
                     'updated_at' => $now,
