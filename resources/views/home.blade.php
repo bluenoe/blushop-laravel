@@ -107,19 +107,19 @@ Status: STABLE (Flexbox Hybrid Layout)
         3. CATEGORIES (FIXED LAYOUT)
         ========================================== --}}
         <section class="pb-24 px-4 md:px-8 max-w-[1600px] mx-auto">
-            {{-- Grid Container: Mobile 1 cột, Desktop 2 cột bằng nhau --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-[800px]">
+            {{-- FIX: Changed h-[800px] to min-h-[800px] to prevent content overflow --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:min-h-[800px]">
 
                 {{-- LEFT COLUMN: WOMEN (Full Height) --}}
-                <div class="relative w-full h-[500px] md:h-full group overflow-hidden cursor-pointer bg-neutral-100"
+                <div class="relative w-full h-[500px] md:h-auto group overflow-hidden cursor-pointer bg-neutral-100"
                     data-reveal>
                     <img src="https://images.unsplash.com/photo-1548622722-1f74fa2772a5?q=80&w=1000&auto=format&fit=crop"
                         alt="Women" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
 
-                    {{-- Overlay làm tối ảnh để nổi chữ --}}
+                    {{-- Overlay --}}
                     <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition z-10"></div>
 
-                    {{-- Text Content (Z-Index cao hơn Overlay) --}}
+                    {{-- Text Content --}}
                     <div class="absolute bottom-10 left-10 text-white z-20 pointer-events-none">
                         <h3 class="text-5xl md:text-6xl font-bold tracking-tighter mb-2">Women</h3>
                         <p
@@ -128,14 +128,14 @@ Status: STABLE (Flexbox Hybrid Layout)
                         </p>
                     </div>
 
-                    {{-- Link bao trùm (Z-Index nằm giữa) --}}
+                    {{-- Link --}}
                     <a href="{{ route('products.index', ['category' => 'women']) }}" class="absolute inset-0 z-10"></a>
                 </div>
 
                 {{-- RIGHT COLUMN: MEN & FRAGRANCE (Flex Column) --}}
                 <div class="flex flex-col gap-4 h-full">
 
-                    {{-- TOP: MEN (Flex Grow) --}}
+                    {{-- TOP: MEN --}}
                     <div class="relative flex-1 min-h-[350px] group overflow-hidden cursor-pointer bg-neutral-100"
                         data-reveal style="transition-delay: 100ms">
                         <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1000&auto=format&fit=crop"
@@ -155,7 +155,7 @@ Status: STABLE (Flexbox Hybrid Layout)
                             class="absolute inset-0 z-10"></a>
                     </div>
 
-                    {{-- BOTTOM: FRAGRANCE (Flex Grow) --}}
+                    {{-- BOTTOM: FRAGRANCE --}}
                     <div class="relative flex-1 min-h-[350px] group overflow-hidden cursor-pointer bg-neutral-100"
                         data-reveal style="transition-delay: 200ms">
                         <img src="https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=1000&auto=format&fit=crop"
@@ -179,7 +179,8 @@ Status: STABLE (Flexbox Hybrid Layout)
         {{-- ==========================================
         4. WEEKLY ESSENTIALS
         ========================================== --}}
-        <section class="py-24 px-6 max-w-[1600px] mx-auto border-t border-neutral-100">
+        {{-- FIX: Added relative, z-30, and bg-white to ensure stacking context and prevent overlap --}}
+        <section class="relative z-30 bg-white py-24 px-6 max-w-[1600px] mx-auto border-t border-neutral-100">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6" data-reveal>
                 <div>
                     <h2 class="text-3xl md:text-4xl font-bold tracking-tighter text-neutral-900">Weekly Essentials</h2>
@@ -231,7 +232,6 @@ Status: STABLE (Flexbox Hybrid Layout)
                 </div>
                 @endforeach
                 @else
-                {{-- Fallback nếu chưa có data thật --}}
                 <div class="col-span-4 text-center py-12 border border-dashed border-neutral-200">
                     <p class="text-neutral-400">No featured products found.</p>
                 </div>
