@@ -1,426 +1,312 @@
 {{--
-Modern Fashion Landing Page
-Minimalist design inspired by Zara, COS, Uniqlo
-Laravel Blade + Tailwind CSS
+High-End Fashion Editorial Landing Page
+Redesign for BluShop - Inspired by COS, ZARA, LEMAIRE
+Focus: Visual Hierarchy, Negative Space, Typography
 --}}
 
 <x-app-layout>
     @push('head')
-    {{-- Preload hero image for faster LCP --}}
     <link rel="preload" as="image" href="{{ asset('images/hero-main.jpg') }}" fetchpriority="high">
+    <style>
+        /* Ẩn scrollbar nhưng vẫn scroll được để giữ thẩm mỹ */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
     @endpush
 
-    <main class="bg-white">
+    <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
+
         {{-- ============================================
-        HERO SECTION - Fullscreen minimal
+        HERO SECTION - BRAND STATEMENT
+        Style: Fullscreen Image, Minimal Text overlay
         ============================================ --}}
-        <section class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-            {{-- Background Image/Video --}}
-            <div class="absolute inset-0 bg-slate-950">
-                <img src="{{ asset('images/hero-main.jpg') }}" alt="Fashion Collection"
-                    class="w-full h-full object-cover opacity-90" loading="eager" />
-                {{-- Optional: Gradient overlay for better text readability --}}
-                <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/5 to-black/40"></div>
+        <section class="relative h-[95vh] w-full overflow-hidden bg-neutral-100">
+            <div class="absolute inset-0">
+                <img src="{{ asset('images/hero-main.jpg') }}" alt="BluShop Campaign"
+                    class="w-full h-full object-cover object-center scale-100 transition-transform duration-[2s] hover:scale-105"
+                    loading="eager" />
+                {{-- Giảm độ tối overlay để ảnh tự nhiên hơn (Editorial style) --}}
+                <div class="absolute inset-0 bg-black/10"></div>
             </div>
 
-            {{-- Hero Content - Centered --}}
-            <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
-                <div data-reveal style="transition-delay: 200ms"
-                    class="opacity-0 translate-y-4 transition duration-1000">
-                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6">
-                        Timeless Essentials
-                    </h1>
-                    <p class="text-lg sm:text-xl text-white/90 font-light mb-8 max-w-2xl mx-auto">
-                        Curated wardrobe pieces designed for everyday elegance
+            {{-- Text đặt ở góc dưới (Bottom-Left) thay vì giữa - Trend hiện đại --}}
+            <div class="absolute bottom-0 left-0 p-8 md:p-12 lg:p-16 z-10 max-w-2xl">
+                <h1
+                    class="text-white text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter leading-none mb-4 mix-blend-difference">
+                    TIMELESS <br> ESSENTIALS
+                </h1>
+                <div class="flex flex-col md:flex-row gap-6 items-start md:items-center pt-4">
+                    <a href="{{ route('products.index') }}"
+                        class="group inline-flex items-center gap-2 text-white text-sm tracking-[0.2em] uppercase border-b border-transparent hover:border-white transition-all pb-1">
+                        Explore Collection
+                        <span class="transform group-hover:translate-x-1 transition-transform">→</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        {{-- ============================================
+        EDITORIAL BLOCK - "The Philosophy"
+        Style: Split Screen (Text Left, Image Right)
+        FIX: Added object-top & min-height to prevent cropping heads
+        ============================================ --}}
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-0 border-b border-neutral-100 lg:min-h-[600px]">
+            {{-- Text Area --}}
+            <div class="lg:col-span-5 flex items-center p-12 md:p-20 bg-white">
+                <div data-reveal class="max-w-md">
+                    <span class="block text-xs font-bold tracking-[0.3em] text-neutral-400 mb-6 uppercase">The
+                        Philosophy</span>
+                    <h2 class="text-3xl md:text-4xl font-light leading-tight mb-8">
+                        Simplicity is the ultimate sophistication.
+                    </h2>
+                    <p class="text-neutral-600 font-light leading-relaxed mb-10 text-justify">
+                        We believe in conscious design. Each piece is crafted to last beyond seasons, blending timeless
+                        silhouettes with modern comfort. It's not just about clothes; it's about a way of life.
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{{ route('home') }}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-950 
-                                  text-sm font-medium tracking-wide uppercase hover:bg-slate-100 
-                                  transition-all duration-300 hover:scale-105">
-                            Discover Collection
-                        </a>
-                        <a href="#featured" class="inline-flex items-center justify-center px-8 py-4 border-2 border-white 
-                                  text-white text-sm font-medium tracking-wide uppercase 
-                                  hover:bg-white hover:text-slate-950 transition-all duration-300">
-                            Shop New Arrivals
-                        </a>
-                    </div>
+                    <a href="{{ route('products.index') }}"
+                        class="inline-block text-xs font-bold uppercase tracking-widest border-b border-neutral-900 pb-1 hover:text-neutral-600 hover:border-neutral-600 transition">
+                        Read Our Story
+                    </a>
                 </div>
             </div>
 
-            {{-- Scroll Indicator --}}
-            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-                <a href="#featured"
-                    class="flex flex-col items-center gap-2 text-white/70 hover:text-white transition group">
-                    <span class="text-xs uppercase tracking-widest">Scroll</span>
-                    <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </a>
+            {{-- Image Area --}}
+            {{-- Fix: Thay 'lg:h-auto' thành 'lg:h-full' để nó fill hết chiều cao của Grid --}}
+            <div class="lg:col-span-7 h-[600px] lg:h-full bg-neutral-100 relative overflow-hidden">
+                {{-- Fix: Thêm 'object-top' để neo ảnh lên trên, không bị cắt đầu --}}
+                <img src="{{ asset('images/category-women.jpg') }}" alt="Philosophy"
+                    class="absolute inset-0 w-full h-full object-cover object-top grayscale hover:grayscale-0 transition duration-700">
             </div>
         </section>
 
         {{-- ============================================
-        BRAND PHILOSOPHY - Minimal text block
+        NEW ARRIVALS - CLEAN GRID
+        Style: Minimal Cards, No Buttons
         ============================================ --}}
-        <section class="py-20 sm:py-32 bg-warm/30">
-            <div class="max-w-4xl mx-auto px-6 text-center" data-reveal>
-                <p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-4">Our Philosophy</p>
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-light text-ink mb-6 leading-tight">
-                    Less, but better
-                </h2>
-                <p class="text-base sm:text-lg text-gray-700 leading-relaxed max-w-2xl mx-auto">
-                    We believe in conscious design. Each piece is crafted to last beyond seasons,
-                    blending timeless silhouettes with modern comfort. Quality over quantity,
-                    always.
-                </p>
-            </div>
-        </section>
-
-        {{-- ============================================
-        FEATURED COLLECTION - Large visual grid
-        ============================================ --}}
-        <section id="featured" class="py-16 sm:py-24 bg-white">
-            <div class="max-w-7xl mx-auto px-6">
-                {{-- Section Header --}}
-                <div class="mb-12 text-center" data-reveal>
-                    <p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-3">New Season</p>
-                    <h2 class="text-3xl sm:text-4xl font-light text-ink">Featured Collection</h2>
+        <section id="featured" class="py-20 md:py-32 px-4 md:px-8">
+            <div class="max-w-[1800px] mx-auto">
+                <div class="flex justify-between items-end mb-12 md:mb-16 px-2">
+                    <h2 class="text-2xl md:text-3xl font-light tracking-wide uppercase">New Arrivals</h2>
+                    <a href="{{ route('products.index') }}"
+                        class="hidden md:block text-xs font-bold uppercase tracking-widest hover:underline">
+                        View All
+                    </a>
                 </div>
 
-                {{-- Product Grid - Clean Uniform Layout --}}
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                    {{-- Lưu ý: Xóa cái ->take(6) ở view đi vì controller đã xử lý rồi --}}
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-8">
                     @forelse($featured as $product)
-
-                    <article class="group relative">
-                        {{-- Product Image --}}
-                        <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
-                            {{-- Link tới chi tiết --}}
+                    <div class="group cursor-pointer">
+                        {{-- Image Container --}}
+                        <div class="relative overflow-hidden bg-neutral-100 aspect-[3/4] mb-4">
                             <a href="{{ route('products.show', $product->id) }}" class="block w-full h-full">
                                 <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                     loading="lazy" />
                             </a>
 
-                            {{-- Nút Wishlist (Tận dụng code xịn nãy bà làm) --}}
-                            <div
-                                class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div x-data="{ id: {{ $product->id }} }">
-                                    <button @click.prevent="$store.wishlist.toggle(id)"
-                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-black hover:text-white transition">
-                                        <svg class="w-4 h-4 transition-colors"
-                                            :class="$store.wishlist.isFav(id) ? 'text-red-500 fill-current' : 'text-current fill-none'"
-                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-                                    </button>
-                                </div>
+                            {{-- Wishlist Button (Minimal, Top Right) --}}
+                            <div class="absolute top-4 right-4 translate-y-[-10px] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                                x-data="{ id: {{ $product->id }} }">
+                                <button @click.prevent="$store.wishlist.toggle(id)"
+                                    class="text-neutral-900 hover:scale-110 transition">
+                                    <svg class="w-6 h-6"
+                                        :class="$store.wishlist.isFav(id) ? 'fill-neutral-900' : 'fill-none'"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                </button>
                             </div>
-
-                            {{-- Badge Mới / Sale (Option) --}}
-                            @if($loop->iteration <= 2) {{-- Ví dụ: 2 cái đầu tiên hiện chữ NEW --}} <span
-                                class="absolute top-3 left-3 bg-white text-black text-[10px] font-bold uppercase px-2 py-1 tracking-widest">
-                                New
-                                </span>
-                                @endif
                         </div>
 
                         {{-- Product Info --}}
-                        <div class="space-y-1 text-center"> {{-- Căn giữa cho sang --}}
-                            <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-600 transition">
-                                <a href="{{ route('products.show', $product->id) }}">
-                                    {{ $product->name }}
-                                </a>
+                        <div class="flex flex-col space-y-1">
+                            <h3
+                                class="text-sm tracking-wide font-normal text-neutral-900 group-hover:text-neutral-600 transition-colors">
+                                <a href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
                             </h3>
-
-                            {{-- Hiện Category nếu có --}}
-                            @if($product->category)
-                            <p class="text-xs text-gray-500 uppercase tracking-wide">{{ $product->category->name }}</p>
-                            @endif
-
-                            <p class="text-sm font-medium text-gray-900 mt-1">
-                                ₫{{ number_format((float)$product->price, 0, ',', '.') }}
-                            </p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-light text-neutral-500">
+                                    ₫{{ number_format((float)$product->price, 0, ',', '.') }}
+                                </span>
+                                {{-- Màu sắc (Giả lập) - Thường thấy ở ZARA --}}
+                                <div class="hidden group-hover:flex gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-neutral-800"></span>
+                                    <span class="w-2 h-2 rounded-full bg-neutral-300"></span>
+                                </div>
+                            </div>
                         </div>
-                    </article>
-
+                    </div>
                     @empty
-                    <div class="col-span-full py-12 text-center text-gray-400">
-                        No featured products found.
+                    <div class="col-span-full py-20 text-center text-neutral-400 font-light">
+                        Collection updating...
                     </div>
                     @endforelse
                 </div>
 
-                {{-- View All CTA --}}
-                <div class="mt-12 text-center" data-reveal>
-                    <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-ink 
-                              border-b-2 border-ink hover:border-indigo-600 hover:text-indigo-600 
-                              transition pb-1">
-                        View Full Collection
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
+                <div class="mt-12 text-center md:hidden">
+                    <a href="{{ route('products.index') }}"
+                        class="inline-block border border-neutral-900 px-8 py-3 text-xs font-bold uppercase tracking-widest">
+                        View All Products
                     </a>
                 </div>
             </div>
         </section>
 
-
         {{-- ============================================
-        CATEGORY SPOTLIGHT
+        CAMPAIGN / CATEGORIES
+        Style: Large Dual Banner
         ============================================ --}}
-        <section class="py-16 sm:py-24 bg-orange-50/20"> {{-- bg-warm/20 tui đổi tạm thành màu có sẵn --}}
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    @php
-                    $categories = [
-                    [
-                    'name' => 'Women',
-                    'desc' => 'Effortless elegance for the modern woman',
-                    // Tên file ảnh phải khớp với file trong public/images
-                    'image' => 'category-women.jpg',
-                    // Link này trỏ về trang shop, lọc theo category 'women'
-                    'link' => route('products.index', ['category' => 'women'])
-                    ],
-                    [
-                    'name' => 'Men',
-                    'desc' => 'Classic pieces, contemporary style',
-                    'image' => 'category-men.jpg',
-                    'link' => route('products.index', ['category' => 'men'])
-                    ],
-                    ];
-                    @endphp
+        <section class="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[85vh]">
+            @php
+            $categories = [
+            [
+            'name' => 'WOMEN',
+            'image' => 'category-women.jpg',
+            'link' => route('products.index', ['category' => 'women'])
+            ],
+            [
+            'name' => 'MEN',
+            'image' => 'category-men.jpg',
+            'link' => route('products.index', ['category' => 'men'])
+            ],
+            ];
+            @endphp
 
-                    @foreach($categories as $cat)
-                    <article class="group relative overflow-hidden rounded-lg shadow-sm">
-                        <a href="{{ $cat['link'] }}" class="block">
-                            {{-- Category Image Container --}}
-                            <div class="relative overflow-hidden bg-gray-200 aspect-[4/5]">
+            @foreach($categories as $cat)
+            <div class="relative group h-[50vh] md:h-full overflow-hidden">
+                <a href="{{ $cat['link'] }}" class="block w-full h-full">
+                    <img src="{{ asset('images/' . $cat['image']) }}" alt="{{ $cat['name'] }}"
+                        class="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+                        loading="lazy" />
 
-                                {{-- QUAN TRỌNG: Hàm asset() sẽ tìm trong folder public --}}
-                                <img src="{{ asset('images/' . $cat['image']) }}" alt="{{ $cat['name'] }} Collection"
-                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                    loading="lazy" onerror="this.src='https://placehold.co/600x800?text=No+Image'" />
-                                {{-- Dòng onerror này giúp nếu sai ảnh nó hiện ảnh xám thay vì lỗi trắng bóc --}}
-
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
-                                </div>
-                            </div>
-
-                            {{-- Category Info Overlay --}}
-                            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                                <h3 class="text-3xl font-light mb-2">{{ $cat['name'] }}</h3>
-                                <p class="text-sm text-white/90 mb-4">{{ $cat['desc'] }}</p>
-                                <span
-                                    class="inline-flex items-center gap-2 text-sm font-medium border-b border-white/50 group-hover:border-white transition pb-1">
-                                    Shop Now
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
-                                </span>
-                            </div>
-                        </a>
-                    </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        {{-- ============================================
-        BRAND VALUES - Icon + Text grid
-        ============================================ --}}
-        <section class="py-16 sm:py-24 bg-white">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    @php
-                    $values = [
-                    ['icon' => 'truck', 'title' => 'Free Shipping', 'desc' => 'On orders over ₫500,000'],
-                    ['icon' => 'shield', 'title' => 'Secure Payment', 'desc' => 'Safe & encrypted checkout'],
-                    ['icon' => 'refresh', 'title' => 'Easy Returns', 'desc' => '30-day return policy'],
-                    ['icon' => 'heart', 'title' => 'Sustainable', 'desc' => 'Ethically sourced materials'],
-                    ];
-                    @endphp
-
-                    @foreach($values as $val)
-                    <div data-reveal class="text-center space-y-3">
-                        {{-- Icon --}}
-                        <div class="flex justify-center">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-warm/50">
-                                @if($val['icon'] === 'truck')
-                                <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                                </svg>
-                                @elseif($val['icon'] === 'shield')
-                                <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                                @elseif($val['icon'] === 'refresh')
-                                <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                @else
-                                <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                @endif
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-medium text-ink">{{ $val['title'] }}</h3>
-                        <p class="text-xs text-gray-600">{{ $val['desc'] }}</p>
+                    {{-- Overlay khi hover --}}
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500">
                     </div>
-                    @endforeach
-                </div>
+
+                    {{-- Text giữa ảnh --}}
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <h2 class="text-4xl md:text-6xl font-light text-white tracking-[0.2em] mb-4 drop-shadow-md">
+                            {{ $cat['name'] }}
+                        </h2>
+                        <span
+                            class="opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100 bg-white text-black px-6 py-2 text-xs font-bold uppercase tracking-widest">
+                            Shop Now
+                        </span>
+                    </div>
+                </a>
             </div>
+            @endforeach
         </section>
 
         {{-- ============================================
-        EDITORIAL QUOTE - Full-width statement
+        LOOKBOOK / COMMUNITY
+        Style: Editorial Masonry / Horizontal Scroll
         ============================================ --}}
-        <section class="py-24 sm:py-32 bg-ink text-white">
-            <div class="max-w-4xl mx-auto px-6 text-center" data-reveal>
-                <blockquote class="space-y-6">
-                    <p class="text-2xl sm:text-3xl lg:text-4xl font-light leading-relaxed italic">
-                        "Style is a way to say who you are without having to speak"
-                    </p>
-                    <footer class="text-sm tracking-wider text-white/70">
-                        — RACHEL ZOE
-                    </footer>
-                </blockquote>
-            </div>
-        </section>
-
-        {{-- ============================================
-        COMMUNITY STYLE - MOSAIC LAYOUT
-        ============================================ --}}
-        <section class="py-16 sm:py-24 bg-white overflow-hidden">
-            <div class="max-w-7xl mx-auto px-6">
-                {{-- Header --}}
-                <div class="text-center mb-10 md:mb-16" data-reveal>
-                    <p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-3">#BluCommunity</p>
-                    <h2 class="text-3xl sm:text-4xl font-light text-ink">Styled by You</h2>
-                    <p class="mt-4 text-gray-500 max-w-lg mx-auto text-sm">
-                        Tag us @blushop to be featured in our weekly lookbook.
+        <section class="py-20 md:py-32 bg-neutral-50 border-t border-neutral-200">
+            <div class="max-w-[1800px] mx-auto px-4 md:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span
+                            class="text-xs font-bold tracking-[0.3em] uppercase text-neutral-400 block mb-2">#BluShop</span>
+                        <h2 class="text-3xl md:text-4xl font-light uppercase tracking-wide">Journal</h2>
+                    </div>
+                    <p class="mt-4 md:mt-0 text-sm text-neutral-500 max-w-md text-right">
+                        Daily inspiration from our community. <br>Tag us to be featured.
                     </p>
                 </div>
 
-                {{-- MOSAIC GRID --}}
-                {{-- Mobile: Slider trượt ngang | Desktop: Grid Mosaic --}}
                 <div
-                    class="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 md:gap-4 md:h-[600px] snap-x snap-mandatory no-scrollbar pb-6 md:pb-0">
-
+                    class="flex overflow-x-auto gap-4 pb-8 md:grid md:grid-cols-4 md:gap-px md:bg-neutral-200 no-scrollbar">
                     @foreach($socialFeed as $index => $item)
-                    {{-- Logic bố cục Mosaic:
-                    - Ảnh đầu tiên ($index == 0): To nhất (chiếm 2 cột, 2 hàng)
-                    - Ảnh thứ 2 ($index == 1): Cao (chiếm 1 cột, 2 hàng)
-                    - Các ảnh còn lại: Vuông nhỏ (1 cột, 1 hàng)
-                    --}}
                     @php
-                    $classes = 'min-w-[80vw] md:min-w-0 snap-center relative group overflow-hidden bg-gray-100';
-
-                    if ($index === 0) {
-                    // Desktop: Ảnh to bự bên trái
-                    $classes .= ' md:col-span-2 md:row-span-2';
-                    } elseif ($index === 1) {
-                    // Desktop: Ảnh cao bên phải
-                    $classes .= ' md:col-span-1 md:row-span-2';
-                    } else {
-                    // Desktop: Ảnh nhỏ lấp chỗ trống
-                    $classes .= ' md:col-span-1 md:row-span-1';
-                    }
+                    // Logic grid style "Tạp chí"
+                    $gridClass = 'md:aspect-[3/4]'; // Default
+                    if ($index === 0) $gridClass = 'md:col-span-2 md:aspect-square';
+                    if ($index === 2) $gridClass = 'md:aspect-[3/4] md:translate-y-12'; // Lệch 1 chút cho nghệ
                     @endphp
 
-                    <a href="{{ $item['link'] }}" class="{{ $classes }}">
-                        {{-- Ảnh --}}
-                        <img src="{{ Storage::url('products/' . $item['image']) }}" alt="Community Style"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            loading="lazy" />
+                    <div class="min-w-[280px] md:min-w-0 bg-white relative group {{ $gridClass }}">
+                        <img src="{{ Storage::url('products/' . $item['image']) }}" alt="Lookbook"
+                            class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition duration-700" />
 
-                        {{-- Overlay (Chỉ hiện khi hover) --}}
                         <div
-                            class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
+                            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                            <span
+                                class="text-white tracking-widest text-xs uppercase border border-white px-4 py-2">View
+                                Look</span>
                         </div>
-
-                        {{-- Instagram Icon & Handle --}}
-                        <div
-                            class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <svg class="w-8 h-8 text-white mb-2" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                            </svg>
-                            <span class="text-white text-sm font-medium tracking-wide">Shop the look</span>
-                        </div>
-                    </a>
+                    </div>
                     @endforeach
-                </div>
-
-                {{-- Footer Link --}}
-                <div class="mt-8 text-center md:hidden">
-                    <span class="text-xs text-gray-400">Swipe to explore →</span>
                 </div>
             </div>
         </section>
 
         {{-- ============================================
-        NEWSLETTER - Minimal signup
+        NEWSLETTER - MINIMAL
+        Style: Clean text only
         ============================================ --}}
-        <section class="py-20 sm:py-32 bg-warm/30">
-            <div class="max-w-2xl mx-auto px-6 text-center" data-reveal>
-                <h2 class="text-3xl sm:text-4xl font-light text-ink mb-4">
-                    Stay Connected
-                </h2>
-                <p class="text-base text-gray-700 mb-8">
-                    Subscribe to receive updates on new arrivals, special offers, and exclusive content.
-                </p>
-
-                <form x-data="{ email: '', status: null }"
-                    @submit.prevent="if(!email || !email.includes('@')){ status='error' } else { status='success'; email='' }"
-                    class="max-w-md mx-auto">
-                    <div class="flex gap-3">
-                        <input x-model="email" type="email" placeholder="Enter your email" required class="flex-1 px-5 py-3 text-sm border border-beige bg-white text-ink 
-                                   placeholder:text-gray-400 focus:outline-none focus:border-ink transition" />
-                        <button type="submit" class="px-8 py-3 bg-ink text-white text-sm font-medium tracking-wide 
-                                   uppercase hover:bg-indigo-900 transition">
-                            Subscribe
-                        </button>
+        <section class="py-24 bg-white text-center px-4">
+            <div class="max-w-xl mx-auto" data-reveal>
+                <h3 class="text-lg uppercase tracking-[0.2em] mb-8">Join Our Newsletter</h3>
+                <form x-data="{ email: '', status: null }" @submit.prevent="status='success'"
+                    class="flex flex-col gap-4">
+                    <div class="relative border-b border-neutral-300 focus-within:border-neutral-900 transition-colors">
+                        <input x-model="email" type="email" placeholder="Enter your email address"
+                            class="w-full py-3 text-center bg-transparent border-none focus:ring-0 placeholder-neutral-400 text-neutral-900"
+                            required />
                     </div>
-                    <p x-show="status==='success'" x-transition class="mt-3 text-sm text-green-700">
-                        Thank you for subscribing!
-                    </p>
-                    <p x-show="status==='error'" x-transition class="mt-3 text-sm text-rose-700">
-                        Please enter a valid email address.
+                    <button type="submit"
+                        class="text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-neutral-900 mt-4 transition">
+                        Subscribe
+                    </button>
+
+                    <p x-show="status==='success'" x-transition class="text-xs text-green-600 mt-2">
+                        You are on the list.
                     </p>
                 </form>
             </div>
         </section>
+
+        {{-- ============================================
+        FOOTER STRIP (Thay thế Brand Values Icons)
+        Style: Text Marquee or Simple Grid
+        ============================================ --}}
+        <div class="border-t border-neutral-100 py-6 bg-neutral-50">
+            <div
+                class="max-w-7xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-16 text-[10px] uppercase tracking-widest text-neutral-400">
+                <span>Free Shipping Over 500k</span>
+                <span>30-Day Returns</span>
+                <span>Secure Checkout</span>
+                <span>Sustainable Sourcing</span>
+            </div>
+        </div>
+
     </main>
 
-    {{-- Include wishlist functionality if needed --}}
     @include('partials.wishlist-script')
 
     @push('scripts')
-    {{-- Reveal animations on scroll --}}
     <script>
+        // Simple fade-in animation logic
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-8');
                     }
                 });
-            }, { threshold: 0.1 });
+            }, { threshold: 0.05 });
 
             document.querySelectorAll('[data-reveal]').forEach(el => {
+                el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-8');
                 observer.observe(el);
             });
         });
