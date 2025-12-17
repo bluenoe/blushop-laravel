@@ -82,7 +82,8 @@ class ProductController extends Controller
     public function show(int $id)
     {
         // 1. Lấy thông tin sản phẩm
-        $product = Product::with(['category', 'images'])
+        // Eager load luôn relationship 'completeLookProducts' để tối ưu query
+        $product = Product::with(['category', 'images', 'completeLookProducts'])
             ->withCount('reviews')
             ->findOrFail($id);
 
@@ -91,14 +92,13 @@ class ProductController extends Controller
             $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
         }]);
 
-        // [LOGIC ẢNH VARIANT] Force URL không cần check file_exists (để Frontend luôn đổi ảnh)
+        // Logic ảnh Variant (Giữ nguyên logic của bà)
         $variantsData = $product->variants->map(function ($variant) use ($product) {
             $suffix = '-' . $variant->capacity_ml;
             $extension = pathinfo($product->image, PATHINFO_EXTENSION);
             $filename = pathinfo($product->image, PATHINFO_FILENAME);
             $variantImageName = $filename . $suffix . '.' . $extension;
 
-            // Nếu là size nhỏ (30/50ml) dùng ảnh gốc, size lớn dùng ảnh variant
             if ($variant->capacity_ml == 50 || $variant->capacity_ml == 30) {
                 $imageUrl = Storage::url('products/' . $product->image);
             } else {
@@ -115,71 +115,72 @@ class ProductController extends Controller
             ];
         });
 
-        // 3. [MỚI - QUAN TRỌNG] Tính toán ảnh mặc định ban đầu để gửi sang View
-        // (Giúp bà không cần sửa logic phức tạp ở file Blade nữa)
+        // 3. Logic ảnh mặc định (Giữ nguyên logic của bà)
         $defaultImage = null;
         $defaultColor = null;
 
         if ($product->variants->isNotEmpty()) {
-            // A. Nước hoa: Luôn lấy ảnh đại diện chính làm mặc định
             $defaultImage = Storage::url('products/' . $product->image);
         } else {
-            // B. Quần áo: Lấy ảnh main hoặc ảnh đầu tiên trong thư viện
             $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
             if ($defImgObj) {
-                $path = Str::startsWith($defImgObj->image_path, 'products/')
-                    ? $defImgObj->image_path
-                    : 'products/' . $defImgObj->image_path;
+                $path = Str::startsWith($defImgObj->image_path, 'products/') ? $defImgObj->image_path : 'products/' . $defImgObj->image_path;
                 $defaultImage = Storage::url($path);
                 $defaultColor = $defImgObj->color;
             } else {
-                // Fallback: nếu quần áo chưa up thư viện ảnh thì lấy ảnh đại diện
                 $defaultImage = $product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800';
             }
         }
 
-        // 4. Logic cho Quần áo (Color mapping)
+        // 4. Logic Color mapping (Giữ nguyên)
         $variantImages = $product->images
             ->whereNotNull('color')
             ->mapWithKeys(function ($item) {
-                $path = Str::startsWith($item->image_path, 'products/')
-                    ? $item->image_path
-                    : 'products/' . $item->image_path;
+                $path = Str::startsWith($item->image_path, 'products/') ? $item->image_path : 'products/' . $item->image_path;
                 return [$item->color => Storage::url($path)];
             });
         $availableColors = $variantImages->keys()->toArray();
 
-        // 5. Logic Gợi ý sản phẩm
-        $catName = optional($product->category)->name ?? '';
-        $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Female', 'Her']);
+        // =========================================================
+        // FIX 1: COMPLETE THE LOOK (Ưu tiên DB Relation -> Fallback Random)
+        // =========================================================
 
-        $completeLook = Product::query()
-            ->where('type', 'apparel')
-            ->where('id', '!=', $id)
-            ->whereHas('category', function ($q) use ($isFemale) {
-                $genderKeywords = $isFemale ? ['Women', 'Nữ'] : ['Men', 'Nam'];
-                $q->where(function ($sub) use ($genderKeywords) {
-                    foreach ($genderKeywords as $k) $sub->orWhere('name', 'like', "%{$k}%");
-                });
-            })
+        // Lấy từ bảng trung gian (complete_look_product) mà đã định nghĩa trong Model
+        $completeLook = $product->completeLookProducts;
+
+        //  Logic Fallback 
+        if ($completeLook->isEmpty()) {
+            $completeLook = Product::where('category_id', $product->category_id)
+                ->where('id', '!=', $id) // Trừ sản phẩm đang xem
+                ->inRandomOrder()
+                ->take(4)
+                ->get();
+        }
+
+        // =========================================================
+        // FIX 2: CURATED FOR YOU (Logic Random - Recommendation)
+        // =========================================================
+
+        $curated = Product::where('id', '!=', $id)
             ->inRandomOrder()
-            ->take(4)
+            ->take(5)
             ->get();
 
         $reviews = $product->reviews()->with('user')->latest()->paginate(5);
         $wishedIds = auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->toArray() : [];
         $defaultVariant = $product->variants->first();
 
+        // Truyền biến $curated vào view
         return view('products.show', [
             'product' => $product,
             'reviews' => $reviews,
             'completeLook' => $completeLook,
+            'curated' => $curated,
             'wishedIds' => $wishedIds,
             'variantImages' => $variantImages,
             'availableColors' => $availableColors,
             'defaultVariant' => $defaultVariant,
             'variantsJson' => $variantsData->toJson(),
-            // Truyền 2 biến này sang để View đỡ phải tính toán
             'defaultImage' => $defaultImage,
             'defaultColor' => $defaultColor,
         ]);
