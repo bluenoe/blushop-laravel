@@ -31,6 +31,7 @@ class Product extends Model
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
         'price' => 'decimal:2',
+        'specifications' => 'array',
     ];
 
     public function orderItems()
@@ -71,5 +72,19 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+
+    // 2. Relationship: Một chai nước hoa có nhiều biến thể (size)
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    // 3. Helper: Lấy giá thấp nhất để hiển thị "Từ 1.000.000đ" ở trang danh sách
+    public function getMinPriceAttribute()
+    {
+        // Cache lại hoặc query nhẹ, tránh N+1 query
+        return $this->variants->min('price');
     }
 }
