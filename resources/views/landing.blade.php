@@ -193,49 +193,55 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-8 max-w-7xl mx-auto">
-                <a href="{{ route('products.index', ['category' => 'tops']) }}"
+                {{-- 1. WOMAN --}}
+                <a href="{{ route('products.index', ['category' => 'woman']) }}"
                     class="group block cursor-pointer reveal-element">
                     <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1551488852-d81a2d5356a7?q=80&w=2070&auto=format&fit=crop"
+                        {{-- Ảnh mẫu nữ minimalist --}}
+                        <img src="{{ Storage::url('products/landing/woman-collection.jpg') }}"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            alt="Item">
+                            alt="Woman Collection">
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
                         </div>
                     </div>
                     <div class="mt-4 flex justify-between items-baseline px-1">
-                        <h4 class="font-serif-display text-lg italic text-neutral-800">The Silk Shirt</h4>
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">Woman</h4>
                         <span
                             class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
                     </div>
                 </a>
 
-                <a href="{{ route('products.index', ['category' => 'bottoms']) }}"
+                {{-- 2. MAN --}}
+                <a href="{{ route('products.index', ['category' => 'man']) }}"
                     class="group block cursor-pointer reveal-element delay-200 md:mt-12">
                     <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1605763240004-7d93b47053e3?q=80&w=1887&auto=format&fit=crop"
+                        {{-- Ảnh mẫu nam clean --}}
+                        <img src="{{ Storage::url('products/landing/man-collection.jpg') }}"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            alt="Item">
+                            alt="Man Collection">
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
                         </div>
                     </div>
                     <div class="mt-4 flex justify-between items-baseline px-1">
-                        <h4 class="font-serif-display text-lg italic text-neutral-800">Classic Trouser</h4>
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">Man</h4>
                         <span
                             class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
                     </div>
                 </a>
 
-                <a href="{{ route('products.index', ['category' => 'outerwear']) }}"
+                {{-- 3. FRAGRANCE --}}
+                <a href="{{ route('products.index', ['category' => 'fragrance']) }}"
                     class="group block cursor-pointer reveal-element delay-400">
                     <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=2069&auto=format&fit=crop"
+                        {{-- Ảnh nước hoa luxury --}}
+                        <img src="{{ Storage::url('products/landing/fragrance-collection.jpg') }}"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            alt="Item">
+                            alt="Fragrance Collection">
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
                         </div>
                     </div>
                     <div class="mt-4 flex justify-between items-baseline px-1">
-                        <h4 class="font-serif-display text-lg italic text-neutral-800">Noir Blazer</h4>
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">Fragrance</h4>
                         <span
                             class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
                     </div>
