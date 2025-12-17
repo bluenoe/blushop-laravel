@@ -50,19 +50,33 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            // A. Logic Ảnh & Màu (Apparel)
+            // 1. LOGIC TÌM ẢNH MẶC ĐỊNH (FIXED)
+            // Ưu tiên tìm trong thư viện ảnh (Quần áo)
             $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
-            $defaultImage = $defImgObj
-            ? Storage::url('products/' . $defImgObj->image_path)
-            : 'https://placehold.co/600x800?text=No+Image';
-            $defaultColor = $defImgObj ? $defImgObj->color : null;
 
-            // B. Logic Variants (Fragrance)
+            if ($defImgObj) {
+            // Nếu là quần áo (có ảnh trong bảng product_images)
+            $path = Str::startsWith($defImgObj->image_path, 'products/')
+            ? $defImgObj->image_path
+            : 'products/' . $defImgObj->image_path;
+            $defaultImage = Storage::url($path);
+            $defaultColor = $defImgObj->color;
+            } elseif ($product->image) {
+            // [QUAN TRỌNG] Nếu là Nước hoa (chỉ có ảnh ở bảng products), lấy ảnh này!
+            $defaultImage = Storage::url('products/' . $product->image);
+            $defaultColor = null;
+            } else {
+            // Fallback
+            $defaultImage = 'https://placehold.co/600x800?text=No+Image';
+            $defaultColor = null;
+            }
+
+            // 2. Logic Variants (Fragrance)
             $isFragrance = $product->variants->isNotEmpty();
-            // Nếu là nước hoa, giá khởi điểm là giá của chai nhỏ nhất (đã sort ở controller)
+
+            // Giá & SKU khởi điểm (Ưu tiên variant nhỏ nhất nếu là nước hoa)
             $currentPrice = $isFragrance && isset($defaultVariant) ? $defaultVariant->price : $product->price;
             $currentSku = $isFragrance && isset($defaultVariant) ? $defaultVariant->sku : null;
-            $defaultCapacity = $isFragrance && isset($defaultVariant) ? $defaultVariant->capacity_ml : null;
             @endphp
 
             {{--

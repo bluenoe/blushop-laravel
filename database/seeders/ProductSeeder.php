@@ -205,12 +205,21 @@ class ProductSeeder extends Seeder
             $isNiche = in_array($p['brand'], ['Le Labo', 'Creed', 'Byredo', 'Tom Ford', 'MFK']);
             $basePrice = $isNiche ? 4500000 : 2500000;
 
+            // [FIXED] Tạo SKU dựa trên $slug đầy đủ để tránh trùng lặp (Gucci vs Gucci)
             $variants = [
-                ['capacity_ml' => 50, 'price' => $basePrice, 'sku' => strtoupper(substr($slug, 0, 3)) . '-50'],
-                ['capacity_ml' => 100, 'price' => $basePrice * 1.6, 'sku' => strtoupper(substr($slug, 0, 3)) . '-100']
+                [
+                    'capacity_ml' => 50,
+                    'price' => $basePrice,
+                    'sku' => strtoupper($slug) . '-50' // Ví dụ: SANTAL-33-LE-LABO-50
+                ],
+                [
+                    'capacity_ml' => 100,
+                    'price' => $basePrice * 1.6,
+                    'sku' => strtoupper($slug) . '-100' // Ví dụ: SANTAL-33-LE-LABO-100
+                ]
             ];
 
-            // Update giá hiển thị cho product cha (lấy giá min của variants)
+            // Update giá hiển thị cho product cha
             $product->price = $variants[0]['price'];
             $product->save();
 
