@@ -1,7 +1,7 @@
 {{--
 ═══════════════════════════════════════════════════════════════
-BluShop Product Detail v3 - Optimized Flow
-Luồng: Product → Gallery → Variants → Complete Look → Reviews → Curated
+BluShop Product Detail v4 - Hybrid (Apparel & Fragrance Engine)
+Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 ═══════════════════════════════════════════════════════════════
 --}}
 
@@ -18,9 +18,13 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
             scrollbar-width: none;
         }
 
-        /* Tối ưu chuyển động */
         [x-cloak] {
             display: none !important;
+        }
+
+        /* Hiệu ứng fade cho giá tiền */
+        .price-transition {
+            transition: all 0.3s ease;
         }
     </style>
     @endpush
@@ -46,87 +50,113 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            // 1. Logic tìm ảnh mặc định thông minh hơn
-            // Ưu tiên 1: Lấy ảnh có cờ is_main = 1
-            $defImgObj = $product->images->firstWhere('is_main', 1);
-
-            // Ưu tiên 2: Nếu không có is_main, lấy đại cái ảnh đầu tiên trong list
-            if (!$defImgObj) {
-            $defImgObj = $product->images->first();
-            }
-
-            // 3. Tạo đường dẫn ảnh (Handle trường hợp null để không bị lỗi trắng trang)
+            // A. Logic Ảnh & Màu (Apparel)
+            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
             $defaultImage = $defImgObj
             ? Storage::url('products/' . $defImgObj->image_path)
-            : 'https://placehold.co/600x800?text=No+Image'; // Fallback nếu SP không có ảnh nào
-
-            // 4. Lấy luôn cái màu của ảnh đó để set mặc định
+            : 'https://placehold.co/600x800?text=No+Image';
             $defaultColor = $defImgObj ? $defImgObj->color : null;
+
+            // B. Logic Variants (Fragrance)
+            $isFragrance = $product->variants->isNotEmpty();
+            // Nếu là nước hoa, giá khởi điểm là giá của chai nhỏ nhất (đã sort ở controller)
+            $currentPrice = $isFragrance && isset($defaultVariant) ? $defaultVariant->price : $product->price;
+            $currentSku = $isFragrance && isset($defaultVariant) ? $defaultVariant->sku : null;
+            $defaultCapacity = $isFragrance && isset($defaultVariant) ? $defaultVariant->capacity_ml : null;
             @endphp
 
-            {{-- KHỞI TẠO ALPINE VỚI DỮ LIỆU MẶC ĐỊNH ĐÃ TÍNH TOÁN --}}
+            {{--
+            ALPINE DATA OBJECT (THE BRAIN)
+            ------------------------------
+            Xử lý song song 2 logic: Quần áo (Color/Size) và Nước hoa (Variant/Price)
+            --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-        // Gán màu mặc định ngay khi vào trang (thay vì null)
-        size: null,
-        color: '{{ $defaultColor }}', 
-        qty: 1,
-        loading: false,
-        added: false,
-        
-        // Ảnh đang hiển thị
-        currentImage: '{{ $defaultImage }}',
+                // Common
+                loading: false,
+                added: false,
+                qty: 1,
 
-        // Map dữ liệu PHP sang JS
-        imageMap: {{ json_encode($variantImages) }},
+                // Mode Detection
+                isFragrance: {{ $isFragrance ? 'true' : 'false' }},
 
-        selectColor(selectedColor) {
-            this.color = selectedColor;
-            if (this.imageMap[selectedColor]) {
-                this.currentImage = this.imageMap[selectedColor];
-            }
-        }
-    }">
+                // Apparel State
+                color: '{{ $defaultColor }}', 
+                size: {{ $isFragrance ? 'null' : 'null' }}, // Quần áo thì null bắt buộc chọn, nước hoa sẽ auto fill
+                currentImage: '{{ $defaultImage }}',
+                imageMap: {{ json_encode($variantImages) }},
 
-                {{-- LEFT: GALLERY (SINGLE HERO IMAGE - RESPONSIVE) --}}
+                // Fragrance State
+                price: {{ $currentPrice }},
+                sku: '{{ $currentSku }}',
+                selectedVariantId: {{ $isFragrance && isset($defaultVariant) ? $defaultVariant->id : 'null' }},
+                variants: {{ $variantsJson ?? '[]' }}, // Load JSON từ Controller
+
+                init() {
+                    // Nếu là nước hoa, tự động chọn size đầu tiên (nhỏ nhất)
+                    if (this.isFragrance && this.variants.length > 0) {
+                        this.selectVariant(this.variants[0]);
+                    }
+                },
+
+                // Logic: Chọn Màu (Quần áo)
+                selectColor(selectedColor) {
+                    this.color = selectedColor;
+                    if (this.imageMap[selectedColor]) {
+                        this.currentImage = this.imageMap[selectedColor];
+                    }
+                },
+
+                // Logic: Chọn Dung Tích (Nước hoa)
+                selectVariant(v) {
+                    this.selectedVariantId = v.id;
+                    this.price = v.price; // Cập nhật giá tiền hiển thị
+                    this.sku = v.sku;
+                    this.size = v.capacity_ml + 'ml'; // Map dung tích vào input 'size' để gửi lên server
+                }
+            }">
+
+                {{-- LEFT: GALLERY --}}
                 <div class="lg:col-span-7 col-span-12 w-full mb-8 lg:mb-0">
                     <div
                         class="relative w-full aspect-[3/4] lg:aspect-[4/5] bg-neutral-100 overflow-hidden group cursor-zoom-in">
-                        {{-- Main Image --}}
                         <img :src="currentImage" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                             loading="eager" fetchpriority="high">
 
-                        {{-- Badge 'View Detail' (Desktop only) --}}
-                        <div
-                            class="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden lg:block">
+                        {{-- Badge SKU (Only showing if Fragrance) --}}
+                        <div x-show="sku" class="absolute top-6 left-6" x-cloak>
                             <span
-                                class="bg-white/90 backdrop-blur px-4 py-2 text-[10px] uppercase tracking-widest font-bold shadow-sm">
-                                View Detail
-                            </span>
+                                class="bg-white/80 backdrop-blur px-3 py-1 text-[10px] font-mono uppercase tracking-widest"
+                                x-text="'REF: ' + sku"></span>
                         </div>
                     </div>
                 </div>
 
-                {{-- RIGHT: PRODUCT INFO (Sticky) --}}
+                {{-- RIGHT: PRODUCT INFO --}}
                 <div class="lg:col-span-5 col-span-12 px-6 lg:px-0 mt-8 lg:mt-0 lg:sticky lg:top-24">
 
                     {{-- Header --}}
                     <div class="mb-8 border-b border-neutral-200 pb-6">
                         <div class="flex justify-between items-start">
-                            <h1
-                                class="text-3xl md:text-4xl font-bold tracking-tighter leading-tight text-neutral-900 mb-2">
-                                {{ $product->name }}
-                            </h1>
+                            <div>
+                                <h1
+                                    class="text-3xl md:text-4xl font-bold tracking-tighter leading-tight text-neutral-900 mb-2">
+                                    {{ $product->name }}
+                                </h1>
+                                {{-- Subtitle cho Nước hoa (Concentration) --}}
+                                @if(!empty($product->specifications['concentration']))
+                                <p class="text-sm text-neutral-500 uppercase tracking-widest mb-1">{{
+                                    $product->specifications['concentration'] }}</p>
+                                @endif
+                            </div>
 
                             {{-- Wishlist Button --}}
                             <div x-data="{ id: {{ $product->id }} }">
                                 <button @click="$store.wishlist.toggle(id)"
                                     class="group p-2 -mr-2 rounded-full hover:bg-neutral-100 transition-colors duration-300">
                                     <svg class="w-6 h-6 transition-all duration-300"
-                                        :class="$store.wishlist.isFav(id) 
-                                            ? 'text-black fill-current transform scale-110' 
-                                            : 'text-neutral-400 fill-none group-hover:text-black group-hover:scale-105'" viewBox="0 0 24 24" stroke="currentColor"
-                                        stroke-width="1.5">
+                                        :class="$store.wishlist.isFav(id) ? 'text-black fill-current transform scale-110' : 'text-neutral-400 fill-none group-hover:text-black'"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                     </svg>
@@ -134,10 +164,14 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                             </div>
                         </div>
 
+                        {{-- Price Area (Dynamic) --}}
                         <div class="flex items-center gap-4 mt-2">
-                            <span class="text-xl font-medium text-neutral-900">
+                            <span class="text-xl font-medium text-neutral-900 price-transition"
+                                x-text="'₫' + new Intl.NumberFormat('vi-VN').format(price)">
+                                {{-- Server Render Fallback --}}
                                 ₫{{ number_format((float)$product->price, 0, ',', '.') }}
                             </span>
+
                             @if($product->is_on_sale)
                             <span class="bg-black text-white text-[10px] uppercase font-bold px-2 py-1">Sale</span>
                             @endif
@@ -146,107 +180,126 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
 
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                        if(!size) { alert('Please select a size'); return; }
+                        if(!size) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
                         loading = true;
+                        
+                        // Chuẩn bị payload
+                        let payload = { quantity: qty, size: size, color: color };
+                        if(selectedVariantId) payload.variant_id = selectedVariantId; // Gửi kèm ID variant nếu có
+
                         fetch($el.action, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content
-                            },
-                            body: JSON.stringify({ quantity: qty, size: size, color: color })
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content },
+                            body: JSON.stringify(payload)
                         }).then(r => r.ok ? r.json() : Promise.reject(r))
                         .then(data => {
-        loading = false;
-
-    if (data && data.success) { 
-        // Bắn pháo hiệu cho Header biết
-        // Chú ý: data.cart_count phải khớp với cái log ở trên
-        window.dispatchEvent(new CustomEvent('cart-updated', {
-            detail: { count: data.cart_count }
-        }));
-        
-        // Hiệu ứng nút bấm (Giữ nguyên)
-        added = true; 
-        setTimeout(() => added = false, 3000);
-    }
-});
+                            loading = false;
+                            if (data && data.success) { 
+                                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: data.cart_count } }));
+                                added = true; 
+                                setTimeout(() => added = false, 3000);
+                            }
+                        });
                     ">
                         @csrf
 
-                        {{-- Color Selection --}}
-                        <div class="mb-6">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
-                                <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                        {{-- =================================================== --}}
+                        {{-- CASE 1: APPAREL SELECTORS (MÀU & SIZE S/M/L) --}}
+                        {{-- =================================================== --}}
+                        <div x-show="!isFragrance">
+                            {{-- Color Selection --}}
+                            <div class="mb-6">
+                                <div class="flex justify-between mb-2">
+                                    <span
+                                        class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
+                                    <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                                </div>
+
+                                @if(count($availableColors) > 0)
+                                <div class="flex gap-3">
+                                    @foreach($availableColors as $c)
+                                    @php
+                                    // Mapping màu sắc UI
+                                    $bgClass = match(strtolower($c)) {
+                                    'black' => 'bg-[#171717]', 'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]',
+                                    'grey', 'gray' => 'bg-[#52525B]', 'beige', 'cream' => 'bg-[#E8E0D5]',
+                                    'brown' => 'bg-[#5D4037]', 'navy' => 'bg-[#1F2937]', 'green' => 'bg-[#3F6212]',
+                                    default => 'bg-[#D4D4D4]'
+                                    };
+                                    @endphp
+                                    <button type="button" @click="selectColor('{{ $c }}')"
+                                        class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
+                                        :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
+                                        <div class="{{ $bgClass }} w-full h-full rounded-full"
+                                            @if($bgClass=='bg-[#D4D4D4]' ) style="background-color: {{ $c }}" @endif>
+                                        </div>
+                                    </button>
+                                    @endforeach
+                                </div>
+                                @else
+                                <p class="text-sm text-neutral-400 italic">One color only</p>
+                                @endif
                             </div>
 
-                            {{-- Hiển thị danh sách màu CÓ THẬT từ Database --}}
-                            @if(count($availableColors) > 0)
-                            <div class="flex gap-3">
-                                @foreach($availableColors as $c)
-                                {{-- Logic hiển thị màu Background --}}
-                                @php
-                                $bgClass = match(strtolower($c)) {
-                                // Basic Monochromes
-                                'black' => 'bg-[#171717]', // Neutral-900 (Đen lì)
-                                'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]', // Trắng tinh khôi
-                                'grey', 'gray', 'charcoal' => 'bg-[#52525B]', // Zinc-600 (Xám chuột)
-
-                                // Minimalist Earth Tones (Màu đất dịu mắt)
-                                'beige', 'cream' => 'bg-[#E8E0D5]', // Beige (Màu kem)
-                                'brown', 'khaki' => 'bg-[#5D4037]', // Nâu đất
-                                'olive' => 'bg-[#556B2F]', // Xanh rêu trầm
-                                'taupe' => 'bg-[#8B8589]', // Màu nâu xám
-
-                                // Muted Colors (Màu trầm sang trọng)
-                                'navy' => 'bg-[#1F2937]', // Xanh than (Gray-800)
-                                'blue' => 'bg-[#64748B]', // Slate-500 (Xanh ghi, không phải xanh dương chói)
-                                'red', 'burgundy' => 'bg-[#7F1D1D]', // Red-900 (Đỏ rượu vang)
-                                'green' => 'bg-[#3F6212]', // Green-800 (Xanh lá già)
-                                'yellow', 'mustard' => 'bg-[#CA8A04]', // Yellow-700 (Vàng mù tạt)
-                                'pink', 'rose' => 'bg-[#FB7185]', // Rose-400 (Hồng đất)
-                                'purple' => 'bg-[#581C87]', // Tím than
-
-                                // Fallback (Màu mặc định nếu lạ)
-                                default => 'bg-[#D4D4D4]' // Xám nhạt
-                                };
-                                @endphp
-
-                                {{-- Gọi hàm selectColor khi click --}}
-                                <button type="button" @click="selectColor('{{ $c }}')"
-                                    class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                    :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-
-                                    {{-- Nếu không có class màu cụ thể thì dùng style inline --}}
-                                    <div class="{{ $bgClass }} w-full h-full rounded-full" @if($bgClass=='bg-gray-200' )
-                                        style="background-color: {{ $c }}" @endif>
-                                    </div>
-                                </button>
-                                @endforeach
+                            {{-- Size Selection (Standard) --}}
+                            <div class="mb-8">
+                                <div class="flex justify-between mb-2">
+                                    <span
+                                        class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
+                                    <x-product.size-guide-modal model-info="Model is 175cm / 65kg – Wearing size M" />
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <template x-for="s in ['S','M','L','XL']" :key="s">
+                                        <button type="button" @click="size = s"
+                                            class="py-3 border text-sm font-medium transition-all duration-200"
+                                            :class="size === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                            <span x-text="s"></span>
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
-                            @else
-                            <p class="text-sm text-neutral-400 italic">One color only</p>
-                            @endif
                         </div>
 
-                        {{-- Size Selection --}}
-                        <div class="mb-8">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Size</span>
-                                <x-product.size-guide-modal model-info="Model is 175cm / 65kg – Wearing size M" />
-                            </div>
-                            <div class="grid grid-cols-4 gap-2">
-                                <template x-for="s in ['S','M','L','XL']" :key="s">
-                                    <button type="button" @click="size = s"
-                                        class="py-3 border text-sm font-medium transition-all duration-200"
-                                        :class="size === s 
-                                            ? 'border-black bg-black text-white' 
-                                            : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
-                                        <span x-text="s"></span>
-                                    </button>
-                                </template>
+                        {{-- =================================================== --}}
+                        {{-- CASE 2: FRAGRANCE SELECTORS (VOLUME - DUNG TÍCH) --}}
+                        {{-- =================================================== --}}
+                        <div x-show="isFragrance" x-cloak>
+                            <div class="mb-8">
+                                <div class="flex justify-between mb-2">
+                                    <span
+                                        class="text-xs font-bold uppercase tracking-widest text-neutral-500">Volume</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                    {{-- Loop qua Variants JSON --}}
+                                    <template x-for="variant in variants" :key="variant.id">
+                                        <button type="button" @click="selectVariant(variant)"
+                                            class="py-4 border flex flex-col items-center justify-center transition-all duration-200 relative overflow-hidden"
+                                            :class="selectedVariantId === variant.id ? 'border-black bg-neutral-50' : 'border-neutral-200 hover:border-neutral-400'">
+
+                                            {{-- Dung tích --}}
+                                            <span class="text-sm font-bold uppercase"
+                                                :class="selectedVariantId === variant.id ? 'text-black' : 'text-neutral-600'"
+                                                x-text="variant.capacity_ml + 'ml'"></span>
+
+                                            {{-- Trạng thái kho --}}
+                                            <template x-if="variant.stock_quantity <= 0">
+                                                <span
+                                                    class="absolute inset-0 bg-white/60 flex items-center justify-center">
+                                                    <span
+                                                        class="text-[10px] bg-neutral-200 px-2 py-1 text-neutral-500 font-bold uppercase">Sold
+                                                        Out</span>
+                                                </span>
+                                            </template>
+                                        </button>
+                                    </template>
+                                </div>
+                                <p class="mt-3 text-[10px] text-neutral-400 font-light flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    In Stock. Ready to ship.
+                                </p>
                             </div>
                         </div>
 
@@ -256,21 +309,19 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                 class="w-full py-4 bg-neutral-900 text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed relative">
                                 <span x-show="!loading && !added">Add to Bag</span>
                                 <span x-show="loading" class="animate-pulse">Processing...</span>
-                                <span x-show="added" class="flex items-center justify-center gap-2">
-                                    Added
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span x-show="added" class="flex items-center justify-center gap-2">Added <svg
+                                        class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </span>
+                                    </svg></span>
                             </button>
                             <p class="text-center text-[10px] text-neutral-400 uppercase tracking-widest">
-                                Free shipping on orders over 500k
+                                Complimnetary samples with every order
                             </p>
                         </div>
                     </form>
 
-                    {{-- Accordion Sections (CSS Grid Animation - 300ms) --}}
+                    {{-- Accordion Sections --}}
                     <div class="mt-12 border-t border-neutral-200" x-data="{ activeTab: 'details' }">
 
                         {{-- Details --}}
@@ -281,24 +332,67 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                                     class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
                                     Details & Composition
                                 </span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                <span class="text-xl leading-none transition-transform duration-300"
                                     :class="activeTab === 'details' ? 'rotate-45' : 'rotate-0'">+</span>
                             </button>
-                            <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                            <div class="grid transition-[grid-template-rows] duration-300"
                                 :class="activeTab === 'details' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
                                 <div class="overflow-hidden">
                                     <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed">
-                                        <p class="mb-5">{{ $product->description ?? 'Timeless design meets modern
-                                            functionality.' }}</p>
-                                        @if(!empty($product->specifications))
-                                        <dl class="space-y-2">
+                                        <p class="mb-5">{{ $product->description }}</p>
+
+                                        {{--
+                                        VISUAL SCENT PYRAMID (HIỂN THỊ TẦNG HƯƠNG)
+                                        Chỉ hiện nếu có data trong cột specifications
+                                        --}}
+                                        @if(!empty($product->specifications) &&
+                                        isset($product->specifications['top_notes']))
+                                        <div class="bg-neutral-50 p-5 rounded-sm border border-neutral-100 space-y-4">
+                                            <h4
+                                                class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 border-b border-neutral-200 pb-2 mb-2">
+                                                Olfactory Notes</h4>
+
+                                            {{-- Top Notes --}}
+                                            <div class="flex gap-4">
+                                                <div class="w-16 text-[10px] font-bold uppercase text-neutral-400 pt-1">
+                                                    Top</div>
+                                                <div class="text-neutral-900 font-medium">
+                                                    {{ implode(', ', $product->specifications['top_notes']) }}
+                                                </div>
+                                            </div>
+                                            {{-- Middle Notes --}}
+                                            @if(isset($product->specifications['middle_notes']))
+                                            <div class="flex gap-4">
+                                                <div class="w-16 text-[10px] font-bold uppercase text-neutral-400 pt-1">
+                                                    Heart</div>
+                                                <div class="text-neutral-900 font-medium">
+                                                    {{ implode(', ', $product->specifications['middle_notes']) }}
+                                                </div>
+                                            </div>
+                                            @endif
+                                            {{-- Base Notes --}}
+                                            @if(isset($product->specifications['base_notes']))
+                                            <div class="flex gap-4">
+                                                <div class="w-16 text-[10px] font-bold uppercase text-neutral-400 pt-1">
+                                                    Base</div>
+                                                <div class="text-neutral-900 font-medium">
+                                                    {{ implode(', ', $product->specifications['base_notes']) }}
+                                                </div>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        @elseif(!empty($product->specifications))
+                                        {{-- Fallback cho sản phẩm thường --}}
+                                        <dl class="space-y-2 mt-4">
                                             @foreach($product->specifications as $key => $value)
+                                            @if(is_string($value))
                                             <div
                                                 class="flex justify-between py-2 border-b border-dashed border-neutral-100 last:border-0">
-                                                <dt class="text-neutral-900 font-medium">{{ $key }}</dt>
+                                                <dt class="text-neutral-900 font-medium capitalize">{{ str_replace('_',
+                                                    ' ', $key) }}</dt>
                                                 <dd class="text-neutral-500">{{ $value }}</dd>
                                             </div>
+                                            @endif
                                             @endforeach
                                         </dl>
                                         @endif
@@ -307,51 +401,21 @@ Luồng: Product → Gallery → Variants → Complete Look → Reviews → Cura
                             </div>
                         </div>
 
-                        {{-- Care Guide --}}
-                        <div class="border-b border-neutral-200">
-                            <button @click="activeTab = activeTab === 'care' ? null : 'care'"
-                                class="w-full py-5 flex justify-between items-center text-left group select-none">
-                                <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
-                                    Care Guide
-                                </span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                                    :class="activeTab === 'care' ? 'rotate-45' : ''">+</span>
-                            </button>
-                            <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                                :class="activeTab === 'care' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
-                                <div class="overflow-hidden">
-                                    <div class="pb-6 text-sm text-neutral-600 font-light leading-relaxed space-y-2">
-                                        @if($product->care_guide)
-                                        {!! nl2br(e($product->care_guide)) !!}
-                                        @else
-                                        <p>Do not wash. Do not bleach. Do not iron. Do not dry clean.</p>
-                                        <p>Clean with a soft dry cloth. Keep away from direct heat.</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Shipping --}}
+                        {{-- Care Guide & Shipping (Giữ nguyên) --}}
                         <div class="border-b border-neutral-200">
                             <button @click="activeTab = activeTab === 'ship' ? null : 'ship'"
-                                class="w-full py-5 flex justify-between items-center text-left group select-none">
+                                class="w-full py-5 flex justify-between items-center text-left group">
                                 <span
-                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">
-                                    Shipping & Returns
-                                </span>
-                                <span
-                                    class="text-xl leading-none transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                                    class="text-xs font-bold uppercase tracking-widest group-hover:text-neutral-600 transition">Shipping
+                                    & Returns</span>
+                                <span class="text-xl leading-none transition-transform duration-300"
                                     :class="activeTab === 'ship' ? 'rotate-45' : ''">+</span>
                             </button>
-                            <div class="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                            <div class="grid transition-[grid-template-rows] duration-300"
                                 :class="activeTab === 'ship' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
                                 <div class="overflow-hidden">
-                                    <div class="pb-6 text-sm text-neutral-600 font-light">
-                                        Free standard shipping on orders over 500k. Returns accepted within 30 days.
-                                    </div>
+                                    <div class="pb-6 text-sm text-neutral-600 font-light">Free standard shipping on
+                                        orders over 500k. Returns accepted within 30 days.</div>
                                 </div>
                             </div>
                         </div>

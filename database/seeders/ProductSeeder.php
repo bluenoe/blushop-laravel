@@ -259,62 +259,109 @@ class ProductSeeder extends Seeder
             DB::table('products')->insert($chunk);
         }
 
-        // ==========================================
-        // 4. INSERT NƯỚC HOA (CHI TIẾT - CÓ VARIANTS)
-        // ==========================================
-        $fragrances = [
-            [
-                'name' => 'Santal 33 - Le Labo',
-                'cat_slug' => 'fragrance-unisex', // Đảm bảo slug này tồn tại trong bảng categories
-                'specs' => ['top_notes' => ['Gỗ đàn hương', 'Giấy cói'], 'middle_notes' => ['Da thuộc', 'Hoa tím'], 'base_notes' => ['Hổ phách', 'Vani']],
-                'variants' => [
-                    ['capacity_ml' => 50, 'price' => 4500000, 'sku' => 'S33-50'],
-                    ['capacity_ml' => 100, 'price' => 7200000, 'sku' => 'S33-100']
-                ]
-            ],
-            [
-                'name' => 'Bleu de Chanel',
-                'cat_slug' => 'fragrance-for-him',
-                'specs' => ['top_notes' => ['Chanh vàng', 'Bạc hà'], 'middle_notes' => ['Gừng', 'Nhục đậu khấu'], 'base_notes' => ['Gỗ tuyết tùng', 'Hương bài']],
-                'variants' => [
-                    ['capacity_ml' => 50, 'price' => 2800000, 'sku' => 'BDC-50'],
-                    ['capacity_ml' => 100, 'price' => 3800000, 'sku' => 'BDC-100']
-                ]
-            ],
-            [
-                'name' => 'YSL Libre',
-                'cat_slug' => 'fragrance-for-her',
-                'specs' => ['top_notes' => ['Cam Mandarin', 'Nho đen'], 'middle_notes' => ['Hoa nhài', 'Hoa oải hương'], 'base_notes' => ['Vani Madagascar', 'Xạ hương']],
-                'variants' => [
-                    ['capacity_ml' => 30, 'price' => 1900000, 'sku' => 'YSL-30'],
-                    ['capacity_ml' => 50, 'price' => 2900000, 'sku' => 'YSL-50'],
-                    ['capacity_ml' => 90, 'price' => 3800000, 'sku' => 'YSL-90']
-                ]
-            ],
+        // ================================================================
+        // DANH SÁCH 29 NƯỚC HOA (Tên chuẩn - Bà đổi tên ảnh theo slug nhé)
+        // ================================================================
+        $perfumeList = [
+            // --- Niche / High-End (Giá cao) ---
+            ['name' => 'Santal 33 - Le Labo',           'brand' => 'Le Labo', 'gender' => 'unisex'],
+            ['name' => 'Another 13 - Le Labo',          'brand' => 'Le Labo', 'gender' => 'unisex'],
+            ['name' => 'Rose 31 - Le Labo',             'brand' => 'Le Labo', 'gender' => 'unisex'],
+            ['name' => 'Baccarat Rouge 540 - MFK',      'brand' => 'MFK',     'gender' => 'unisex'],
+            ['name' => 'Aventus - Creed',               'brand' => 'Creed',   'gender' => 'men'],
+            ['name' => 'Gypsy Water - Byredo',          'brand' => 'Byredo',  'gender' => 'unisex'],
+            ['name' => 'Mojave Ghost - Byredo',         'brand' => 'Byredo',  'gender' => 'unisex'],
+            ['name' => 'Tobacco Vanille - Tom Ford',    'brand' => 'Tom Ford', 'gender' => 'unisex'],
+            ['name' => 'Oud Wood - Tom Ford',           'brand' => 'Tom Ford', 'gender' => 'unisex'],
+            ['name' => 'Lost Cherry - Tom Ford',        'brand' => 'Tom Ford', 'gender' => 'women'],
+
+            // --- Designer (Phổ biến) ---
+            ['name' => 'Bleu de Chanel',                'brand' => 'Chanel',  'gender' => 'men'],
+            ['name' => 'Coco Mademoiselle',             'brand' => 'Chanel',  'gender' => 'women'],
+            ['name' => 'Chanel No.5',                   'brand' => 'Chanel',  'gender' => 'women'],
+            ['name' => 'Sauvage - Dior',                'brand' => 'Dior',    'gender' => 'men'],
+            ['name' => 'Miss Dior Blooming Bouquet',    'brand' => 'Dior',    'gender' => 'women'],
+            ['name' => 'J\'adore - Dior',               'brand' => 'Dior',    'gender' => 'women'],
+            ['name' => 'YSL Libre',                     'brand' => 'YSL',     'gender' => 'women'],
+            ['name' => 'Black Opium - YSL',             'brand' => 'YSL',     'gender' => 'women'],
+            ['name' => 'Y Eau de Parfum - YSL',         'brand' => 'YSL',     'gender' => 'men'],
+            ['name' => 'Acqua di Gio - Armani',         'brand' => 'Armani',  'gender' => 'men'],
+            ['name' => 'Sì Passione - Armani',          'brand' => 'Armani',  'gender' => 'women'],
+            ['name' => 'Gucci Bloom',                   'brand' => 'Gucci',   'gender' => 'women'],
+            ['name' => 'Gucci Flora Gorgeous Gardenia', 'brand' => 'Gucci',   'gender' => 'women'],
+            ['name' => 'Versace Eros',                  'brand' => 'Versace', 'gender' => 'men'],
+            ['name' => 'Versace Bright Crystal',        'brand' => 'Versace', 'gender' => 'women'],
+            ['name' => 'Replica Jazz Club',             'brand' => 'Maison',  'gender' => 'men'],
+            ['name' => 'Replica Lazy Sunday Morning',   'brand' => 'Maison',  'gender' => 'unisex'],
+            ['name' => 'Narciso Rodriguez For Her',     'brand' => 'Narciso', 'gender' => 'women'],
+            ['name' => 'Burberry Her',                  'brand' => 'Burberry', 'gender' => 'women'],
         ];
 
-        foreach ($fragrances as $f) {
+        // Dữ liệu tầng hương mẫu (Random để tạo JSON cho đẹp)
+        $notesLibrary = [
+            'top' => ['Cam Bergamot', 'Tiêu hồng', 'Quả lê', 'Hoa cam', 'Hương biển', 'Chanh vàng', 'Hạnh nhân'],
+            'mid' => ['Hoa nhài', 'Hoa hồng', 'Hoa oải hương', 'Da thuộc', 'Cà phê', 'Hoa huệ', 'Ngọc lan tây'],
+            'base' => ['Gỗ đàn hương', 'Vani', 'Xạ hương', 'Hổ phách', 'Gỗ tuyết tùng', 'Hoắc hương', 'Thuốc lá']
+        ];
+
+        foreach ($perfumeList as $p) {
+            // 1. Xác định Category
+            $catSlug = match ($p['gender']) {
+                'men' => 'fragrance-for-him', // Đảm bảo slug này có trong DB category
+                'women' => 'fragrance-for-her',
+                default => 'fragrance-unisex',
+            };
+
+            // 2. Tạo Sản phẩm cha
+            $slug = Str::slug($p['name']);
             $product = Product::create([
-                'name' => $f['name'],
-                'slug' => Str::slug($f['name']),
-                'description' => 'A signature scent for the modern connoisseur.',
-                'price' => $f['variants'][0]['price'], // Lấy giá của size nhỏ nhất làm giá hiển thị
-                'image' => Str::slug($f['name']) . '.jpg',
-                'category_id' => $getCat($f['cat_slug']) ?? $getCat('fragrance-unisex'), // Fallback
+                'name' => $p['name'],
+                'slug' => $slug,
+                'description' => "A masterpiece from {$p['brand']}. This fragrance embodies the spirit of modern elegance and timeless sophistication.",
+                'image' => $slug . '.jpg', // Tên ảnh sẽ là slug.jpg
+                'category_id' => $getCat($catSlug) ?? $getCat('fragrance-unisex'),
                 'type' => 'fragrance',
-                'is_new' => true,
-                'is_bestseller' => true,
+                'is_new' => rand(0, 1) == 1,
+                'is_bestseller' => rand(0, 1) == 1,
                 'is_on_sale' => false,
-                'specifications' => $f['specs'], // JSON
+                'price' => 0, // Giá hiển thị sẽ lấy từ variant thấp nhất
+                'specifications' => [
+                    'concentration' => 'Eau de Parfum (EDP)',
+                    'top_notes' => collect($notesLibrary['top'])->random(2)->values()->all(),
+                    'middle_notes' => collect($notesLibrary['mid'])->random(2)->values()->all(),
+                    'base_notes' => collect($notesLibrary['base'])->random(3)->values()->all(),
+                ]
             ]);
 
-            // Tạo Variants cho từng chai
-            foreach ($f['variants'] as $v) {
+            // 3. Tạo Variants (Logic giá tiền thông minh)
+            // Niche (Le Labo, Creed, Tom Ford) đắt hơn Designer (Dior, Versace)
+            $isNiche = in_array($p['brand'], ['Le Labo', 'Creed', 'Byredo', 'Tom Ford', 'MFK']);
+            $basePrice = $isNiche ? 4500000 : 2500000; // Giá gốc 50ml
+
+            $variants = [
+                [
+                    'capacity_ml' => 50,
+                    'price' => $basePrice,
+                    'sku' => strtoupper(substr($slug, 0, 3)) . '-50'
+                ],
+                [
+                    'capacity_ml' => 100,
+                    'price' => $basePrice * 1.6, // 100ml rẻ hơn mua 2 chai 50ml
+                    'sku' => strtoupper(substr($slug, 0, 3)) . '-100'
+                ]
+            ];
+
+            // Update giá hiển thị cho product cha (lấy giá min)
+            $product->price = $variants[0]['price'];
+            $product->save();
+
+            foreach ($variants as $v) {
                 $product->variants()->create([
                     'capacity_ml' => $v['capacity_ml'],
                     'price' => $v['price'],
+                    'compare_at_price' => null,
                     'sku' => $v['sku'],
-                    'stock_quantity' => 100,
+                    'stock_quantity' => rand(10, 50),
                     'is_active' => true
                 ]);
             }
