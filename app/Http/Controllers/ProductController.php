@@ -86,31 +86,23 @@ class ProductController extends Controller
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // 2. [QUAN TRỌNG] Xử lý Variants để tìm ảnh riêng (VD: santal-33-100.jpg)
-        // Load variants và sắp xếp size nhỏ trước
+        // 2. Xử lý Variants (Nước hoa)
         $product->load(['variants' => function ($q) {
             $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
         }]);
 
-        // Biến đổi Variants thành JSON có chứa link ảnh (Key 'image' là quan trọng nhất)
+        // [LOGIC ẢNH VARIANT] Force URL không cần check file_exists (để Frontend luôn đổi ảnh)
         $variantsData = $product->variants->map(function ($variant) use ($product) {
-            // Logic tạo tên ảnh dự đoán: slug gốc + dung tích.jpg
-            // VD: santal-33-le-labo-100.jpg
             $suffix = '-' . $variant->capacity_ml;
-
-            // Xử lý chuỗi tên ảnh gốc để chèn suffix vào trước đuôi .jpg
-            $extension = pathinfo($product->image, PATHINFO_EXTENSION); // lấy đuôi jpg/png
-            $filename = pathinfo($product->image, PATHINFO_FILENAME); // lấy tên file không đuôi
-
+            $extension = pathinfo($product->image, PATHINFO_EXTENSION);
+            $filename = pathinfo($product->image, PATHINFO_FILENAME);
             $variantImageName = $filename . $suffix . '.' . $extension;
 
-
-            // Nếu ảnh 50ml (ảnh gốc) thì lấy ảnh gốc, còn lại thì lấy ảnh variant
+            // Nếu là size nhỏ (30/50ml) dùng ảnh gốc, size lớn dùng ảnh variant
             if ($variant->capacity_ml == 50 || $variant->capacity_ml == 30) {
-                // Thường chai nhỏ nhất dùng ảnh gốc cho đẹp
-                $imageUrl = \Illuminate\Support\Facades\Storage::url('products/' . $product->image);
+                $imageUrl = Storage::url('products/' . $product->image);
             } else {
-                $imageUrl = \Illuminate\Support\Facades\Storage::url('products/' . $variantImageName);
+                $imageUrl = Storage::url('products/' . $variantImageName);
             }
 
             return [
@@ -119,12 +111,32 @@ class ProductController extends Controller
                 'price' => $variant->price,
                 'sku' => $variant->sku,
                 'stock_quantity' => $variant->stock_quantity,
-                'image' => $imageUrl, // Luôn có dữ liệu, không bao giờ null
+                'image' => $imageUrl,
             ];
         });
 
-        // 3. Chọn variant mặc định
-        $defaultVariant = $product->variants->first();
+        // 3. [MỚI - QUAN TRỌNG] Tính toán ảnh mặc định ban đầu để gửi sang View
+        // (Giúp bà không cần sửa logic phức tạp ở file Blade nữa)
+        $defaultImage = null;
+        $defaultColor = null;
+
+        if ($product->variants->isNotEmpty()) {
+            // A. Nước hoa: Luôn lấy ảnh đại diện chính làm mặc định
+            $defaultImage = Storage::url('products/' . $product->image);
+        } else {
+            // B. Quần áo: Lấy ảnh main hoặc ảnh đầu tiên trong thư viện
+            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
+            if ($defImgObj) {
+                $path = Str::startsWith($defImgObj->image_path, 'products/')
+                    ? $defImgObj->image_path
+                    : 'products/' . $defImgObj->image_path;
+                $defaultImage = Storage::url($path);
+                $defaultColor = $defImgObj->color;
+            } else {
+                // Fallback: nếu quần áo chưa up thư viện ảnh thì lấy ảnh đại diện
+                $defaultImage = $product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800';
+            }
+        }
 
         // 4. Logic cho Quần áo (Color mapping)
         $variantImages = $product->images
@@ -137,7 +149,7 @@ class ProductController extends Controller
             });
         $availableColors = $variantImages->keys()->toArray();
 
-        // 5. Logic Gợi ý sản phẩm (Complete Look & Curated)
+        // 5. Logic Gợi ý sản phẩm
         $catName = optional($product->category)->name ?? '';
         $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Female', 'Her']);
 
@@ -154,11 +166,10 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        // Reviews & Wishlist
         $reviews = $product->reviews()->with('user')->latest()->paginate(5);
         $wishedIds = auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->toArray() : [];
+        $defaultVariant = $product->variants->first();
 
-        // Trả về View với biến variantsJson đã được xử lý ảnh
         return view('products.show', [
             'product' => $product,
             'reviews' => $reviews,
@@ -167,7 +178,10 @@ class ProductController extends Controller
             'variantImages' => $variantImages,
             'availableColors' => $availableColors,
             'defaultVariant' => $defaultVariant,
-            'variantsJson' => $variantsData->toJson(), // <-- Đây là mấu chốt
+            'variantsJson' => $variantsData->toJson(),
+            // Truyền 2 biến này sang để View đỡ phải tính toán
+            'defaultImage' => $defaultImage,
+            'defaultColor' => $defaultColor,
         ]);
     }
 
