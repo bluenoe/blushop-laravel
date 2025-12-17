@@ -41,7 +41,7 @@ Location: resources/views/products/new-arrivals.blade.php
                         đại.
                     </p>
                     <div data-reveal style="transition-delay: 300ms">
-                        <a href="#collection"
+                        <a href="{{ route('products.index') }}"
                             class="inline-block text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 hover:border-neutral-300 transition-all">
                             Explore Collection &darr;
                         </a>
