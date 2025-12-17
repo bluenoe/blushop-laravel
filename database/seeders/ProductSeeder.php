@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product; // [IMPORT QUAN TRỌNG]
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -14,6 +15,7 @@ class ProductSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
         DB::table('products')->truncate();
+        DB::table('product_variants')->truncate(); // [NEW] Truncate bảng variants
         Schema::enableForeignKeyConstraints();
 
         $now = Carbon::now();
@@ -23,7 +25,7 @@ class ProductSeeder extends Seeder
             return DB::table('categories')->where('slug', $slug)->value('id');
         };
 
-        // Hàm tự động đoán danh mục dựa trên tên sản phẩm
+        // Hàm tự động đoán danh mục
         $guessCat = function ($name, $gender) use ($getCat) {
             $n = strtolower($name);
             $prefix = $gender === 'men' ? 'men-' : 'women-';
@@ -37,7 +39,7 @@ class ProductSeeder extends Seeder
         };
 
         // ==========================================
-        // 1. DANH SÁCH 85 SẢN PHẨM NAM (MEN)
+        // 1. DATA QUẦN ÁO (MEN) - GIỮ NGUYÊN
         // ==========================================
         $menItems = [
             'Essential Crew Neck Tee',
@@ -128,7 +130,7 @@ class ProductSeeder extends Seeder
         ];
 
         // ==========================================
-        // 2. DANH SÁCH 81 SẢN PHẨM NỮ (WOMEN)
+        // 2. DATA QUẦN ÁO (WOMEN) - GIỮ NGUYÊN
         // ==========================================
         $womenItems = [
             'Baby Tee Cropped',
@@ -215,73 +217,107 @@ class ProductSeeder extends Seeder
         ];
 
         // ==========================================
-        // 3. XỬ LÝ DỮ LIỆU
+        // 3. BULK INSERT QUẦN ÁO (NHANH)
         // ==========================================
-        $data = [];
+        $apparelData = [];
 
-        // Xử lý Men (85 items)
         foreach ($menItems as $name) {
-            $data[] = [
-                'name'          => $name,
-                'slug'          => Str::slug($name),
-                'description'   => "Designed for modern living. The {$name} features premium materials and a minimalist aesthetic typical of BluShop.",
-                'price'         => rand(290, 890) * 1000, // Giá random từ 290k đến 890k
-                'image'         => Str::slug($name) . '.jpg',
-                'category_id'   => $guessCat($name, 'men'),
-                'type'          => 'apparel',
-                'is_new'        => rand(0, 1) > 0.7,
+            $apparelData[] = [
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'description' => "Designed for modern living. The {$name} features premium materials.",
+                'price' => rand(290, 890) * 1000,
+                'image' => Str::slug($name) . '.jpg',
+                'category_id' => $guessCat($name, 'men'),
+                'type' => 'apparel',
+                'is_new' => rand(0, 1) > 0.7,
                 'is_bestseller' => rand(0, 1) > 0.8,
-                'is_on_sale'    => rand(0, 1) > 0.8,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ];
-        }
-
-        // Xử lý Women (81 items)
-        foreach ($womenItems as $name) {
-            $data[] = [
-                'name'          => $name,
-                'slug'          => Str::slug($name),
-                'description'   => "Designed for modern living. The {$name} features premium materials and a minimalist aesthetic typical of BluShop.",
-                'price'         => rand(190, 990) * 1000,
-                'image'         => Str::slug($name) . '.jpg',
-                'category_id'   => $guessCat($name, 'women'),
-                'type'          => 'apparel',
-                'is_new'        => rand(0, 1) > 0.7,
-                'is_bestseller' => rand(0, 1) > 0.8,
-                'is_on_sale'    => rand(0, 1) > 0.8,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ];
-        }
-
-        // Thêm vài chai nước hoa cho sang
-        $fragrances = [
-            ['name' => 'Santal 33 - Le Labo', 'price' => 4500000, 'cat' => 'fragrance-unisex'],
-            ['name' => 'Bleu de Chanel',      'price' => 3200000, 'cat' => 'fragrance-for-him'],
-            ['name' => 'YSL Libre',           'price' => 2900000, 'cat' => 'fragrance-for-her'],
-        ];
-
-        foreach ($fragrances as $item) {
-            $data[] = [
-                'name' => $item['name'],
-                'slug' => Str::slug($item['name']),
-                'description' => 'Luxury fragrance.',
-                'price' => $item['price'],
-                'image' => Str::slug($item['name']) . '.jpg',
-                'category_id' => $getCat($item['cat']),
-                'type' => 'fragrance',
-                'is_new' => false,
-                'is_bestseller' => true,
-                'is_on_sale' => false,
+                'is_on_sale' => rand(0, 1) > 0.8,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
         }
 
-        // Insert theo chunk để không bị quá tải
-        foreach (array_chunk($data, 50) as $chunk) {
+        foreach ($womenItems as $name) {
+            $apparelData[] = [
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'description' => "Designed for modern living. The {$name} features premium materials.",
+                'price' => rand(190, 990) * 1000,
+                'image' => Str::slug($name) . '.jpg',
+                'category_id' => $guessCat($name, 'women'),
+                'type' => 'apparel',
+                'is_new' => rand(0, 1) > 0.7,
+                'is_bestseller' => rand(0, 1) > 0.8,
+                'is_on_sale' => rand(0, 1) > 0.8,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        foreach (array_chunk($apparelData, 50) as $chunk) {
             DB::table('products')->insert($chunk);
+        }
+
+        // ==========================================
+        // 4. INSERT NƯỚC HOA (CHI TIẾT - CÓ VARIANTS)
+        // ==========================================
+        $fragrances = [
+            [
+                'name' => 'Santal 33 - Le Labo',
+                'cat_slug' => 'fragrance-unisex', // Đảm bảo slug này tồn tại trong bảng categories
+                'specs' => ['top_notes' => ['Gỗ đàn hương', 'Giấy cói'], 'middle_notes' => ['Da thuộc', 'Hoa tím'], 'base_notes' => ['Hổ phách', 'Vani']],
+                'variants' => [
+                    ['capacity_ml' => 50, 'price' => 4500000, 'sku' => 'S33-50'],
+                    ['capacity_ml' => 100, 'price' => 7200000, 'sku' => 'S33-100']
+                ]
+            ],
+            [
+                'name' => 'Bleu de Chanel',
+                'cat_slug' => 'fragrance-for-him',
+                'specs' => ['top_notes' => ['Chanh vàng', 'Bạc hà'], 'middle_notes' => ['Gừng', 'Nhục đậu khấu'], 'base_notes' => ['Gỗ tuyết tùng', 'Hương bài']],
+                'variants' => [
+                    ['capacity_ml' => 50, 'price' => 2800000, 'sku' => 'BDC-50'],
+                    ['capacity_ml' => 100, 'price' => 3800000, 'sku' => 'BDC-100']
+                ]
+            ],
+            [
+                'name' => 'YSL Libre',
+                'cat_slug' => 'fragrance-for-her',
+                'specs' => ['top_notes' => ['Cam Mandarin', 'Nho đen'], 'middle_notes' => ['Hoa nhài', 'Hoa oải hương'], 'base_notes' => ['Vani Madagascar', 'Xạ hương']],
+                'variants' => [
+                    ['capacity_ml' => 30, 'price' => 1900000, 'sku' => 'YSL-30'],
+                    ['capacity_ml' => 50, 'price' => 2900000, 'sku' => 'YSL-50'],
+                    ['capacity_ml' => 90, 'price' => 3800000, 'sku' => 'YSL-90']
+                ]
+            ],
+        ];
+
+        foreach ($fragrances as $f) {
+            $product = Product::create([
+                'name' => $f['name'],
+                'slug' => Str::slug($f['name']),
+                'description' => 'A signature scent for the modern connoisseur.',
+                'price' => $f['variants'][0]['price'], // Lấy giá của size nhỏ nhất làm giá hiển thị
+                'image' => Str::slug($f['name']) . '.jpg',
+                'category_id' => $getCat($f['cat_slug']) ?? $getCat('fragrance-unisex'), // Fallback
+                'type' => 'fragrance',
+                'is_new' => true,
+                'is_bestseller' => true,
+                'is_on_sale' => false,
+                'specifications' => $f['specs'], // JSON
+            ]);
+
+            // Tạo Variants cho từng chai
+            foreach ($f['variants'] as $v) {
+                $product->variants()->create([
+                    'capacity_ml' => $v['capacity_ml'],
+                    'price' => $v['price'],
+                    'sku' => $v['sku'],
+                    'stock_quantity' => 100,
+                    'is_active' => true
+                ]);
+            }
         }
     }
 }

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             // Lưu cấu trúc tầng hương, độ lưu hương...
-            // Tại sao JSON? Vì nó linh hoạt, không cần join nhiều bảng phức tạp cho việc HIỂN THỊ.
             $table->json('specifications')->nullable()->after('description');
 
             // Thêm cột này để filter nhanh nhóm hương (Gỗ, Hoa, Biển...)
