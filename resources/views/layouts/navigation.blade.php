@@ -209,58 +209,141 @@ $categories = \App\Models\Category::query()
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
         class="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl z-40 hidden sm:block">
 
-        <div class="max-w-7xl mx-auto px-8 py-10">
-            <div class="grid grid-cols-4 gap-8">
-                {{-- Column 1: Categories --}}
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Categories</h3>
-                    <ul class="space-y-4">
-                        @foreach($categories->take(5) as $c)
-                        <li>
-                            <a href="{{ route('products.index', ['category' => $c->slug]) }}"
-                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">
-                                {{ $c->name }}
+        <div class="max-w-7xl mx-auto px-8 py-0"> {{-- py-0 để slider tràn viền đẹp hơn --}}
+            <div class="grid grid-cols-4 min-h-[400px]"> {{-- Set chiều cao cố định để slider không bị giật --}}
+
+                {{-- Column 1: Main Categories (Theo yêu cầu mới) --}}
+                <div class="py-10 pr-8 border-r border-gray-50">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-8">Browse</h3>
+                    <ul class="space-y-6">
+                        {{-- 1. For Her --}}
+                        <li class="group">
+                            <a href="{{ route('products.index', ['gender' => 'women']) }}" class="block">
+                                <span
+                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">For
+                                    Her</span>
+                                <span
+                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Dresses,
+                                    Tops & Accessories</span>
                             </a>
                         </li>
-                        @endforeach
-                        <li>
-                            <a href="{{ route('products.index') }}"
-                                class="text-sm font-bold text-black mt-2 inline-block">View All Products &rarr;</a>
+
+                        {{-- 2. For Him --}}
+                        <li class="group">
+                            <a href="{{ route('products.index', ['gender' => 'men']) }}" class="block">
+                                <span
+                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">For
+                                    Him</span>
+                                <span
+                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Suits,
+                                    T-Shirts & Bottoms</span>
+                            </a>
+                        </li>
+
+                        {{-- 3. Fragrance --}}
+                        <li class="group">
+                            {{-- Lưu ý: Đảm bảo bà có category slug là 'fragrance' trong DB nhé --}}
+                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block">
+                                <span
+                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">Fragrance</span>
+                                <span
+                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Signature
+                                    Scents</span>
+                            </a>
                         </li>
                     </ul>
                 </div>
 
-                {{-- Column 2: Collections --}}
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Edits</h3>
+                {{-- Column 2: Edits (Giữ nguyên) --}}
+                <div class="py-10 px-8">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-8">Curated Edits</h3>
                     <ul class="space-y-4">
                         <li><a href="#"
-                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Campus
+                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Campus
                                 Essentials</a></li>
                         <li><a href="#"
-                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Desk
+                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Desk
                                 Setup</a></li>
                         <li><a href="#"
-                                class="text-sm text-gray-900 hover:underline decoration-1 underline-offset-4">Minimalist
+                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Minimalist
                                 Tech</a></li>
-                        <li><a href="#"
-                                class="text-sm text-red-600 hover:underline decoration-1 underline-offset-4">Sale - Last
-                                Chance</a></li>
+                        <li class="pt-4 border-t border-gray-100 mt-4">
+                            <a href="#" class="text-sm text-red-600 font-medium hover:underline">Sale - Last Chance</a>
+                        </li>
                     </ul>
                 </div>
 
-                {{-- Column 3 & 4: Featured Image --}}
-                <div class="col-span-2 relative h-64 bg-gray-100 overflow-hidden group">
-                    <img src="{{ asset('images/menu-featured.jpg') }}"
-                        onerror="this.src='https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop'"
-                        alt="New Collection"
-                        class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                    <div class="absolute inset-0 bg-black/10"></div>
-                    <div class="absolute bottom-6 left-6 text-white">
-                        <p class="text-xs uppercase tracking-widest mb-2">Just Landed</p>
-                        <h4 class="text-xl font-bold">The Monochrome Collection</h4>
+                {{-- Column 3 & 4: PREMIUM SLIDER (Chiếm 2 cột) --}}
+                <div class="col-span-2 relative overflow-hidden bg-gray-100 group" x-data="{ 
+                        activeSlide: 0,
+                        slides: [
+                            {
+                                img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop',
+                                title: 'The Monochrome Collection',
+                                subtitle: 'Effortless Elegance'
+                            },
+                            {
+                                img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop',
+                                title: 'New Season Arrivals',
+                                subtitle: 'Spring / Summer 2025'
+                            },
+                            {
+                                img: 'https://images.unsplash.com/photo-1529139574466-a302d2052574?q=80&w=800&auto=format&fit=crop',
+                                title: 'Signature Fragrances',
+                                subtitle: 'Discover Your Scent'
+                            }
+                        ],
+                        timer: null,
+                        startAutoSlide() {
+                            this.timer = setInterval(() => {
+                                this.activeSlide = (this.activeSlide + 1) % this.slides.length;
+                            }, 4000); // Đổi ảnh mỗi 4 giây
+                        },
+                        stopAutoSlide() {
+                            clearInterval(this.timer);
+                        }
+                     }" x-init="startAutoSlide()" @mouseenter="stopAutoSlide()" @mouseleave="startAutoSlide()">
+
+                    {{-- Loop Slides --}}
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <div x-show="activeSlide === index" x-transition:enter="transition ease-out duration-1000"
+                            x-transition:enter-start="opacity-0 scale-105"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-1000"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-100" class="absolute inset-0 w-full h-full">
+
+                            {{-- Image --}}
+                            <img :src="slide.img" class="w-full h-full object-cover">
+
+                            {{-- Dark Overlay --}}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
+                            </div>
+
+                            {{-- Text Content (Có animation bay lên) --}}
+                            <div class="absolute bottom-10 left-10 text-white">
+                                <p x-text="slide.subtitle" class="text-xs uppercase tracking-[0.2em] mb-2 opacity-90">
+                                </p>
+                                <h3 x-text="slide.title" class="text-3xl font-serif italic tracking-wide"></h3>
+                                <button
+                                    class="mt-4 px-6 py-2 border border-white text-xs uppercase tracking-widest hover:bg-white hover:text-black transition duration-300">
+                                    Shop Now
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Dots Indicator --}}
+                    <div class="absolute bottom-6 right-6 flex gap-2">
+                        <template x-for="(slide, index) in slides">
+                            <button @click="activeSlide = index" class="h-1 transition-all duration-300 rounded-full"
+                                :class="activeSlide === index ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/80'">
+                            </button>
+                        </template>
                     </div>
-                    <a href="#" class="absolute inset-0"></a>
+
+                    {{-- Link ảo phủ toàn bộ để click được --}}
+                    <a href="#" class="absolute inset-0 z-10"></a>
                 </div>
             </div>
         </div>

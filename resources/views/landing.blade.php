@@ -1,14 +1,24 @@
-{{--
-High-End Fashion Editorial Landing Page
-Redesign for BluShop - Inspired by COS, ZARA, LEMAIRE
-Focus: Visual Hierarchy, Negative Space, Typography
---}}
-
 <x-app-layout>
     @push('head')
-    <link rel="preload" as="image" href="{{ asset('images/hero-main.jpg') }}" fetchpriority="high">
+    {{-- 1. LOAD FONTS: Playfair Display (Luxury Serif) & Inter (Clean Sans) --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    {{-- 2. CUSTOM CSS CHO EDITORIAL VIBE --}}
     <style>
-        /* Ẩn scrollbar nhưng vẫn scroll được để giữ thẩm mỹ */
+        /* Font Definitions */
+        .font-serif-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-sans-clean {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Hide Scrollbar for clean look */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -17,299 +27,243 @@ Focus: Visual Hierarchy, Negative Space, Typography
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* REVEAL ANIMATION CLASSES */
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.2s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-element.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Delay Utilities */
+        .delay-200 {
+            transition-delay: 200ms;
+        }
+
+        .delay-400 {
+            transition-delay: 400ms;
+        }
+
+        /* Image Hover Zoom */
+        .img-zoom-wrapper {
+            overflow: hidden;
+        }
+
+        .img-zoom-wrapper img {
+            transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .img-zoom-wrapper:hover img {
+            transform: scale(1.03);
+        }
     </style>
     @endpush
 
-    <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
+    {{-- LƯU Ý: Header đang để position fixed, nên ta cần xử lý Hero Section
+    để ảnh tràn lên dưới Header tạo cảm giác Immersive --}}
 
-        {{-- ============================================
-        HERO SECTION - BRAND STATEMENT
-        Style: Fullscreen Image, Minimal Text overlay
-        ============================================ --}}
-        <section class="relative h-[95vh] w-full overflow-hidden bg-neutral-100">
+    <div class="bg-white text-neutral-900 overflow-x-hidden">
+
+        {{-- 1. HERO SECTION (Magazine Cover Style) --}}
+        {{-- -mt-20 để kéo ảnh lên nằm dưới Header trong suốt --}}
+        <section class="relative w-full h-[100vh] min-h-[700px] -mt-20 overflow-hidden">
             <div class="absolute inset-0">
-                <img src="{{ asset('images/hero-main.jpg') }}" alt="BluShop Campaign"
-                    class="w-full h-full object-cover object-center scale-100 transition-transform duration-[2s] hover:scale-105"
-                    loading="eager" />
-                {{-- Giảm độ tối overlay để ảnh tự nhiên hơn (Editorial style) --}}
-                <div class="absolute inset-0 bg-black/10"></div>
+                <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop"
+                    alt="BluShop Editorial Campaign" class="w-full h-full object-cover">
+                {{-- Overlay nhẹ để text nổi bật nhưng không làm tối ảnh quá mức --}}
+                <div class="absolute inset-0 bg-black/20"></div>
             </div>
 
-            {{-- Text đặt ở góc dưới (Bottom-Left) thay vì giữa - Trend hiện đại --}}
-            <div class="absolute bottom-0 left-0 p-8 md:p-12 lg:p-16 z-10 max-w-2xl">
-                <h1
-                    class="text-white text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter leading-none mb-4 mix-blend-difference">
-                    TIMELESS <br> ESSENTIALS
-                </h1>
-                <div class="flex flex-col md:flex-row gap-6 items-start md:items-center pt-4">
-                    <a href="{{ route('products.index') }}"
-                        class="group inline-flex items-center gap-2 text-white text-sm tracking-[0.2em] uppercase border-b border-transparent hover:border-white transition-all pb-1">
-                        Explore Collection
-                        <span class="transform group-hover:translate-x-1 transition-transform">→</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        {{-- ============================================
-        EDITORIAL BLOCK - "The Philosophy"
-        Style: Split Screen (Text Left, Image Right)
-        FIX: Added object-top & min-height to prevent cropping heads
-        ============================================ --}}
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-0 border-b border-neutral-100 lg:min-h-[600px]">
-            {{-- Text Area --}}
-            <div class="lg:col-span-5 flex items-center p-12 md:p-20 bg-white">
-                <div data-reveal class="max-w-md">
-                    <span class="block text-xs font-bold tracking-[0.3em] text-neutral-400 mb-6 uppercase">The
-                        Philosophy</span>
-                    <h2 class="text-3xl md:text-4xl font-light leading-tight mb-8">
-                        Simplicity is the ultimate sophistication.
-                    </h2>
-                    <p class="text-neutral-600 font-light leading-relaxed mb-10 text-justify">
-                        We believe in conscious design. Each piece is crafted to last beyond seasons, blending timeless
-                        silhouettes with modern comfort. It's not just about clothes; it's about a way of life.
+            <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 pb-20 md:pb-32 text-white z-10">
+                <div class="max-w-4xl mx-auto md:mx-0">
+                    <p
+                        class="reveal-element font-sans-clean text-xs md:text-sm tracking-[0.3em] uppercase mb-4 text-neutral-200">
+                        Spring / Summer 2025
                     </p>
+                    <h1 class="reveal-element delay-200 font-serif-display text-5xl md:text-8xl leading-none mb-6">
+                        The New <br> <span class="italic font-light opacity-90">Silence</span>
+                    </h1>
+                    <div class="reveal-element delay-400 h-px w-24 bg-white/50 mb-8"></div>
                     <a href="{{ route('products.index') }}"
-                        class="inline-block text-xs font-bold uppercase tracking-widest border-b border-neutral-900 pb-1 hover:text-neutral-600 hover:border-neutral-600 transition">
-                        Read Our Story
+                        class="reveal-element delay-400 inline-block font-sans-clean text-xs tracking-[0.2em] uppercase border-b border-white/40 pb-1 hover:border-white transition-colors">
+                        View Collection
                     </a>
                 </div>
-            </div>
-
-            {{-- Image Area --}}
-            {{-- Fix: Thay 'lg:h-auto' thành 'lg:h-full' để nó fill hết chiều cao của Grid --}}
-            <div class="lg:col-span-7 h-[600px] lg:h-full bg-neutral-100 relative overflow-hidden">
-                {{-- Fix: Thêm 'object-top' để neo ảnh lên trên, không bị cắt đầu --}}
-                <img src="{{ asset('images/category-women.jpg') }}" alt="Philosophy"
-                    class="absolute inset-0 w-full h-full object-cover object-top grayscale hover:grayscale-0 transition duration-700">
             </div>
         </section>
 
-        {{-- ============================================
-        NEW ARRIVALS - CLEAN GRID
-        Style: Minimal Cards, No Buttons
-        ============================================ --}}
-        <section id="featured" class="py-20 md:py-32 px-4 md:px-8">
-            <div class="max-w-[1800px] mx-auto">
-                <div class="flex justify-between items-end mb-12 md:mb-16 px-2">
-                    <h2 class="text-2xl md:text-3xl font-light tracking-wide uppercase">New Arrivals</h2>
-                    <a href="{{ route('products.index') }}"
-                        class="hidden md:block text-xs font-bold uppercase tracking-widest hover:underline">
-                        View All
-                    </a>
+        {{-- 2. PHILOSOPHY (Typography Focused) --}}
+        <section class="relative py-24 md:py-40 px-6 md:px-12 bg-white">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-end">
+                <div class="md:col-span-4 reveal-element">
+                    <span
+                        class="block text-[12rem] leading-[0.8] font-serif-display text-neutral-50 -ml-4 select-none">01</span>
+                </div>
+                <div class="md:col-span-6 md:col-start-6 reveal-element delay-200">
+                    <h2 class="font-serif-display text-3xl md:text-4xl mb-8 leading-snug text-neutral-900">
+                        Minimalism is not about absence.<br>
+                        It is about the <span class="italic text-neutral-500">perfect amount</span> of something.
+                    </h2>
+                    <p
+                        class="font-sans-clean text-neutral-500 text-sm md:text-base leading-relaxed max-w-md font-light">
+                        We strip away the unnecessary to reveal the essential. BluShop focuses on silhouette, fabric,
+                        and the feeling of wearing something made with intent. No noise, just style.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        {{-- 3. VISUAL STORYTELLING (Asymmetric Layout) --}}
+        <section class="py-12 md:py-24 px-4 md:px-8 bg-neutral-50">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-24 mb-32 items-center">
+                    <div class="reveal-element img-zoom-wrapper aspect-[3/4] md:aspect-[4/5] overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&w=1964&auto=format&fit=crop"
+                            alt="Fabric Detail"
+                            class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                    </div>
+                    <div class="reveal-element delay-200 md:-ml-12 bg-white p-8 md:p-12 shadow-sm z-10 max-w-md">
+                        <p class="font-sans-clean text-xs tracking-widest uppercase text-neutral-400 mb-4">The Fabric
+                        </p>
+                        <h3 class="font-serif-display text-3xl mb-4">Tactile Luxury</h3>
+                        <p class="font-sans-clean text-neutral-500 mb-6 font-light leading-relaxed text-sm">
+                            Sourced from the finest mills, our organic cotton and raw linens breathe with you. Designed
+                            to age gracefully.
+                        </p>
+                        <a href="{{ route('products.index') }}"
+                            class="font-sans-clean text-xs uppercase tracking-widest border-b border-neutral-300 pb-1 hover:border-black transition-colors">
+                            Explore Materials
+                        </a>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-8">
-                    @forelse($featured as $product)
-                    <div class="group cursor-pointer">
-                        {{-- Image Container --}}
-                        <div class="relative overflow-hidden bg-neutral-100 aspect-[3/4] mb-4">
-                            <a href="{{ route('products.show', $product->id) }}" class="block w-full h-full">
-                                <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                                    loading="lazy" />
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                    <div class="md:col-span-5 md:col-start-2 reveal-element mt-12 md:mt-32 order-2 md:order-1">
+                        <div class="md:sticky md:top-32 pr-8">
+                            <p class="font-sans-clean text-xs tracking-widest uppercase text-neutral-400 mb-4">The Form
+                            </p>
+                            <h3 class="font-serif-display text-4xl mb-6">Effortless Motion</h3>
+                            <p class="font-sans-clean text-neutral-500 font-light leading-relaxed mb-8">
+                                Structured yet fluid. Our cuts are engineered for movement, ensuring you look composed
+                                in the chaos of the city.
+                            </p>
+                            <a href="{{ route('new-arrivals') }}"
+                                class="inline-block px-6 py-3 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-neutral-800 transition">
+                                Shop New Arrivals
                             </a>
-
-                            {{-- Wishlist Button (Minimal, Top Right) --}}
-                            <div class="absolute top-4 right-4 translate-y-[-10px] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
-                                x-data="{ id: {{ $product->id }} }">
-                                <button @click.prevent="$store.wishlist.toggle(id)"
-                                    class="text-neutral-900 hover:scale-110 transition">
-                                    <svg class="w-6 h-6"
-                                        :class="$store.wishlist.isFav(id) ? 'fill-neutral-900' : 'fill-none'"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Product Info --}}
-                        <div class="flex flex-col space-y-1">
-                            <h3
-                                class="text-sm tracking-wide font-normal text-neutral-900 group-hover:text-neutral-600 transition-colors">
-                                <a href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
-                            </h3>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-light text-neutral-500">
-                                    ₫{{ number_format((float)$product->price, 0, ',', '.') }}
-                                </span>
-                                {{-- Màu sắc (Giả lập) - Thường thấy ở ZARA --}}
-                                <div class="hidden group-hover:flex gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-neutral-800"></span>
-                                    <span class="w-2 h-2 rounded-full bg-neutral-300"></span>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    @empty
-                    <div class="col-span-full py-20 text-center text-neutral-400 font-light">
-                        Collection updating...
+                    <div class="md:col-span-6 md:col-start-7 reveal-element delay-200 order-1 md:order-2">
+                        <div class="img-zoom-wrapper aspect-[3/4] overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1888&auto=format&fit=crop"
+                                alt="Model Posing" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-right text-[10px] tracking-widest uppercase text-neutral-400 mt-3">Look 04 — The
+                            Trench</p>
                     </div>
-                    @endforelse
-                </div>
-
-                <div class="mt-12 text-center md:hidden">
-                    <a href="{{ route('products.index') }}"
-                        class="inline-block border border-neutral-900 px-8 py-3 text-xs font-bold uppercase tracking-widest">
-                        View All Products
-                    </a>
                 </div>
             </div>
         </section>
 
-        {{-- ============================================
-        CAMPAIGN / CATEGORIES
-        Style: Large Dual Banner
-        ============================================ --}}
-        <section class="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[85vh]">
-            @php
-            $categories = [
-            [
-            'name' => 'WOMEN',
-            'image' => 'category-women.jpg',
-            'link' => route('products.index', ['category' => 'women'])
-            ],
-            [
-            'name' => 'MEN',
-            'image' => 'category-men.jpg',
-            'link' => route('products.index', ['category' => 'men'])
-            ],
-            ];
-            @endphp
+        {{-- 4. HIGHLIGHT MOMENT (Full Width Parallax Feel) --}}
+        <section class="reveal-element relative w-full h-[70vh] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop"
+                alt="Campaign Highlight" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/10"></div>
+            <div class="absolute bottom-12 right-6 md:bottom-24 md:right-24 text-white text-right">
+                <h2 class="font-serif-display text-5xl md:text-7xl mb-6 italic">Evening Hues</h2>
+                <a href="{{ route('products.index') }}"
+                    class="inline-block font-sans-clean text-xs tracking-[0.2em] uppercase bg-white text-black px-8 py-4 hover:bg-neutral-200 transition-colors">
+                    View Lookbook
+                </a>
+            </div>
+        </section>
 
-            @foreach($categories as $cat)
-            <div class="relative group h-[50vh] md:h-full overflow-hidden">
-                <a href="{{ $cat['link'] }}" class="block w-full h-full">
-                    <img src="{{ asset('images/' . $cat['image']) }}" alt="{{ $cat['name'] }}"
-                        class="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105"
-                        loading="lazy" />
+        {{-- 5. CURATED GRID (Essentials) --}}
+        <section class="py-24 px-6 bg-white">
+            <div class="text-center mb-16 reveal-element">
+                <h2 class="font-serif-display text-3xl md:text-4xl text-neutral-900">Essentials</h2>
+                <div class="h-8 w-px bg-neutral-200 mx-auto mt-6"></div>
+            </div>
 
-                    {{-- Overlay khi hover --}}
-                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-8 max-w-7xl mx-auto">
+                <a href="{{ route('products.index', ['category' => 'tops']) }}"
+                    class="group block cursor-pointer reveal-element">
+                    <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1551488852-d81a2d5356a7?q=80&w=2070&auto=format&fit=crop"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            alt="Item">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
+                        </div>
                     </div>
-
-                    {{-- Text giữa ảnh --}}
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <h2 class="text-4xl md:text-6xl font-light text-white tracking-[0.2em] mb-4 drop-shadow-md">
-                            {{ $cat['name'] }}
-                        </h2>
+                    <div class="mt-4 flex justify-between items-baseline px-1">
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">The Silk Shirt</h4>
                         <span
-                            class="opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100 bg-white text-black px-6 py-2 text-xs font-bold uppercase tracking-widest">
-                            Shop Now
-                        </span>
+                            class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('products.index', ['category' => 'bottoms']) }}"
+                    class="group block cursor-pointer reveal-element delay-200 md:mt-12">
+                    <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1605763240004-7d93b47053e3?q=80&w=1887&auto=format&fit=crop"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            alt="Item">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-baseline px-1">
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">Classic Trouser</h4>
+                        <span
+                            class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('products.index', ['category' => 'outerwear']) }}"
+                    class="group block cursor-pointer reveal-element delay-400">
+                    <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=2069&auto=format&fit=crop"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            alt="Item">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-baseline px-1">
+                        <h4 class="font-serif-display text-lg italic text-neutral-800">Noir Blazer</h4>
+                        <span
+                            class="font-sans-clean text-[10px] uppercase tracking-widest text-neutral-400 group-hover:text-black transition-colors">Shop</span>
                     </div>
                 </a>
             </div>
-            @endforeach
         </section>
 
-        {{-- ============================================
-        LOOKBOOK / COMMUNITY
-        Style: Editorial Masonry / Horizontal Scroll
-        ============================================ --}}
-        <section class="py-20 md:py-32 bg-neutral-50 border-t border-neutral-200">
-            <div class="max-w-[1800px] mx-auto px-4 md:px-8">
-                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                    <div>
-                        <span
-                            class="text-xs font-bold tracking-[0.3em] uppercase text-neutral-400 block mb-2">#BluShop</span>
-                        <h2 class="text-3xl md:text-4xl font-light uppercase tracking-wide">Journal</h2>
-                    </div>
-                    <p class="mt-4 md:mt-0 text-sm text-neutral-500 max-w-md text-right">
-                        Daily inspiration from our community. <br>Tag us to be featured.
-                    </p>
-                </div>
+        {{-- SCROLL INTERACTION SCRIPT --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px',
+                    threshold: 0.1 // Kích hoạt khi thấy 10%
+                };
 
-                <div
-                    class="flex overflow-x-auto gap-4 pb-8 md:grid md:grid-cols-4 md:gap-px md:bg-neutral-200 no-scrollbar">
-                    @foreach($socialFeed as $index => $item)
-                    @php
-                    // Logic grid style "Tạp chí"
-                    $gridClass = 'md:aspect-[3/4]'; // Default
-                    if ($index === 0) $gridClass = 'md:col-span-2 md:aspect-square';
-                    if ($index === 2) $gridClass = 'md:aspect-[3/4] md:translate-y-12'; // Lệch 1 chút cho nghệ
-                    @endphp
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
 
-                    <div class="min-w-[280px] md:min-w-0 bg-white relative group {{ $gridClass }}">
-                        <img src="{{ Storage::url('products/' . $item['image']) }}" alt="Lookbook"
-                            class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition duration-700" />
-
-                        <div
-                            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                            <span
-                                class="text-white tracking-widest text-xs uppercase border border-white px-4 py-2">View
-                                Look</span>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        {{-- ============================================
-        NEWSLETTER - MINIMAL
-        Style: Clean text only
-        ============================================ --}}
-        <section class="py-24 bg-white text-center px-4">
-            <div class="max-w-xl mx-auto" data-reveal>
-                <h3 class="text-lg uppercase tracking-[0.2em] mb-8">Join Our Newsletter</h3>
-                <form x-data="{ email: '', status: null }" @submit.prevent="status='success'"
-                    class="flex flex-col gap-4">
-                    <div class="relative border-b border-neutral-300 focus-within:border-neutral-900 transition-colors">
-                        <input x-model="email" type="email" placeholder="Enter your email address"
-                            class="w-full py-3 text-center bg-transparent border-none focus:ring-0 placeholder-neutral-400 text-neutral-900"
-                            required />
-                    </div>
-                    <button type="submit"
-                        class="text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-neutral-900 mt-4 transition">
-                        Subscribe
-                    </button>
-
-                    <p x-show="status==='success'" x-transition class="text-xs text-green-600 mt-2">
-                        You are on the list.
-                    </p>
-                </form>
-            </div>
-        </section>
-
-        {{-- ============================================
-        FOOTER STRIP (Thay thế Brand Values Icons)
-        Style: Text Marquee or Simple Grid
-        ============================================ --}}
-        <div class="border-t border-neutral-100 py-6 bg-neutral-50">
-            <div
-                class="max-w-7xl mx-auto px-6 flex flex-wrap justify-center gap-8 md:gap-16 text-[10px] uppercase tracking-widest text-neutral-400">
-                <span>Free Shipping Over 500k</span>
-                <span>30-Day Returns</span>
-                <span>Secure Checkout</span>
-                <span>Sustainable Sourcing</span>
-            </div>
-        </div>
-
-    </main>
-
-    @include('partials.wishlist-script')
-
-    @push('scripts')
-    <script>
-        // Simple fade-in animation logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('opacity-100', 'translate-y-0');
-                        entry.target.classList.remove('opacity-0', 'translate-y-8');
-                    }
-                });
-            }, { threshold: 0.05 });
-
-            document.querySelectorAll('[data-reveal]').forEach(el => {
-                el.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-8');
-                observer.observe(el);
+                const elementsToReveal = document.querySelectorAll('.reveal-element');
+                elementsToReveal.forEach(el => observer.observe(el));
             });
-        });
-    </script>
-    @endpush
+        </script>
+    </div>
 </x-app-layout>
