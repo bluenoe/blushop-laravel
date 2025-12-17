@@ -112,6 +112,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     this.price = v.price; // Cập nhật giá tiền hiển thị
                     this.sku = v.sku;
                     this.size = v.capacity_ml + 'ml'; // Map dung tích vào input 'size' để gửi lên server
+                    if (v.image) {
+        this.currentImage = v.image;
+    }
                 }
             }">
 

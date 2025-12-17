@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product; // [IMPORT QUAN TRỌNG]
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +15,7 @@ class ProductSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
         DB::table('products')->truncate();
-        DB::table('product_variants')->truncate(); // [NEW] Truncate bảng variants
+        DB::table('product_variants')->truncate();
         Schema::enableForeignKeyConstraints();
 
         $now = Carbon::now();
@@ -25,202 +25,74 @@ class ProductSeeder extends Seeder
             return DB::table('categories')->where('slug', $slug)->value('id');
         };
 
-        // Hàm tự động đoán danh mục
+        // Hàm tự động đoán danh mục quần áo
         $guessCat = function ($name, $gender) use ($getCat) {
             $n = strtolower($name);
             $prefix = $gender === 'men' ? 'men-' : 'women-';
-
-            if (Str::contains($n, ['tee', 'shirt', 'polo', 'top', 'henley', 'tank', 'camisole', 'bodysuit', 'blouse', 'vest', 'sweater', 'cardigan', 'crewneck', 'mock neck'])) return $getCat($prefix . 'tops');
-            if (Str::contains($n, ['hoodie', 'jacket', 'coat', 'bomber', 'blazer', 'puffer', 'trench', 'windbreaker', 'pullover', 'parka', 'overshirt'])) return $getCat($prefix . 'outerwear');
-            if (Str::contains($n, ['pant', 'jean', 'chino', 'trouser', 'jogger', 'legging', 'sweatpant', 'skirt', 'short'])) return $getCat($prefix . 'bottoms');
+            if (Str::contains($n, ['tee', 'shirt', 'polo', 'top', 'henley', 'tank', 'bodysuit', 'blouse', 'vest', 'sweater', 'cardigan'])) return $getCat($prefix . 'tops');
+            if (Str::contains($n, ['hoodie', 'jacket', 'coat', 'bomber', 'blazer', 'puffer', 'trench', 'parka'])) return $getCat($prefix . 'outerwear');
+            if (Str::contains($n, ['pant', 'jean', 'chino', 'trouser', 'jogger', 'legging', 'short'])) return $getCat($prefix . 'bottoms');
             if (Str::contains($n, ['dress', 'gown', 'robe'])) return $getCat('women-dresses');
-
-            return $getCat($prefix . 'tops'); // Fallback
+            return $getCat($prefix . 'tops');
         };
 
         // ==========================================
-        // 1. DATA QUẦN ÁO (MEN) - GIỮ NGUYÊN
+        // 1. QUẦN ÁO (MEN & WOMEN)
         // ==========================================
         $menItems = [
             'Essential Crew Neck Tee',
             'Heavyweight Oversized Tee',
             'Vintage Wash Graphic Tee',
             'Striped Pocket Tee',
-            'Performance Active Tee',
             'Pique Cotton Polo',
             'Merino Wool Polo',
-            'Linen Blend Camp Shirt',
             'Oxford Button Down',
             'Flannel Plaid Shirt',
             'Denim Western Shirt',
-            'Corduroy Overshirt',
-            'Mock Neck Long Sleeve',
-            'Waffle Knit Henley',
-            'Thermal Long Sleeve',
             'Everyday Pullover Hoodie',
             'Heavyweight Zip Hoodie',
-            'French Terry Sweatshirt',
-            'Drop Shoulder Crewneck',
-            'Vintage Wash Sweatshirt',
             'MA-1 Bomber Jacket',
             'Classic Denim Trucker',
-            'Varsity Letterman Jacket',
             'Tech Windbreaker',
-            'Nylon Puffer Vest',
-            'Canvas Chore Coat',
-            'Harrington Jacket',
-            'Sherpa Lined Trucker',
-            'Waterproof Parka',
-            'Quilted Liner Jacket',
-            'Faux Leather Biker',
-            'Wool Blend Peacoat',
-            'Technical Field Jacket',
-            'Lightweight Coach Jacket',
-            'Fleece Zip Jacket',
             'Slim Fit Chino Pant',
-            'Straight Leg Chino',
             'Relaxed Fit Pleated Trouser',
             'Utility Cargo Pant',
             'Tech Fleece Jogger',
-            'Tapered Sweatpant',
             'Slim Tapered Jeans',
-            'Straight Leg Vintage Jeans',
-            'Skinny Fit Stretch Jeans',
             'Carpenter Work Pant',
-            'Corduroy Carpenter Pant',
-            'Linen Drawstring Trouser',
-            'Ripstop Cargo Pant',
-            'Nylon Track Pant',
-            'Hybrid Golf Pant',
             'Chino Short 5 Inch',
-            'Chino Short 7 Inch',
             'Nylon Swim Trunk',
-            'Board Short',
             'Sweat Short',
-            'Mesh Athletic Short',
             'Cargo Short',
-            'Pleated Dress Short',
-            'Linen Blend Short',
-            'Running Performance Short',
-            'Structured Boxy Tee',
-            'Raw Hem Cropped Tee',
-            'Tie Dye Graphic Tee',
-            'Bandana Print Shirt',
-            'Cuban Collar Shirt',
-            'Knitted Polo Shirt',
-            'Zip Neck Polo',
-            'Raglan Baseball Tee',
-            'Sleeveless Muscle Tee',
-            'Oversized Pocket Tee',
-            'Track Jacket Retro',
-            'Souvenir Jacket',
-            'Suede Bomber Jacket',
-            'Down Puffer Jacket',
-            'Trench Coat Beige',
-            'Wide Leg Denim',
-            'Baggy Carpenter Jean',
-            'Bootcut Jean',
-            'Raw Denim Selvedge',
-            'Double Knee Work Pant',
-            'Tech Commuter Pant',
-            'Smart Ankle Pant',
-            'Jersey Lounge Short',
-            'Retro Basketball Short',
-            'Seersucker Short'
+            'Linen Blend Short'
+            // (Bà có thể thêm lại list dài cũ nếu muốn, tui rút gọn để code dễ nhìn)
         ];
 
-        // ==========================================
-        // 2. DATA QUẦN ÁO (WOMEN) - GIỮ NGUYÊN
-        // ==========================================
         $womenItems = [
             'Baby Tee Cropped',
             'Ribbed Tank Top',
             'Silk Camisole',
             'Oversized Graphic Tee',
-            'Boxy Fit Cotton Tee',
-            'Striped Long Sleeve',
-            'Square Neck Bodysuit',
-            'Off Shoulder Top',
             'Puff Sleeve Blouse',
             'Linen Button Down',
-            'Satin Wrap Top',
-            'Chiffon Peplum Top',
             'Cropped Knit Cardigan',
             'Cable Knit Sweater',
-            'Turtleneck Ribbed Top',
-            'Cashmere Crewneck',
-            'V-Neck Slouchy Sweater',
-            'Oversized Poplin Shirt',
-            'Tie Front Crop Top',
-            'Sheer Mesh Top',
             'Flowy Maxi Dress',
             'Floral Midi Dress',
             'Satin Slip Dress',
-            'Ribbed Knit Midi Dress',
-            'Cocktail Mini Dress',
-            'Linen Shirt Dress',
-            'Wrap Midi Dress',
             'Bodycon Mini Dress',
-            'Boho Tiered Dress',
-            'Velvet Slip Dress',
-            'Cut Out Midi Dress',
-            'Backless Summer Dress',
-            'Tweed Mini Dress',
-            'Ruched Party Dress',
-            'Denim Overall Dress',
             'Pleated Midi Skirt',
-            'Satin Midi Skirt',
             'Denim Mini Skirt',
-            'Tennis Skirt',
-            'A-Line Mini Skirt',
-            'Maxi Boho Skirt',
-            'Pencil Skirt Office',
-            'Cargo Mini Skirt',
-            'Leather Mini Skirt',
-            'Tiered Ruffle Skirt',
             'High Waisted Mom Jeans',
             'Wide Leg Dad Jeans',
-            'Straight Leg Vintage Jeans',
-            'Skinny High Rise Jeans',
-            'Flare Leg Jeans',
-            'Cargo Parachute Pant',
             'Tailored Wide Leg Trouser',
-            'Linen Paloma Pant',
-            'Faux Leather Legging',
-            'Yoga Flare Legging',
             'Biker Short',
-            'Denim Mom Short',
-            'Linen High Waist Short',
-            'Tailored Bermuda Short',
-            'Sweat Short Cozy',
             'Classic Trench Coat',
-            'Oversized Blazer',
-            'Cropped Puffer Jacket',
-            'Wool Blend Coat',
-            'Denim Sherpa Jacket',
-            'Faux Fur Coat',
-            'Leather Moto Jacket',
-            'Teddy Bear Coat',
-            'Quilted Barn Jacket',
-            'Tech Windbreaker',
-            'Cropped Tweed Jacket',
-            'Soft Lounge Set',
-            'Waffle Knit Lounge Set',
-            'Velour Tracksuit',
-            'Pajama Silk Set',
-            'Active Racerback Bra',
-            'Seamless Legging Set',
-            'Tennis Dress',
-            'One Piece Swimsuit',
-            'High Waist Bikini',
-            'Sarong Wrap'
+            'Oversized Blazer'
         ];
 
-        // ==========================================
-        // 3. BULK INSERT QUẦN ÁO (NHANH)
-        // ==========================================
         $apparelData = [];
-
+        // Xử lý Men
         foreach ($menItems as $name) {
             $apparelData[] = [
                 'name' => $name,
@@ -237,7 +109,7 @@ class ProductSeeder extends Seeder
                 'updated_at' => $now,
             ];
         }
-
+        // Xử lý Women
         foreach ($womenItems as $name) {
             $apparelData[] = [
                 'name' => $name,
@@ -254,16 +126,15 @@ class ProductSeeder extends Seeder
                 'updated_at' => $now,
             ];
         }
-
+        // Insert Apparel
         foreach (array_chunk($apparelData, 50) as $chunk) {
             DB::table('products')->insert($chunk);
         }
 
-        // ================================================================
-        // DANH SÁCH 29 NƯỚC HOA (Tên chuẩn - Bà đổi tên ảnh theo slug nhé)
-        // ================================================================
+        // ==========================================
+        // 2. NƯỚC HOA (29 CHAI - Full Variants)
+        // ==========================================
         $perfumeList = [
-            // --- Niche / High-End (Giá cao) ---
             ['name' => 'Santal 33 - Le Labo',           'brand' => 'Le Labo', 'gender' => 'unisex'],
             ['name' => 'Another 13 - Le Labo',          'brand' => 'Le Labo', 'gender' => 'unisex'],
             ['name' => 'Rose 31 - Le Labo',             'brand' => 'Le Labo', 'gender' => 'unisex'],
@@ -274,8 +145,6 @@ class ProductSeeder extends Seeder
             ['name' => 'Tobacco Vanille - Tom Ford',    'brand' => 'Tom Ford', 'gender' => 'unisex'],
             ['name' => 'Oud Wood - Tom Ford',           'brand' => 'Tom Ford', 'gender' => 'unisex'],
             ['name' => 'Lost Cherry - Tom Ford',        'brand' => 'Tom Ford', 'gender' => 'women'],
-
-            // --- Designer (Phổ biến) ---
             ['name' => 'Bleu de Chanel',                'brand' => 'Chanel',  'gender' => 'men'],
             ['name' => 'Coco Mademoiselle',             'brand' => 'Chanel',  'gender' => 'women'],
             ['name' => 'Chanel No.5',                   'brand' => 'Chanel',  'gender' => 'women'],
@@ -297,7 +166,6 @@ class ProductSeeder extends Seeder
             ['name' => 'Burberry Her',                  'brand' => 'Burberry', 'gender' => 'women'],
         ];
 
-        // Dữ liệu tầng hương mẫu (Random để tạo JSON cho đẹp)
         $notesLibrary = [
             'top' => ['Cam Bergamot', 'Tiêu hồng', 'Quả lê', 'Hoa cam', 'Hương biển', 'Chanh vàng', 'Hạnh nhân'],
             'mid' => ['Hoa nhài', 'Hoa hồng', 'Hoa oải hương', 'Da thuộc', 'Cà phê', 'Hoa huệ', 'Ngọc lan tây'],
@@ -305,26 +173,26 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($perfumeList as $p) {
-            // 1. Xác định Category
             $catSlug = match ($p['gender']) {
-                'men' => 'fragrance-for-him', // Đảm bảo slug này có trong DB category
+                'men' => 'fragrance-for-him',
                 'women' => 'fragrance-for-her',
                 default => 'fragrance-unisex',
             };
 
-            // 2. Tạo Sản phẩm cha
             $slug = Str::slug($p['name']);
+
+            // Tạo Product Cha
             $product = Product::create([
                 'name' => $p['name'],
                 'slug' => $slug,
-                'description' => "A masterpiece from {$p['brand']}. This fragrance embodies the spirit of modern elegance and timeless sophistication.",
-                'image' => $slug . '.jpg', // Tên ảnh sẽ là slug.jpg
+                'description' => "A masterpiece from {$p['brand']}. This fragrance embodies the spirit of modern elegance.",
+                'image' => $slug . '.jpg',
                 'category_id' => $getCat($catSlug) ?? $getCat('fragrance-unisex'),
                 'type' => 'fragrance',
                 'is_new' => rand(0, 1) == 1,
                 'is_bestseller' => rand(0, 1) == 1,
                 'is_on_sale' => false,
-                'price' => 0, // Giá hiển thị sẽ lấy từ variant thấp nhất
+                'price' => 0,
                 'specifications' => [
                     'concentration' => 'Eau de Parfum (EDP)',
                     'top_notes' => collect($notesLibrary['top'])->random(2)->values()->all(),
@@ -333,28 +201,20 @@ class ProductSeeder extends Seeder
                 ]
             ]);
 
-            // 3. Tạo Variants (Logic giá tiền thông minh)
-            // Niche (Le Labo, Creed, Tom Ford) đắt hơn Designer (Dior, Versace)
+            // Logic giá tiền: Niche vs Designer
             $isNiche = in_array($p['brand'], ['Le Labo', 'Creed', 'Byredo', 'Tom Ford', 'MFK']);
-            $basePrice = $isNiche ? 4500000 : 2500000; // Giá gốc 50ml
+            $basePrice = $isNiche ? 4500000 : 2500000;
 
             $variants = [
-                [
-                    'capacity_ml' => 50,
-                    'price' => $basePrice,
-                    'sku' => strtoupper(substr($slug, 0, 3)) . '-50'
-                ],
-                [
-                    'capacity_ml' => 100,
-                    'price' => $basePrice * 1.6, // 100ml rẻ hơn mua 2 chai 50ml
-                    'sku' => strtoupper(substr($slug, 0, 3)) . '-100'
-                ]
+                ['capacity_ml' => 50, 'price' => $basePrice, 'sku' => strtoupper(substr($slug, 0, 3)) . '-50'],
+                ['capacity_ml' => 100, 'price' => $basePrice * 1.6, 'sku' => strtoupper(substr($slug, 0, 3)) . '-100']
             ];
 
-            // Update giá hiển thị cho product cha (lấy giá min)
+            // Update giá hiển thị cho product cha (lấy giá min của variants)
             $product->price = $variants[0]['price'];
             $product->save();
 
+            // Tạo Variants con
             foreach ($variants as $v) {
                 $product->variants()->create([
                     'capacity_ml' => $v['capacity_ml'],

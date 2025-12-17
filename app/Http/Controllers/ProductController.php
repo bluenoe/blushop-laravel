@@ -11,20 +11,18 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     /**
-     * Hiển thị danh sách sản phẩm.
+     * Hiển thị danh sách sản phẩm (Filter, Search, Sort).
      */
     public function index(Request $request)
     {
-        // 1. Base Query
         $query = Product::query()
             ->select(['id', 'name', 'slug', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
             ->with(['category:id,name,slug']);
 
-        // 2. Filter: Category
+        // 1. Filter Category
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
             $category = Category::where('slug', $slug)->first();
-
             if ($category) {
                 $childIds = $category->children()->pluck('id');
                 $allIds = $childIds->push($category->id);
@@ -32,7 +30,7 @@ class ProductController extends Controller
             }
         }
 
-        // 3. Filter: Search
+        // 2. Filter Search
         if ($request->filled('q')) {
             $q = trim((string) $request->input('q'));
             $query->where(function ($sub) use ($q) {
@@ -41,7 +39,7 @@ class ProductController extends Controller
             });
         }
 
-        // 4. Filter: Price
+        // 3. Filter Price
         if ($request->filled('price_min')) {
             $query->where('price', '>=', (float) $request->input('price_min'));
         }
@@ -49,18 +47,7 @@ class ProductController extends Controller
             $query->where('price', '<=', (float) $request->input('price_max'));
         }
 
-        // 5. Filter: Status Attributes
-        if ($request->boolean('on_sale')) {
-            $query->where('is_on_sale', true);
-        }
-        if ($request->boolean('in_stock')) {
-            $query->where('status', '!=', 'out_of_stock');
-        }
-        if ($request->boolean('featured')) {
-            $query->where('is_bestseller', true);
-        }
-
-        // 6. Sort
+        // 4. Sort
         $sort = (string) $request->input('sort', 'newest');
         match ($sort) {
             'price_asc' => $query->orderBy('price', 'asc'),
@@ -69,10 +56,8 @@ class ProductController extends Controller
             default => $query->latest('id'),
         };
 
-        // 7. Pagination
         $products = $query->paginate(12)->withQueryString();
 
-        // 8. Categories Tree
         $categories = Category::whereNull('parent_id')
             ->where('slug', '!=', 'uncategorized')
             ->with('children')
@@ -88,152 +73,124 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'breadcrumbs' => $breadcrumbs,
-            'priceMinBound' => 0,
-            'priceMaxBound' => 5000000,
         ]);
     }
 
     /**
-     * Hiển thị chi tiết sản phẩm với Logic thông minh (Complete Look & Curated)
+     * Hiển thị chi tiết sản phẩm (Logic Hybrid: Quần áo + Nước hoa).
      */
     public function show(int $id)
     {
         // 1. Fetch Product
-        // [MERGE] Thêm eager load 'variants' và sort theo dung tích
-        $product = Product::with(['category', 'images', 'variants' => function ($q) {
-            $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
-        }])
+        $product = Product::with(['category', 'images'])
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // [NEW LOGIC] Xử lý Color & Image Swap cho Frontend (Apparel Logic)
+        // 2. Xử lý Variants (Nước hoa) - LOGIC MỚI QUAN TRỌNG
+        // Eager load và sort variants
+        $product->load(['variants' => function ($q) {
+            $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
+        }]);
+
+        // Biến đổi Variants thành mảng dữ liệu thông minh (Kèm link ảnh nếu có)
+        $variantsData = $product->variants->map(function ($variant) use ($product) {
+            // Tạo tên file dự đoán: VD "santal-33-le-labo-100.jpg"
+            $suffix = '-' . $variant->capacity_ml;
+            $variantImageName = str_replace('.jpg', '', $product->image) . $suffix . '.jpg';
+
+            // Check xem file ảnh riêng cho size này có tồn tại không?
+            // Lưu ý: path 'products/' phải khớp với nơi bà lưu ảnh trong storage/app/public/products/
+            $hasSpecificImage = Storage::disk('public')->exists('products/' . $variantImageName);
+
+            // Nếu có thì lấy, không thì null (Frontend sẽ giữ nguyên ảnh cũ)
+            $imageUrl = $hasSpecificImage
+                ? Storage::url('products/' . $variantImageName)
+                : null;
+
+            return [
+                'id' => $variant->id,
+                'capacity_ml' => $variant->capacity_ml,
+                'price' => $variant->price,
+                'sku' => $variant->sku,
+                'stock_quantity' => $variant->stock_quantity,
+                'image' => $imageUrl, // Key quan trọng để đổi ảnh
+            ];
+        });
+
+        // Chọn variant mặc định (Size nhỏ nhất)
+        $defaultVariant = $product->variants->first();
+
+        // 3. Xử lý Color (Quần áo)
         $variantImages = $product->images
             ->whereNotNull('color')
             ->mapWithKeys(function ($item) {
                 $path = Str::startsWith($item->image_path, 'products/')
                     ? $item->image_path
                     : 'products/' . $item->image_path;
-
                 return [$item->color => Storage::url($path)];
             });
-
         $availableColors = $variantImages->keys()->toArray();
 
-        // [MERGE] Xử lý Logic Nước Hoa (Perfume Logic)
-        // Nếu có variants (nước hoa), lấy variant mặc định (size nhỏ nhất)
-        $defaultVariant = $product->variants->first();
-        // Chuyển variants sang JSON để JS xử lý đổi giá dynamic
-        $variantsJson = $product->variants->isNotEmpty() ? $product->variants->toJson() : null;
-
-
-        // 2. LOGIC THÔNG MINH: Detect Gender từ Category Name
+        // 4. Gender Detection & Recommendations
         $catName = optional($product->category)->name ?? '';
-        $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Váy', 'Đầm', 'Female', 'Her']);
+        $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Female', 'Her']);
 
-        // 3. COMPLETE THE LOOK (Chỉ lấy Apparel + Cùng giới tính)
+        // Complete The Look (Chỉ lấy Apparel)
         $completeLook = Product::query()
             ->where('type', 'apparel')
             ->where('id', '!=', $id)
             ->whereHas('category', function ($q) use ($isFemale) {
-                if ($isFemale) {
-                    $q->where(function ($sub) {
-                        $sub->where('name', 'like', '%Women%')
-                            ->orWhere('name', 'like', '%Nữ%')
-                            ->orWhere('name', 'like', '%Ladies%');
-                    });
-                } else {
-                    $q->where(function ($sub) {
-                        $sub->where('name', 'like', '%Men%')
-                            ->orWhere('name', 'like', '%Nam%')
-                            ->orWhere('name', 'like', '%Man%');
-                    });
-                }
+                $genderKeywords = $isFemale ? ['Women', 'Nữ'] : ['Men', 'Nam'];
+                $q->where(function ($sub) use ($genderKeywords) {
+                    foreach ($genderKeywords as $k) $sub->orWhere('name', 'like', "%{$k}%");
+                });
             })
             ->inRandomOrder()
             ->take(4)
             ->get();
 
-        // Fallback
-        if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('type', 'apparel')
-                ->where('id', '!=', $id)
-                ->inRandomOrder()
-                ->take(4)
-                ->get();
-        }
+        // Reviews & Wishlist
+        $reviews = $product->reviews()->with('user')->latest()->paginate(5);
+        $wishedIds = auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->toArray() : [];
 
-        // 4. CURATED FOR YOU
-        $curated = Product::query()
-            ->where('type', 'apparel') // Ưu tiên gợi ý quần áo
-            ->where('id', '!=', $id)
-            ->inRandomOrder()
-            ->take(5)
-            ->get();
-
-        // 5. Reviews Logic
-        $reviews = $product->reviews()
-            ->with('user')
-            ->latest()
-            ->paginate(5);
-
-        // 6. Wishlist Logic
-        $wishedIds = auth()->check()
-            ? auth()->user()->wishlist()->pluck('products.id')->toArray()
-            : [];
-
-        // Trả về view
-        return view('products.show', compact(
-            'product',
-            'reviews',
-            'completeLook',
-            'curated',
-            'wishedIds',
-            'variantImages',
-            'availableColors',
-            'defaultVariant', // [New]
-            'variantsJson'    // [New]
-        ));
+        return view('products.show', [
+            'product' => $product,
+            'reviews' => $reviews,
+            'completeLook' => $completeLook,
+            'wishedIds' => $wishedIds,
+            'variantImages' => $variantImages,
+            'availableColors' => $availableColors,
+            'defaultVariant' => $defaultVariant,
+            'variantsJson' => $variantsData->toJson(), // Trả về JSON đã xử lý ảnh
+        ]);
     }
 
     public function autocomplete(Request $request)
     {
         $term = trim((string) $request->input('q', ''));
-
-        if (mb_strlen($term) < 2) {
-            return response()->json(['data' => []]);
-        }
+        if (mb_strlen($term) < 2) return response()->json(['data' => []]);
 
         $safeTerm = str_replace(['%', '_'], ['\\%', '\\_'], $term);
-
-        $products = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'image'])
+        $products = Product::select(['id', 'name', 'slug', 'price', 'image'])
             ->where('name', 'like', '%' . $safeTerm . '%')
-            ->orderBy('name')
-            ->limit(8)
-            ->get();
+            ->limit(8)->get();
 
-        $results = $products->map(function ($product) {
+        $results = $products->map(function ($p) {
             return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => (float) $product->price,
-                'image' => $product->image ? Storage::url('products/' . $product->image) : null,
-                'url' => route('products.show', $product->id),
+                'id' => $p->id,
+                'name' => $p->name,
+                'price' => (float) $p->price,
+                'image' => $p->image ? Storage::url('products/' . $p->image) : null,
+                'url' => route('products.show', $p->id),
             ];
         });
 
         return response()->json(['data' => $results]);
     }
 
-
-    /**
-     * Hiển thị trang New Arrivals (Sản phẩm mới nhất)
-     */
     public function newArrivals()
     {
-        // Lấy 20 sản phẩm mới nhất
-        $products = \App\Models\Product::latest()->take(20)->get();
-
+        $products = Product::latest()->take(20)->get();
         return view('products.new-arrivals', compact('products'));
     }
 }
