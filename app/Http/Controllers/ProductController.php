@@ -99,18 +99,17 @@ class ProductController extends Controller
     public function show(int $id)
     {
         // 1. Fetch Product
-        // [UPDATE] Thêm 'images' vào để load bảng product_images
-        $product = Product::with(['category', 'images'])
+        // [MERGE] Thêm eager load 'variants' và sort theo dung tích
+        $product = Product::with(['category', 'images', 'variants' => function ($q) {
+            $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
+        }])
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // [NEW LOGIC] Xử lý Color & Image Swap cho Frontend
-        // Kết quả: ['Black' => '/storage/products/img1.jpg', 'White' => '/storage/products/img2.jpg']
+        // [NEW LOGIC] Xử lý Color & Image Swap cho Frontend (Apparel Logic)
         $variantImages = $product->images
             ->whereNotNull('color')
             ->mapWithKeys(function ($item) {
-                // Lưu ý: Nếu trong DB bà lưu full path thì dùng $item->image_path
-                // Nếu chỉ lưu filename thì nối thêm 'products/' vào như bên dưới:
                 $path = Str::startsWith($item->image_path, 'products/')
                     ? $item->image_path
                     : 'products/' . $item->image_path;
@@ -118,12 +117,18 @@ class ProductController extends Controller
                 return [$item->color => Storage::url($path)];
             });
 
-        // Lấy danh sách màu để tạo nút bấm
         $availableColors = $variantImages->keys()->toArray();
+
+        // [MERGE] Xử lý Logic Nước Hoa (Perfume Logic)
+        // Nếu có variants (nước hoa), lấy variant mặc định (size nhỏ nhất)
+        $defaultVariant = $product->variants->first();
+        // Chuyển variants sang JSON để JS xử lý đổi giá dynamic
+        $variantsJson = $product->variants->isNotEmpty() ? $product->variants->toJson() : null;
+
 
         // 2. LOGIC THÔNG MINH: Detect Gender từ Category Name
         $catName = optional($product->category)->name ?? '';
-        $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Váy', 'Đầm', 'Female']);
+        $isFemale = Str::contains($catName, ['Women', 'Nữ', 'Ladies', 'Girl', 'Váy', 'Đầm', 'Female', 'Her']);
 
         // 3. COMPLETE THE LOOK (Chỉ lấy Apparel + Cùng giới tính)
         $completeLook = Product::query()
@@ -159,7 +164,7 @@ class ProductController extends Controller
 
         // 4. CURATED FOR YOU
         $curated = Product::query()
-            ->where('type', 'apparel')
+            ->where('type', 'apparel') // Ưu tiên gợi ý quần áo
             ->where('id', '!=', $id)
             ->inRandomOrder()
             ->take(5)
@@ -176,7 +181,7 @@ class ProductController extends Controller
             ? auth()->user()->wishlist()->pluck('products.id')->toArray()
             : [];
 
-        // Trả về view kèm theo biến $variantImages và $availableColors
+        // Trả về view
         return view('products.show', compact(
             'product',
             'reviews',
@@ -184,7 +189,9 @@ class ProductController extends Controller
             'curated',
             'wishedIds',
             'variantImages',
-            'availableColors'
+            'availableColors',
+            'defaultVariant', // [New]
+            'variantsJson'    // [New]
         ));
     }
 
@@ -227,8 +234,6 @@ class ProductController extends Controller
         // Lấy 20 sản phẩm mới nhất
         $products = \App\Models\Product::latest()->take(20)->get();
 
-        // QUAN TRỌNG: Trỏ đúng vào file view bà mới tạo
-        // Dấu chấm thay cho dấu gạch chéo: products/new-arrivals -> products.new-arrivals
         return view('products.new-arrivals', compact('products'));
     }
 }

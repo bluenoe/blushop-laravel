@@ -15,6 +15,7 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ReviewController;
 
 
+
 // Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -46,6 +47,7 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
 Route::get('/search/products', [ProductController::class, 'autocomplete'])->name('products.autocomplete');
+
 
 // New-arrivals
 Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
