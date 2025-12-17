@@ -23,11 +23,10 @@ class ProductRelationSeeder extends Seeder
 
         // 3. Lặp qua từng sản phẩm
         foreach ($products as $product) {
-            // Lấy ngẫu nhiên 3 đến 4 sản phẩm KHÁC sản phẩm hiện tại
             // Logic: Random products -> Pluck ID -> Convert to Array
             $randomRelatedIds = Product::where('id', '!=', $product->id)
                 ->inRandomOrder()
-                ->take(rand(3, 4)) // Random lấy 3 hoặc 4 món
+                ->take(4) // Random lấy 3 hoặc 4 món
                 ->pluck('id')
                 ->toArray();
 
