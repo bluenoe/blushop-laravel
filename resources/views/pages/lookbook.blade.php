@@ -105,7 +105,7 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                                 Combining the rigidity of our structured oversized blazer with the softness of organic
                                 cotton. A look defined by contrast.
                             </p>
-                            <a href="#"
+                            <a href="{{ route('products.index') }}"
                                 class="group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-600 hover:border-neutral-600 transition">
                                 Shop The Look
                                 <svg class="w-4 h-4 transform group-hover:translate-x-1 transition" fill="none"

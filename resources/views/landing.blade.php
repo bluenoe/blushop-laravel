@@ -178,7 +178,7 @@
             <div class="absolute inset-0 bg-black/10"></div>
             <div class="absolute bottom-12 right-6 md:bottom-24 md:right-24 text-white text-right">
                 <h2 class="font-serif-display text-5xl md:text-7xl mb-6 italic">Evening Hues</h2>
-                <a href="{{ route('products.index') }}"
+                <a href="{{ route('lookbook') }}"
                     class="inline-block font-sans-clean text-xs tracking-[0.2em] uppercase bg-white text-black px-8 py-4 hover:bg-neutral-200 transition-colors">
                     View Lookbook
                 </a>
