@@ -36,10 +36,6 @@ Date: {{ date('Y-m-d') }}
 
     -   Replaced Bootstrap card/button and `lead` text with Tailwind components.
 
--   `resources/views/welcome.blade.php`
-    -   Replaced Bootstrap layout with a Tailwind page that extends the shared layout.
-    -   Removed all Bootstrap CDN references and classes.
-
 ### Reusable UI Components
 
 -   Added Tailwind-based Blade components:
