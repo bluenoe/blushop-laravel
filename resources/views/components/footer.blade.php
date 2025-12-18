@@ -23,52 +23,71 @@
         status: null, 
         message: '',
         loading: false,
+        timer: null,
 
         submitForm() {
-            // Reset state
+            // 1. Reset state
+            if (this.timer) clearTimeout(this.timer);
             this.status = null;
             this.message = '';
             
-            // Client-side validation cơ bản
+            // 2. Client-side Validation (Nhanh)
             if (!this.email || !this.email.includes('@')) {
                 this.status = 'error';
                 this.message = 'Please enter a valid email.';
+                this.autoDismiss(); // Tự tắt lỗi client luôn cho gọn
                 return;
             }
 
             this.loading = true;
 
-            // Gọi API
+            // 3. Gọi API
             fetch('{{ route('newsletter.subscribe') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Bắt buộc phải có token bảo mật
+                    'Accept': 'application/json', // Quan trọng: Báo Laravel trả về JSON khi lỗi
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({ email: this.email })
             })
             .then(async response => {
-                const data = await response.json();
                 this.loading = false;
+                const data = await response.json();
 
                 if (response.ok) {
+                    // => THÀNH CÔNG (200 OK)
                     this.status = 'success';
                     this.message = data.message;
-                    this.email = ''; // Xóa ô input
+                    this.email = ''; // Clear input
+                    this.autoDismiss(); // Tự tắt thông báo
                 } else {
-                    // Xử lý lỗi từ Server (ví dụ: email trùng)
+                    // => LỖI TỪ SERVER (422 Validation hoặc 500)
                     this.status = 'error';
-                    this.message = data.message || data.errors?.email?.[0] || 'Something went wrong.';
+                    // Ưu tiên lấy lỗi chi tiết của field 'email', nếu không có thì lấy message chung
+                    this.message = data.errors?.email?.[0] || data.message || 'Something went wrong.';
+                    this.autoDismiss();
                 }
             })
-            .catch(() => {
+            .catch(error => {
+                // => LỖI MẠNG (Mất mạng, DNS, Server sập hẳn)
+                console.error(error);
                 this.loading = false;
                 this.status = 'error';
-                this.message = 'Connection error. Please try again.';
+                this.message = 'Connection error. Check your internet.';
+                this.autoDismiss();
             });
+        },
+
+        // Hàm tiện ích để tự tắt thông báo sau 4s
+        autoDismiss() {
+            this.timer = setTimeout(() => {
+                this.status = null; // Hiệu ứng fade out sẽ chạy nhờ x-transition
+            }, 4000);
         }
     }" @submit.prevent="submitForm()" class="relative max-w-sm">
 
+                        {{-- Input Group --}}
                         <div
                             class="relative flex items-center border-b border-neutral-300 focus-within:border-black transition-colors duration-300">
                             <input id="newsletter-email" x-model="email" type="email" placeholder="Your email address"
@@ -78,21 +97,44 @@
                             <button type="submit" :disabled="loading"
                                 class="absolute right-0 text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition disabled:opacity-50">
                                 <span x-show="!loading">Join</span>
-                                <span x-show="loading">...</span>
+                                <span x-show="loading">Wait</span>
                             </button>
                         </div>
 
-                        {{-- Thông báo lỗi/thành công --}}
-                        <div class="absolute top-full left-0 mt-2">
-                            <p x-show="status==='success'" x-transition
+                        {{-- Notification Area (Tuyệt đối, không đẩy layout) --}}
+                        <div class="absolute top-full left-0 mt-2 w-full">
+
+                            {{-- Success Message --}}
+                            <div x-show="status === 'success'" x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-300"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-2"
                                 class="text-xs text-green-600 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span x-text="message"></span>
-                            </p>
-                            <p x-show="status==='error'" x-transition class="text-xs text-red-600" x-text="message"></p>
+                            </div>
+
+                            {{-- Error Message --}}
+                            <div x-show="status === 'error'" x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-300"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-2"
+                                class="text-xs text-red-600 flex items-center gap-1">
+                                <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span x-text="message"></span>
+                            </div>
+
                         </div>
                     </form>
                 </div>
