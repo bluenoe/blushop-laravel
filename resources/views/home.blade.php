@@ -378,12 +378,12 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                         }
                     }" @submit.prevent="submitForm()" class="relative flex flex-col sm:flex-row gap-4">
 
-                    {{-- Input Field (Giữ nguyên Style Home nhưng thêm x-model và disabled) --}}
+                    {{-- Input Field --}}
                     <div class="relative w-full">
                         <input type="email" x-model="email" placeholder="Email address" :disabled="loading"
                             class="w-full bg-neutral-50 border-neutral-200 focus:border-black focus:ring-0 text-sm px-4 py-3 placeholder-neutral-400 disabled:opacity-50 transition-colors">
 
-                        {{-- Thông báo lỗi/thành công (Tuyệt đối bên dưới input để không vỡ layout) --}}
+                        {{-- Thông báo lỗi/thành công --}}
                         <div class="absolute top-full left-0 mt-2 w-full text-left">
                             <p x-show="status==='success'" x-transition
                                 class="text-xs text-green-600 flex items-center gap-1">
@@ -406,7 +406,7 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
 
                     {{-- Button (Thêm loading state) --}}
                     <button type="submit" :disabled="loading"
-                        class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition whitespace-nowrap disabled:opacity-50 min-w-[120px]">
+                        class="bg-black text-white px-5 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition whitespace-nowrap disabled:opacity-50 min-w-[120px]">
                         <span x-show="!loading">Subscribe</span>
                         <span x-show="loading">Wait...</span>
                     </button>
