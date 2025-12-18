@@ -311,22 +311,109 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
         </div>
 
         {{-- ==========================================
-        7. NEWSLETTER
+        7. NEWSLETTER (Logic same với Footer)
         ========================================== --}}
         <section class="py-32 px-6 bg-white text-center">
             <div class="max-w-xl mx-auto" data-reveal>
                 <h2 class="text-3xl font-bold tracking-tight mb-4">Join the Inner Circle</h2>
                 <p class="text-neutral-500 font-light mb-10">Sign up for exclusive drops, early access, and minimalist
                     inspiration.</p>
-                <form class="flex flex-col sm:flex-row gap-4">
-                    <input type="email" placeholder="Email address"
-                        class="w-full bg-neutral-50 border-neutral-200 focus:border-black focus:ring-0 text-sm px-4 py-3 placeholder-neutral-400">
-                    <button type="submit"
-                        class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition whitespace-nowrap">
-                        Subscribe
+
+                {{-- [START] FORM LOGIC --}}
+                <form x-data="{ 
+                        email: '', 
+                        status: null, 
+                        message: '',
+                        loading: false,
+                        timer: null,
+                
+                        submitForm() {
+                            if (this.timer) clearTimeout(this.timer);
+                            this.status = null;
+                            this.message = '';
+                            
+                            if (!this.email || !this.email.includes('@')) {
+                                this.status = 'error';
+                                this.message = 'Please enter a valid email.';
+                                this.autoDismiss();
+                                return;
+                            }
+                
+                            this.loading = true;
+                
+                            // Gọi đúng Route đã tạo
+                            fetch('{{ route('newsletter.subscribe') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ email: this.email })
+                            })
+                            .then(async response => {
+                                this.loading = false;
+                                const data = await response.json();
+                
+                                if (response.ok) {
+                                    this.status = 'success';
+                                    this.message = data.message;
+                                    this.email = ''; 
+                                    this.autoDismiss();
+                                } else {
+                                    this.status = 'error';
+                                    this.message = data.errors?.email?.[0] || data.message || 'Something went wrong.';
+                                    this.autoDismiss();
+                                }
+                            })
+                            .catch(error => {
+                                this.loading = false;
+                                this.status = 'error';
+                                this.message = 'Connection error. Please check your internet.';
+                                this.autoDismiss();
+                            });
+                        },
+                        autoDismiss() {
+                            this.timer = setTimeout(() => { this.status = null; }, 4000);
+                        }
+                    }" @submit.prevent="submitForm()" class="relative flex flex-col sm:flex-row gap-4">
+
+                    {{-- Input Field (Giữ nguyên Style Home nhưng thêm x-model và disabled) --}}
+                    <div class="relative w-full">
+                        <input type="email" x-model="email" placeholder="Email address" :disabled="loading"
+                            class="w-full bg-neutral-50 border-neutral-200 focus:border-black focus:ring-0 text-sm px-4 py-3 placeholder-neutral-400 disabled:opacity-50 transition-colors">
+
+                        {{-- Thông báo lỗi/thành công (Tuyệt đối bên dưới input để không vỡ layout) --}}
+                        <div class="absolute top-full left-0 mt-2 w-full text-left">
+                            <p x-show="status==='success'" x-transition
+                                class="text-xs text-green-600 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span x-text="message"></span>
+                            </p>
+                            <p x-show="status==='error'" x-transition
+                                class="text-xs text-red-600 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span x-text="message"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Button (Thêm loading state) --}}
+                    <button type="submit" :disabled="loading"
+                        class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition whitespace-nowrap disabled:opacity-50 min-w-[120px]">
+                        <span x-show="!loading">Subscribe</span>
+                        <span x-show="loading">Wait...</span>
                     </button>
                 </form>
-                <p class="text-[10px] text-neutral-400 mt-4">No spam. Unsubscribe anytime.</p>
+                {{-- [END] FORM LOGIC --}}
+
+                <p class="text-[10px] text-neutral-400 mt-8">No spam. Unsubscribe anytime.</p>
             </div>
         </section>
 
