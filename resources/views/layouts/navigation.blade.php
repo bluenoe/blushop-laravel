@@ -182,7 +182,7 @@ $categories = \App\Models\Category::query()
                     <ul class="space-y-6">
                         {{-- WOMEN --}}
                         <li class="group">
-                            <a href="{{ route('products.index', ['gender' => 'women']) }}" class="block">
+                            <a href="{{ route('products.index', ['category' => 'women']) }}" class="block">
                                 <span
                                     class="text-2xl font-light group-hover:font-medium transition-all duration-300">Women</span>
                                 <span
@@ -192,7 +192,7 @@ $categories = \App\Models\Category::query()
                         </li>
                         {{-- MEN --}}
                         <li class="group">
-                            <a href="{{ route('products.index', ['gender' => 'men']) }}" class="block">
+                            <a href="{{ route('products.index', ['category' => 'men']) }}" class="block">
                                 <span
                                     class="text-2xl font-light group-hover:font-medium transition-all duration-300">Men</span>
                                 <span
@@ -359,9 +359,9 @@ $categories = \App\Models\Category::query()
                     </button>
                     <ul x-show="expanded" x-collapse class="pl-4 space-y-3 border-l border-gray-200">
                         {{-- Priority Links --}}
-                        <li><a href="{{ route('products.index', ['gender' => 'women']) }}"
+                        <li><a href="{{ route('products.index', ['category' => 'women']) }}"
                                 class="text-black font-medium">Women</a></li>
-                        <li><a href="{{ route('products.index', ['gender' => 'men']) }}"
+                        <li><a href="{{ route('products.index', ['category' => 'men']) }}"
                                 class="text-black font-medium">Men</a></li>
                         <li><a href="{{ route('products.index', ['category' => 'fragrance']) }}"
                                 class="text-black font-medium">Fragrance</a></li>
