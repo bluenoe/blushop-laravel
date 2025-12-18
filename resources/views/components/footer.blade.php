@@ -18,20 +18,71 @@
                 @unless(request()->routeIs('home'))
                 <div class="pt-4">
                     <h3 class="text-xs font-bold uppercase tracking-widest mb-4">Subscribe to our newsletter</h3>
-                    <form x-data="{ email: '', status: null, message: '' }"
-                        @submit.prevent="if(!email || !email.includes('@')){status='error'; message='Please enter a valid email.'} else { status='success'; message='You are on the list.'; email=''; }"
-                        class="relative max-w-sm">
+                    <form x-data="{ 
+        email: '', 
+        status: null, 
+        message: '',
+        loading: false,
+
+        submitForm() {
+            // Reset state
+            this.status = null;
+            this.message = '';
+            
+            // Client-side validation cơ bản
+            if (!this.email || !this.email.includes('@')) {
+                this.status = 'error';
+                this.message = 'Please enter a valid email.';
+                return;
+            }
+
+            this.loading = true;
+
+            // Gọi API
+            fetch('{{ route('newsletter.subscribe') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Bắt buộc phải có token bảo mật
+                },
+                body: JSON.stringify({ email: this.email })
+            })
+            .then(async response => {
+                const data = await response.json();
+                this.loading = false;
+
+                if (response.ok) {
+                    this.status = 'success';
+                    this.message = data.message;
+                    this.email = ''; // Xóa ô input
+                } else {
+                    // Xử lý lỗi từ Server (ví dụ: email trùng)
+                    this.status = 'error';
+                    this.message = data.message || data.errors?.email?.[0] || 'Something went wrong.';
+                }
+            })
+            .catch(() => {
+                this.loading = false;
+                this.status = 'error';
+                this.message = 'Connection error. Please try again.';
+            });
+        }
+    }" @submit.prevent="submitForm()" class="relative max-w-sm">
 
                         <div
                             class="relative flex items-center border-b border-neutral-300 focus-within:border-black transition-colors duration-300">
                             <input id="newsletter-email" x-model="email" type="email" placeholder="Your email address"
-                                class="w-full bg-transparent border-none p-0 py-3 text-sm placeholder:text-neutral-400 focus:ring-0" />
-                            <button type="submit"
-                                class="absolute right-0 text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition">
-                                Join
+                                :disabled="loading"
+                                class="w-full bg-transparent border-none p-0 py-3 text-sm placeholder:text-neutral-400 focus:ring-0 disabled:opacity-50" />
+
+                            <button type="submit" :disabled="loading"
+                                class="absolute right-0 text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition disabled:opacity-50">
+                                <span x-show="!loading">Join</span>
+                                <span x-show="loading">...</span>
                             </button>
                         </div>
 
+                        {{-- Thông báo lỗi/thành công --}}
                         <div class="absolute top-full left-0 mt-2">
                             <p x-show="status==='success'" x-transition
                                 class="text-xs text-green-600 flex items-center gap-1">

@@ -9,24 +9,22 @@ class NewsletterController extends Controller
 {
     public function subscribe(Request $request)
     {
-        // 1. Validate dữ liệu
+        // Validation chuẩn
         $request->validate([
             'email' => 'required|email|unique:subscribers,email'
         ], [
-            'email.required' => 'Please enter your email.',
-            'email.email' => 'Invalid email format.',
-            'email.unique' => 'This email is already subscribed.',
+            'email.required' => 'Email is required.',
+            'email.email'    => 'Invalid email format.',
+            'email.unique'   => 'You are already on the list.', // Message thân thiện hơn
         ]);
 
-        // 2. Lưu vào DB
         Subscriber::create([
             'email' => $request->email,
             'is_subscribed' => true
         ]);
 
-        // 3. Trả về JSON để Frontend (AlpineJS) đọc
         return response()->json([
-            'message' => 'Thank you for subscribing!'
+            'message' => 'Thank you! You have been subscribed.'
         ]);
     }
 }
