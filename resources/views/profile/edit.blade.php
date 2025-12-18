@@ -45,8 +45,8 @@
                 <div class="lg:col-span-9">
 
                     {{-- Alpine Tab cho nội bộ Profile (Info vs Password) --}}
-                    <div x-data="{ tab: 'info' }">
-
+                    <div
+                        x-data="{ tab: '{{ $errors->updatePassword->any() || session('status') === 'password-updated' ? 'password' : 'info' }}' }">
                         {{-- Inner Tabs Header --}}
                         <div class="flex gap-8 border-b border-neutral-200 mb-12 pb-1">
                             <button @click="tab='info'"
