@@ -34,6 +34,13 @@ services:
       retries: 3
       timeout: 5s
 
+  # 3. Mailpit - SMTP Dev (Thêm dịch vụ Mailpit để test mail qua SMTP)
+  mailpit:
+    image: "axllent/mailpit:latest"
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+
 volumes:
   db_data:
   redis_data:
