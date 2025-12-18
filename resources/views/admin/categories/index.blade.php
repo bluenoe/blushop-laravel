@@ -24,19 +24,9 @@
                 @foreach($categories as $cat)
                 <tr class="group hover:bg-neutral-50 transition">
                     <td class="py-4 pl-2">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-neutral-100 overflow-hidden">
-                                @if($cat->image)
-                                <img src="{{ Storage::url('categories/'.$cat->image) }}"
-                                    class="w-full h-full object-cover">
-                                @else
-                                <div class="w-full h-full flex items-center justify-center text-neutral-400 text-xs">IMG
-                                </div>
-                                @endif
-                            </div>
-                            <span class="font-bold text-neutral-900">{{ $cat->name }}</span>
-                        </div>
+                        <span class="font-bold text-neutral-900">{{ $cat->name }}</span>
                     </td>
+
                     <td class="py-4 text-neutral-500 font-mono text-xs">{{ $cat->slug }}</td>
                     <td class="py-4 text-right font-mono">{{ $cat->products_count }}</td>
                     <td class="py-4 pr-2 text-right">
