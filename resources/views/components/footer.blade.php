@@ -225,7 +225,9 @@
                     {{-- Payment Methods --}}
                     <div class="mt-10">
                         <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-4">We Accept</h3>
-                        <div class="flex gap-2">
+                        {{-- Thêm class grayscale opacity-40 vào container cha để làm mờ tất cả --}}
+                        <div
+                            class="flex gap-2 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                             {{-- Visa Card --}}
                             <div
                                 class="bg-white border border-neutral-200 rounded px-2 py-1.5 hover:border-neutral-400 transition">
