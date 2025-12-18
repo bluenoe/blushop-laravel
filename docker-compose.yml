@@ -1,18 +1,39 @@
 version: "3.8"
 
 services:
-  # Dịch vụ Database (MySQL)
-  db:
+  # 1. Database MySQL (Đã nâng cấp)
+  mysql: # Đổi tên service thành 'mysql' cho chuẩn convention Laravel
     image: mysql:8.0
     container_name: blushop_mysql
-    restart: always
+    restart: "no" # Dev thì không cần restart always, nặng máy
     ports:
-      - "3306:3306" # Mở cổng thùng ra ngoài máy thật
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root # Mật khẩu root
-      MYSQL_DATABASE: blushop_db # Tên DB tự tạo lúc khởi động
+      MYSQL_ROOT_PASSWORD: root # Pass cho quyền tối cao
+      MYSQL_DATABASE: blushop_db # Tên DB
+      MYSQL_USER: blushop # User riêng cho App dùng
+      MYSQL_PASSWORD: password # Pass riêng cho App dùng
     volumes:
-      - db_data:/var/lib/mysql # Lưu dữ liệu bền vững
+      - db_data:/var/lib/mysql
+    # Quan trọng: Kiểm tra xem MySQL sống chưa rồi mới cho phép kết nối
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+      retries: 3
+      timeout: 5s
+
+  # 2. Redis (Nên có - Cache chạy xé gió)
+  redis:
+    image: redis:alpine
+    container_name: blushop_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
 
 volumes:
   db_data:
+  redis_data:

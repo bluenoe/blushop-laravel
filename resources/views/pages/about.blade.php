@@ -88,8 +88,8 @@ Concept: Visual Storytelling, High Contrast, Clean Typography
 
                         {{-- Signature --}}
                         <div class="pt-8">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Signature_sample.svg/1200px-Signature_sample.svg.png"
-                                alt="Signature" class="h-12 opacity-30 invert-0">
+                            <img src="{{ asset('images/about/signature.png') }}" alt="Signature"
+                                class="h-12 opacity-30 invert-0">
                         </div>
                     </div>
                 </div>

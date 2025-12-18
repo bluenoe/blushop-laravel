@@ -129,8 +129,8 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                 {{-- LEFT COLUMN: WOMEN --}}
                 <div class="relative w-full h-[500px] md:h-auto group overflow-hidden cursor-pointer bg-neutral-100"
                     data-reveal>
-                    <img src="https://images.unsplash.com/photo-1548622722-1f74fa2772a5?q=80&w=1000&auto=format&fit=crop"
-                        alt="Women" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
+                    <img src="{{ asset('images/women-homepage.jpg') }}" alt="Women"
+                        class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
                     <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition z-10"></div>
                     <div class="absolute bottom-10 left-10 text-white z-20 pointer-events-none">
                         <h3 class="text-5xl md:text-6xl font-bold tracking-tighter mb-2">Women</h3>
@@ -147,8 +147,7 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                     {{-- TOP: MEN --}}
                     <div class="relative flex-1 min-h-[350px] group overflow-hidden cursor-pointer bg-neutral-100"
                         data-reveal style="transition-delay: 100ms">
-                        <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1000&auto=format&fit=crop"
-                            alt="Men"
+                        <img src="{{ asset('images/men-homepage.jpg') }}" alt="Men"
                             class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
                         <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition z-10"></div>
                         <div class="absolute bottom-8 left-8 text-white z-20 pointer-events-none">
@@ -164,8 +163,7 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                     {{-- BOTTOM: FRAGRANCE --}}
                     <div class="relative flex-1 min-h-[350px] group overflow-hidden cursor-pointer bg-neutral-100"
                         data-reveal style="transition-delay: 200ms">
-                        <img src="https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=1000&auto=format&fit=crop"
-                            alt="Fragrance"
+                        <img src="{{ asset('images/fragnance-homepage.jpg') }}" alt="Fragrance"
                             class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105">
                         <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition z-10"></div>
                         <div class="absolute bottom-8 left-8 text-white z-20 pointer-events-none">
