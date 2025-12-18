@@ -39,6 +39,7 @@
                     Photo</button>
                 <p class="text-[10px] text-neutral-400 mt-1">JPG, PNG or WEBP. Max 1MB.</p>
             </div>
+            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 
         <script>

@@ -49,17 +49,10 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
-            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->name !== $category->name) {
             $validated['slug'] = Str::slug($validated['name']);
-        }
-
-        if ($request->hasFile('image')) {
-            if ($category->image) Storage::disk('public')->delete('categories/' . $category->image);
-            $path = $request->file('image')->store('categories', 'public');
-            $validated['image'] = basename($path);
         }
 
         $category->update($validated);
@@ -69,7 +62,6 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if ($category->image) Storage::disk('public')->delete('categories/' . $category->image);
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted.');
     }
