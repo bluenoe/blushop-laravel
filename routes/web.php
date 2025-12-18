@@ -19,6 +19,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\NewsletterController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -67,6 +68,9 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
 Route::view('/lookbook', 'pages.lookbook')->name('lookbook');
+
+// --- NEWSLETTER SUBSCRIPTION ---
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // --- AUTH ROUTES (Breeze) ---
 require __DIR__ . '/auth.php';
