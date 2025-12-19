@@ -394,7 +394,6 @@ $categories = \App\Models\Category::query()
                         class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
                         <span>New In</span>
                         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
 
@@ -403,7 +402,6 @@ $categories = \App\Models\Category::query()
                         class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
                         <span>About</span>
                         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
                 </nav>
