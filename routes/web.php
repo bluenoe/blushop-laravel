@@ -45,6 +45,10 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/search/products', [ProductController::class, 'autocomplete'])->name('products.autocomplete');
 Route::get('/new-arrivals', [ProductController::class, 'newArrivals'])->name('new-arrivals');
 
+// --- BESTSELLERS & ON-SALE ---
+Route::get('/best-sellers', [ProductController::class, 'bestSellers'])->name('best-sellers');
+Route::get('/on-sale', [ProductController::class, 'onSale'])->name('on-sale');
+
 // Legacy/Alternative URL support
 Route::get('/product/{id}', [ProductController::class, 'show'])->whereNumber('id');
 

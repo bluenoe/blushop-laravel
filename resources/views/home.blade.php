@@ -7,10 +7,10 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
 
 <x-app-layout>
     @push('head')
-    {{-- Preload Hero Image --}}
-    <link rel="preload" as="image"
-        href="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop"
-        fetchpriority="high">
+    {{-- Preload Hero Image (dieeeeeeeee) --}}
+    <link rel="preload" as="image" href="#" fetchpriority="high">
+
+    {{-- Custom Styles for Animations --}}
     <style>
         html {
             scroll-behavior: smooth;
@@ -70,8 +70,8 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
         ========================================== --}}
         <section class="relative h-screen min-h-[600px] w-full flex items-end pb-12 md:pb-24">
             <div class="absolute inset-0 z-0">
-                <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop"
-                    alt="Campaign" class="w-full h-full object-cover object-center brightness-75">
+                <img src="{{ asset('/images/hero-background.jpg') }}" alt="Campaign"
+                    class="w-full h-full object-cover object-center brightness-75">
             </div>
 
             <div
