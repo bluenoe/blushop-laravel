@@ -20,6 +20,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\LookbookController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -71,7 +72,7 @@ Route::get('/contact', [ContactController::class, 'show'])->name('contact.index'
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/faq', 'pages.faq')->name('faq');
-Route::view('/lookbook', 'pages.lookbook')->name('lookbook');
+Route::get('/lookbook', [LookbookController::class, 'index'])->name('lookbook');
 
 // --- NEWSLETTER SUBSCRIPTION ---
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');

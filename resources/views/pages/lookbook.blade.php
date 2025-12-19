@@ -214,72 +214,50 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                         </div>
                     </div>
 
-                    {{-- Product List --}}
-                    <div class="lg:col-span-6 space-y-2" data-reveal style="transition-delay: 200ms">
+                    {{-- Product List (Minimalist Line List) --}}
+                    <div class="lg:col-span-6" data-reveal style="transition-delay: 200ms">
+                        @forelse($lookbookProducts as $product)
+                            @php
+                                $imgSrc = $product->image;
+                                if (!Str::contains($imgSrc, 'http')) {
+                                    $imgSrc = Storage::url('products/' . $imgSrc);
+                                }
+                            @endphp
 
-                        {{-- Product Item 1 --}}
-                        <div
-                            class="group flex items-center gap-6 p-4 border-b border-neutral-200 hover:bg-white hover:shadow-sm transition cursor-pointer">
-                            <div class="w-20 h-24 bg-neutral-200 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1">
-                                <h4
-                                    class="text-sm font-bold uppercase tracking-wider mb-1 group-hover:underline underline-offset-4">
-                                    Classic Trench</h4>
-                                <p class="text-xs text-neutral-500">Outerwear</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold">2.500.000 ₫</p>
-                                <button
-                                    class="text-[10px] uppercase font-bold text-neutral-400 mt-2 hover:text-black">Add
-                                    to Cart</button>
-                            </div>
-                        </div>
+                            <a href="{{ route('products.show', $product) }}"
+                               class="group flex items-center gap-6 py-6 border-b border-neutral-100 hover:bg-neutral-50 transition-colors duration-300 relative">
+                                
+                                {{-- Tiny Image (3:4 aspect) --}}
+                                <div class="w-16 aspect-[3/4] bg-neutral-100 overflow-hidden flex-shrink-0">
+                                    <img src="{{ $imgSrc }}" 
+                                         alt="{{ $product->name }}"
+                                         class="w-full h-full object-cover">
+                                </div>
 
-                        {{-- Product Item 2 --}}
-                        <div
-                            class="group flex items-center gap-6 p-4 border-b border-neutral-200 hover:bg-white hover:shadow-sm transition cursor-pointer">
-                            <div class="w-20 h-24 bg-neutral-200 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1">
-                                <h4
-                                    class="text-sm font-bold uppercase tracking-wider mb-1 group-hover:underline underline-offset-4">
-                                    Oxford Shirt</h4>
-                                <p class="text-xs text-neutral-500">Tops</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold">850.000 ₫</p>
-                                <button
-                                    class="text-[10px] uppercase font-bold text-neutral-400 mt-2 hover:text-black">Add
-                                    to Cart</button>
-                            </div>
-                        </div>
+                                {{-- Product Name (Uppercase, Editorial) --}}
+                                <span class="flex-1 text-xs font-bold uppercase tracking-widest text-neutral-900">
+                                    {{ $product->name }}
+                                </span>
 
-                        {{-- Product Item 3 --}}
-                        <div
-                            class="group flex items-center gap-6 p-4 border-b border-neutral-200 hover:bg-white hover:shadow-sm transition cursor-pointer">
-                            <div class="w-20 h-24 bg-neutral-200 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=800&auto=format&fit=crop"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1">
-                                <h4
-                                    class="text-sm font-bold uppercase tracking-wider mb-1 group-hover:underline underline-offset-4">
-                                    Leather Chelsea</h4>
-                                <p class="text-xs text-neutral-500">Footwear</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold">1.200.000 ₫</p>
-                                <button
-                                    class="text-[10px] uppercase font-bold text-neutral-400 mt-2 hover:text-black">Add
-                                    to Cart</button>
-                            </div>
-                        </div>
+                                {{-- Category (Muted) --}}
+                                <span class="text-xs text-neutral-400 hidden sm:block">
+                                    {{ $product->category->name ?? 'Essentials' }}
+                                </span>
 
+                                {{-- Price (Right-aligned, Serif) --}}
+                                <span class="font-serif text-sm text-neutral-900 text-right min-w-[100px]">
+                                    {{ number_format($product->price, 0, ',', '.') }} ₫
+                                </span>
+
+                                {{-- Arrow Icon (Slides in on hover) --}}
+                                <svg class="w-4 h-4 text-neutral-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" 
+                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                </svg>
+                            </a>
+                        @empty
+                            <p class="text-neutral-400 text-sm py-6 text-center italic">No products available.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
