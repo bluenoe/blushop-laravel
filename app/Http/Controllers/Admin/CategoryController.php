@@ -42,7 +42,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|unique:categories,name,' . $category->id,
         ]);
 
         if ($request->name !== $category->name) {

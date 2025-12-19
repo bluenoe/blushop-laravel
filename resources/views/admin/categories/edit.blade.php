@@ -21,7 +21,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-
                 <button type="submit"
                     class="px-8 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition shadow-xl shadow-black/10">
                     Save Changes
@@ -30,9 +29,11 @@
         </div>
 
         {{-- MAIN LAYOUT: 2 Columns --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-24">
+        {{-- 1. Thêm x-data vào đây để bao trọn khu vực Main Content --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-24"
+            x-data="{ name: '{{ addslashes($category->name) }}' }">
 
-            {{-- COL 1: Main Content (Sáng tạo) --}}
+            {{-- COL 1: Main Content --}}
             <div class="lg:col-span-2 space-y-12">
 
                 {{-- Field: Name --}}
@@ -40,12 +41,27 @@
                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 mb-4">
                         Category Name
                     </label>
-                    <input type="text" name="name" value="{{ old('name', $category->name) }}" required
+
+                    {{-- 2. Thêm x-model="name" vào input để bắt sự kiện gõ phím --}}
+                    <input type="text" name="name" x-model="name" required
                         class="block w-full border-0 border-b border-neutral-200 bg-transparent py-2 px-0 text-5xl md:text-6xl font-bold tracking-tighter text-neutral-900 focus:border-black focus:ring-0 placeholder-neutral-200 transition-all"
                         placeholder="Name..." />
-                    <p class="text-xs text-neutral-400 mt-4 font-light">
+
+                    <p class="text-xs text-neutral-400 mt-4 font-light mb-8">
                         The name is how it appears on your site. Make it short and clear.
                     </p>
+
+                    {{-- 3. CHÈN PHẦN PREVIEW VÀO ĐÂY (Đã style lại cho hợp layout Edit) --}}
+                    <div class="pl-4 border-l-2 border-neutral-100 transition-opacity duration-500"
+                        :class="name.length > 0 ? 'opacity-100' : 'opacity-0'">
+                        <span class="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1">Generated URL
+                            Preview</span>
+                        <p class="font-mono text-sm text-neutral-500">
+                            blushop.com/category/<span
+                                x-text="name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')"
+                                class="text-black font-bold bg-neutral-100 px-1 rounded"></span>
+                        </p>
+                    </div>
                 </div>
 
                 {{-- Field: Slug (Advanced Edit) --}}
@@ -53,7 +69,7 @@
                     class="pt-8 border-t border-dashed border-neutral-200">
                     <div class="flex items-center justify-between mb-4">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400">
-                            URL Slug
+                            Official URL Slug (DB)
                         </label>
                         <button type="button"
                             @click="editing = !editing; if(editing) $nextTick(() => $refs.slugInput.focus())"
@@ -67,6 +83,7 @@
                         <div x-show="!editing"
                             class="flex items-center gap-2 font-mono text-sm text-neutral-500 bg-neutral-50 p-4 rounded-sm border border-neutral-100">
                             <span class="text-neutral-300">blushop.com/category/</span>
+                            {{-- Hiển thị slug thực tế đang lưu trong DB --}}
                             <span class="text-black font-medium">{{ $category->slug }}</span>
                         </div>
 
@@ -84,16 +101,14 @@
                 </div>
             </div>
 
-            {{-- COL 2: Sidebar (Thông tin kỹ thuật & Danger Zone) --}}
+            {{-- COL 2: Sidebar --}}
             <div class="space-y-10">
-
-                {{-- Card: Insights --}}
+                {{-- Giữ nguyên phần Sidebar cũ của bà --}}
                 <div class="bg-neutral-50 p-8 border border-neutral-100">
                     <h3
                         class="text-xs font-bold uppercase tracking-widest text-black mb-6 border-b border-neutral-200 pb-2">
                         Insights
                     </h3>
-
                     <dl class="space-y-6">
                         <div class="flex justify-between items-center">
                             <dt class="text-[10px] uppercase tracking-wider text-neutral-400">Products</dt>
@@ -116,10 +131,9 @@
                     </dl>
                 </div>
 
-                {{-- Card: Danger Zone --}}
                 <div class="pt-6">
                     <button type="button"
-                        onclick="if(confirm('Are you sure you want to delete \'{{ $category->name }}\'?\n\nProducts in this category will NOT be deleted, but they will be uncategorized.')) document.getElementById('delete-form').submit()"
+                        onclick="if(confirm('Are you sure you want to delete \'{{ $category->name }}\'?')) document.getElementById('delete-form').submit()"
                         class="w-full group flex items-center justify-between px-6 py-4 border border-red-100 bg-white hover:bg-red-50 hover:border-red-200 transition text-left">
                         <div>
                             <span class="block text-xs font-bold uppercase tracking-widest text-red-600 mb-1">Delete
@@ -133,7 +147,6 @@
                         </svg>
                     </button>
                 </div>
-
             </div>
         </div>
     </form>

@@ -32,7 +32,7 @@
                     placeholder="E.g. Tops" />
             </div>
 
-            {{-- Slug Preview Realtime (Nhìn cho đỡ trống & Pro hơn) --}}
+            {{-- Slug Preview Realtime --}}
             <div class="pt-8 border-t border-dashed border-neutral-200 transition-opacity duration-500"
                 :class="name.length > 0 ? 'opacity-100' : 'opacity-0'">
                 <span class="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1">URL Preview</span>
@@ -50,5 +50,10 @@
                 </button>
             </div>
         </div>
+
+        {{-- Validation Error --}}
+        @error('name')
+        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+        @enderror
     </form>
 </x-admin-layout>
