@@ -328,7 +328,7 @@ $categories = \App\Models\Category::query()
 
     {{-- MOBILE MENU --}}
     <template x-teleport="body">
-        <div x-show="mobileMenuOpen" style="display: none;" class="fixed inset-0 z-[999] flex justify-end">
+        <div x-show="mobileMenuOpen" style="display: none;" class="fixed inset-0 z-[999] flex justify-start">
             {{-- Backdrop --}}
             <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -338,10 +338,10 @@ $categories = \App\Models\Category::query()
 
             {{-- Slider Drawer --}}
             <div x-show="mobileMenuOpen" x-transition:enter="transition transform ease-out duration-300"
-                x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
                 x-transition:leave="transition transform ease-in duration-300" x-transition:leave-start="translate-x-0"
-                x-transition:leave-end="translate-x-full"
-                class="fixed inset-y-0 right-0 z-50 h-screen w-3/4 max-w-xs bg-white shadow-2xl flex flex-col overflow-y-auto">
+                x-transition:leave-end="-translate-x-full"
+                class="fixed inset-y-0 left-0 z-50 h-screen w-3/4 max-w-xs bg-white shadow-2xl flex flex-col overflow-y-auto">
 
                 <div class="p-6 flex justify-between items-center border-b border-gray-100 shrink-0">
                     <span class="font-bold text-xl tracking-tighter">MENU</span>
