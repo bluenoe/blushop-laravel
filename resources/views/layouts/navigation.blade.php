@@ -327,82 +327,139 @@ $categories = \App\Models\Category::query()
     </div>
 
     {{-- MOBILE MENU --}}
-    <div x-show="mobileMenuOpen" class="sm:hidden fixed inset-0 z-[60] flex">
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false" x-show="mobileMenuOpen"
-            x-transition.opacity></div>
-        <div class="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col" x-show="mobileMenuOpen"
-            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full"
-            x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+    <template x-teleport="body">
+        <div x-show="mobileMenuOpen" style="display: none;" class="fixed inset-0 z-[999] flex justify-start">
+            {{-- Backdrop --}}
+            <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                @click="mobileMenuOpen = false"></div>
 
-            <div class="p-6 flex justify-between items-center border-b border-gray-100">
-                <span class="font-bold text-xl tracking-tighter">MENU</span>
-                <button @click="mobileMenuOpen = false"><svg class="w-6 h-6 text-gray-500" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg></button>
-            </div>
+            {{-- Slider Drawer --}}
+            <div x-show="mobileMenuOpen" x-transition:enter="transition transform ease-out duration-300"
+                x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:leave="transition transform ease-in duration-300" x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="-translate-x-full"
+                class="fixed inset-y-0 left-0 z-50 h-screen w-3/4 max-w-xs bg-white shadow-2xl flex flex-col overflow-y-auto">
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <a href="{{ route('home') }}" class="block text-lg font-medium">Home</a>
-
-                {{-- Mobile Shop Sections (Updated Logic) --}}
-                <div x-data="{ expanded: true }">
-                    <button @click="expanded = !expanded"
-                        class="flex items-center justify-between w-full text-lg font-medium mb-4">
-                        <span>Shop</span>
-                        <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <div class="p-6 flex justify-between items-center border-b border-gray-100 shrink-0">
+                    <span class="font-bold text-xl tracking-tighter">MENU</span>
+                    <button @click="mobileMenuOpen = false" class="p-2 -mr-2 text-gray-500 hover:text-black transition">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <ul x-show="expanded" x-collapse class="pl-4 space-y-3 border-l border-gray-200">
-                        {{-- Priority Links --}}
-                        <li><a href="{{ route('products.index', ['category' => 'women']) }}"
-                                class="text-black font-medium">Women</a></li>
-                        <li><a href="{{ route('products.index', ['category' => 'men']) }}"
-                                class="text-black font-medium">Men</a></li>
-                        <li><a href="{{ route('products.index', ['category' => 'fragrance']) }}"
-                                class="text-black font-medium">Fragrance</a></li>
-                        <li class="pt-2 border-t border-gray-100 mt-2"></li>
-                        {{-- Generic Categories --}}
-                        @foreach($categories as $c)
-                        <li><a href="{{ route('products.index', ['category' => $c->slug]) }}"
-                                class="text-gray-600 hover:text-black">{{ $c->name }}</a></li>
-                        @endforeach
-                    </ul>
                 </div>
 
-                <a href="{{ route('contact.index') }}" class="block text-lg font-medium">Contact</a>
-                <a href="{{ route('about') }}" class="block text-lg font-medium">About</a>
-            </div>
+                <div class="flex-1 overflow-y-auto py-8 px-6">
+                    {{-- Main Navigation Links (Synced with Desktop) --}}
+                    <nav class="space-y-2">
+                        {{-- SHOP with Expandable Collections --}}
+                        <div x-data="{ expanded: true }">
+                            <button @click="expanded = !expanded"
+                                class="flex items-center justify-between w-full py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                                <span>Shop</span>
+                                <svg class="w-5 h-5 text-neutral-400 transition-transform duration-300"
+                                    :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
 
-            <div class="p-6 border-t border-gray-100 bg-gray-50">
-                @auth
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">
-                        {{ Str::substr(Auth::user()->name, 0, 1) }}</div>
-                    <div>
-                        <p class="font-bold text-sm">{{ Auth::user()->name }}</p>
-                        <a href="{{ route('profile.edit') }}" class="text-xs text-gray-500 underline">Edit Profile</a>
+                            {{-- Collections (Matching Desktop Mega Menu) --}}
+                            <ul x-show="expanded" x-collapse
+                                class="mt-2 ml-4 space-y-1 border-l-2 border-neutral-100 pl-4">
+                                <li>
+                                    <a href="{{ route('products.index') }}"
+                                        class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                        All Products
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('products.index', ['category' => 'women']) }}"
+                                        class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                        Women
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('products.index', ['category' => 'men']) }}"
+                                        class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                        Men
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('products.index', ['category' => 'fragrance']) }}"
+                                        class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                        Fragrance
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {{-- NEW IN (Matching Desktop) --}}
+                        <a href="{{ route('new-arrivals') }}"
+                            class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                            <span>New In</span>
+                            <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            </svg>
+                        </a>
+
+                        {{-- ABOUT (Matching Desktop) --}}
+                        <a href="{{ route('about') }}"
+                            class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                            <span>About</span>
+                            <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            </svg>
+                        </a>
+                    </nav>
+
+                    {{-- Secondary Links --}}
+                    <div class="mt-8 pt-6 border-t border-neutral-100">
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">More</p>
+                        <nav class="space-y-1">
+                            <a href="{{ route('lookbook') }}"
+                                class="block py-3 text-sm text-neutral-500 hover:text-black transition-colors">
+                                Lookbook
+                            </a>
+                            <a href="{{ route('contact.index') }}"
+                                class="block py-3 text-sm text-neutral-500 hover:text-black transition-colors">
+                                Contact
+                            </a>
+                        </nav>
                     </div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button
-                        class="w-full py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest hover:bg-black hover:text-white transition">Log
-                        Out</button>
-                </form>
-                @else
-                <div class="grid grid-cols-2 gap-4">
-                    <a href="{{ route('login') }}"
-                        class="flex items-center justify-center py-3 bg-black text-white font-bold uppercase text-xs tracking-widest">Login</a>
-                    <a href="{{ route('register') }}"
-                        class="flex items-center justify-center py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest">Register</a>
+
+                <div class="p-6 border-t border-gray-100 bg-gray-50 mt-auto shrink-0">
+                    @auth
+                    <div class="flex items-center gap-3 mb-4">
+                        <div
+                            class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">
+                            {{ Str::substr(Auth::user()->name, 0, 1) }}</div>
+                        <div>
+                            <p class="font-bold text-sm">{{ Auth::user()->name }}</p>
+                            <a href="{{ route('profile.edit') }}" class="text-xs text-gray-500 underline">Edit
+                                Profile</a>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button
+                            class="w-full py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest hover:bg-black hover:text-white transition">Log
+                            Out</button>
+                    </form>
+                    @else
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="{{ route('login') }}"
+                            class="flex items-center justify-center py-3 bg-black text-white font-bold uppercase text-xs tracking-widest">Login</a>
+                        <a href="{{ route('register') }}"
+                            class="flex items-center justify-center py-3 bg-white border border-gray-300 text-black font-bold uppercase text-xs tracking-widest">Register</a>
+                    </div>
+                    @endauth
                 </div>
-                @endauth
             </div>
         </div>
-    </div>
+    </template>
 </nav>
