@@ -209,9 +209,76 @@ class ProductController extends Controller
         return response()->json(['data' => $results]);
     }
 
+    private function getSidebarCategories()
+    {
+        return Category::whereNull('parent_id')
+            ->where('slug', '!=', 'uncategorized')
+            ->with('children')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function newArrivals()
     {
-        $products = Product::latest()->take(20)->get();
-        return view('products.new-arrivals', compact('products'));
+        // Logic: Lấy 12 sản phẩm mới nhất
+        $products = Product::latest()->paginate(12);
+
+        // Data giao diện
+        $categories = $this->getSidebarCategories();
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'New Arrivals', 'url' => ''],
+        ];
+
+        // Tái sử dụng view products.index, thêm biến pageTitle để đổi tiêu đề
+        return view('products.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => 'New Arrivals'
+        ]);
+    }
+
+    public function bestSellers()
+    {
+        // Logic: Sắp xếp theo cột sold_count mới tạo (cao xuống thấp)
+        // Nếu sold_count bằng nhau thì lấy cái mới hơn
+        $products = Product::orderBy('sold_count', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(12);
+
+        $categories = $this->getSidebarCategories();
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'Best Sellers', 'url' => ''],
+        ];
+
+        return view('products.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => 'Best Sellers'
+        ]);
+    }
+
+    public function onSale()
+    {
+        // Logic: Lấy sản phẩm đang có cờ sale hoặc có giá sale
+        $products = Product::where('is_on_sale', true)
+            ->latest()
+            ->paginate(12);
+
+        $categories = $this->getSidebarCategories();
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'On Sale', 'url' => ''],
+        ];
+
+        return view('products.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => 'On Sale'
+        ]);
     }
 }
