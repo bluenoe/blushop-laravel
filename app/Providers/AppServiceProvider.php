@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use \App\Models\Setting;
@@ -28,18 +29,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // --- ĐOẠN FIX LỖI NGROK ---
+        // Lấy URL hiện tại trong file .env
+        $appUrl = Config::get('app.url');
+
+        // Nếu trong .env có chữ 'ngrok' (tức là bà đang điền link ngrok vào đó)
+        if (str_contains($appUrl, 'ngrok')) {
+            // Ép Laravel dùng chính cái link đó làm gốc (Gỡ bỏ cái blushop.test đi)
+            URL::forceRootUrl($appUrl);
+            // Ép dùng HTTPS
+            URL::forceScheme('https');
+        }
+        // ---------------------------
 
         // Fix lỗi độ dài key string cho một số DB cũ
         Schema::defaultStringLength(191);
 
         // CHIA SẺ DỮ LIỆU CHO TOÀN BỘ VIEW
-        // Chỉ chạy khi không phải trong console (để tránh lỗi khi chạy migrate)
         if (!app()->runningInConsole()) {
-
-            // 1. Chia sẻ Global Settings (Lấy về dạng mảng key => value)
-            // Cache lại 60 phút để đỡ tốn query database mỗi lần load trang
             $globalSettings = cache()->remember('global_settings', 3600, function () {
-                // Nếu bảng settings chưa có (lúc mới migrate), trả về mảng rỗng
                 try {
                     return Setting::all()->pluck('value', 'key')->toArray();
                 } catch (\Exception $e) {
@@ -47,7 +55,6 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
 
-            // 2. Chia sẻ Categories cho Menu
             $globalCategories = cache()->remember('global_categories', 3600, function () {
                 try {
                     return Category::withCount('products')->get();
@@ -56,7 +63,6 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
 
-            // Share biến $settings và $categories ra toàn bộ view
             View::share('settings', $globalSettings);
             View::share('categories', $globalCategories);
         }
