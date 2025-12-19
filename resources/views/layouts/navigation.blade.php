@@ -344,38 +344,84 @@ $categories = \App\Models\Category::query()
                     </svg></button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <a href="{{ route('home') }}" class="block text-lg font-medium">Home</a>
+            <div class="flex-1 overflow-y-auto py-8 px-6">
+                {{-- Main Navigation Links (Synced with Desktop) --}}
+                <nav class="space-y-2">
+                    {{-- SHOP with Expandable Collections --}}
+                    <div x-data="{ expanded: true }">
+                        <button @click="expanded = !expanded"
+                            class="flex items-center justify-between w-full py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                            <span>Shop</span>
+                            <svg class="w-5 h-5 text-neutral-400 transition-transform duration-300"
+                                :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
 
-                {{-- Mobile Shop Sections (Updated Logic) --}}
-                <div x-data="{ expanded: true }">
-                    <button @click="expanded = !expanded"
-                        class="flex items-center justify-between w-full text-lg font-medium mb-4">
-                        <span>Shop</span>
-                        <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        {{-- Collections (Matching Desktop Mega Menu) --}}
+                        <ul x-show="expanded" x-collapse class="mt-2 ml-4 space-y-1 border-l-2 border-neutral-100 pl-4">
+                            <li>
+                                <a href="{{ route('products.index') }}"
+                                    class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                    All Products
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('products.index', ['category' => 'women']) }}"
+                                    class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                    Women
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('products.index', ['category' => 'men']) }}"
+                                    class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                    Men
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('products.index', ['category' => 'fragrance']) }}"
+                                    class="block py-3 text-base text-neutral-600 hover:text-black hover:translate-x-1 transition-all duration-200">
+                                    Fragrance
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {{-- NEW IN (Matching Desktop) --}}
+                    <a href="{{ route('new-arrivals') }}"
+                        class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                        <span>New In</span>
+                        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
                         </svg>
-                    </button>
-                    <ul x-show="expanded" x-collapse class="pl-4 space-y-3 border-l border-gray-200">
-                        {{-- Priority Links --}}
-                        <li><a href="{{ route('products.index', ['category' => 'women']) }}"
-                                class="text-black font-medium">Women</a></li>
-                        <li><a href="{{ route('products.index', ['category' => 'men']) }}"
-                                class="text-black font-medium">Men</a></li>
-                        <li><a href="{{ route('products.index', ['category' => 'fragrance']) }}"
-                                class="text-black font-medium">Fragrance</a></li>
-                        <li class="pt-2 border-t border-gray-100 mt-2"></li>
-                        {{-- Generic Categories --}}
-                        @foreach($categories as $c)
-                        <li><a href="{{ route('products.index', ['category' => $c->slug]) }}"
-                                class="text-gray-600 hover:text-black">{{ $c->name }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                    </a>
 
-                <a href="{{ route('contact.index') }}" class="block text-lg font-medium">Contact</a>
-                <a href="{{ route('about') }}" class="block text-lg font-medium">About</a>
+                    {{-- ABOUT (Matching Desktop) --}}
+                    <a href="{{ route('about') }}"
+                        class="flex items-center justify-between py-4 text-xl font-medium text-black tracking-tight border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                        <span>About</span>
+                        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </nav>
+
+                {{-- Secondary Links --}}
+                <div class="mt-8 pt-6 border-t border-neutral-100">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">More</p>
+                    <nav class="space-y-1">
+                        <a href="{{ route('lookbook') }}"
+                            class="block py-3 text-sm text-neutral-500 hover:text-black transition-colors">
+                            Lookbook
+                        </a>
+                        <a href="{{ route('contact.index') }}"
+                            class="block py-3 text-sm text-neutral-500 hover:text-black transition-colors">
+                            Contact
+                        </a>
+                    </nav>
+                </div>
             </div>
 
             <div class="p-6 border-t border-gray-100 bg-gray-50">
