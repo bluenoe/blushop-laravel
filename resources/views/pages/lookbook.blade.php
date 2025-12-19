@@ -217,46 +217,49 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                     {{-- Product List (Minimalist Line List) --}}
                     <div class="lg:col-span-6" data-reveal style="transition-delay: 200ms">
                         @forelse($lookbookProducts as $product)
-                            @php
-                                $imgSrc = $product->image;
-                                if (!Str::contains($imgSrc, 'http')) {
-                                    $imgSrc = Storage::url('products/' . $imgSrc);
-                                }
-                            @endphp
+                        @php
+                        $imgSrc = $product->image;
+                        if (!Str::contains($imgSrc, 'http')) {
+                        $imgSrc = Storage::url('products/' . $imgSrc);
+                        }
+                        @endphp
 
-                            <a href="{{ route('products.show', $product) }}"
-                               class="group flex items-center gap-6 py-6 border-b border-neutral-100 hover:bg-neutral-50 transition-colors duration-300 relative">
-                                
-                                {{-- Tiny Image (3:4 aspect) --}}
-                                <div class="w-16 aspect-[3/4] bg-neutral-100 overflow-hidden flex-shrink-0">
-                                    <img src="{{ $imgSrc }}" 
-                                         alt="{{ $product->name }}"
-                                         class="w-full h-full object-cover">
-                                </div>
+                        <a href="{{ route('products.show', $product) }}"
+                            class="group flex items-center gap-6 py-6 border-b border-neutral-100 hover:bg-neutral-50 cursor-pointer transition-all duration-300 ease-out relative">
 
-                                {{-- Product Name (Uppercase, Editorial) --}}
-                                <span class="flex-1 text-xs font-bold uppercase tracking-widest text-neutral-900">
-                                    {{ $product->name }}
-                                </span>
+                            {{-- Tiny Image (3:4 aspect) with Zoom on Hover --}}
+                            <div class="w-16 aspect-[3/4] bg-neutral-100 overflow-hidden flex-shrink-0">
+                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}"
+                                    class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105">
+                            </div>
 
-                                {{-- Category (Muted) --}}
-                                <span class="text-xs text-neutral-400 hidden sm:block">
-                                    {{ $product->category->name ?? 'Essentials' }}
-                                </span>
+                            {{-- Product Name (Uppercase, Editorial) with Kinetic Slide --}}
+                            <span
+                                class="flex-1 text-xs font-bold uppercase tracking-widest text-neutral-900 transition-transform duration-300 ease-out group-hover:translate-x-2">
+                                {{ $product->name }}
+                            </span>
 
-                                {{-- Price (Right-aligned, Serif) --}}
-                                <span class="font-serif text-sm text-neutral-900 text-right min-w-[100px]">
-                                    {{ number_format($product->price, 0, ',', '.') }} ₫
-                                </span>
+                            {{-- Category (Muted) --}}
+                            <span
+                                class="text-xs text-neutral-400 hidden sm:block transition-colors duration-300 ease-out group-hover:text-neutral-600">
+                                {{ $product->category->name ?? 'Essentials' }}
+                            </span>
 
-                                {{-- Arrow Icon (Slides in on hover) --}}
-                                <svg class="w-4 h-4 text-neutral-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" 
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                                </svg>
-                            </a>
+                            {{-- Price (Right-aligned, Serif) with Bold on Hover --}}
+                            <span
+                                class="font-serif text-sm text-neutral-500 text-right min-w-[100px] transition-all duration-300 ease-out group-hover:text-neutral-900 group-hover:font-semibold">
+                                {{ number_format($product->price, 0, ',', '.') }} ₫
+                            </span>
+
+                            {{-- Arrow Icon (Slides in on hover) --}}
+                            <svg class="w-4 h-4 text-neutral-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-neutral-900 transition-all duration-300 ease-out"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </a>
                         @empty
-                            <p class="text-neutral-400 text-sm py-6 text-center italic">No products available.</p>
+                        <p class="text-neutral-400 text-sm py-6 text-center italic">No products available.</p>
                         @endforelse
                     </div>
                 </div>
