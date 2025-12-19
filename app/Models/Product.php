@@ -19,6 +19,7 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'original_price', // Added
         'image',
         'category_id',
         'is_new',
@@ -32,6 +33,7 @@ class Product extends Model
     // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
         'price' => 'decimal:2',
+        'original_price' => 'decimal:2', // Added
         'specifications' => 'array',
     ];
 

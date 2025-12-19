@@ -13,7 +13,9 @@ class ProductVariant extends Model
         'compare_at_price',
         'stock_quantity',
         'sku',
-        'is_active'
+        'is_active',
+        'color_name', // Added
+        'hex_code',   // Added
     ];
 
     public function product()
