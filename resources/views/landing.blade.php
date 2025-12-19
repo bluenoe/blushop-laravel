@@ -194,7 +194,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-8 max-w-7xl mx-auto">
                 {{-- 1. WOMAN --}}
-                <a href="{{ route('products.index', ['category' => 'woman']) }}"
+                <a href="{{ route('products.index', ['category' => 'women']) }}"
                     class="group block cursor-pointer reveal-element">
                     <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
                         {{-- Ảnh mẫu nữ minimalist --}}
@@ -212,7 +212,7 @@
                 </a>
 
                 {{-- 2. MAN --}}
-                <a href="{{ route('products.index', ['category' => 'man']) }}"
+                <a href="{{ route('products.index', ['category' => 'men']) }}"
                     class="group block cursor-pointer reveal-element delay-200 md:mt-12">
                     <div class="aspect-[4/5] bg-neutral-100 overflow-hidden relative">
                         {{-- Ảnh mẫu nam clean --}}

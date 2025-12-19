@@ -7,7 +7,6 @@ export default defineConfig({
         port: 5174,
         strictPort: true,
         hmr: {
-            // Bây giờ nó sẽ đọc IP từ file .env, bà không cần sửa ở đây nữa
             host: process.env.VITE_HMR_HOST || "localhost",
             port: 5174,
         },
