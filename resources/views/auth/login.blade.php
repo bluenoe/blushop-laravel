@@ -47,5 +47,7 @@
                 Create Account
             </a>
         </div>
+
     </form>
+    <x-social-login-buttons />
 </x-guest-layout>
