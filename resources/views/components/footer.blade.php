@@ -157,16 +157,16 @@
                         <li><a href="{{ route('products.index') }}"
                                 class="hover:text-neutral-500 hover:underline decoration-1 underline-offset-4 transition">All
                                 Products</a></li>
-                        <li><a href="#"
+                        <li><a href="{{ route('best-sellers') }}"
                                 class="hover:text-neutral-500 hover:underline decoration-1 underline-offset-4 transition">Best
                                 Sellers</a></li>
-                        <li><a href="#"
+                        <li><a href="{{route('on-sale')}}"
                                 class="hover:text-neutral-500 hover:underline decoration-1 underline-offset-4 transition text-red-600">Sale</a>
                         </li>
                     </ul>
                 </div>
 
-                {{-- Help Links --}}
+                {{-- Help Links }}
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6">Support</h3>
                     <ul class="space-y-4 text-sm text-neutral-600">

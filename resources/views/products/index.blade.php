@@ -31,7 +31,7 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             @if(request('category'))
                             {{ $categories->firstWhere('slug', request('category'))?->name ?? 'Category' }}
                             @else
-                            All Products
+                            {{ $pageTitle ?? 'Shop' }}
                             @endif
                             <sup class="text-xs font-normal text-neutral-400 ml-1">{{ $products->total() }}</sup>
                         </h1>
