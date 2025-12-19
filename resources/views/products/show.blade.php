@@ -446,7 +446,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
         <section class="max-w-[1400px] mx-auto px-6 py-20 border-t border-neutral-100">
             <div class="md:flex md:items-end md:justify-between mb-8">
                 <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Complete The Look</h2>
-                <a href="#"
+                <a href="{{ route('products.index', ['complete_look' => $product->id]) }}"
                     class="hidden md:block text-xs border-b border-black pb-0.5 hover:text-neutral-600 transition">
                     Shop the full set
                 </a>
