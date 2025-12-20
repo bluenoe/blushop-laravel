@@ -85,52 +85,81 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             Xử lý song song 2 logic: Quần áo (Color/Size) và Nước hoa (Variant/Price)
             --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                // Common
-                loading: false,
-                added: false,
-                qty: 1,
+    // State cơ bản
+    loading: false,
+    added: false,
+    qty: 1,
+    
+    // Dữ liệu từ Backend
+    isFragrance: {{ $isFragrance ? 'true' : 'false' }},
+    variants: {{ $variantsJson }},
+    
+    // State hiển thị
+    currentImage: '{{ $defaultImage }}',
+    price: {{ $defaultVariant ? $defaultVariant->price : $product->base_price }},
+    
+    // State lựa chọn
+    selectedColor: '{{ $defaultVariant ? $defaultVariant->color_name : null }}',
+    selectedSize: '{{ $defaultVariant ? $defaultVariant->size : null }}',
+    selectedCapacity: {{ $defaultVariant ? ($defaultVariant->capacity_ml ?? 'null') : 'null' }},
+    selectedVariantId: {{ $defaultVariant ? $defaultVariant->id : 'null' }},
 
-                // Mode Detection
-                isFragrance: {{ $isFragrance ? 'true' : 'false' }},
+    init() {
+        console.log('Variants loaded:', this.variants);
+    },
 
-                // Apparel State
-                color: '{{ $defaultColor }}', 
-                size: {{ $isFragrance ? 'null' : 'null' }}, // Quần áo thì null bắt buộc chọn, nước hoa sẽ auto fill
-                currentImage: '{{ $defaultImage }}',
-                imageMap: {{ json_encode($variantImages) }},
+    // LOGIC 1: CHỌN MÀU (Quần áo)
+    selectColor(colorName, imageUrl) {
+        this.selectedColor = colorName;
+        
+        // 1. Đổi ảnh ngay lập tức
+        if (imageUrl) {
+            this.currentImage = imageUrl;
+        }
 
-                // Fragrance State
-                price: {{ $currentPrice }},
-                sku: '{{ $currentSku }}',
-                selectedVariantId: {{ $isFragrance && isset($defaultVariant) ? $defaultVariant->id : 'null' }},
-                variants: {{ $variantsJson ?? '[]' }}, // Load JSON từ Controller
+        // 2. Tìm variant tương ứng để update ID và Giá
+        // (Tìm variant có màu này và size đang chọn - hoặc size đầu tiên)
+        let variant = this.variants.find(v => v.color === colorName && v.size === this.selectedSize) 
+                   || this.variants.find(v => v.color === colorName);
 
-                init() {
-                    // Nếu là nước hoa, tự động chọn size đầu tiên (nhỏ nhất)
-                    if (this.isFragrance && this.variants.length > 0) {
-                        this.selectVariant(this.variants[0]);
-                    }
-                },
+        if (variant) {
+            this.updateVariantState(variant);
+        }
+    },
 
-                // Logic: Chọn Màu (Quần áo)
-                selectColor(selectedColor) {
-                    this.color = selectedColor;
-                    if (this.imageMap[selectedColor]) {
-                        this.currentImage = this.imageMap[selectedColor];
-                    }
-                },
+    // LOGIC 2: CHỌN SIZE (Quần áo)
+    selectSize(size) {
+        this.selectedSize = size;
+        // Tìm variant khớp Màu + Size
+        let variant = this.variants.find(v => v.color === this.selectedColor && v.size === size);
+        if (variant) this.updateVariantState(variant);
+    },
 
-                // Logic: Chọn Dung Tích (Nước hoa)
-                selectVariant(v) {
-                    this.selectedVariantId = v.id;
-                    this.price = v.price; // Cập nhật giá tiền hiển thị
-                    this.sku = v.sku;
-                    this.size = v.capacity_ml + 'ml'; // Map dung tích vào input 'size' để gửi lên server
-                    if (v.image) {
-        this.currentImage = v.image;
-    }
-                }
-            }">
+    // LOGIC 3: CHỌN DUNG TÍCH (Nước hoa)
+    selectCapacity(capacity) {
+        this.selectedCapacity = capacity;
+        let variant = this.variants.find(v => v.capacity == capacity);
+        if (variant) {
+            this.updateVariantState(variant);
+            // Nước hoa đổi dung tích là đổi ảnh luôn
+            if (variant.image) this.currentImage = variant.image; 
+        }
+    },
+
+    // Hàm cập nhật chung
+    updateVariantState(v) {
+        this.selectedVariantId = v.id;
+        this.price = v.price;
+        // Animation giá tiền nếu cần
+    },
+
+    // Validate trước khi Add to Cart
+    addToCart() {
+        if (!this.selectedVariantId) {
+            alert('Please select all options');
+            return;
+            }
+        }">
 
                 {{-- LEFT: GALLERY --}}
                 <div class="lg:col-span-7 col-span-12 w-full mb-8 lg:mb-0">
