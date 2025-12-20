@@ -13,31 +13,36 @@ class LandingController extends Controller
      */
     public function index()
     {
-        // Fetch products for the Featured section
-        $featured = Product::query()
-            // LƯU Ý: Phải select cả 'category_id' để relationship hoạt động
-            // Nếu có cột 'slug' thì thêm vào luôn để link cho đẹp
-            ->select(['id', 'name', 'price', 'image', 'category_id'])
-            ->with('category') // Load kèm danh mục để hiển thị tên (Women/Men)
+        // 1. Lấy sản phẩm (Không dùng select cứng nữa để tránh lỗi thiếu cột)
+        $products = Product::with('variants') // Load kèm variants để lấy ảnh/giá
             ->inRandomOrder()
-            ->take(8) // Lấy 8 cái cho đầy đặn grid (giao diện bà set grid 4 cột mà)
+            ->take(8)
             ->get();
 
-        $socialFeed = Product::inRandomOrder()
-            ->limit(6) // Lấy 6 ảnh thôi cho bố cục Mosaic
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'image' => $product->image, // Tận dụng ảnh sản phẩm
-                    'link'  => route('products.show', $product->id),
-                    'handle' => '@blu.shop' // Tên Instagram giả
-                ];
-            });
+        // 2. Map dữ liệu để tương thích với View cũ
+        $products->each(function ($product) {
+            $defaultVariant = $product->variants->first();
 
-        return view('landing', [
-            'featured' => $featured,
-            'socialFeed' => $socialFeed, // <--- Truyền biến này sang View
-            'wishedIds' => Auth::check() ? Auth::user()->wishlist()->pluck('products.id')->all() : [],
-        ]);
+            // Gán ngược lại vào thuộc tính ảo để View gọi $product->price không bị lỗi
+            $product->price = $defaultVariant ? $defaultVariant->price : $product->base_price;
+
+            // Lấy ảnh từ variant đầu tiên (bảng products mới không còn cột image)
+            $path = $defaultVariant ? $defaultVariant->image_path : null;
+            $product->image = $path ? \Illuminate\Support\Facades\Storage::url($path) : 'https://placehold.co/400x600';
+
+            // Xử lý category (vì DB mới dùng enum string 'men'/'women')
+            $product->category_name = ucfirst($product->category);
+        });
+
+        // 3. Social Feed (Logic giả lập ảnh từ sản phẩm)
+        $socialFeed = $products->take(6)->map(function ($product) {
+            return [
+                'image' => $product->image,
+                'link'  => route('products.show', $product->id),
+                'handle' => '@blu.shop'
+            ];
+        });
+
+        return view('landing', compact('products', 'socialFeed'));
     }
 }
