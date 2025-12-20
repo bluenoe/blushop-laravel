@@ -236,13 +236,13 @@ $categories = \App\Models\Category::query()
                 <div class="col-span-2 relative overflow-hidden bg-gray-100 group" x-data="{ 
                         activeSlide: 0,
                         slides: [
-                            { img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80', title: 'The Monochrome', subtitle: 'Effortless Elegance' },
-                            { img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80', title: 'New Arrivals', subtitle: 'Spring / Summer 2025' },
-                            { img: 'https://images.unsplash.com/photo-1529139574466-a302d2052574?auto=format&fit=crop&w=800&q=80', title: 'Signature Scents', subtitle: 'Discover Yours' }
+                            '{{ asset('assets/images/navigation/1.jpg') }}', 
+                            '{{ asset('assets/images/navigation/2.jpg') }}',
+                            '{{ asset('assets/images/navigation/3.jpg') }}'
                         ],
                         timer: null,
                         init() { this.startAutoSlide(); },
-                        startAutoSlide() { this.timer = setInterval(() => { this.activeSlide = (this.activeSlide + 1) % this.slides.length; }, 3000); }, // Tăng tốc lên 3s
+                        startAutoSlide() { this.timer = setInterval(() => { this.activeSlide = (this.activeSlide + 1) % this.slides.length; }, 3000); }, 
                         stopAutoSlide() { clearInterval(this.timer); }
                      }" @mouseenter="stopAutoSlide()" @mouseleave="startAutoSlide()">
 
@@ -253,7 +253,7 @@ $categories = \App\Models\Category::query()
                             x-transition:leave="transition ease-in duration-700"
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 scale-100" class="absolute inset-0 w-full h-full">
-                            <img :src="slide.img" class="w-full h-full object-cover">
+                            <img :src="slide" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
                             </div>
                             <div class="absolute bottom-10 left-10 text-white">
