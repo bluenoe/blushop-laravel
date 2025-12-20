@@ -179,24 +179,18 @@ $categories = \App\Models\Category::query()
                 {{-- Column 1: MAIN NAVIGATION (Refactored) --}}
                 {{-- Column 1: CLOTHING --}}
                 <div class="py-12 pl-4 pr-12">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Clothing</h3>
-                    <ul class="space-y-6">
-                        <li class="group">
-                            <a href="{{ route('new-arrivals') }}" class="block">
-                                <span class="text-xl font-light group-hover:font-medium transition-all duration-300">New
-                                    Arrivals</span>
-                            </a>
-                        </li>
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-8">Clothing</h3>
+                    <ul class="space-y-4">
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'women']) }}" class="block">
                                 <span
-                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Women</span>
+                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Women</span>
                             </a>
                         </li>
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'men']) }}" class="block">
                                 <span
-                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Men</span>
+                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Men</span>
                             </a>
                         </li>
                     </ul>
@@ -204,23 +198,23 @@ $categories = \App\Models\Category::query()
 
                 {{-- Column 2: ACCESSORIES --}}
                 <div class="py-12 px-8">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Accessories</h3>
-                    <ul class="space-y-6">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-8">Accessories</h3>
+                    <ul class="space-y-4">
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block">
                                 <span
-                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Fragrance</span>
+                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Fragrance</span>
                             </a>
                         </li>
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'accessories']) }}" class="block">
                                 <span
-                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Accessories</span>
+                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Accessories</span>
                             </a>
                         </li>
-                        <li class="pt-4 mt-4">
+                        <li class="pt-4 mt-4 border-t border-neutral-50/50">
                             <a href="{{ route('on-sale') }}"
-                                class="text-sm text-red-600 font-medium hover:underline inline-block">
+                                class="text-sm font-medium text-red-600 hover:text-red-500 hover:underline underline-offset-4 transition-colors">
                                 Sale Archive
                             </a>
                         </li>
