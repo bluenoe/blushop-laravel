@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * @mixin IdeHelperProduct
@@ -34,6 +36,13 @@ class Product extends Model
         'price' => 'decimal:2',
         'specifications' => 'array',
     ];
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->image ? Storage::url($this->image) : null,
+        );
+    }
 
     public function orderItems()
     {

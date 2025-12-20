@@ -71,9 +71,9 @@ class ProductController extends Controller
         // Vì bảng categories cũ có thể bà chưa xóa, nhưng logic mới dùng Enum
         // Tui hardcode tạm list này cho đúng với data Seeder lúc nãy
         $categories = collect([
-            (object)['name' => 'Men', 'slug' => 'men', 'children' => []],
-            (object)['name' => 'Women', 'slug' => 'women', 'children' => []],
-            (object)['name' => 'Fragrance', 'slug' => 'fragrance', 'children' => []],
+            (object)['name' => 'Men', 'slug' => 'men', 'children' => collect([])],
+            (object)['name' => 'Women', 'slug' => 'women', 'children' => collect([])],
+            (object)['name' => 'Fragrance', 'slug' => 'fragrance', 'children' => collect([])],
         ]);
 
         $breadcrumbs = [
