@@ -231,7 +231,7 @@ class ProductController extends Controller
         ];
 
         // Tái sử dụng view products.index, thêm biến pageTitle để đổi tiêu đề
-        return view('products.index', [
+        return view('products.new-arrivals', [
             'products' => $products,
             'categories' => $categories,
             'breadcrumbs' => $breadcrumbs,
