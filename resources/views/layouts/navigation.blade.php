@@ -236,9 +236,9 @@ $categories = \App\Models\Category::query()
                 <div class="col-span-2 relative overflow-hidden bg-gray-100 group" x-data="{ 
                         activeSlide: 0,
                         slides: [
-                            '{{ asset('assets/images/navigation/1.jpg') }}', 
-                            '{{ asset('assets/images/navigation/2.jpg') }}',
-                            '{{ asset('assets/images/navigation/3.jpg') }}'
+                            '{{ asset('images/navigation/1.jpg') }}', 
+                            '{{ asset('images/navigation/2.jpg') }}',
+                            '{{ asset('images/navigation/3.jpg') }}'
                         ],
                         timer: null,
                         init() { this.startAutoSlide(); },
