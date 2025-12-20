@@ -37,8 +37,8 @@ Location: resources/views/products/new-arrivals.blade.php
                     </h1>
                     <p class="text-lg text-neutral-500 font-light leading-relaxed max-w-md mb-10" data-reveal
                         style="transition-delay: 200ms">
-                        Khám phá bộ sưu tập mới nhất. Những thiết kế tối giản, tập trung vào chất liệu và phom dáng hiện
-                        đại.
+                        Discover the latest collection. Minimalist designs focused on premium materials and modern
+                        silhouettes.
                     </p>
                     <div data-reveal style="transition-delay: 300ms">
                         <a href="{{ route('products.index') }}"

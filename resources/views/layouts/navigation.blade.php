@@ -176,46 +176,87 @@ $categories = \App\Models\Category::query()
         <div class="max-w-7xl mx-auto px-8 py-0">
             <div class="grid grid-cols-4 min-h-[400px]">
 
-                {{-- Column 1: MAIN NAVIGATION (Refactored) --}}
-                {{-- Column 1: CLOTHING --}}
-                <div class="py-12 pl-4 pr-12">
-                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-8">Clothing</h3>
-                    <ul class="space-y-4">
+                {{-- Column 1: SHOP (Main Categories) --}}
+                <div class="py-12 pl-6 pr-10">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Shop</h3>
+                    <ul class="space-y-3">
                         <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'women']) }}" class="block">
+                            <a href="{{ route('products.index') }}" class="block py-1">
                                 <span
-                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Women</span>
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">All
+                                    Products</span>
                             </a>
                         </li>
                         <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'men']) }}" class="block">
+                            <a href="{{ route('products.index', ['category' => 'women']) }}" class="block py-1">
                                 <span
-                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Men</span>
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Women</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['category' => 'men']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Men</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Fragrance</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['category' => 'accessories']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Accessories</span>
+                            </a>
+                        </li>
+                        <li class="pt-3 mt-3 border-t border-neutral-100">
+                            <a href="{{ route('on-sale') }}"
+                                class="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
+                                Sale Archive
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                {{-- Column 2: ACCESSORIES --}}
-                <div class="py-12 px-8">
-                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-8">Accessories</h3>
-                    <ul class="space-y-4">
+                {{-- Column 2: TRENDING NOW (Curated Edits) --}}
+                <div class="py-12 px-10 border-l border-neutral-50">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Trending Now</h3>
+                    <ul class="space-y-3">
                         <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block">
+                            <a href="{{ route('best-sellers') }}" class="block py-1">
                                 <span
-                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Fragrance</span>
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Best
+                                    Sellers</span>
                             </a>
                         </li>
                         <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'accessories']) }}" class="block">
+                            <a href="{{ route('products.index', ['collection' => 'summer']) }}" class="block py-1">
                                 <span
-                                    class="text-lg font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all duration-300">Accessories</span>
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Back
+                                    in Stock</span>
                             </a>
                         </li>
-                        <li class="pt-4 mt-4 border-t border-neutral-50/50">
-                            <a href="{{ route('on-sale') }}"
-                                class="text-sm font-medium text-red-600 hover:text-red-500 hover:underline underline-offset-4 transition-colors">
-                                Sale Archive
+                        <li class="group">
+                            <a href="{{ route('products.index', ['collection' => 'summer']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Summer
+                                    Linen</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['collection' => 'office']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Office
+                                    Essentials</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['collection' => 'evening']) }}" class="block py-1">
+                                <span
+                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Evening
+                                    Wear</span>
                             </a>
                         </li>
                     </ul>
