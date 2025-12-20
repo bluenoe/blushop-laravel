@@ -76,20 +76,73 @@ Concept: Editorial Grid, Minimalist Actions
                     @else
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
                         @foreach($products as $product)
-                        <div class="group relative flex flex-col">
+                        <div x-data="{
+                                show: true,
+                                isLoading: false,
+                                async toggleWishlist(url) {
+                                    if (this.isLoading) return;
+                                    this.isLoading = true;
+
+                                    try {
+                                        const response = await fetch(url, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                            },
+                                        });
+
+                                        if (!response.ok) throw new Error('Network response was not ok');
+                                        
+                                        const data = await response.json();
+                                        
+                                        if (data.success && !data.wished) {
+                                            // Item removed successfully
+                                            this.show = false;
+                                            // Optional: Dispatch event for toast
+                                            window.dispatchEvent(new CustomEvent('notify', { 
+                                                detail: { message: 'Removed from wishlist', type: 'success' } 
+                                            }));
+                                        } else {
+                                             window.dispatchEvent(new CustomEvent('notify', { 
+                                                detail: { message: 'Something went wrong', type: 'error' } 
+                                            }));
+                                        }
+
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        window.dispatchEvent(new CustomEvent('notify', { 
+                                            detail: { message: 'Failed to remove item', type: 'error' } 
+                                        }));
+                                    } finally {
+                                        this.isLoading = false;
+                                    }
+                                }
+                            }" x-show="show" x-transition:leave="transition ease-in duration-300"
+                            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
+                            class="group relative flex flex-col">
 
                             {{-- Remove Button (Absolute Top Right) --}}
-                            <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST"
-                                class="absolute top-2 right-2 z-20">
-                                @csrf
-                                <button type="submit"
-                                    class="w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm text-neutral-400 hover:text-black hover:bg-white transition rounded-full">
+                            <button @click="toggleWishlist('{{ route('wishlist.toggle', $product->id) }}')"
+                                :disabled="isLoading"
+                                class="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm text-neutral-400 hover:text-red-600 hover:bg-white transition rounded-full disabled:opacity-50 cursor-pointer">
+                                <template x-if="isLoading">
+                                    <svg class="animate-spin h-4 w-4 text-neutral-500"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                </template>
+                                <template x-if="!isLoading">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                             d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                </button>
-                            </form>
+                                </template>
+                            </button>
 
                             {{-- Image --}}
                             <a href="{{ route('products.show', $product->id) }}"
