@@ -47,7 +47,7 @@ Concept: Editorial Grid, Minimalist Actions
                 <div class="lg:col-span-9">
 
                     <div class="flex justify-between items-end mb-12">
-                        <h1 class="text-3xl font-bold tracking-tighter">Saved Items <span
+                        <h1 class="text-3xl font-bold tracking-tighter">Saved Items <span id="wishlist-count"
                                 class="text-neutral-300 text-lg align-top ml-1">{{ $products->total() }}</span></h1>
 
                         @if($products->isNotEmpty())
@@ -99,6 +99,19 @@ Concept: Editorial Grid, Minimalist Actions
                                         if (data.success && !data.wished) {
                                             // Item removed successfully
                                             this.show = false;
+                                            
+                                            // Update Count
+                                            const countEl = document.getElementById('wishlist-count');
+                                            if (countEl) {
+                                                let count = parseInt(countEl.innerText);
+                                                let newCount = Math.max(0, count - 1);
+                                                countEl.innerText = newCount;
+                                                
+                                                if (newCount === 0) {
+                                                    setTimeout(() => window.location.reload(), 500);
+                                                }
+                                            }
+
                                             // Optional: Dispatch event for toast
                                             window.dispatchEvent(new CustomEvent('notify', { 
                                                 detail: { message: 'Removed from wishlist', type: 'success' } 
