@@ -62,8 +62,7 @@ class ProductController extends Controller
             $product->price = $defaultVariant ? $defaultVariant->price : $product->base_price;
 
             $path = $defaultVariant ? $defaultVariant->image_path : null;
-            $product->image = $path ? \Illuminate\Support\Facades\Storage::url($path) : 'https://placehold.co/400x600';
-
+            $product->image_path = $path;
             return $product;
         });
 
