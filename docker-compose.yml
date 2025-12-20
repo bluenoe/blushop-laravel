@@ -16,7 +16,8 @@ services:
       - db_data:/var/lib/mysql
     healthcheck:
       # Sửa lại lệnh ping cho ổn định, dùng user root check cho lẹ
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 3

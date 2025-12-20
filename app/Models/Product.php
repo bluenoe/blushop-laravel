@@ -82,6 +82,14 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    // Hàm lấy chi tiết sản phẩm kèm variants và ảnh chuẩn
+    public function getProductDetails($slug)
+    {
+        return self::with(['variants.image', 'images'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+    }
+
     // 3. Helper: Lấy giá thấp nhất để hiển thị "Từ 1.000.000đ" ở trang danh sách
     public function getMinPriceAttribute()
     {
