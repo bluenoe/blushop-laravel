@@ -64,10 +64,10 @@
                         <li><a href="{{ route('about') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">About</a>
                         </li>
-                        <li><a href="#"
+                        <li><a href="{{ route('sustainability') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">Sustainability</a>
                         </li>
-                        <li><a href="#"
+                        <li><a href="{{ route('careers') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">Careers</a>
                         </li>
                     </ul>
@@ -80,9 +80,9 @@
                 <div class="flex flex-col lg:items-end">
                     <h3 class="text-[10px] uppercase tracking-[0.2em] font-bold mb-6">Newsletter</h3>
 
-                    <form x-data="{ 
-                            email: '', 
-                            status: null, 
+                    <form x-data="{
+                            email: '',
+                            status: null,
                             message: '',
                             loading: false,
                             timer: null,
@@ -122,16 +122,17 @@
                                     this.autoDismiss();
                                 });
                             },
-                            autoDismiss() { 
-                                this.timer = setTimeout(() => { this.status = null; }, 4000); 
+                            autoDismiss() {
+                                this.timer = setTimeout(() => { this.status = null; }, 4000);
                             }
-                        }" @submit.prevent="submitForm()" class="relative w-full max-w-xs lg:ml-auto">
+                        }" @submit.prevent="submitForm()" class="relative w-full max-w-sm lg:ml-auto">
 
-                        <div class="relative group">
+                        {{-- High Contrast Input Group --}}
+                        <div class="flex gap-0">
                             <input type="email" placeholder="Email address" x-model="email"
-                                class="w-full bg-transparent border-b border-neutral-200 py-2 text-sm focus:outline-none focus:border-black transition-colors placeholder:text-neutral-400 font-light">
+                                class="w-full bg-neutral-100 border-none px-4 py-3 text-sm focus:ring-1 focus:ring-black placeholder:text-neutral-500 font-medium">
                             <button type="submit"
-                                class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.1em] font-bold hover:text-neutral-500 transition-colors">
+                                class="bg-black text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors shrink-0">
                                 <span x-show="!loading">Join</span>
                                 <span x-show="loading">...</span>
                             </button>
@@ -139,9 +140,9 @@
 
                         {{-- Notifications --}}
                         <div class="absolute top-full right-0 mt-2 text-xs" x-cloak>
-                            <span x-show="status === 'success'" class="text-neutral-600 block" x-text="message"
-                                x-transition></span>
-                            <span x-show="status === 'error'" class="text-red-500 block" x-text="message"
+                            <span x-show="status === 'success'" class="text-green-600 block font-medium"
+                                x-text="message" x-transition></span>
+                            <span x-show="status === 'error'" class="text-red-600 block font-medium" x-text="message"
                                 x-transition></span>
                         </div>
                     </form>

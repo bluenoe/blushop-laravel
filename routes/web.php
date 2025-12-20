@@ -71,6 +71,8 @@ Route::prefix('cart')->group(function () {
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 Route::view('/about', 'pages.about')->name('about');
+Route::view('/sustainability', 'pages.sustainability')->name('sustainability');
+Route::view('/careers', 'pages.careers')->name('careers');
 Route::view('/faq', 'pages.faq')->name('faq');
 Route::get('/lookbook', [LookbookController::class, 'index'])->name('lookbook');
 
