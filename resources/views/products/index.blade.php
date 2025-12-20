@@ -169,8 +169,10 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                                 <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
                             </h3>
                             @if($product->category)
-                            <p class="text-[10px] text-neutral-400 uppercase tracking-wider mt-1">{{
-                                $product->category->name }}</p>
+                            <p class="text-[10px] text-neutral-400 uppercase tracking-wider mt-1">
+                                {{ ucfirst($product->category) }} {{-- Hàm ucfirst để viết hoa chữ cái đầu: men -> Men
+                                --}}
+                            </p>
                             @endif
                         </div>
                         <div class="text-right">
