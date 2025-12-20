@@ -61,7 +61,7 @@
                 <div class="space-y-6">
                     <h3 class="text-[10px] uppercase tracking-[0.2em] font-bold">Company</h3>
                     <ul class="space-y-3 text-sm font-light text-neutral-500">
-                        <li><a href="#"
+                        <li><a href="{{ route('about') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">About</a>
                         </li>
                         <li><a href="#"
