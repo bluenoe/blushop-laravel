@@ -15,22 +15,17 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
-            ->with(['category:id,name,slug']);
+        // 1. Khởi tạo query (Eager load variants để lấy ảnh/giá)
+        $query = Product::with('variants');
 
-        // 1. Filter Category
+        // 2. Filter Category (Sửa lại theo cột ENUM 'men', 'women')
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
-            $category = Category::where('slug', $slug)->first();
-            if ($category) {
-                $childIds = $category->children()->pluck('id');
-                $allIds = $childIds->push($category->id);
-                $query->whereIn('category_id', $allIds);
-            }
+            // Vì DB mới lưu 'men', 'women' trực tiếp, nên ta query thẳng cột category
+            $query->where('category', $slug);
         }
 
-        // 2. Filter Search
+        // 3. Filter Search (Tìm kiếm)
         if ($request->filled('q')) {
             $q = trim((string) $request->input('q'));
             $query->where(function ($sub) use ($q) {
@@ -39,30 +34,47 @@ class ProductController extends Controller
             });
         }
 
-        // 3. Filter Price
+        // 4. Filter Price (Sửa thành base_price)
         if ($request->filled('price_min')) {
-            $query->where('price', '>=', (float) $request->input('price_min'));
+            $query->where('base_price', '>=', (float) $request->input('price_min'));
         }
         if ($request->filled('price_max')) {
-            $query->where('price', '<=', (float) $request->input('price_max'));
+            $query->where('base_price', '<=', (float) $request->input('price_max'));
         }
 
-        // 4. Sort
+        // 5. Sort (Sửa logic sort theo base_price)
         $sort = (string) $request->input('sort', 'newest');
         match ($sort) {
-            'price_asc' => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
+            'price_asc' => $query->orderBy('base_price', 'asc'),
+            'price_desc' => $query->orderBy('base_price', 'desc'),
             'featured' => $query->orderBy('is_bestseller', 'desc')->orderBy('id', 'desc'),
             default => $query->latest('id'),
         };
 
+        // 6. Pagination & Data Transformation
         $products = $query->paginate(12)->withQueryString();
 
-        $categories = Category::whereNull('parent_id')
-            ->where('slug', '!=', 'uncategorized')
-            ->with('children')
-            ->orderBy('name')
-            ->get();
+        // [QUAN TRỌNG] Map dữ liệu mới sang cấu trúc cũ để View không bị lỗi
+        $products->getCollection()->transform(function ($product) {
+            $defaultVariant = $product->variants->first();
+
+            // Tạo thuộc tính ảo 'price' và 'image' cho View dùng
+            $product->price = $defaultVariant ? $defaultVariant->price : $product->base_price;
+
+            $path = $defaultVariant ? $defaultVariant->image_path : null;
+            $product->image = $path ? \Illuminate\Support\Facades\Storage::url($path) : 'https://placehold.co/400x600';
+
+            return $product;
+        });
+
+        // 7. Data cho Sidebar (Giả lập Category để không bị lỗi View)
+        // Vì bảng categories cũ có thể bà chưa xóa, nhưng logic mới dùng Enum
+        // Tui hardcode tạm list này cho đúng với data Seeder lúc nãy
+        $categories = collect([
+            (object)['name' => 'Men', 'slug' => 'men', 'children' => []],
+            (object)['name' => 'Women', 'slug' => 'women', 'children' => []],
+            (object)['name' => 'Fragrance', 'slug' => 'fragrance', 'children' => []],
+        ]);
 
         $breadcrumbs = [
             ['label' => 'Home', 'url' => route('home')],
@@ -73,6 +85,7 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => 'Shop All'
         ]);
     }
 
