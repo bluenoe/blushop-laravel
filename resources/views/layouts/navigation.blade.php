@@ -177,57 +177,52 @@ $categories = \App\Models\Category::query()
             <div class="grid grid-cols-4 min-h-[400px]">
 
                 {{-- Column 1: MAIN NAVIGATION (Refactored) --}}
-                <div class="py-10 pr-8 border-r border-gray-50">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-8">Collections</h3>
+                {{-- Column 1: CLOTHING --}}
+                <div class="py-12 pl-4 pr-12">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Clothing</h3>
                     <ul class="space-y-6">
-                        {{-- WOMEN --}}
+                        <li class="group">
+                            <a href="{{ route('new-arrivals') }}" class="block">
+                                <span class="text-xl font-light group-hover:font-medium transition-all duration-300">New
+                                    Arrivals</span>
+                            </a>
+                        </li>
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'women']) }}" class="block">
                                 <span
-                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">Women</span>
-                                <span
-                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Elegance
-                                    & Modern</span>
+                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Women</span>
                             </a>
                         </li>
-                        {{-- MEN --}}
                         <li class="group">
                             <a href="{{ route('products.index', ['category' => 'men']) }}" class="block">
                                 <span
-                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">Men</span>
-                                <span
-                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Minimalist
-                                    Essentials</span>
-                            </a>
-                        </li>
-                        {{-- FRAGRANCE --}}
-                        <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block">
-                                <span
-                                    class="text-2xl font-light group-hover:font-medium transition-all duration-300">Fragrance</span>
-                                <span
-                                    class="block text-xs text-gray-400 mt-1 group-hover:text-black transition-colors">Signature
-                                    Scents</span>
+                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Men</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                {{-- Column 2: CURATED EDITS --}}
-                <div class="py-10 px-8">
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-8">Curated Edits</h3>
-                    <ul class="space-y-4">
-                        <li><a href="#"
-                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Campus
-                                Essentials</a></li>
-                        <li><a href="#"
-                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Desk
-                                Setup</a></li>
-                        <li><a href="#"
-                                class="text-sm text-gray-900 hover:translate-x-1 transition-transform inline-block">Minimalist
-                                Tech</a></li>
-                        <li class="pt-4 border-t border-gray-100 mt-4">
-                            <a href="#" class="text-sm text-red-600 font-medium hover:underline">Sale - Last Chance</a>
+                {{-- Column 2: ACCESSORIES --}}
+                <div class="py-12 px-8">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Accessories</h3>
+                    <ul class="space-y-6">
+                        <li class="group">
+                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block">
+                                <span
+                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Fragrance</span>
+                            </a>
+                        </li>
+                        <li class="group">
+                            <a href="{{ route('products.index', ['category' => 'accessories']) }}" class="block">
+                                <span
+                                    class="text-xl font-light group-hover:font-medium transition-all duration-300">Accessories</span>
+                            </a>
+                        </li>
+                        <li class="pt-4 mt-4">
+                            <a href="{{ route('on-sale') }}"
+                                class="text-sm text-red-600 font-medium hover:underline inline-block">
+                                Sale Archive
+                            </a>
                         </li>
                     </ul>
                 </div>
