@@ -81,108 +81,72 @@ class ProductController extends Controller
      */
     public function show(int $id)
     {
-        // 1. Lấy thông tin sản phẩm
-        // Eager load luôn relationship 'completeLookProducts' để tối ưu query
-        $product = Product::with(['category', 'images', 'completeLookProducts'])
+        // 1. Load sản phẩm kèm Variants và Category
+        $product = Product::with(['category', 'variants', 'completeLookProducts'])
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // 2. Xử lý Variants (Nước hoa)
-        $product->load(['variants' => function ($q) {
-            $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
-        }]);
-
-        // Logic ảnh Variant (Giữ nguyên logic của bà)
-        $variantsData = $product->variants->map(function ($variant) use ($product) {
-            $suffix = '-' . $variant->capacity_ml;
-            $extension = pathinfo($product->image, PATHINFO_EXTENSION);
-            $filename = pathinfo($product->image, PATHINFO_FILENAME);
-            $variantImageName = $filename . $suffix . '.' . $extension;
-
-            if ($variant->capacity_ml == 50 || $variant->capacity_ml == 30) {
-                $imageUrl = Storage::url('products/' . $product->image);
-            } else {
-                $imageUrl = Storage::url('products/' . $variantImageName);
-            }
-
+        // 2. Chuẩn bị dữ liệu Variants (JSON cho Frontend)
+        // Map data từ DB mới sang định dạng mà AlpineJS cần
+        $variantsData = $product->variants->map(function ($variant) {
             return [
                 'id' => $variant->id,
-                'capacity_ml' => $variant->capacity_ml,
-                'price' => $variant->price,
                 'sku' => $variant->sku,
-                'stock_quantity' => $variant->stock_quantity,
-                'image' => $imageUrl,
+                'price' => (float) $variant->price,
+                'stock' => $variant->stock,
+                // LOGIC MỚI: Lấy ảnh cứng từ DB, không đoán tên nữa
+                'image' => $variant->image_path ? Storage::url($variant->image_path) : null,
+                // Phân loại attributes
+                'color' => $variant->color_name,     // Cho quần áo
+                'hex'   => $variant->color_hex,      // Cho quần áo (hiển thị chấm tròn)
+                'capacity' => $variant->capacity_ml, // Cho nước hoa
+                'size' => $variant->size             // Cho quần áo
             ];
         });
 
-        // 3. Logic ảnh mặc định (Giữ nguyên logic của bà)
-        $defaultImage = null;
-        $defaultColor = null;
+        // 3. Logic lấy danh sách Màu (Unique Colors) để hiển thị nút chọn màu
+        // Chỉ lấy những màu nào có trong variants
+        $availableColors = $product->variants
+            ->whereNotNull('color_name')
+            ->unique('color_name')
+            ->map(function ($v) {
+                return [
+                    'name' => $v->color_name,
+                    'hex' => $v->color_hex,
+                    'image' => $v->image_path ? Storage::url($v->image_path) : null
+                ];
+            })->values();
 
-        if ($product->variants->isNotEmpty()) {
-            $defaultImage = Storage::url('products/' . $product->image);
-        } else {
-            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
-            if ($defImgObj) {
-                $path = Str::startsWith($defImgObj->image_path, 'products/') ? $defImgObj->image_path : 'products/' . $defImgObj->image_path;
-                $defaultImage = Storage::url($path);
-                $defaultColor = $defImgObj->color;
-            } else {
-                $defaultImage = $product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800';
-            }
-        }
+        // 4. Xác định loại sản phẩm (Nước hoa hay Quần áo)
+        // Nếu có capacity_ml -> Là nước hoa
+        $isFragrance = $product->variants->whereNotNull('capacity_ml')->isNotEmpty();
 
-        // 4. Logic Color mapping (Giữ nguyên)
-        $variantImages = $product->images
-            ->whereNotNull('color')
-            ->mapWithKeys(function ($item) {
-                $path = Str::startsWith($item->image_path, 'products/') ? $item->image_path : 'products/' . $item->image_path;
-                return [$item->color => Storage::url($path)];
-            });
-        $availableColors = $variantImages->keys()->toArray();
+        // 5. Ảnh mặc định ban đầu
+        $defaultVariant = $product->variants->first();
+        $defaultImage = $defaultVariant && $defaultVariant->image_path
+            ? Storage::url($defaultVariant->image_path)
+            : ($product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800');
 
-        // =========================================================
-        // FIX 1: COMPLETE THE LOOK (Ưu tiên DB Relation -> Fallback Random)
-        // =========================================================
-
-        // Lấy từ bảng trung gian (complete_look_product) mà đã định nghĩa trong Model
+        // 6. Complete Look & Curated (Giữ nguyên logic cũ của bà)
         $completeLook = $product->completeLookProducts;
-
-        //  Logic Fallback 
         if ($completeLook->isEmpty()) {
             $completeLook = Product::where('category_id', $product->category_id)
-                ->where('id', '!=', $id) // Trừ sản phẩm đang xem
-                ->inRandomOrder()
-                ->take(4)
-                ->get();
+                ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
-
-        // =========================================================
-        // FIX 2: CURATED FOR YOU (Logic Random - Recommendation)
-        // =========================================================
-
-        $curated = Product::where('id', '!=', $id)
-            ->inRandomOrder()
-            ->take(5)
-            ->get();
-
+        $curated = Product::where('id', '!=', $id)->inRandomOrder()->take(5)->get();
         $reviews = $product->reviews()->with('user')->latest()->paginate(5);
-        $wishedIds = auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->toArray() : [];
-        $defaultVariant = $product->variants->first();
 
-        // Truyền biến $curated vào view
         return view('products.show', [
             'product' => $product,
             'reviews' => $reviews,
             'completeLook' => $completeLook,
             'curated' => $curated,
-            'wishedIds' => $wishedIds,
-            'variantImages' => $variantImages,
-            'availableColors' => $availableColors,
-            'defaultVariant' => $defaultVariant,
+            // Các biến mới quan trọng
             'variantsJson' => $variantsData->toJson(),
+            'availableColors' => $availableColors, // List màu để render nút
+            'isFragrance' => $isFragrance,
             'defaultImage' => $defaultImage,
-            'defaultColor' => $defaultColor,
+            'defaultVariant' => $defaultVariant,
         ]);
     }
 
