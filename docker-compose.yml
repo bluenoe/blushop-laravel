@@ -1,46 +1,25 @@
 version: "3.8"
 
 services:
-  # 1. Database MySQL (Đã nâng cấp)
-  mysql: # Đổi tên service thành 'mysql' cho chuẩn convention Laravel
+  mysql:
     image: mysql:8.0
     container_name: blushop_mysql
-    restart: "no" # Dev thì không cần restart always, nặng máy
+    restart: "no" # Dev bật tắt thủ công cho nhẹ máy
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root # Pass cho quyền tối cao
-      MYSQL_DATABASE: blushop_db # Tên DB
-      MYSQL_USER: blushop # User riêng cho App dùng
-      MYSQL_PASSWORD: password # Pass riêng cho App dùng
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blushop_db
+      MYSQL_USER: blushop
+      MYSQL_PASSWORD: password
     volumes:
       - db_data:/var/lib/mysql
-    # Quan trọng: Kiểm tra xem MySQL sống chưa rồi mới cho phép kết nối
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
-      retries: 3
+      # Sửa lại lệnh ping cho ổn định, dùng user root check cho lẹ
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
       timeout: 5s
-
-  # 2. Redis (Nên có - Cache chạy xé gió)
-  redis:
-    image: redis:alpine
-    container_name: blushop_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
       retries: 3
-      timeout: 5s
-
-  # 3. Mailpit - SMTP Dev (Thêm dịch vụ Mailpit để test mail qua SMTP)
-  mailpit:
-    image: "axllent/mailpit:latest"
-    ports:
-      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
-      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
 
 volumes:
   db_data:
-  redis_data:
