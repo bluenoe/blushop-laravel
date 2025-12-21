@@ -37,10 +37,13 @@ class Product extends Model
         'specifications' => 'array',
     ];
 
+    // Trong Product.php
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->image ? Storage::url($this->image) : null,
+            get: fn() => $this->image
+                ? Storage::url($this->image)
+                : 'https://placehold.co/400x600?text=No+Image',
         );
     }
 
