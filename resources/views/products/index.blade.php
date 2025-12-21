@@ -175,8 +175,8 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             @endif
                         </div>
                         <div class="text-right">
-                            <span class="text-sm font-medium text-neutral-900">₫{{ number_format($product->price)
-                                }}</span>
+                            <span class="text-sm font-medium text-neutral-900">₫{{ number_format($product->price ??
+                                $product->variants->first()?->price ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

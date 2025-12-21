@@ -53,34 +53,37 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            // 1. LOGIC TÌM ẢNH MẶC ĐỊNH (FIXED)
-            // Ưu tiên tìm trong thư viện ảnh (Quần áo)
-            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
+            // 1. LOGIC TÌM ẢNH MẶC ĐỊNH (FIXED by Antigravity)
+            // Priority: Default Variant Image -> Product Main Image -> Placeholder
 
-            if ($defImgObj) {
-            // Nếu là quần áo (có ảnh trong bảng product_images)
-            $path = Str::startsWith($defImgObj->image_path, 'products/')
-            ? $defImgObj->image_path
-            : 'products/' . $defImgObj->image_path;
-            $defaultImage = Storage::url($path);
-            $defaultColor = $defImgObj->color;
+            // $defaultVariant is already passed from controller, but let's ensure we have it
+            $defVariant = $product->variants->first();
+            $defaultImage = null;
+
+            if ($defVariant && $defVariant->image_path) {
+            // Calculate URL safely
+            $defaultImage = Storage::url($defVariant->image_path);
+            $defaultColor = $defVariant->color_name;
             } elseif ($product->image) {
-            // [QUAN TRỌNG] Nếu là Nước hoa (chỉ có ảnh ở bảng products), lấy ảnh này!
-            $defaultImage = Storage::url('products/' . $product->image);
+            // Fallback to Product Image
+            // Check if it already has path or needs prefix
+            $path = Str::startsWith($product->image, 'products/') ? $product->image : 'products/' . $product->image;
+            $defaultImage = Storage::url($path);
             $defaultColor = null;
             } else {
-            // Fallback
             $defaultImage = 'https://placehold.co/600x800?text=No+Image';
             $defaultColor = null;
             }
 
-            // 2. Logic Variants (Fragrance)
-            $firstVariant = $product->variants->first();
-            $isFragrance = $product->variants->isNotEmpty() && !empty($firstVariant->capacity_ml);
+            // 2. Logic Variants (Fragrance/General)
+            $isFragrance = $product->variants->isNotEmpty() && !empty($defVariant->capacity_ml);
 
-            // Giá & SKU khởi điểm (Ưu tiên variant nhỏ nhất nếu là nước hoa)
-            $currentPrice = $isFragrance && isset($defaultVariant) ? $defaultVariant->price : $product->price;
-            $currentSku = $isFragrance && isset($defaultVariant) ? $defaultVariant->sku : null;
+            // 3. PRICE LOGIC (Fix Missing Prices)
+            // Priority: Product Price -> First Variant Price -> 0
+            $currentPrice = $product->price ?? ($defVariant ? $defVariant->price : 0);
+
+            // SKU
+            $currentSku = $defVariant ? $defVariant->sku : null;
             @endphp
 
             {{--
@@ -94,7 +97,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     isFragrance: @json($isFragrance),
                     variants: @json($product -> variants),
                     defaultImage: @json($defaultImage),
-                    defaultPrice: @json($product -> price),
+                    defaultPrice: @json($currentPrice),
                     defaultColor: @json($defaultColor),
                     defaultSize: @json($product -> default_size ?? null),
                     defaultCapacity: @json($product -> default_capacity ?? null),
@@ -219,7 +222,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             <span class="text-xl font-medium text-neutral-900 price-transition"
                                 x-text="'₫' + new Intl.NumberFormat('vi-VN').format(price)">
                                 {{-- Server Render Fallback --}}
-                                ₫{{ number_format((float)$product->price, 0, ',', '.') }}
+                                ₫{{ number_format((float)$currentPrice, 0, ',', '.') }}
                             </span>
 
                             @if($product->is_on_sale)
