@@ -129,4 +129,23 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
+
+    // 5. Delete Product with Image Cleanup
+    public function destroy(Product $product)
+    {
+        // 1. Delete associated image folder from storage
+        if ($product->slug) {
+            $folderPath = 'products/' . $product->slug;
+            if (Storage::disk('public')->exists($folderPath)) {
+                // Delete entire product folder (includes all images)
+                Storage::disk('public')->deleteDirectory($folderPath);
+            }
+        }
+
+        // 2. Delete the product record (soft delete if using SoftDeletes)
+        $product->delete();
+
+        // 3. Return with success message
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+    }
 }
