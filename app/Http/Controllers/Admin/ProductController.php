@@ -69,54 +69,63 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    // 4. Xử lý Cập nhật
+    // 4. Xử lý Cập nhật - Using Explicit Assignment (Fail-Safe)
     public function update(Request $request, Product $product)
     {
-        // 1. Validation - using correct field names
+        // 1. Validation
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku'  => 'required|string|unique:products,sku,' . $product->id,
-            'category' => 'required|string|in:men,women,fragrance', // Enum values
-            'base_price' => 'required|numeric|min:0', // Form input name matches DB column
+            'category' => 'required|string|in:men,women,fragrance',
+            'base_price' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
         ]);
 
-        // 2. Data Preparation
-        $data = $request->except(['image', '_token', '_method']);
-        
-        // Ensure base_price is set from validated input
-        $data['base_price'] = $validated['base_price'];
+        // 2. Explicit Property Assignment (Prevents Silent Failures)
+        $product->name = $validated['name'];
+        $product->sku = $validated['sku'];
+        $product->category = $validated['category'];
+        $product->base_price = $validated['base_price'];
+        $product->stock = $validated['stock'] ?? 0;
+        $product->description = $validated['description'] ?? null;
 
-        // 3. Handle slug update if name changed
-        if ($request->name !== $product->name) {
-            $data['slug'] = Str::slug($validated['name']) . '-' . Str::random(4);
+        // 3. Handle Slug - Update if name changed
+        if ($request->name !== $product->getOriginal('name')) {
+            $product->slug = Str::slug($validated['name']) . '-' . Str::random(4);
         }
 
-        // 4. Image Handling (Smart Path: storage/products/{slug}/{filename})
+        // 4. Handle Boolean Toggles (Checkboxes)
+        // HTML forms don't send unchecked checkboxes, so use has() instead of input()
+        $product->is_active = $request->has('is_active');
+        $product->is_new = $request->has('is_new');
+        $product->is_bestseller = $request->has('is_bestseller');
+        $product->is_on_sale = $request->has('is_on_sale');
+
+        // 5. Image Handling (Smart Path: storage/products/{slug}/{filename})
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
             
-            // Use the current or new slug for the folder path
-            $slug = $data['slug'] ?? $product->slug;
+            // Use the current or updated slug for the folder path
+            $targetSlug = $product->slug;
             
             // Delete old image if exists
-            if ($product->image && $product->slug) {
-                $oldPath = 'products/' . $product->slug . '/' . $product->image;
+            if ($product->getOriginal('image') && $product->getOriginal('slug')) {
+                $oldPath = 'products/' . $product->getOriginal('slug') . '/' . $product->getOriginal('image');
                 if (Storage::disk('public')->exists($oldPath)) {
                     Storage::disk('public')->delete($oldPath);
                 }
             }
             
             // Store new image in slug-based folder
-            $file->storeAs('products/' . $slug, $filename, 'public');
-            $data['image'] = $filename;
+            $file->storeAs('products/' . $targetSlug, $filename, 'public');
+            $product->image = $filename;
         }
 
-        // 5. Update Product
-        $product->update($data);
+        // 6. SAVE - Explicit save() instead of update() for clarity
+        $product->save();
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
