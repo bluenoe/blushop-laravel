@@ -85,77 +85,102 @@ class ProductController extends Controller
     public function show(int $id)
     {
         // 1. Load sản phẩm
-        $product = Product::with(['variants', 'completeLookProducts'])
+        $product = Product::with(['category', 'variants', 'completeLookProducts'])
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // 2. Chuẩn bị JSON cho AlpineJS (Frontend)
-        $variantsData = $product->variants->map(function ($variant) {
+        // 2. Chuẩn bị JSON variants (FIX đường dẫn ảnh)
+        $variantsData = $product->variants->map(function ($variant) use ($product) {
+            // Logic tạo đường dẫn ảnh: products/{slug}/{tên_ảnh}
+            $imagePath = null;
+
+            // Nếu DB đã lưu full path (products/slug/abc.jpg) thì dùng luôn
+            if ($variant->image_path) {
+                $imagePath = $variant->image_path;
+            }
+            // Nếu variant chưa có ảnh riêng, thử tạo path dựa trên màu (nếu bà đặt tên file chuẩn)
+            elseif ($variant->color_name) {
+                $slug = $product->slug;
+                $color = Str::slug($variant->color_name); // Red -> red
+                // Giả định ảnh là: products/men-ao-thun/red.jpg
+                $imagePath = "products/{$slug}/{$color}.jpg";
+            }
+
             return [
                 'id' => $variant->id,
                 'sku' => $variant->sku,
                 'price' => (float) $variant->price,
-
-                // [FIX 1] DB tên là stock_quantity, không phải stock
-                'stock' => $variant->stock_quantity,
-
-                // Logic ảnh: Lấy từ DB, Accessor hoặc Storage
-                'image' => $variant->image_path ? Storage::url($variant->image_path) : null,
-
+                'stock' => $variant->stock_quantity, // Fix tên cột stock_quantity
+                'image' => $imagePath ? Storage::url($imagePath) : null,
                 'color' => $variant->color_name,
-
-                // [FIX 2] DB tên là hex_code, không phải color_hex
-                'hex'   => $variant->hex_code,
-
+                'hex'   => $variant->hex_code,       // Fix tên cột hex_code
                 'capacity' => $variant->capacity_ml,
                 'size' => $variant->size
             ];
         });
 
-        // 3. Logic lấy danh sách nút Màu hiển thị
+        // 3. Logic lấy danh sách màu (FIX đường dẫn ảnh cho nút màu)
         $availableColors = $product->variants
             ->whereNotNull('color_name')
             ->unique('color_name')
-            ->map(function ($v) {
+            ->map(function ($v) use ($product) {
+                // Tương tự logic trên
+                $imagePath = $v->image_path
+                    ?? "products/{$product->slug}/" . Str::slug($v->color_name) . ".jpg";
+
                 return [
                     'name' => $v->color_name,
-                    'hex' => $v->hex_code, // [FIX 2] Sửa lại tên cột
-                    'image' => $v->image_path ? Storage::url($v->image_path) : null
+                    'hex' => $v->hex_code,
+                    'image' => Storage::url($imagePath)
                 ];
             })->values();
 
-        // 4. Xác định loại sản phẩm (Nước hoa hay Quần áo)
-        // Check kỹ: Có variant VÀ variant đó có dung tích thì mới là nước hoa
-        $firstVariant = $product->variants->first();
-        $isFragrance = $product->variants->isNotEmpty() && !empty($firstVariant->capacity_ml);
+        // 4. Phân loại sản phẩm
+        $isFragrance = $product->type === 'fragrance';
 
-        // 5. Ảnh mặc định
+        // 5. Ảnh mặc định ban đầu (FIX đường dẫn)
         $defaultVariant = $product->variants->first();
-        $defaultImage = $defaultVariant && $defaultVariant->image_path
-            ? Storage::url($defaultVariant->image_path)
-            : ($product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800');
+        $defaultImage = null;
 
-        // 6. Complete Look & Curated
+        if ($defaultVariant && $defaultVariant->image_path) {
+            $defaultImage = Storage::url($defaultVariant->image_path);
+        } elseif ($product->image) {
+            // Ảnh gốc của sản phẩm: Thêm Slug vào đường dẫn
+            // Từ: products/abc.jpg -> Thành: products/{slug}/abc.jpg
+            $path = "products/{$product->slug}/{$product->image}";
+            $defaultImage = Storage::url($path);
+        } else {
+            $defaultImage = 'https://placehold.co/600x800?text=No+Image';
+        }
+
+        // ... (Giữ nguyên phần Complete Look & Curated cũ của bà) ...
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
-            // [FIX 3] Dùng cột 'category' enum thay vì 'category_id'
             $completeLook = Product::where('category', $product->category)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
+
+        // Fix ảnh cho Complete Look (Thêm slug)
+        $completeLook->transform(function ($item) {
+            if ($item->image && !Str::contains($item->image, '/')) {
+                $item->image = "products/{$item->slug}/{$item->image}";
+            }
+            return $item;
+        });
 
         $curated = Product::where('id', '!=', $id)->inRandomOrder()->take(5)->get();
         $reviews = $product->reviews()->with('user')->latest()->paginate(5);
 
         return view('products.show', [
             'product' => $product,
-            'reviews' => $reviews,
-            'completeLook' => $completeLook,
-            'curated' => $curated,
             'variantsJson' => $variantsData->toJson(),
             'availableColors' => $availableColors,
             'isFragrance' => $isFragrance,
             'defaultImage' => $defaultImage,
             'defaultVariant' => $defaultVariant,
+            'reviews' => $reviews,
+            'completeLook' => $completeLook,
+            'curated' => $curated
         ]);
     }
 
