@@ -258,8 +258,22 @@
                     <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar mb-6">
                         @foreach($cart as $item)
                         <div class="flex gap-4 group">
+                            @php
+                            // Build correct image path with slug
+                            $slug = $item['slug'] ?? '';
+                            $imgName = $item['image'] ?? null;
+                            $checkoutImgSrc = 'https://placehold.co/64x80?text=No+Image';
+
+                            if ($imgName && $slug) {
+                            if (Str::startsWith($imgName, ['http://', 'https://'])) {
+                            $checkoutImgSrc = $imgName;
+                            } else {
+                            $checkoutImgSrc = asset('storage/products/' . $slug . '/' . basename($imgName));
+                            }
+                            }
+                            @endphp
                             <div class="w-16 h-20 bg-neutral-200 flex-shrink-0 relative overflow-hidden">
-                                <img src="{{ Storage::url('products/' . $item['image']) }}" alt="{{ $item['name'] }}"
+                                <img src="{{ $checkoutImgSrc }}" alt="{{ $item['name'] }}"
                                     class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
                                 <span
                                     class="absolute top-0 right-0 bg-black text-white text-[9px] w-5 h-5 flex items-center justify-center font-bold">{{
