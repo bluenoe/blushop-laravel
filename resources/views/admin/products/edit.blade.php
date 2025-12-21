@@ -28,9 +28,21 @@
 
             {{-- LEFT COLUMN: MEDIA (IMAGE UPLOAD) --}}
             <div class="lg:col-span-4 space-y-6">
-                {{-- Logic Alpine: Nếu có ảnh cũ thì load URL, nếu upload mới thì load Base64 --}}
-                <div x-data="{ imagePreview: '{{ $product->image ? Storage::url('products/'.$product->image) : '' }}' }"
-                    class="relative group">
+                {{-- Logic Alpine: Build correct URL using slug --}}
+                @php
+                $editImgSlug = $product->slug ?? '';
+                $editImgRaw = $product->image ?? null;
+                $editImgPreview = '';
+
+                if ($editImgSlug && $editImgRaw) {
+                if (Str::startsWith($editImgRaw, ['http://', 'https://'])) {
+                $editImgPreview = $editImgRaw;
+                } else {
+                $editImgPreview = asset('storage/products/' . $editImgSlug . '/' . basename($editImgRaw));
+                }
+                }
+                @endphp
+                <div x-data="{ imagePreview: '{{ $editImgPreview }}' }" class="relative group">
                     <label
                         class="block w-full aspect-[3/4] bg-neutral-50 border border-neutral-200 cursor-pointer overflow-hidden relative transition hover:border-black hover:bg-neutral-100">
                         {{-- Hidden Input --}}
@@ -111,11 +123,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
                     {{-- Price --}}
                     <div class="relative z-0 w-full group">
-                        <input type="number" name="price" id="price" required
-                            value="{{ old('price', $product->price) }}"
+                        <input type="number" name="base_price" id="base_price" required
+                            value="{{ old('base_price', $product->base_price) }}"
                             class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
                             placeholder=" " />
-                        <label for="price"
+                        <label for="base_price"
                             class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
                             Price (VND)
                         </label>

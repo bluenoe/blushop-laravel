@@ -54,9 +54,23 @@
                         <td class="py-4 pl-2">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-16 bg-neutral-100 overflow-hidden relative">
-                                    {{-- Ảnh thật hoặc Placeholder --}}
-                                    <img src="{{ $product->image ? Storage::url('products/'.$product->image) : 'https://via.placeholder.com/150' }}"
-                                        class="w-full h-full object-cover mix-blend-multiply filter grayscale group-hover:grayscale-0 transition duration-500">
+                                    {{-- Smart Image Path with Slug --}}
+                                    @php
+                                    $prodSlug = $product->slug ?? '';
+                                    $prodImg = $product->image ?? null;
+                                    $prodImgSrc = 'https://placehold.co/150x200?text=No+Image';
+
+                                    if ($prodSlug && $prodImg) {
+                                    if (Str::startsWith($prodImg, ['http://', 'https://'])) {
+                                    $prodImgSrc = $prodImg;
+                                    } else {
+                                    $prodImgSrc = asset('storage/products/' . $prodSlug . '/' . basename($prodImg));
+                                    }
+                                    }
+                                    @endphp
+                                    <img src="{{ $prodImgSrc }}"
+                                        class="w-full h-full object-cover mix-blend-multiply filter grayscale group-hover:grayscale-0 transition duration-500"
+                                        onerror="this.src='https://placehold.co/150x200?text=No+Image'">
                                 </div>
                                 <div>
                                     <div class="font-bold text-neutral-900 leading-tight mb-1">{{ $product->name }}
@@ -69,7 +83,7 @@
 
                         {{-- Category --}}
                         <td class="py-4 text-neutral-600">
-                            {{ $product->category->name ?? 'Uncategorized' }}
+                            {{ ucfirst($product->category ?? 'Uncategorized') }}
                         </td>
 
                         {{-- Status Badge (Minimal Pill) --}}
@@ -85,7 +99,7 @@
 
                         {{-- Price (Monospace) --}}
                         <td class="py-4 text-right font-mono text-neutral-900">
-                            ₫{{ number_format($product->price, 0, ',', '.') }}
+                            {{ number_format($product->base_price ?? 0, 0, ',', '.') }}₫
                         </td>
 
                         {{-- Actions --}}
