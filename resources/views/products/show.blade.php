@@ -27,6 +27,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             transition: all 0.3s ease;
         }
     </style>
+
     @endpush
 
     <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
@@ -89,17 +90,16 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             --}}
             {{-- 1. CHUẨN BỊ DỮ LIỆU Ở VÙNG AN TOÀN (SCRIPT TAG) --}}
             <script>
-                // Gán dữ liệu vào biến toàn cục, tránh xung đột HTML
                 window.productConfig = {
-                    isFragrance: {{ $isFragrance ? 'true' : 'false' }},
-                variants: { !!$variantsJson!! }, // Dùng !! ở đây an toàn tuyệt đối
-                defaultPrice: { { $defaultVariant ? $defaultVariant -> price : $product -> base_price } },
-                defaultImage: '{{ $defaultImage }}',
-                    defaultColor: '{{ $defaultVariant ? $defaultVariant->color_name : null }}',
-                        defaultSize: '{{ $defaultVariant ? $defaultVariant->size : null }}',
-                            defaultCapacity: { { $defaultVariant ? ($defaultVariant -> capacity_ml ?? 'null') : 'null' } },
-                defaultVariantId: { { $defaultVariant ? $defaultVariant -> id : 'null' } }
-    };
+                    isFragrance: @json($isFragrance),
+                    variants: @json($product -> variants),
+                    defaultImage: @json($defaultImage),
+                    defaultPrice: @json($product -> price),
+                    defaultColor: @json($defaultColor),
+                    defaultSize: @json($product -> default_size ?? null),
+                    defaultCapacity: @json($product -> default_capacity ?? null),
+                    defaultVariantId: @json($product -> default_variant_id ?? null)
+                };
             </script>
 
             {{-- 2. KHỞI TẠO ALPINE VỚI DỮ LIỆU SẠCH --}}
@@ -122,6 +122,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedSize: window.productConfig.defaultSize,
     selectedCapacity: window.productConfig.defaultCapacity,
     selectedVariantId: window.productConfig.defaultVariantId,
+    sku: null,
 
     // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
@@ -229,11 +230,11 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                        if(!size) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
+                        if(isFragrance ? !selectedVariantId : !selectedSize) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
                         loading = true;
                         
                         // Chuẩn bị payload
-                        let payload = { quantity: qty, size: size, color: color };
+                        let payload = { quantity: qty, size: selectedSize, color: selectedColor };
                         if(selectedVariantId) payload.variant_id = selectedVariantId; // Gửi kèm ID variant nếu có
 
                         fetch($el.action, {
@@ -261,7 +262,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 <div class="flex justify-between mb-2">
                                     <span
                                         class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
-                                    <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                                    <span class="text-xs text-neutral-900"
+                                        x-text="selectedColor ? selectedColor : 'Select'"></span>
                                 </div>
 
                                 @if(count($availableColors) > 0)
@@ -295,9 +297,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 </div>
                                 <div class="grid grid-cols-4 gap-2">
                                     <template x-for="s in ['S','M','L','XL']" :key="s">
-                                        <button type="button" @click="size = s"
+                                        <button type="button" @click="selectSize(s)"
                                             class="py-3 border text-sm font-medium transition-all duration-200"
-                                            :class="size === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                            :class="selectedSize === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
                                             <span x-text="s"></span>
                                         </button>
                                     </template>
