@@ -127,6 +127,32 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedVariantId: window.productConfig.defaultVariantId,
     sku: null,
 
+    // VINTAGE PALETTE (MINIMALIST & VINTAGE AESTHETIC)
+    vintageColorPalette: {
+        'Red': '#A94044',       // Muted Clay/Brick
+        'Blue': '#2C3E50',      // Deep Slate/Navy
+        'Green': '#556B2F',     // Olive/Sage
+        'Yellow': '#E3C800',    // Mustard/Ochre
+        'Black': '#1A1A1A',     // Off-Black
+        'White': '#F5F5F5',     // Off-White/Cream
+        'Brown': '#8D6E63',     // Warm Taupe
+        'Pink': '#D8B4B4',      // Dusty Rose
+        'Beige': '#F5F5DC',     // Beige
+        'Navy': '#202A44',      // Classic Navy
+        'Grey': '#808080',      // Neutral Grey
+        'Gray': '#808080'       // Neutral Gray
+    },
+
+    // CUSTOM HELPER: GET COLOR STYLE
+    getColorStyle(name, dbHex) {
+        // 1. Nếu DB có Hex xịn -> Dùng luôn
+        if (dbHex && dbHex !== 'null') return dbHex;
+        
+        // 2. Map theo tên (Vintage Palette) - Case Insensitive for safety
+        // Capitalize first letter logic handled by simple lookup since keys are capitalized
+        return this.vintageColorPalette[name] || this.vintageColorPalette[Object.keys(this.vintageColorPalette).find(k => k.toLowerCase() === name.toLowerCase())] || '#CCCCCC';
+    },
+
     // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
         console.log('Alpine Loaded. Variants:', this.variants);
@@ -279,9 +305,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                         :class="selectedColor === '{{ $c['name'] }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'"
                                         title="{{ $c['name'] }}">
 
-                                        {{-- Hiển thị chấm màu: Dùng luôn mã HEX từ Database (xịn hơn) --}}
+                                        {{-- Hiển thị chấm màu: Dùng getColorStyle thay vì Hex trực tiếp --}}
                                         <div class="w-full h-full rounded-full border border-neutral-200"
-                                            style="background-color: {{ $c['hex'] ?? '#CCCCCC' }};">
+                                            :style="`background-color: ${getColorStyle('{{ $c['name'] }}', '{{ $c['hex'] }}')}`">
                                         </div>
                                     </button>
                                     @endforeach
