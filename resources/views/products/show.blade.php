@@ -520,8 +520,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 @foreach($completeLook as $lookItem)
                 @php
                 $lookImgUrl = $lookItem->image
-                ? (Str::startsWith($lookItem->image, 'products/') ? Storage::url($lookItem->image) :
-                Storage::url('products/' . $lookItem->image))
+                ? (Str::startsWith($lookItem->image, 'http')
+                ? $lookItem->image
+                : asset('storage/products/' . $lookItem->slug . '/' . basename($lookItem->image)))
                 : 'https://placehold.co/600x800?text=No+Image';
                 @endphp
                 <div class="group relative overflow-hidden">
@@ -856,8 +857,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     @foreach($curated->take(5) as $index => $related)
                     @php
                     $imgUrl = $related->image
-                    ? (Str::startsWith($related->image, 'products/') ? Storage::url($related->image) :
-                    Storage::url('products/' . $related->image))
+                    ? (Str::startsWith($related->image, 'http')
+                    ? $related->image
+                    : asset('storage/products/' . $related->slug . '/' . basename($related->image)))
                     : 'https://placehold.co/600x800?text=No+Image';
                     // LOGIC: Item đầu tiên (index 0) chiếm 2 cột 2 dòng
                     $classes = ($index === 0)
