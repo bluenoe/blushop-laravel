@@ -139,8 +139,8 @@
                 </div>
 
                 {{-- 2. PRICING & STOCK --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-                    {{-- Price --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                    {{-- Selling Price (Base Price) --}}
                     <div class="relative z-0 w-full group">
                         <input type="number" name="base_price" id="base_price" required
                             value="{{ old('base_price', $product->base_price) }}" step="10000" min="0"
@@ -148,8 +148,23 @@
                             placeholder=" " />
                         <label for="base_price"
                             class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
-                            Price (VND)
+                            Selling Price (VND)
                         </label>
+                        <p class="mt-2 text-[10px] text-neutral-400">Giá bán thực tế cho khách hàng</p>
+                    </div>
+
+                    {{-- Original Price (List Price - for strikethrough) --}}
+                    <div class="relative z-0 w-full group">
+                        <input type="number" name="original_price" id="original_price"
+                            value="{{ old('original_price', $product->original_price) }}" step="10000" min="0"
+                            class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
+                            placeholder=" " />
+                        <label for="original_price"
+                            class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
+                            Original Price (VND)
+                        </label>
+                        <p class="mt-2 text-[10px] text-neutral-400">Giá gốc - Hiển thị gạch ngang nếu cao hơn Selling
+                            Price</p>
                     </div>
 
                     {{-- Stock --}}
@@ -161,6 +176,22 @@
                             class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
                             Stock Qty
                         </label>
+                    </div>
+
+                    {{-- On Sale Toggle --}}
+                    <div class="flex items-center gap-4 pt-2">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_on_sale" value="1" {{ old('is_on_sale',
+                                $product->is_on_sale) ? 'checked' : '' }}
+                            class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                            </div>
+                        </label>
+                        <div>
+                            <span class="text-sm font-medium text-neutral-900">On Sale</span>
+                            <p class="text-[10px] text-neutral-400">Hiển thị badge "Sale" và giá gạch ngang</p>
+                        </div>
                     </div>
                 </div>
 
