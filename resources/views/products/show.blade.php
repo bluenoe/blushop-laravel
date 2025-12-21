@@ -519,27 +519,21 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
                 @foreach($completeLook as $lookItem)
                 @php
-                // 1. Safe Image Resolution
+                // 1. Default to Placeholder first
                 $imgSrc = 'https://placehold.co/600x800?text=No+Image';
 
-                if (!empty($lookItem->slug) && !empty($lookItem->image)) {
-                $filename = basename($lookItem->image);
-                // Check if it's already a full URL (http...) or needs building
-                if (Str::startsWith($lookItem->image, 'http')) {
+                // 2. Only attempt to build path if image is NOT empty
+                if (!empty($lookItem->image)) {
+                // Check if it's already an absolute URL
+                if (Str::startsWith($lookItem->image, ['http://', 'https://'])) {
                 $imgSrc = $lookItem->image;
                 } else {
-                $imgSrc = asset('storage/products/' . $lookItem->slug . '/' . $filename);
+                // Build the path: storage/products/{slug}/{filename}
+                $imgSrc = asset('storage/products/' . $lookItem->slug . '/' . basename($lookItem->image));
                 }
                 }
                 @endphp
                 <div class="group relative overflow-hidden">
-                    <div
-                        style="background: #ffebeb; border: 2px solid red; color: red; padding: 5px; font-size: 10px; font-family: monospace; z-index: 50; position: relative;">
-                        <strong>DEBUG INFO:</strong><br>
-                        ID: {{ $lookItem->id ?? 'ERR' }} <br>
-                        Slug: "{{ $lookItem->slug ?? 'NULL' }}" <br>
-                        Image Raw: "{{ $lookItem->image ?? 'NULL' }}"
-                    </div>
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
                         <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -870,16 +864,17 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
                     @foreach($curated->take(5) as $index => $curatedItem)
                     @php
-                    // 1. Safe Image Resolution
+                    // 1. Default to Placeholder first
                     $imgSrc = 'https://placehold.co/600x800?text=No+Image';
 
-                    if (!empty($curatedItem->slug) && !empty($curatedItem->image)) {
-                    $filename = basename($curatedItem->image);
-                    // Check if it's already a full URL (http...) or needs building
-                    if (Str::startsWith($curatedItem->image, 'http')) {
+                    // 2. Only attempt to build path if image is NOT empty
+                    if (!empty($curatedItem->image)) {
+                    // Check if it's already an absolute URL
+                    if (Str::startsWith($curatedItem->image, ['http://', 'https://'])) {
                     $imgSrc = $curatedItem->image;
                     } else {
-                    $imgSrc = asset('storage/products/' . $curatedItem->slug . '/' . $filename);
+                    // Build the path: storage/products/{slug}/{filename}
+                    $imgSrc = asset('storage/products/' . $curatedItem->slug . '/' . basename($curatedItem->image));
                     }
                     }
 
@@ -890,13 +885,6 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     @endphp
 
                     <div class="{{ $classes }} overflow-hidden bg-neutral-100">
-                        <div
-                            style="background: #ffebeb; border: 2px solid red; color: red; padding: 5px; font-size: 10px; font-family: monospace; z-index: 50; position: relative;">
-                            <strong>DEBUG INFO:</strong><br>
-                            ID: {{ $curatedItem->id ?? 'ERR' }} <br>
-                            Slug: "{{ $curatedItem->slug ?? 'NULL' }}" <br>
-                            Image Raw: "{{ $curatedItem->image ?? 'NULL' }}"
-                        </div>
                         {{-- Ảnh --}}
                         <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105"
