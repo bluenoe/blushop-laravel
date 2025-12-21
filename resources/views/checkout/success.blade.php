@@ -87,13 +87,23 @@ Concept: High Contrast, Monospace Data, Editorial Typography
                         @foreach($order->orderItems->take(3) as $item)
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-16 bg-white border border-neutral-100 overflow-hidden flex-shrink-0">
-                                @if($item->product && $item->product->image)
-                                <img src="{{ Storage::url('products/' . $item->product->image) }}"
+                                @php
+                                // Build correct image path with slug
+                                $productRef = $item->product;
+                                $slug = $productRef->slug ?? '';
+                                $imgRaw = $productRef->image ?? null;
+                                $successImgSrc = 'https://placehold.co/48x64?text=No+Image';
+
+                                if ($slug && $imgRaw) {
+                                if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                                $successImgSrc = $imgRaw;
+                                } else {
+                                $successImgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                                }
+                                }
+                                @endphp
+                                <img src="{{ $successImgSrc }}" alt="{{ $productRef->name ?? 'Product' }}"
                                     class="w-full h-full object-cover">
-                                @else
-                                <div class="w-full h-full flex items-center justify-center bg-neutral-100 text-[8px]">
-                                    IMG</div>
-                                @endif
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold truncate">{{ $item->product->name ?? 'Product Item' }}</p>
