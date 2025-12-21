@@ -92,7 +92,7 @@ class ProductController extends Controller
         $product->description = $validated['description'] ?? null;
 
         // 3. Handle Slug - Update if name changed
-        if ($request->name !== $product->getOriginal('name')) {
+        if ($validated['name'] !== $product->getOriginal('name')) {
             $product->slug = Str::slug($validated['name']) . '-' . Str::random(4);
         }
 

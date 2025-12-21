@@ -5,6 +5,25 @@
         @csrf
         @method('PUT') {{-- Quan trọng: Báo Laravel đây là update --}}
 
+        {{-- VALIDATION ERRORS DISPLAY --}}
+        @if ($errors->any())
+        <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="font-bold text-red-700 text-sm uppercase tracking-wide mb-2">⚠️ Validation Failed</p>
+            <ul class="list-disc list-inside text-red-600 text-sm space-y-1">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        {{-- SUCCESS MESSAGE --}}
+        @if (session('success'))
+        <div class="mb-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="font-medium text-green-700 text-sm">✅ {{ session('success') }}</p>
+        </div>
+        @endif
+
         {{-- HEADER & ACTIONS --}}
         <div class="flex items-end justify-between mb-12 border-b border-neutral-100 pb-6">
             <div>
