@@ -230,11 +230,11 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                        if(!size) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
+                        if(isFragrance ? !selectedVariantId : !selectedSize) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
                         loading = true;
                         
                         // Chuẩn bị payload
-                        let payload = { quantity: qty, size: size, color: color };
+                        let payload = { quantity: qty, size: selectedSize, color: selectedColor };
                         if(selectedVariantId) payload.variant_id = selectedVariantId; // Gửi kèm ID variant nếu có
 
                         fetch($el.action, {
@@ -262,7 +262,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 <div class="flex justify-between mb-2">
                                     <span
                                         class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
-                                    <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                                    <span class="text-xs text-neutral-900"
+                                        x-text="selectedColor ? selectedColor : 'Select'"></span>
                                 </div>
 
                                 @if(count($availableColors) > 0)
@@ -296,9 +297,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 </div>
                                 <div class="grid grid-cols-4 gap-2">
                                     <template x-for="s in ['S','M','L','XL']" :key="s">
-                                        <button type="button" @click="size = s"
+                                        <button type="button" @click="selectSize(s)"
                                             class="py-3 border text-sm font-medium transition-all duration-200"
-                                            :class="size === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                            :class="selectedSize === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
                                             <span x-text="s"></span>
                                         </button>
                                     </template>
