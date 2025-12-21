@@ -73,15 +73,15 @@ $categoryName = ucfirst($categoryName);
             <p class="text-[10px] text-neutral-400 uppercase tracking-widest">{{ $categoryName }}</p>
         </div>
 
-        {{-- PRICE SECTION: Sale vs Normal --}}
+        {{-- PRICE SECTION: Sale vs Normal (Minimalist Style) --}}
         <div class="flex flex-col items-end">
             @if($showSalePrice)
-            {{-- Sale Price (Current) --}}
-            <span class="text-sm font-bold text-red-600 whitespace-nowrap tracking-tight">
+            {{-- Sale Price (Current - Dark, readable) --}}
+            <span class="text-sm font-medium text-neutral-900 whitespace-nowrap tracking-tight">
                 {{ $basePriceFormatted }}
             </span>
-            {{-- Original Price (Struck-through) --}}
-            <span class="text-xs text-neutral-400 line-through whitespace-nowrap">
+            {{-- Original Price (Struck-through, muted) --}}
+            <span class="text-xs text-neutral-400 line-through decoration-neutral-400 whitespace-nowrap">
                 {{ $originalPriceFormatted }}
             </span>
             @else
