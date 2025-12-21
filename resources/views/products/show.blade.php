@@ -963,7 +963,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                     {{ $curatedItem->name }}
                                 </h3>
                                 <p class="text-xs md:text-sm font-light mt-1 opacity-90">
-                                    ₫{{ number_format($curatedItem->price, 0, ',', '.') }}
+                                    ₫{{ number_format($curatedItem->price ?? $curatedItem->base_price ?? 0, 0, ',', '.')
+                                    }}
                                 </p>
                                 <a href="{{ route('products.show', $curatedItem->id) }}"
                                     class="inline-block mt-3 text-[10px] font-bold uppercase border-b border-white pb-0.5">
