@@ -142,7 +142,7 @@ class ProductController extends Controller
         // 6. Complete Look & Curated (Giữ nguyên logic cũ của bà)
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('category_id', $product->category_id)
+            $completeLook = Product::where('category', $product->category)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
         $curated = Product::where('id', '!=', $id)->inRandomOrder()->take(5)->get();

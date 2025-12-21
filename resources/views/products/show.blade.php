@@ -39,8 +39,10 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 <a href="{{ route('products.index') }}" class="hover:text-black transition">Shop</a>
                 @if($product->category)
                 <span class="mx-2">/</span>
-                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
-                    class="hover:text-black transition">{{ $product->category->name }}</a>
+                <a href="{{ route('products.index', ['category' => $product->category]) }}"
+                    class="hover:text-black transition">
+                    {{ ucfirst($product->category) }}
+                </a>
                 @endif
                 <span class="mx-2">/</span>
                 <span class="text-black border-b border-black">{{ $product->name }}</span>
