@@ -41,9 +41,27 @@ class Product extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->image
-                ? Storage::url($this->image)
-                : 'https://placehold.co/400x600?text=No+Image',
+            get: function () {
+                // 1. Lấy biến thể đầu tiên ra (Lúc này mới gọi được nè)
+                $variant = $this->variants->first();
+
+                // 2. Ưu tiên: Nếu có Variant và Variant có đường dẫn ảnh
+                if ($variant && $variant->image_path) {
+                    return Storage::url($variant->image_path);
+                }
+                // 3. Fallback: Nếu không có variant, lấy ảnh gốc của Product
+                if ($this->image) {
+                    // Kiểm tra xem trong DB đã có chữ 'products/' chưa để tránh trùng
+                    $path = str_starts_with($this->image, 'products/')
+                        ? $this->image
+                        : 'products/' . $this->image;
+
+                    return Storage::url($path);
+                }
+
+                // 4. Đường cùng: Trả về ảnh giữ chỗ (Placeholder) để web không bị vỡ khung
+                return 'https://placehold.co/600x800?text=No+Image';
+            }
         );
     }
 

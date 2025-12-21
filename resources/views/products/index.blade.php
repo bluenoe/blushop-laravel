@@ -114,7 +114,7 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                     {{-- Image Wrapper --}}
                     <div class="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 cursor-pointer">
                         <a href="{{ route('products.show', $product) }}" class="block w-full h-full">
-                            <img src="{{ $product->image }}" alt="{{ $product->name }}" loading="lazy"
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy"
                                 class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105 filter grayscale-[10%] group-hover:grayscale-0">
                         </a>
 

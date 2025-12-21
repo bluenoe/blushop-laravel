@@ -177,7 +177,7 @@ class ProductController extends Controller
                 'id' => $p->id,
                 'name' => $p->name,
                 'price' => (float) $p->price,
-                'image' => $p->image ? Storage::url('products/' . $p->image) : null,
+                'image' => $p->image_url,
                 'url' => route('products.show', $p->id),
             ];
         });
