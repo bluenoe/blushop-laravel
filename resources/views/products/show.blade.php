@@ -519,15 +519,22 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
                 @foreach($completeLook as $lookItem)
                 @php
-                $lookImgUrl = $lookItem->image
-                ? (Str::startsWith($lookItem->image, 'http')
-                ? $lookItem->image
-                : asset('storage/products/' . $lookItem->slug . '/' . basename($lookItem->image)))
-                : 'https://placehold.co/600x800?text=No+Image';
+                // 1. Safe Image Resolution
+                $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                if (!empty($lookItem->slug) && !empty($lookItem->image)) {
+                $filename = basename($lookItem->image);
+                // Check if it's already a full URL (http...) or needs building
+                if (Str::startsWith($lookItem->image, 'http')) {
+                $imgSrc = $lookItem->image;
+                } else {
+                $imgSrc = asset('storage/products/' . $lookItem->slug . '/' . $filename);
+                }
+                }
                 @endphp
                 <div class="group relative overflow-hidden">
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
-                        <img src="{{ $lookImgUrl }}"
+                        <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                             alt="{{ $lookItem->name }}" loading="lazy">
                     </div>
@@ -854,13 +861,21 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                 {{-- BENTO GRID LAYOUT --}}
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
-                    @foreach($curated->take(5) as $index => $related)
+                    @foreach($curated->take(5) as $index => $curatedItem)
                     @php
-                    $imgUrl = $related->image
-                    ? (Str::startsWith($related->image, 'http')
-                    ? $related->image
-                    : asset('storage/products/' . $related->slug . '/' . basename($related->image)))
-                    : 'https://placehold.co/600x800?text=No+Image';
+                    // 1. Safe Image Resolution
+                    $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                    if (!empty($curatedItem->slug) && !empty($curatedItem->image)) {
+                    $filename = basename($curatedItem->image);
+                    // Check if it's already a full URL (http...) or needs building
+                    if (Str::startsWith($curatedItem->image, 'http')) {
+                    $imgSrc = $curatedItem->image;
+                    } else {
+                    $imgSrc = asset('storage/products/' . $curatedItem->slug . '/' . $filename);
+                    }
+                    }
+
                     // LOGIC: Item đầu tiên (index 0) chiếm 2 cột 2 dòng
                     $classes = ($index === 0)
                     ? 'col-span-2 row-span-2 md:h-full relative group'
@@ -869,7 +884,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                     <div class="{{ $classes }} overflow-hidden bg-neutral-100">
                         {{-- Ảnh --}}
-                        <img src="{{ $imgUrl }}"
+                        <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105"
                             loading="lazy">
 
