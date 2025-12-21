@@ -571,18 +571,19 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                         window.location.href = '{{ route('products.show', $lookItem->id) }}';
                                     });
                                 "
-                                class="absolute bottom-4 right-4 z-20 h-10 w-10 rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-4 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 hover:scale-110"
+                                class="absolute bottom-4 right-4 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-4 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 hover:scale-110"
                                 :class="added ? 'bg-black text-white' : 'bg-white text-black hover:bg-neutral-100'"
                                 aria-label="Quick Add to Cart">
 
                                 {{-- Default Plus Icon --}}
                                 <svg x-show="!loading && !added" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-4 h-4 md:w-5 md:h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>
 
                                 {{-- Loading Spinner --}}
-                                <svg x-show="loading" x-cloak class="animate-spin w-5 h-5"
+                                <svg x-show="loading" x-cloak class="animate-spin w-4 h-4 md:w-5 md:h-5"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                         stroke-width="4"></circle>
@@ -593,7 +594,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                                 {{-- Success Checkmark --}}
                                 <svg x-show="added" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                    class="w-4 h-4 md:w-5 md:h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                 </svg>
                             </button>
