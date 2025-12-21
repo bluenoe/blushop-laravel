@@ -764,7 +764,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                         </template>
                                     </div>
                                     <input type="hidden" name="rating" :value="rating">
-                                    <p x-show="errors.rating" x-text="errors.rating[0]"
+                                    <p x-show="errors.rating" x-text="errors.rating ? errors.rating[0] : ''"
                                         class="mt-2 text-[10px] text-red-500 font-bold uppercase tracking-wide"></p>
                                 </div>
 
@@ -803,7 +803,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                     </label>
 
                                     {{-- Lỗi hiển thị bên dưới --}}
-                                    <p x-show="errors.content" x-text="errors.content[0]"
+                                    <p x-show="errors.content" x-text="errors.content ? errors.content[0] : ''"
                                         class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
                                     </p>
                                 </div>
@@ -841,7 +841,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                             </div>
                                         </template>
                                     </div>
-                                    <p x-show="errors.image" x-text="errors.image[0]"
+                                    <p x-show="errors.image" x-text="errors.image ? errors.image[0] : ''"
                                         class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-wide"></p>
                                 </div>
 
