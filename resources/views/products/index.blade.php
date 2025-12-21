@@ -174,9 +174,25 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             </p>
                             @endif
                         </div>
+                        {{-- Price Section: Sale vs Normal --}}
                         <div class="text-right">
-                            <span class="text-sm font-medium text-neutral-900">₫{{ number_format($product->price ??
-                                $product->variants->first()?->price ?? 0, 0, ',', '.') }}</span>
+                            @if($product->is_on_sale && $product->original_price > $product->base_price)
+                            {{-- ON SALE: Show both prices --}}
+                            <div class="flex flex-col items-end gap-0.5">
+                                <span class="text-sm font-medium text-neutral-900">
+                                    {{ number_format($product->base_price ?? 0, 0, ',', '.') }}₫
+                                </span>
+                                <span class="text-xs text-neutral-400 line-through decoration-neutral-400">
+                                    {{ number_format($product->original_price, 0, ',', '.') }}₫
+                                </span>
+                            </div>
+                            @else
+                            {{-- NORMAL: Single price --}}
+                            <span class="text-sm font-medium text-neutral-900">
+                                {{ number_format($product->base_price ?? $product->variants->first()?->price ?? 0, 0,
+                                ',', '.') }}₫
+                            </span>
+                            @endif
                         </div>
                     </div>
                 </div>
