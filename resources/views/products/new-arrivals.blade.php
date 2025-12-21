@@ -115,8 +115,18 @@ Location: resources/views/products/new-arrivals.blade.php
                                 class="text-[10px] uppercase tracking-widest mb-1 bg-white text-black inline-block px-2 py-0.5">
                                 Highlight</p>
                             <h3 class="text-xl font-serif italic">{{ $product->name }}</h3>
-                            <p class="text-sm mt-1 opacity-90">₫{{ number_format($product->price ?? $product->base_price
-                                ?? 0, 0, ',', '.') }}</p>
+                            {{-- Price with Sale Logic --}}
+                            @if($product->is_on_sale && $product->original_price > $product->base_price)
+                            <div class="flex items-baseline gap-2 mt-1">
+                                <span class="text-sm opacity-100">{{ number_format($product->base_price ?? 0, 0, ',',
+                                    '.') }}₫</span>
+                                <span class="text-xs opacity-70 line-through">{{ number_format($product->original_price,
+                                    0, ',', '.') }}₫</span>
+                            </div>
+                            @else
+                            <p class="text-sm mt-1 opacity-90">{{ number_format($product->base_price ?? 0, 0, ',', '.')
+                                }}₫</p>
+                            @endif
                         </div>
                         <button
                             class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-neutral-200 transition">
@@ -177,9 +187,19 @@ Location: resources/views/products/new-arrivals.blade.php
                         </h3>
                         <div class="flex justify-between items-center">
                             <p class="text-xs text-neutral-500 uppercase tracking-wide">{{ $product->category->name ??
-                                'Essentials' }}</p>
-                            <span class="text-sm font-medium">₫{{ number_format($product->price ?? $product->base_price
-                                ?? 0, 0, ',', '.') }}</span>
+                                ucfirst($product->category ?? 'Essentials') }}</p>
+                            {{-- Price with Sale Logic --}}
+                            @if($product->is_on_sale && $product->original_price > $product->base_price)
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-sm font-medium text-neutral-900">{{ number_format($product->base_price
+                                    ?? 0, 0, ',', '.') }}₫</span>
+                                <span class="text-xs text-neutral-400 line-through decoration-neutral-400">{{
+                                    number_format($product->original_price, 0, ',', '.') }}₫</span>
+                            </div>
+                            @else
+                            <span class="text-sm font-medium">{{ number_format($product->base_price ?? 0, 0, ',', '.')
+                                }}₫</span>
+                            @endif
                         </div>
                     </div>
                 </div>

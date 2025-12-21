@@ -19,22 +19,31 @@ class Product extends Model
     // Cho phép fill các field này khi cần (an toàn, ngắn gọn)
     protected $fillable = [
         'name',
+        'slug',
+        'sku',
         'description',
-        'price',
+        'base_price',     // Current selling price
+        'original_price', // Original/Retail price (before discount)
         'image',
-        'category_id',
+        'category',       // Enum string ('men', 'women', 'fragrance')
+        'stock',
+        'is_active',
         'is_new',
         'is_bestseller',
         'is_on_sale',
-        'slug',
         'avg_rating',
         'reviews_count',
     ];
 
-    // Cast price để định dạng nhất quán (giữ 2 số thập phân dạng string)
+    // Cast base_price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
-        'price' => 'decimal:2',
+        'base_price' => 'decimal:2',
+        'original_price' => 'integer',
         'specifications' => 'array',
+        'is_active' => 'boolean',
+        'is_new' => 'boolean',
+        'is_bestseller' => 'boolean',
+        'is_on_sale' => 'boolean',
     ];
 
     // Trong Product.php

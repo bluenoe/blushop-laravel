@@ -201,8 +201,18 @@ Concept: Editorial Grid, Minimalist Actions
                                 <div class="flex justify-between items-baseline">
                                     <p class="text-xs text-neutral-500">{{ ucfirst($product->category ?? 'Essentials')
                                         }}</p>
-                                    <p class="text-sm font-mono font-medium text-neutral-900">₫{{
-                                        number_format($product->base_price ?? 0, 0, ',', '.') }}</p>
+                                    {{-- Price with Sale Logic --}}
+                                    @if($product->is_on_sale && $product->original_price > $product->base_price)
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-sm font-mono font-medium text-neutral-900">{{
+                                            number_format($product->base_price ?? 0, 0, ',', '.') }}₫</span>
+                                        <span class="text-xs font-mono text-neutral-400 line-through">{{
+                                            number_format($product->original_price, 0, ',', '.') }}₫</span>
+                                    </div>
+                                    @else
+                                    <p class="text-sm font-mono font-medium text-neutral-900">{{
+                                        number_format($product->base_price ?? 0, 0, ',', '.') }}₫</p>
+                                    @endif
                                 </div>
                             </div>
 

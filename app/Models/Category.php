@@ -32,9 +32,12 @@ class Category extends Model
 
     /**
      * Mối quan hệ: Một danh mục có nhiều sản phẩm
+     * Links products.category (foreign) to categories.slug (local)
      */
     public function products()
     {
-        return $this->hasMany(Product::class);
+        // hasMany(RelatedModel, ForeignKeyOnRelated, LocalKey)
+        // products.category (enum: 'men', 'women'...) -> categories.slug
+        return $this->hasMany(Product::class, 'category', 'slug');
     }
 }

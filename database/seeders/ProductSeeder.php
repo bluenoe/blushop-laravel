@@ -78,22 +78,36 @@ class ProductSeeder extends Seeder
 
     private function seedCategory($products, $category)
     {
+        $counter = 1; // Counter for unique SKU suffix
+        
         foreach ($products as $item) {
             // [LOGIC MỚI] Lấy màu đầu tiên làm ảnh đại diện
             // Ví dụ: ['black', 'white'] -> Lấy 'black' -> Tạo thành 'black.jpg'
             $firstVariant = $item['variants'][0] ?? 'default';
             $mainImage = "{$firstVariant}.jpg";
+            
+            // Generate semantic SKU: MEN-BASIC-TEE-001
+            $skuBase = strtoupper(str_replace('-', '-', $item['slug']));
+            $sku = strtoupper($category) . '-' . str_pad($counter, 3, '0', STR_PAD_LEFT);
 
             $productId = DB::table('products')->insertGetId([
                 'name' => $item['name'],
                 'slug' => $item['slug'],
+                'sku' => $sku, // <--- SKU field added
                 'description' => "This is a premium {$item['name']} for {$category}.",
                 'category' => $category,
                 'base_price' => $item['price'],
+                'stock' => rand(10, 100), // <--- Stock field added
                 'image' => $mainImage, // <--- Cột này đã được tự động điền
+                'is_active' => true,
+                'is_new' => rand(0, 1) === 1,
+                'is_bestseller' => rand(0, 1) === 1,
+                'is_on_sale' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            
+            $counter++;
 
             foreach ($item['variants'] as $color) {
                 DB::table('product_variants')->insert([

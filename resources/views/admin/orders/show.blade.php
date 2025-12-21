@@ -33,13 +33,21 @@
                     <div class="flex gap-6 items-start">
                         {{-- Image --}}
                         <div class="w-20 h-24 bg-neutral-100 flex-shrink-0 overflow-hidden">
-                            @if($item->product && $item->product->image)
-                            <img src="{{ Storage::url('products/' . $item->product->image) }}"
-                                class="w-full h-full object-cover">
-                            @else
-                            <div class="w-full h-full flex items-center justify-center text-neutral-300 text-xs">NO IMG
-                            </div>
-                            @endif
+                            @php
+                            $itemSlug = $item->product->slug ?? '';
+                            $itemImg = $item->product->image ?? null;
+                            $itemImgSrc = 'https://placehold.co/100x120?text=No+Image';
+
+                            if ($itemSlug && $itemImg) {
+                            if (Str::startsWith($itemImg, ['http://', 'https://'])) {
+                            $itemImgSrc = $itemImg;
+                            } else {
+                            $itemImgSrc = asset('storage/products/' . $itemSlug . '/' . basename($itemImg));
+                            }
+                            }
+                            @endphp
+                            <img src="{{ $itemImgSrc }}" class="w-full h-full object-cover"
+                                onerror="this.src='https://placehold.co/100x120?text=No+Image'">
                         </div>
 
                         {{-- Info --}}
