@@ -124,7 +124,7 @@
                     {{-- Price --}}
                     <div class="relative z-0 w-full group">
                         <input type="number" name="base_price" id="base_price" required
-                            value="{{ old('base_price', $product->base_price) }}"
+                            value="{{ old('base_price', $product->base_price) }}" step="10000" min="0"
                             class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
                             placeholder=" " />
                         <label for="base_price"
