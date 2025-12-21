@@ -536,8 +536,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 <div class="group relative overflow-hidden">
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
                         <img src="{{ $imgSrc }}"
-                            class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                            alt="{{ $lookItem->name }}" loading="lazy">
+                            class="w-full h-full object-cover transform-gpu transition-transform duration-700 ease-out group-hover:scale-105"
+                            style="backface-visibility: hidden;" alt="{{ $lookItem->name }}" loading="lazy">
                     </div>
                     <h3 class="text-sm font-medium">
                         <a href="{{ route('products.show', $lookItem->id) }}">
