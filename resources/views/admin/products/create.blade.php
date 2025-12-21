@@ -73,16 +73,17 @@
 
                     {{-- Category & SKU Row --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {{-- Category Select --}}
+                        {{-- Category Select (Enum String) --}}
                         <div class="relative z-0 w-full group">
-                            <select name="category_id" id="category_id"
+                            <select name="category" id="category" required
                                 class="block py-2.5 px-0 w-full text-sm text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer">
                                 <option value="" disabled selected>Select Category</option>
-                                @foreach($categories ?? [] as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
+                                <option value="men" {{ old('category')=='men' ? 'selected' : '' }}>Men</option>
+                                <option value="women" {{ old('category')=='women' ? 'selected' : '' }}>Women</option>
+                                <option value="fragrance" {{ old('category')=='fragrance' ? 'selected' : '' }}>Fragrance
+                                </option>
                             </select>
-                            <label for="category_id"
+                            <label for="category"
                                 class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
                                 Category
                             </label>
@@ -105,10 +106,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
                     {{-- Price --}}
                     <div class="relative z-0 w-full group">
-                        <input type="number" name="price" id="price" required
+                        <input type="number" name="base_price" id="base_price" required
                             class="block py-2.5 px-0 w-full text-lg font-mono font-medium text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer"
-                            placeholder=" " />
-                        <label for="price"
+                            placeholder=" " value="{{ old('base_price') }}" />
+                        <label for="base_price"
                             class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
                             Price (VND)
                         </label>
