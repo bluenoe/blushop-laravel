@@ -47,7 +47,7 @@ class ProductSeeder extends Seeder
             // DRESSES & SKIRTS
             ['name' => 'Women Silk Dress',      'slug' => 'women-silk-dress',       'price' => 650000, 'variants' => ['green', 'grey', 'white']],
             ['name' => 'Women Summer Maxi',     'slug' => 'women-summer-maxi',      'price' => 550000, 'variants' => ['black', 'navy', 'red']],
-            ['name' => 'Women Bodycon Dress',   'slug' => 'women-bodycon-dress',    'price' => 450000, 'variants' => ['black', 'beige']],
+            ['name' => 'Women Bodycon Dress',   'slug' => 'women-bodycon-dress',    'price' => 450000, 'variants' => ['black', 'brown', 'grey']],
             ['name' => 'Women Pleated Skirt',   'slug' => 'women-pleated-skirt',    'price' => 320000, 'variants' => ['beige', 'black']],
             ['name' => 'Women Mini Skirt',      'slug' => 'women-mini-skirt',       'price' => 280000, 'variants' => ['red', 'black', 'white']],
             ['name' => 'Women Denim Skirt',     'slug' => 'women-denim-skirt',      'price' => 350000, 'variants' => ['beige', 'brown']],
@@ -79,12 +79,18 @@ class ProductSeeder extends Seeder
     private function seedCategory($products, $category)
     {
         foreach ($products as $item) {
+            // [LOGIC MỚI] Lấy màu đầu tiên làm ảnh đại diện
+            // Ví dụ: ['black', 'white'] -> Lấy 'black' -> Tạo thành 'black.jpg'
+            $firstVariant = $item['variants'][0] ?? 'default';
+            $mainImage = "{$firstVariant}.jpg";
+
             $productId = DB::table('products')->insertGetId([
                 'name' => $item['name'],
                 'slug' => $item['slug'],
                 'description' => "This is a premium {$item['name']} for {$category}.",
                 'category' => $category,
                 'base_price' => $item['price'],
+                'image' => $mainImage, // <--- Cột này đã được tự động điền
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

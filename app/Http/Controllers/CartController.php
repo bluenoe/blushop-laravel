@@ -48,8 +48,9 @@ class CartController extends Controller
             $cart[$rowId] = [
                 "product_id" => $product->id, // Lưu thêm ID gốc để dễ query sau này
                 "name" => $product->name,
+                "slug" => $product->slug, // Lưu slug để xây dựng đường dẫn ảnh
                 "quantity" => $quantity,
-                "price" => (float) $product->price,
+                "price" => (float) ($product->price ?? $product->base_price ?? 0),
                 "image" => $product->image,
                 "size" => $size,
                 "color" => $color,

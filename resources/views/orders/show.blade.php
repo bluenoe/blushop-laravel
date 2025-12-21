@@ -55,13 +55,22 @@ Concept: High Contrast Header, Clean Grid Line Items
                     <div class="flex gap-6 group">
                         {{-- Image --}}
                         <div class="w-24 h-32 bg-neutral-100 flex-shrink-0 overflow-hidden relative">
-                            @if($item->product && $item->product->image)
-                            <img src="{{ Storage::url('products/'.$item->product->image) }}"
+                            @php
+                            $productRef = $item->product;
+                            $slug = $productRef->slug ?? '';
+                            $imgRaw = $productRef->image ?? null;
+                            $detailImgSrc = 'https://placehold.co/96x128?text=No+Image';
+
+                            if ($slug && $imgRaw) {
+                            if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                            $detailImgSrc = $imgRaw;
+                            } else {
+                            $detailImgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                            }
+                            }
+                            @endphp
+                            <img src="{{ $detailImgSrc }}" alt="{{ $productRef->name ?? 'Product' }}"
                                 class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                            @else
-                            <div class="w-full h-full flex items-center justify-center text-xs text-neutral-300">N/A
-                            </div>
-                            @endif
                         </div>
 
                         {{-- Details --}}

@@ -127,6 +127,32 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedVariantId: window.productConfig.defaultVariantId,
     sku: null,
 
+    // VINTAGE PALETTE (MINIMALIST & VINTAGE AESTHETIC)
+    vintageColorPalette: {
+        'Red': '#A94044',       // Muted Clay/Brick
+        'Blue': '#2C3E50',      // Deep Slate/Navy
+        'Green': '#556B2F',     // Olive/Sage
+        'Yellow': '#E3C800',    // Mustard/Ochre
+        'Black': '#1A1A1A',     // Off-Black
+        'White': '#F5F5F5',     // Off-White/Cream
+        'Brown': '#8D6E63',     // Warm Taupe
+        'Pink': '#D8B4B4',      // Dusty Rose
+        'Beige': '#F5F5DC',     // Beige
+        'Navy': '#202A44',      // Classic Navy
+        'Grey': '#808080',      // Neutral Grey
+        'Gray': '#808080'       // Neutral Gray
+    },
+
+    // CUSTOM HELPER: GET COLOR STYLE
+    getColorStyle(name, dbHex) {
+        // 1. Nếu DB có Hex xịn -> Dùng luôn
+        if (dbHex && dbHex !== 'null') return dbHex;
+        
+        // 2. Map theo tên (Vintage Palette) - Case Insensitive for safety
+        // Capitalize first letter logic handled by simple lookup since keys are capitalized
+        return this.vintageColorPalette[name] || this.vintageColorPalette[Object.keys(this.vintageColorPalette).find(k => k.toLowerCase() === name.toLowerCase())] || '#CCCCCC';
+    },
+
     // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
         console.log('Alpine Loaded. Variants:', this.variants);
@@ -279,9 +305,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                         :class="selectedColor === '{{ $c['name'] }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'"
                                         title="{{ $c['name'] }}">
 
-                                        {{-- Hiển thị chấm màu: Dùng luôn mã HEX từ Database (xịn hơn) --}}
+                                        {{-- Hiển thị chấm màu: Dùng getColorStyle thay vì Hex trực tiếp --}}
                                         <div class="w-full h-full rounded-full border border-neutral-200"
-                                            style="background-color: {{ $c['hex'] ?? '#CCCCCC' }};">
+                                            :style="`background-color: ${getColorStyle('{{ $c['name'] }}', '{{ $c['hex'] }}')}`">
                                         </div>
                                     </button>
                                     @endforeach
@@ -365,8 +391,13 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                             d="M5 13l4 4L19 7" />
                                     </svg></span>
                             </button>
-                            <p class="text-center text-[10px] text-neutral-400 uppercase tracking-widest">
-                                Complimnetary samples with every order
+                            <p
+                                class="flex items-center justify-center gap-2 text-center text-[10px] text-neutral-400 uppercase tracking-widest">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                                Free shipping over 1.000.000₫ & 30-day returns
                             </p>
                         </div>
                     </form>
@@ -487,25 +518,98 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
                 @foreach($completeLook as $lookItem)
+                @php
+                // 1. Default to Placeholder first
+                $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                // 2. Only attempt to build path if image is NOT empty
+                if (!empty($lookItem->image)) {
+                // Check if it's already an absolute URL
+                if (Str::startsWith($lookItem->image, ['http://', 'https://'])) {
+                $imgSrc = $lookItem->image;
+                } else {
+                // Build the path: storage/products/{slug}/{filename}
+                $imgSrc = asset('storage/products/' . $lookItem->slug . '/' . basename($lookItem->image));
+                }
+                }
+                @endphp
                 <div class="group relative">
-                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
-                        <img src="{{ Storage::url('products/' . $lookItem->image) }}"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                    {{-- Image Container (Isolated for Zoom) --}}
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
+                        <img src="{{ $imgSrc }}"
+                            class="w-full h-full object-cover transform-gpu transition-transform duration-700 ease-out group-hover:scale-105"
+                            style="backface-visibility: hidden;" alt="{{ $lookItem->name }}" loading="lazy">
+
+                        {{-- Clickable Overlay Link --}}
+                        <a href="{{ route('products.show', $lookItem->id) }}" class="absolute inset-0 z-10"></a>
+
+                        {{-- Floating Action Button (AJAX Quick Add) --}}
+                        <div x-data="{ loading: false, added: false }">
+                            <button @click.prevent.stop="
+                                    if (loading || added) return;
+                                    loading = true;
+                                    fetch('{{ route('cart.add', $lookItem->id) }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                                        },
+                                        body: JSON.stringify({ quantity: 1, size: 'Freesize', color: 'Default' })
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        loading = false;
+                                        added = true;
+                                        // Dispatch event to update Header Cart Count
+                                        window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: data.cart_count } }));
+                                        setTimeout(() => added = false, 2000);
+                                    })
+                                    .catch(err => {
+                                        loading = false;
+                                        console.error('Quick Add Error:', err);
+                                        window.location.href = '{{ route('products.show', $lookItem->id) }}';
+                                    });
+                                "
+                                class="absolute bottom-4 right-4 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-4 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 hover:scale-110"
+                                :class="added ? 'bg-black text-white' : 'bg-white text-black hover:bg-neutral-100'"
+                                aria-label="Quick Add to Cart">
+
+                                {{-- Default Plus Icon --}}
+                                <svg x-show="!loading && !added" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-4 h-4 md:w-5 md:h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+
+                                {{-- Loading Spinner --}}
+                                <svg x-show="loading" x-cloak class="animate-spin w-4 h-4 md:w-5 md:h-5"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+
+                                {{-- Success Checkmark --}}
+                                <svg x-show="added" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                    class="w-4 h-4 md:w-5 md:h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
+
+                    {{-- Product Info --}}
                     <h3 class="text-sm font-medium">
                         <a href="{{ route('products.show', $lookItem->id) }}">
-                            <span class="absolute inset-0"></span>
                             {{ $lookItem->name }}
                         </a>
                     </h3>
-                    <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($lookItem->price, 0, ',', '.') }}</p>
-
-                    <button
-                        class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </button>
+                    <p class="text-sm text-neutral-600 mt-1">₫{{ number_format($lookItem->price ??
+                        $lookItem->variants->first()?->price ?? 0, 0, ',', '.') }}</p>
                 </div>
                 @endforeach
             </div>
@@ -814,10 +918,22 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                 {{-- BENTO GRID LAYOUT --}}
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
-                    @foreach($curated->take(5) as $index => $related)
+                    @foreach($curated->take(5) as $index => $curatedItem)
                     @php
-                    $imgUrl = $related->image ? Storage::url('products/' . $related->image) :
-                    'https://loremflickr.com/800/1000/fashion';
+                    // 1. Default to Placeholder first
+                    $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                    // 2. Only attempt to build path if image is NOT empty
+                    if (!empty($curatedItem->image)) {
+                    // Check if it's already an absolute URL
+                    if (Str::startsWith($curatedItem->image, ['http://', 'https://'])) {
+                    $imgSrc = $curatedItem->image;
+                    } else {
+                    // Build the path: storage/products/{slug}/{filename}
+                    $imgSrc = asset('storage/products/' . $curatedItem->slug . '/' . basename($curatedItem->image));
+                    }
+                    }
+
                     // LOGIC: Item đầu tiên (index 0) chiếm 2 cột 2 dòng
                     $classes = ($index === 0)
                     ? 'col-span-2 row-span-2 md:h-full relative group'
@@ -826,7 +942,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                     <div class="{{ $classes }} overflow-hidden bg-neutral-100">
                         {{-- Ảnh --}}
-                        <img src="{{ $imgUrl }}"
+                        <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105"
                             loading="lazy">
 
@@ -836,7 +952,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             class="absolute top-4 left-4 bg-black text-white text-[10px] font-bold uppercase px-3 py-1.5 z-10">
                             New Drop
                         </div>
-                        @elseif($related->is_new)
+                        @elseif($curatedItem->is_new)
                         <div class="absolute top-2 left-2 w-2 h-2 bg-red-500 rounded-full z-10"></div>
                         @endif
 
@@ -846,19 +962,20 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             <div
                                 class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300 text-white">
                                 <h3 class="text-sm md:text-lg font-bold uppercase tracking-widest">
-                                    {{ $related->name }}
+                                    {{ $curatedItem->name }}
                                 </h3>
                                 <p class="text-xs md:text-sm font-light mt-1 opacity-90">
-                                    ₫{{ number_format($related->price, 0, ',', '.') }}
+                                    ₫{{ number_format($curatedItem->price ?? $curatedItem->base_price ?? 0, 0, ',', '.')
+                                    }}
                                 </p>
-                                <a href="{{ route('products.show', $related->id) }}"
+                                <a href="{{ route('products.show', $curatedItem->id) }}"
                                     class="inline-block mt-3 text-[10px] font-bold uppercase border-b border-white pb-0.5">
                                     Shop Now
                                 </a>
                             </div>
                         </div>
                         {{-- Link bao trùm --}}
-                        <a href="{{ route('products.show', $related->id) }}" class="absolute inset-0 z-20"></a>
+                        <a href="{{ route('products.show', $curatedItem->id) }}" class="absolute inset-0 z-20"></a>
                     </div>
                     @endforeach
                 </div>
