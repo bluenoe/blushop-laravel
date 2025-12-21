@@ -894,7 +894,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             class="absolute top-4 left-4 bg-black text-white text-[10px] font-bold uppercase px-3 py-1.5 z-10">
                             New Drop
                         </div>
-                        @elseif($related->is_new)
+                        @elseif($curatedItem->is_new)
                         <div class="absolute top-2 left-2 w-2 h-2 bg-red-500 rounded-full z-10"></div>
                         @endif
 
@@ -904,12 +904,12 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             <div
                                 class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300 text-white">
                                 <h3 class="text-sm md:text-lg font-bold uppercase tracking-widest">
-                                    {{ $related->name }}
+                                    {{ $curatedItem->name }}
                                 </h3>
                                 <p class="text-xs md:text-sm font-light mt-1 opacity-90">
-                                    ₫{{ number_format($related->price, 0, ',', '.') }}
+                                    ₫{{ number_format($curatedItem->price, 0, ',', '.') }}
                                 </p>
-                                <a href="{{ route('products.show', $related->id) }}"
+                                <a href="{{ route('products.show', $curatedItem->id) }}"
                                     class="inline-block mt-3 text-[10px] font-bold uppercase border-b border-white pb-0.5">
                                     Shop Now
                                 </a>
