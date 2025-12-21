@@ -266,20 +266,16 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 @if(count($availableColors) > 0)
                                 <div class="flex gap-3">
                                     @foreach($availableColors as $c)
-                                    @php
-                                    // Mapping màu sắc UI
-                                    $bgClass = match(strtolower($c)) {
-                                    'black' => 'bg-[#171717]', 'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]',
-                                    'grey', 'gray' => 'bg-[#52525B]', 'beige', 'cream' => 'bg-[#E8E0D5]',
-                                    'brown' => 'bg-[#5D4037]', 'navy' => 'bg-[#1F2937]', 'green' => 'bg-[#3F6212]',
-                                    default => 'bg-[#D4D4D4]'
-                                    };
-                                    @endphp
-                                    <button type="button" @click="selectColor('{{ $c }}')"
+                                    <button type="button" {{-- Lấy tên và ảnh từ mảng $c --}}
+                                        @click="selectColor('{{ $c['name'] }}', '{{ $c['image'] }}')"
                                         class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                        :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-                                        <div class="{{ $bgClass }} w-full h-full rounded-full"
-                                            @if($bgClass=='bg-[#D4D4D4]' ) style="background-color: {{ $c }}" @endif>
+                                        {{-- Logic Active: So sánh với selectedColor --}}
+                                        :class="selectedColor === '{{ $c['name'] }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'"
+                                        title="{{ $c['name'] }}">
+
+                                        {{-- Hiển thị chấm màu: Dùng luôn mã HEX từ Database (xịn hơn) --}}
+                                        <div class="w-full h-full rounded-full border border-neutral-200"
+                                            style="background-color: {{ $c['hex'] ?? '#CCCCCC' }};">
                                         </div>
                                     </button>
                                     @endforeach
