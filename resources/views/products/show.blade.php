@@ -177,20 +177,36 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
         if (variant) this.updateVariantState(variant);
     },
 
-    // LOGIC 3: CHỌN DUNG TÍCH
+    // LOGIC 3: CHỌN DUNG TÍCH (Legacy - kept for compatibility)
     selectCapacity(capacity) {
         this.selectedCapacity = capacity;
-        let variant = this.variants.find(v => v.capacity == capacity);
+        let variant = this.variants.find(v => v.capacity_ml == capacity);
         if (variant) {
             this.updateVariantState(variant);
-            if (variant.image) this.currentImage = variant.image; 
+            if (variant.image_path) this.currentImage = '/storage/' + variant.image_path; 
         }
     },
 
-    // Cập nhật giá và ID
+    // LOGIC 4: CHỌN VARIANT ĐẦY ĐỦ (Fragrance - Size Pills)
+    selectVariant(variant) {
+        if (!variant || variant.stock <= 0) return; // Không chọn được nếu hết hàng
+        
+        this.selectedVariantId = variant.id;
+        this.selectedCapacity = variant.capacity_ml;
+        this.price = variant.price;
+        this.sku = variant.sku;
+        
+        // Update image with smooth transition
+        if (variant.image_path) {
+            this.currentImage = '/storage/' + variant.image_path;
+        }
+    },
+
+    // Cập nhật giá, ID và SKU
     updateVariantState(v) {
         this.selectedVariantId = v.id;
         this.price = v.price;
+        if (v.sku) this.sku = v.sku;
     }
 }">
 
@@ -338,43 +354,51 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                         {{-- =================================================== --}}
                         {{-- CASE 2: FRAGRANCE SELECTORS (VOLUME - DUNG TÍCH) --}}
+                        {{-- Minimalist Pill Buttons - Chanel/Le Labo Style --}}
                         {{-- =================================================== --}}
                         <div x-show="isFragrance" x-cloak>
                             <div class="mb-8">
-                                <div class="flex justify-between mb-2">
-                                    <span
-                                        class="text-xs font-bold uppercase tracking-widest text-neutral-500">Volume</span>
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Select
+                                        Size</span>
+                                    <span x-show="sku"
+                                        class="text-[10px] font-mono text-neutral-400 uppercase tracking-wider"
+                                        x-text="'SKU: ' + sku"></span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-3">
-                                    {{-- Loop qua Variants JSON --}}
+
+                                {{-- Modern Pill Buttons --}}
+                                <div class="flex gap-3">
                                     <template x-for="variant in variants" :key="variant.id">
                                         <button type="button" @click="selectVariant(variant)"
-                                            class="py-4 border flex flex-col items-center justify-center transition-all duration-200 relative overflow-hidden"
-                                            :class="selectedVariantId === variant.id ? 'border-black bg-neutral-50' : 'border-neutral-200 hover:border-neutral-400'">
+                                            :disabled="variant.stock <= 0"
+                                            class="relative px-6 py-3 border text-sm font-medium transition-all duration-300 ease-out"
+                                            :class="selectedVariantId === variant.id 
+                                                ? 'bg-black text-white border-black' 
+                                                : variant.stock <= 0 
+                                                    ? 'bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                                                    : 'bg-white text-black border-neutral-300 hover:border-black'">
+                                            {{-- Size Label --}}
+                                            <span x-text="variant.size || (variant.capacity_ml + 'ml')"></span>
 
-                                            {{-- Dung tích --}}
-                                            <span class="text-sm font-bold uppercase"
-                                                :class="selectedVariantId === variant.id ? 'text-black' : 'text-neutral-600'"
-                                                x-text="variant.capacity_ml + 'ml'"></span>
-
-                                            {{-- Trạng thái kho --}}
-                                            <template x-if="variant.stock_quantity <= 0">
+                                            {{-- Sold Out Overlay --}}
+                                            <template x-if="variant.stock <= 0">
                                                 <span
-                                                    class="absolute inset-0 bg-white/60 flex items-center justify-center">
-                                                    <span
-                                                        class="text-[10px] bg-neutral-200 px-2 py-1 text-neutral-500 font-bold uppercase">Sold
-                                                        Out</span>
+                                                    class="absolute -top-2 -right-2 bg-neutral-200 text-neutral-500 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-sm">
+                                                    Sold Out
                                                 </span>
                                             </template>
                                         </button>
                                     </template>
                                 </div>
-                                <p class="mt-3 text-[10px] text-neutral-400 font-light flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                {{-- Stock Status --}}
+                                <p class="mt-4 text-[10px] text-neutral-400 font-light flex items-center gap-1.5">
+                                    <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    In Stock. Ready to ship.
+                                    <span>In Stock · Ships within 2-3 business days</span>
                                 </p>
                             </div>
                         </div>
