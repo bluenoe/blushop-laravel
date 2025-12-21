@@ -10,14 +10,23 @@ $image = $product->img;
 $image = $product->image ? Storage::url('products/'.$product->image) : $fallbackImage;
 }
 
-// 2. Xử lý Giá tiền chuẩn format: ₫359,000
-// number_format(số, số thập phân, dấu thập phân, dấu hàng ngàn)
-$priceFormatted = is_numeric($product->price)
-? '₫' . number_format($product->price, 0, '.', ',')
-: $product->price;
+// 2. Xử lý Giá tiền - Use base_price as primary
+$basePrice = $product->base_price ?? $product->price ?? 0;
+$originalPrice = $product->original_price ?? null;
+$isOnSale = $product->is_on_sale ?? false;
+
+// Format prices in VND
+$basePriceFormatted = number_format($basePrice, 0, ',', '.') . '₫';
+$originalPriceFormatted = $originalPrice ? number_format($originalPrice, 0, ',', '.') . '₫' : null;
+
+// Check if we should show sale pricing (on sale AND original > base)
+$showSalePrice = $isOnSale && $originalPrice && $originalPrice > $basePrice;
 
 // 3. Category
-$categoryName = $product->cat ?? ($product->category->name ?? 'Essential');
+$categoryName = $product->cat ?? ($product->category->name ?? ($product->category ?? 'Essential'));
+if (is_string($categoryName)) {
+$categoryName = ucfirst($categoryName);
+}
 @endphp
 
 <div class="group relative cursor-pointer flex flex-col h-full">
@@ -26,10 +35,16 @@ $categoryName = $product->cat ?? ($product->category->name ?? 'Essential');
         <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy"
             class="w-full h-full object-cover transition duration-[1.2s] ease-out group-hover:scale-105 group-hover:grayscale-[10%]">
 
-        {{-- Badge New --}}
+        {{-- Badge: New --}}
         @if(isset($product->is_new) && $product->is_new)
         <span
-            class="absolute top-2 left-2 bg-white/90 backdrop-blur text-[10px] font-bold uppercase px-2 py-1 z-20">New</span>
+            class="absolute top-2 left-2 bg-white/90 backdrop-blur text-[10px] font-bold uppercase px-2 py-1 z-20 tracking-wider">New</span>
+        @endif
+
+        {{-- Badge: Sale (Minimalist High-End Style) --}}
+        @if($isOnSale)
+        <span
+            class="absolute top-2 right-2 bg-white text-red-600 text-[10px] font-bold uppercase tracking-wider px-2 py-1 shadow-sm z-20">Sale</span>
         @endif
 
         {{-- Quick View - Slide Up Effect --}}
@@ -58,9 +73,23 @@ $categoryName = $product->cat ?? ($product->category->name ?? 'Essential');
             <p class="text-[10px] text-neutral-400 uppercase tracking-widest">{{ $categoryName }}</p>
         </div>
 
-        {{-- PRICE FORMATTED --}}
-        <span class="text-sm font-medium text-neutral-900 whitespace-nowrap tracking-tight">
-            {{ $priceFormatted }}
-        </span>
+        {{-- PRICE SECTION: Sale vs Normal --}}
+        <div class="flex flex-col items-end">
+            @if($showSalePrice)
+            {{-- Sale Price (Current) --}}
+            <span class="text-sm font-bold text-red-600 whitespace-nowrap tracking-tight">
+                {{ $basePriceFormatted }}
+            </span>
+            {{-- Original Price (Struck-through) --}}
+            <span class="text-xs text-neutral-400 line-through whitespace-nowrap">
+                {{ $originalPriceFormatted }}
+            </span>
+            @else
+            {{-- Normal Price --}}
+            <span class="text-sm font-medium text-neutral-900 whitespace-nowrap tracking-tight">
+                {{ $basePriceFormatted }}
+            </span>
+            @endif
+        </div>
     </div>
 </div>

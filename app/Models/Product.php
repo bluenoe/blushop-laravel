@@ -22,9 +22,10 @@ class Product extends Model
         'slug',
         'sku',
         'description',
-        'base_price',     // Fixed: was 'price'
+        'base_price',     // Current selling price
+        'original_price', // Original/Retail price (before discount)
         'image',
-        'category',       // Fixed: was 'category_id' - now stores enum string ('men', 'women', 'fragrance')
+        'category',       // Enum string ('men', 'women', 'fragrance')
         'stock',
         'is_active',
         'is_new',
@@ -36,7 +37,8 @@ class Product extends Model
 
     // Cast base_price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
-        'base_price' => 'decimal:2', // Fixed: was 'price'
+        'base_price' => 'decimal:2',
+        'original_price' => 'integer',
         'specifications' => 'array',
         'is_active' => 'boolean',
         'is_new' => 'boolean',

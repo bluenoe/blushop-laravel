@@ -78,6 +78,7 @@ class ProductController extends Controller
             'sku'  => 'required|string|unique:products,sku,' . $product->id,
             'category' => 'required|string|in:men,women,fragrance',
             'base_price' => 'required|numeric|min:0',
+            'original_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
@@ -88,6 +89,7 @@ class ProductController extends Controller
         $product->sku = $validated['sku'];
         $product->category = $validated['category'];
         $product->base_price = $validated['base_price'];
+        $product->original_price = $validated['original_price'] ?? null;
         $product->stock = $validated['stock'] ?? 0;
         $product->description = $validated['description'] ?? null;
 
