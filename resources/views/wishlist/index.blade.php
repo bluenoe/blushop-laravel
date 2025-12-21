@@ -158,15 +158,24 @@ Concept: Editorial Grid, Minimalist Actions
                             </button>
 
                             {{-- Image --}}
+                            @php
+                            $slug = $product->slug ?? '';
+                            $imgRaw = $product->image ?? null;
+                            $wishlistImgSrc = 'https://placehold.co/300x400?text=No+Image';
+
+                            if ($slug && $imgRaw) {
+                            if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                            $wishlistImgSrc = $imgRaw;
+                            } else {
+                            $wishlistImgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                            }
+                            }
+                            @endphp
                             <a href="{{ route('products.show', $product->id) }}"
                                 class="block aspect-[3/4] overflow-hidden bg-neutral-100 relative mb-4">
-                                @if($product->image)
-                                <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                                @else
-                                <div class="w-full h-full flex items-center justify-center text-neutral-300 text-xs">NO
-                                    IMG</div>
-                                @endif
+                                <img src="{{ $wishlistImgSrc }}" alt="{{ $product->name }}"
+                                    class="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                                    onerror="this.src='https://placehold.co/300x400?text=No+Image'">
 
                                 {{-- Hover Overlay: Quick Add --}}
                                 <div
@@ -190,10 +199,10 @@ Concept: Editorial Grid, Minimalist Actions
                                     </a>
                                 </h3>
                                 <div class="flex justify-between items-baseline">
-                                    <p class="text-xs text-neutral-500">{{ $product->category->name ?? 'Essentials' }}
-                                    </p>
+                                    <p class="text-xs text-neutral-500">{{ ucfirst($product->category ?? 'Essentials')
+                                        }}</p>
                                     <p class="text-sm font-mono font-medium text-neutral-900">₫{{
-                                        number_format($product->price, 0, ',', '.') }}</p>
+                                        number_format($product->base_price ?? 0, 0, ',', '.') }}</p>
                                 </div>
                             </div>
 
