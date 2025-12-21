@@ -74,7 +74,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             }
 
             // 2. Logic Variants (Fragrance)
-            $isFragrance = $product->variants->isNotEmpty();
+            $firstVariant = $product->variants->first();
+            $isFragrance = $product->variants->isNotEmpty() && !empty($firstVariant->capacity_ml);
 
             // Giá & SKU khởi điểm (Ưu tiên variant nhỏ nhất nếu là nước hoa)
             $currentPrice = $isFragrance && isset($defaultVariant) ? $defaultVariant->price : $product->price;
