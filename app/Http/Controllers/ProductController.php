@@ -11,26 +11,32 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     /**
+     * Helper: Danh sách danh mục cố định (Vì DB dùng Enum)
+     */
+    private function getStaticCategories()
+    {
+        return collect([
+            (object)['name' => 'Men', 'slug' => 'men', 'children' => collect([])],
+            (object)['name' => 'Women', 'slug' => 'women', 'children' => collect([])],
+            (object)['name' => 'Fragrance', 'slug' => 'fragrance', 'children' => collect([])],
+        ]);
+    }
+
+    /**
      * Hiển thị danh sách sản phẩm (Filter, Search, Sort).
      */
     public function index(Request $request)
     {
-        $query = Product::query()
-            ->select(['id', 'name', 'slug', 'price', 'image', 'category_id', 'is_new', 'is_bestseller', 'is_on_sale'])
-            ->with(['category:id,name,slug']);
+        // 1. Khởi tạo query (Eager load variants để Accessor chạy nhanh)
+        $query = Product::with('variants');
 
-        // 1. Filter Category
+        // 2. Filter Category (Theo Enum)
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
-            $category = Category::where('slug', $slug)->first();
-            if ($category) {
-                $childIds = $category->children()->pluck('id');
-                $allIds = $childIds->push($category->id);
-                $query->whereIn('category_id', $allIds);
-            }
+            $query->where('category', $slug);
         }
 
-        // 2. Filter Search
+        // 3. Filter Search
         if ($request->filled('q')) {
             $q = trim((string) $request->input('q'));
             $query->where(function ($sub) use ($q) {
@@ -39,31 +45,27 @@ class ProductController extends Controller
             });
         }
 
-        // 3. Filter Price
+        // 4. Filter Price (Dùng base_price cho chuẩn logic mới)
         if ($request->filled('price_min')) {
-            $query->where('price', '>=', (float) $request->input('price_min'));
+            $query->where('base_price', '>=', (float) $request->input('price_min'));
         }
         if ($request->filled('price_max')) {
-            $query->where('price', '<=', (float) $request->input('price_max'));
+            $query->where('base_price', '<=', (float) $request->input('price_max'));
         }
 
-        // 4. Sort
+        // 5. Sort
         $sort = (string) $request->input('sort', 'newest');
         match ($sort) {
-            'price_asc' => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
+            'price_asc' => $query->orderBy('base_price', 'asc'),
+            'price_desc' => $query->orderBy('base_price', 'desc'),
             'featured' => $query->orderBy('is_bestseller', 'desc')->orderBy('id', 'desc'),
             default => $query->latest('id'),
         };
 
+        // 6. Pagination
         $products = $query->paginate(12)->withQueryString();
 
-        $categories = Category::whereNull('parent_id')
-            ->where('slug', '!=', 'uncategorized')
-            ->with('children')
-            ->orderBy('name')
-            ->get();
-
+        // 7. Breadcrumbs & Categories
         $breadcrumbs = [
             ['label' => 'Home', 'url' => route('home')],
             ['label' => 'Shop', 'url' => route('products.index')],
@@ -71,118 +73,114 @@ class ProductController extends Controller
 
         return view('products.index', [
             'products' => $products,
-            'categories' => $categories,
+            'categories' => $this->getStaticCategories(), // Dùng hàm helper cho gọn
             'breadcrumbs' => $breadcrumbs,
+            'pageTitle' => 'Shop All'
         ]);
     }
 
     /**
-     * Hiển thị chi tiết sản phẩm (Logic Hybrid: Quần áo + Nước hoa).
+     * Hiển thị chi tiết sản phẩm
      */
     public function show(int $id)
     {
-        // 1. Lấy thông tin sản phẩm
-        // Eager load luôn relationship 'completeLookProducts' để tối ưu query
-        $product = Product::with(['category', 'images', 'completeLookProducts'])
+        // 1. Load sản phẩm
+        $product = Product::with(['category', 'variants', 'completeLookProducts'])
             ->withCount('reviews')
             ->findOrFail($id);
 
-        // 2. Xử lý Variants (Nước hoa)
-        $product->load(['variants' => function ($q) {
-            $q->where('is_active', true)->orderBy('capacity_ml', 'asc');
-        }]);
-
-        // Logic ảnh Variant (Giữ nguyên logic của bà)
+        // 2. Chuẩn bị JSON variants (FIX đường dẫn ảnh)
         $variantsData = $product->variants->map(function ($variant) use ($product) {
-            $suffix = '-' . $variant->capacity_ml;
-            $extension = pathinfo($product->image, PATHINFO_EXTENSION);
-            $filename = pathinfo($product->image, PATHINFO_FILENAME);
-            $variantImageName = $filename . $suffix . '.' . $extension;
+            // Logic tạo đường dẫn ảnh: products/{slug}/{tên_ảnh}
+            $imagePath = null;
 
-            if ($variant->capacity_ml == 50 || $variant->capacity_ml == 30) {
-                $imageUrl = Storage::url('products/' . $product->image);
-            } else {
-                $imageUrl = Storage::url('products/' . $variantImageName);
+            // Nếu DB đã lưu full path (products/slug/abc.jpg) thì dùng luôn
+            if ($variant->image_path) {
+                $imagePath = $variant->image_path;
+            }
+            // Nếu variant chưa có ảnh riêng, thử tạo path dựa trên màu (nếu bà đặt tên file chuẩn)
+            elseif ($variant->color_name) {
+                $slug = $product->slug;
+                $color = Str::slug($variant->color_name); // Red -> red
+                // Giả định ảnh là: products/men-ao-thun/red.jpg
+                $imagePath = "products/{$slug}/{$color}.jpg";
             }
 
             return [
                 'id' => $variant->id,
-                'capacity_ml' => $variant->capacity_ml,
-                'price' => $variant->price,
                 'sku' => $variant->sku,
-                'stock_quantity' => $variant->stock_quantity,
-                'image' => $imageUrl,
+                'price' => (float) $variant->price,
+                'stock' => $variant->stock_quantity, // Fix tên cột stock_quantity
+                'image' => $imagePath ? Storage::url($imagePath) : null,
+                'color' => $variant->color_name,
+                'hex'   => $variant->hex_code,       // Fix tên cột hex_code
+                'capacity' => $variant->capacity_ml,
+                'size' => $variant->size
             ];
         });
 
-        // 3. Logic ảnh mặc định (Giữ nguyên logic của bà)
-        $defaultImage = null;
-        $defaultColor = null;
+        // 3. Logic lấy danh sách màu (FIX đường dẫn ảnh cho nút màu)
+        $availableColors = $product->variants
+            ->whereNotNull('color_name')
+            ->unique('color_name')
+            ->map(function ($v) use ($product) {
+                // Tương tự logic trên
+                $imagePath = $v->image_path
+                    ?? "products/{$product->slug}/" . Str::slug($v->color_name) . ".jpg";
 
-        if ($product->variants->isNotEmpty()) {
-            $defaultImage = Storage::url('products/' . $product->image);
-        } else {
-            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
-            if ($defImgObj) {
-                $path = Str::startsWith($defImgObj->image_path, 'products/') ? $defImgObj->image_path : 'products/' . $defImgObj->image_path;
-                $defaultImage = Storage::url($path);
-                $defaultColor = $defImgObj->color;
-            } else {
-                $defaultImage = $product->image ? Storage::url('products/' . $product->image) : 'https://placehold.co/600x800';
-            }
-        }
+                return [
+                    'name' => $v->color_name,
+                    'hex' => $v->hex_code,
+                    'image' => Storage::url($imagePath)
+                ];
+            })->values();
 
-        // 4. Logic Color mapping (Giữ nguyên)
-        $variantImages = $product->images
-            ->whereNotNull('color')
-            ->mapWithKeys(function ($item) {
-                $path = Str::startsWith($item->image_path, 'products/') ? $item->image_path : 'products/' . $item->image_path;
-                return [$item->color => Storage::url($path)];
-            });
-        $availableColors = $variantImages->keys()->toArray();
+        // 4. Phân loại sản phẩm
+        $isFragrance = $product->type === 'fragrance';
 
-        // =========================================================
-        // FIX 1: COMPLETE THE LOOK (Ưu tiên DB Relation -> Fallback Random)
-        // =========================================================
-
-        // Lấy từ bảng trung gian (complete_look_product) mà đã định nghĩa trong Model
-        $completeLook = $product->completeLookProducts;
-
-        //  Logic Fallback 
-        if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('category_id', $product->category_id)
-                ->where('id', '!=', $id) // Trừ sản phẩm đang xem
-                ->inRandomOrder()
-                ->take(4)
-                ->get();
-        }
-
-        // =========================================================
-        // FIX 2: CURATED FOR YOU (Logic Random - Recommendation)
-        // =========================================================
-
-        $curated = Product::where('id', '!=', $id)
-            ->inRandomOrder()
-            ->take(5)
-            ->get();
-
-        $reviews = $product->reviews()->with('user')->latest()->paginate(5);
-        $wishedIds = auth()->check() ? auth()->user()->wishlist()->pluck('products.id')->toArray() : [];
+        // 5. Ảnh mặc định ban đầu (FIX đường dẫn)
         $defaultVariant = $product->variants->first();
+        $defaultImage = null;
 
-        // Truyền biến $curated vào view
+        if ($defaultVariant && $defaultVariant->image_path) {
+            $defaultImage = Storage::url($defaultVariant->image_path);
+        } elseif ($product->image) {
+            // Ảnh gốc của sản phẩm: Thêm Slug vào đường dẫn
+            // Từ: products/abc.jpg -> Thành: products/{slug}/abc.jpg
+            $path = "products/{$product->slug}/{$product->image}";
+            $defaultImage = Storage::url($path);
+        } else {
+            $defaultImage = 'https://placehold.co/600x800?text=No+Image';
+        }
+
+        // ... (Giữ nguyên phần Complete Look & Curated cũ của bà) ...
+        $completeLook = $product->completeLookProducts;
+        if ($completeLook->isEmpty()) {
+            $completeLook = Product::where('category', $product->category)
+                ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
+        }
+
+        // Fix ảnh cho Complete Look (Thêm slug)
+        $completeLook->transform(function ($item) {
+            if ($item->image && !Str::contains($item->image, '/')) {
+                $item->image = "products/{$item->slug}/{$item->image}";
+            }
+            return $item;
+        });
+
+        $curated = Product::where('id', '!=', $id)->inRandomOrder()->take(5)->get();
+        $reviews = $product->reviews()->with('user')->latest()->paginate(5);
+
         return view('products.show', [
             'product' => $product,
+            'variantsJson' => $variantsData->toJson(),
+            'availableColors' => $availableColors,
+            'isFragrance' => $isFragrance,
+            'defaultImage' => $defaultImage,
+            'defaultVariant' => $defaultVariant,
             'reviews' => $reviews,
             'completeLook' => $completeLook,
-            'curated' => $curated,
-            'wishedIds' => $wishedIds,
-            'variantImages' => $variantImages,
-            'availableColors' => $availableColors,
-            'defaultVariant' => $defaultVariant,
-            'variantsJson' => $variantsData->toJson(),
-            'defaultImage' => $defaultImage,
-            'defaultColor' => $defaultColor,
+            'curated' => $curated
         ]);
     }
 
@@ -192,7 +190,9 @@ class ProductController extends Controller
         if (mb_strlen($term) < 2) return response()->json(['data' => []]);
 
         $safeTerm = str_replace(['%', '_'], ['\\%', '\\_'], $term);
-        $products = Product::select(['id', 'name', 'slug', 'price', 'image'])
+
+        // [FIX 4] Select 'base_price' thay vì 'price'
+        $products = Product::select(['id', 'name', 'slug', 'base_price', 'image'])
             ->where('name', 'like', '%' . $safeTerm . '%')
             ->limit(8)->get();
 
@@ -200,8 +200,8 @@ class ProductController extends Controller
             return [
                 'id' => $p->id,
                 'name' => $p->name,
-                'price' => (float) $p->price,
-                'image' => $p->image ? Storage::url('products/' . $p->image) : null,
+                'price' => (float) $p->base_price, // [FIX 4] Sửa lại cho khớp
+                'image' => $p->image_url, // Dùng Accessor image_url
                 'url' => route('products.show', $p->id),
             ];
         });
@@ -209,75 +209,39 @@ class ProductController extends Controller
         return response()->json(['data' => $results]);
     }
 
-    private function getSidebarCategories()
-    {
-        return Category::whereNull('parent_id')
-            ->where('slug', '!=', 'uncategorized')
-            ->with('children')
-            ->orderBy('name')
-            ->get();
-    }
+    // Các hàm trang phụ (New Arrivals, Best Sellers...)
+    // Lưu ý: Bà nên dùng getStaticCategories() thay vì query DB 
+    // nếu bà đã bỏ bảng categories cũ.
 
     public function newArrivals()
     {
-        // Logic: Lấy 12 sản phẩm mới nhất
         $products = Product::latest()->paginate(12);
-
-        // Data giao diện
-        $categories = $this->getSidebarCategories();
-        $breadcrumbs = [
-            ['label' => 'Home', 'url' => route('home')],
-            ['label' => 'New Arrivals', 'url' => ''],
-        ];
-
-        // Tái sử dụng view products.index, thêm biến pageTitle để đổi tiêu đề
         return view('products.new-arrivals', [
             'products' => $products,
-            'categories' => $categories,
-            'breadcrumbs' => $breadcrumbs,
+            'categories' => $this->getStaticCategories(),
+            'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'New Arrivals', 'url' => '']],
             'pageTitle' => 'New Arrivals'
         ]);
     }
 
     public function bestSellers()
     {
-        // Logic: Sắp xếp theo cột sold_count mới tạo (cao xuống thấp)
-        // Nếu sold_count bằng nhau thì lấy cái mới hơn
-        $products = Product::orderBy('sold_count', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(12);
-
-        $categories = $this->getSidebarCategories();
-        $breadcrumbs = [
-            ['label' => 'Home', 'url' => route('home')],
-            ['label' => 'Best Sellers', 'url' => ''],
-        ];
-
+        $products = Product::orderBy('sold_count', 'desc')->paginate(12);
         return view('products.index', [
             'products' => $products,
-            'categories' => $categories,
-            'breadcrumbs' => $breadcrumbs,
+            'categories' => $this->getStaticCategories(),
+            'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'Best Sellers', 'url' => '']],
             'pageTitle' => 'Best Sellers'
         ]);
     }
 
     public function onSale()
     {
-        // Logic: Lấy sản phẩm đang có cờ sale hoặc có giá sale
-        $products = Product::where('is_on_sale', true)
-            ->latest()
-            ->paginate(12);
-
-        $categories = $this->getSidebarCategories();
-        $breadcrumbs = [
-            ['label' => 'Home', 'url' => route('home')],
-            ['label' => 'On Sale', 'url' => ''],
-        ];
-
+        $products = Product::where('is_on_sale', true)->latest()->paginate(12);
         return view('products.index', [
             'products' => $products,
-            'categories' => $categories,
-            'breadcrumbs' => $breadcrumbs,
+            'categories' => $this->getStaticCategories(),
+            'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'On Sale', 'url' => '']],
             'pageTitle' => 'On Sale'
         ]);
     }

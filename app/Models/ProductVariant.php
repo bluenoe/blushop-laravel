@@ -21,6 +21,12 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function image()
+{
+    // Link tới bảng product_images thông qua image_id vừa tạo
+    return $this->belongsTo(ProductImage::class, 'image_id');
+}
+
     // Format hiển thị tên đầy đủ: "Chanel No.5 - 50ml"
     public function getFullNameAttribute()
     {

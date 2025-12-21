@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * @mixin IdeHelperProduct
@@ -34,6 +36,34 @@ class Product extends Model
         'price' => 'decimal:2',
         'specifications' => 'array',
     ];
+
+    // Trong Product.php
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // 1. Lấy biến thể đầu tiên ra (Lúc này mới gọi được nè)
+                $variant = $this->variants->first();
+
+                // 2. Ưu tiên: Nếu có Variant và Variant có đường dẫn ảnh
+                if ($variant && $variant->image_path) {
+                    return Storage::url($variant->image_path);
+                }
+                // 3. Fallback: Nếu không có variant, lấy ảnh gốc của Product
+                if ($this->image) {
+                    // Kiểm tra xem trong DB đã có chữ 'products/' chưa để tránh trùng
+                    $path = str_starts_with($this->image, 'products/')
+                        ? $this->image
+                        : 'products/' . $this->image;
+
+                    return Storage::url($path);
+                }
+
+                // 4. Đường cùng: Trả về ảnh giữ chỗ (Placeholder) để web không bị vỡ khung
+                return 'https://placehold.co/600x800?text=No+Image';
+            }
+        );
+    }
 
     public function orderItems()
     {
@@ -80,6 +110,14 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    // Hàm lấy chi tiết sản phẩm kèm variants và ảnh chuẩn
+    public function getProductDetails($slug)
+    {
+        return self::with(['variants.image', 'images'])
+            ->where('slug', $slug)
+            ->firstOrFail();
     }
 
     // 3. Helper: Lấy giá thấp nhất để hiển thị "Từ 1.000.000đ" ở trang danh sách

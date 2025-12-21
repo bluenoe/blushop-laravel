@@ -114,8 +114,7 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                     {{-- Image Wrapper --}}
                     <div class="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 cursor-pointer">
                         <a href="{{ route('products.show', $product) }}" class="block w-full h-full">
-                            <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                loading="lazy"
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy"
                                 class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105 filter grayscale-[10%] group-hover:grayscale-0">
                         </a>
 
@@ -169,13 +168,15 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                                 <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
                             </h3>
                             @if($product->category)
-                            <p class="text-[10px] text-neutral-400 uppercase tracking-wider mt-1">{{
-                                $product->category->name }}</p>
+                            <p class="text-[10px] text-neutral-400 uppercase tracking-wider mt-1">
+                                {{ ucfirst($product->category) }} {{-- Hàm ucfirst để viết hoa chữ cái đầu: men -> Men
+                                --}}
+                            </p>
                             @endif
                         </div>
                         <div class="text-right">
-                            <span class="text-sm font-medium text-neutral-900">₫{{ number_format($product->price)
-                                }}</span>
+                            <span class="text-sm font-medium text-neutral-900">₫{{ number_format($product->price ??
+                                $product->variants->first()?->price ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

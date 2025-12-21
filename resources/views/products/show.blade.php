@@ -27,6 +27,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             transition: all 0.3s ease;
         }
     </style>
+
     @endpush
 
     <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
@@ -39,8 +40,10 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 <a href="{{ route('products.index') }}" class="hover:text-black transition">Shop</a>
                 @if($product->category)
                 <span class="mx-2">/</span>
-                <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
-                    class="hover:text-black transition">{{ $product->category->name }}</a>
+                <a href="{{ route('products.index', ['category' => $product->category]) }}"
+                    class="hover:text-black transition">
+                    {{ ucfirst($product->category) }}
+                </a>
                 @endif
                 <span class="mx-2">/</span>
                 <span class="text-black border-b border-black">{{ $product->name }}</span>
@@ -50,33 +53,37 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
         {{-- 2. MAIN PRODUCT SECTION --}}
         <section class="max-w-[1400px] mx-auto px-0 sm:px-6 lg:px-8 py-0 lg:py-12">
             @php
-            // 1. LOGIC TÌM ẢNH MẶC ĐỊNH (FIXED)
-            // Ưu tiên tìm trong thư viện ảnh (Quần áo)
-            $defImgObj = $product->images->firstWhere('is_main', 1) ?? $product->images->first();
+            // 1. LOGIC TÌM ẢNH MẶC ĐỊNH (FIXED by Antigravity)
+            // Priority: Default Variant Image -> Product Main Image -> Placeholder
 
-            if ($defImgObj) {
-            // Nếu là quần áo (có ảnh trong bảng product_images)
-            $path = Str::startsWith($defImgObj->image_path, 'products/')
-            ? $defImgObj->image_path
-            : 'products/' . $defImgObj->image_path;
-            $defaultImage = Storage::url($path);
-            $defaultColor = $defImgObj->color;
+            // $defaultVariant is already passed from controller, but let's ensure we have it
+            $defVariant = $product->variants->first();
+            $defaultImage = null;
+
+            if ($defVariant && $defVariant->image_path) {
+            // Calculate URL safely
+            $defaultImage = Storage::url($defVariant->image_path);
+            $defaultColor = $defVariant->color_name;
             } elseif ($product->image) {
-            // [QUAN TRỌNG] Nếu là Nước hoa (chỉ có ảnh ở bảng products), lấy ảnh này!
-            $defaultImage = Storage::url('products/' . $product->image);
+            // Fallback to Product Image
+            // Check if it already has path or needs prefix
+            $path = Str::startsWith($product->image, 'products/') ? $product->image : 'products/' . $product->image;
+            $defaultImage = Storage::url($path);
             $defaultColor = null;
             } else {
-            // Fallback
             $defaultImage = 'https://placehold.co/600x800?text=No+Image';
             $defaultColor = null;
             }
 
-            // 2. Logic Variants (Fragrance)
-            $isFragrance = $product->variants->isNotEmpty();
+            // 2. Logic Variants (Fragrance/General)
+            $isFragrance = $product->variants->isNotEmpty() && !empty($defVariant->capacity_ml);
 
-            // Giá & SKU khởi điểm (Ưu tiên variant nhỏ nhất nếu là nước hoa)
-            $currentPrice = $isFragrance && isset($defaultVariant) ? $defaultVariant->price : $product->price;
-            $currentSku = $isFragrance && isset($defaultVariant) ? $defaultVariant->sku : null;
+            // 3. PRICE LOGIC (Fix Missing Prices)
+            // Priority: Product Price -> First Variant Price -> 0
+            $currentPrice = $product->price ?? ($defVariant ? $defVariant->price : 0);
+
+            // SKU
+            $currentSku = $defVariant ? $defVariant->sku : null;
             @endphp
 
             {{--
@@ -84,53 +91,82 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             ------------------------------
             Xử lý song song 2 logic: Quần áo (Color/Size) và Nước hoa (Variant/Price)
             --}}
+            {{-- 1. CHUẨN BỊ DỮ LIỆU Ở VÙNG AN TOÀN (SCRIPT TAG) --}}
+            <script>
+                window.productConfig = {
+                    isFragrance: @json($isFragrance),
+                    variants: @json($product -> variants),
+                    defaultImage: @json($defaultImage),
+                    defaultPrice: @json($currentPrice),
+                    defaultColor: @json($defaultColor),
+                    defaultSize: @json($product -> default_size ?? null),
+                    defaultCapacity: @json($product -> default_capacity ?? null),
+                    defaultVariantId: @json($product -> default_variant_id ?? null)
+                };
+            </script>
+
+            {{-- 2. KHỞI TẠO ALPINE VỚI DỮ LIỆU SẠCH --}}
             <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-start" x-data="{
-                // Common
-                loading: false,
-                added: false,
-                qty: 1,
+    // State cơ bản
+    loading: false,
+    added: false,
+    qty: 1,
+    
+    // Lấy dữ liệu từ biến window
+    isFragrance: window.productConfig.isFragrance,
+    variants: window.productConfig.variants,
+    
+    // State hiển thị
+    currentImage: window.productConfig.defaultImage,
+    price: window.productConfig.defaultPrice,
+    
+    // State lựa chọn
+    selectedColor: window.productConfig.defaultColor,
+    selectedSize: window.productConfig.defaultSize,
+    selectedCapacity: window.productConfig.defaultCapacity,
+    selectedVariantId: window.productConfig.defaultVariantId,
+    sku: null,
 
-                // Mode Detection
-                isFragrance: {{ $isFragrance ? 'true' : 'false' }},
+    // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
+    init() {
+        console.log('Alpine Loaded. Variants:', this.variants);
+    },
 
-                // Apparel State
-                color: '{{ $defaultColor }}', 
-                size: {{ $isFragrance ? 'null' : 'null' }}, // Quần áo thì null bắt buộc chọn, nước hoa sẽ auto fill
-                currentImage: '{{ $defaultImage }}',
-                imageMap: {{ json_encode($variantImages) }},
+    // LOGIC 1: CHỌN MÀU
+    selectColor(colorName, imageUrl) {
+        this.selectedColor = colorName;
+        if (imageUrl) this.currentImage = imageUrl;
 
-                // Fragrance State
-                price: {{ $currentPrice }},
-                sku: '{{ $currentSku }}',
-                selectedVariantId: {{ $isFragrance && isset($defaultVariant) ? $defaultVariant->id : 'null' }},
-                variants: {{ $variantsJson ?? '[]' }}, // Load JSON từ Controller
+        // Tìm variant khớp Màu + Size đang chọn
+        let variant = this.variants.find(v => v.color === colorName && v.size === this.selectedSize) 
+                   || this.variants.find(v => v.color === colorName);
 
-                init() {
-                    // Nếu là nước hoa, tự động chọn size đầu tiên (nhỏ nhất)
-                    if (this.isFragrance && this.variants.length > 0) {
-                        this.selectVariant(this.variants[0]);
-                    }
-                },
+        if (variant) this.updateVariantState(variant);
+    },
 
-                // Logic: Chọn Màu (Quần áo)
-                selectColor(selectedColor) {
-                    this.color = selectedColor;
-                    if (this.imageMap[selectedColor]) {
-                        this.currentImage = this.imageMap[selectedColor];
-                    }
-                },
+    // LOGIC 2: CHỌN SIZE
+    selectSize(size) {
+        this.selectedSize = size;
+        let variant = this.variants.find(v => v.color === this.selectedColor && v.size === size);
+        if (variant) this.updateVariantState(variant);
+    },
 
-                // Logic: Chọn Dung Tích (Nước hoa)
-                selectVariant(v) {
-                    this.selectedVariantId = v.id;
-                    this.price = v.price; // Cập nhật giá tiền hiển thị
-                    this.sku = v.sku;
-                    this.size = v.capacity_ml + 'ml'; // Map dung tích vào input 'size' để gửi lên server
-                    if (v.image) {
-        this.currentImage = v.image;
+    // LOGIC 3: CHỌN DUNG TÍCH
+    selectCapacity(capacity) {
+        this.selectedCapacity = capacity;
+        let variant = this.variants.find(v => v.capacity == capacity);
+        if (variant) {
+            this.updateVariantState(variant);
+            if (variant.image) this.currentImage = variant.image; 
+        }
+    },
+
+    // Cập nhật giá và ID
+    updateVariantState(v) {
+        this.selectedVariantId = v.id;
+        this.price = v.price;
     }
-                }
-            }">
+}">
 
                 {{-- LEFT: GALLERY --}}
                 <div class="lg:col-span-7 col-span-12 w-full mb-8 lg:mb-0">
@@ -186,7 +222,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             <span class="text-xl font-medium text-neutral-900 price-transition"
                                 x-text="'₫' + new Intl.NumberFormat('vi-VN').format(price)">
                                 {{-- Server Render Fallback --}}
-                                ₫{{ number_format((float)$product->price, 0, ',', '.') }}
+                                ₫{{ number_format((float)$currentPrice, 0, ',', '.') }}
                             </span>
 
                             @if($product->is_on_sale)
@@ -197,11 +233,11 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
-                        if(!size) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
+                        if(isFragrance ? !selectedVariantId : !selectedSize) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
                         loading = true;
                         
                         // Chuẩn bị payload
-                        let payload = { quantity: qty, size: size, color: color };
+                        let payload = { quantity: qty, size: selectedSize, color: selectedColor };
                         if(selectedVariantId) payload.variant_id = selectedVariantId; // Gửi kèm ID variant nếu có
 
                         fetch($el.action, {
@@ -229,26 +265,23 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 <div class="flex justify-between mb-2">
                                     <span
                                         class="text-xs font-bold uppercase tracking-widest text-neutral-500">Color</span>
-                                    <span class="text-xs text-neutral-900" x-text="color ? color : 'Select'"></span>
+                                    <span class="text-xs text-neutral-900"
+                                        x-text="selectedColor ? selectedColor : 'Select'"></span>
                                 </div>
 
                                 @if(count($availableColors) > 0)
                                 <div class="flex gap-3">
                                     @foreach($availableColors as $c)
-                                    @php
-                                    // Mapping màu sắc UI
-                                    $bgClass = match(strtolower($c)) {
-                                    'black' => 'bg-[#171717]', 'white' => 'bg-[#FFFFFF] border border-[#E5E5E5]',
-                                    'grey', 'gray' => 'bg-[#52525B]', 'beige', 'cream' => 'bg-[#E8E0D5]',
-                                    'brown' => 'bg-[#5D4037]', 'navy' => 'bg-[#1F2937]', 'green' => 'bg-[#3F6212]',
-                                    default => 'bg-[#D4D4D4]'
-                                    };
-                                    @endphp
-                                    <button type="button" @click="selectColor('{{ $c }}')"
+                                    <button type="button" {{-- Lấy tên và ảnh từ mảng $c --}}
+                                        @click="selectColor('{{ $c['name'] }}', '{{ $c['image'] }}')"
                                         class="w-8 h-8 rounded-full focus:outline-none ring-1 ring-offset-2 transition-all duration-200"
-                                        :class="color === '{{ $c }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'">
-                                        <div class="{{ $bgClass }} w-full h-full rounded-full"
-                                            @if($bgClass=='bg-[#D4D4D4]' ) style="background-color: {{ $c }}" @endif>
+                                        {{-- Logic Active: So sánh với selectedColor --}}
+                                        :class="selectedColor === '{{ $c['name'] }}' ? 'ring-black scale-110' : 'ring-transparent hover:ring-gray-300 hover:scale-105'"
+                                        title="{{ $c['name'] }}">
+
+                                        {{-- Hiển thị chấm màu: Dùng luôn mã HEX từ Database (xịn hơn) --}}
+                                        <div class="w-full h-full rounded-full border border-neutral-200"
+                                            style="background-color: {{ $c['hex'] ?? '#CCCCCC' }};">
                                         </div>
                                     </button>
                                     @endforeach
@@ -267,9 +300,9 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 </div>
                                 <div class="grid grid-cols-4 gap-2">
                                     <template x-for="s in ['S','M','L','XL']" :key="s">
-                                        <button type="button" @click="size = s"
+                                        <button type="button" @click="selectSize(s)"
                                             class="py-3 border text-sm font-medium transition-all duration-200"
-                                            :class="size === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
+                                            :class="selectedSize === s ? 'border-black bg-black text-white' : 'border-neutral-200 text-neutral-600 hover:border-black hover:text-black'">
                                             <span x-text="s"></span>
                                         </button>
                                     </template>
