@@ -153,20 +153,14 @@ class ProductController extends Controller
             $defaultImage = 'https://placehold.co/600x800?text=No+Image';
         }
 
-        // ... (Giữ nguyên phần Complete Look & Curated cũ của bà) ...
+     
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
             $completeLook = Product::where('category', $product->category)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
 
-        // Fix ảnh cho Complete Look (Thêm slug)
-        $completeLook->transform(function ($item) {
-            if ($item->image && !Str::contains($item->image, '/')) {
-                $item->image = "products/{$item->slug}/{$item->image}";
-            }
-            return $item;
-        });
+
 
         $curated = Product::where('id', '!=', $id)->inRandomOrder()->take(5)->get();
         $reviews = $product->reviews()->with('user')->latest()->paginate(5);
