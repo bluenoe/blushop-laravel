@@ -533,27 +533,35 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 }
                 }
                 @endphp
-                <div class="group relative overflow-hidden">
-                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
+                <div class="group relative">
+                    {{-- Image Container (Isolated for Zoom) --}}
+                    <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4 relative">
                         <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transform-gpu transition-transform duration-700 ease-out group-hover:scale-105"
                             style="backface-visibility: hidden;" alt="{{ $lookItem->name }}" loading="lazy">
+
+                        {{-- Clickable Overlay Link --}}
+                        <a href="{{ route('products.show', $lookItem->id) }}" class="absolute inset-0 z-10"></a>
+
+                        {{-- Floating Action Button (Isolated, does NOT zoom) --}}
+                        <button
+                            class="absolute bottom-4 right-4 z-20 h-10 w-10 bg-white text-black rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-4 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 hover:bg-neutral-100 hover:scale-110"
+                            aria-label="Quick View">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
                     </div>
+
+                    {{-- Product Info --}}
                     <h3 class="text-sm font-medium">
                         <a href="{{ route('products.show', $lookItem->id) }}">
-                            <span class="absolute inset-0"></span>
                             {{ $lookItem->name }}
                         </a>
                     </h3>
                     <p class="text-sm text-neutral-600 mt-1">₫{{ number_format($lookItem->price ??
                         $lookItem->variants->first()?->price ?? 0, 0, ',', '.') }}</p>
-
-                    <button
-                        class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </button>
                 </div>
                 @endforeach
             </div>
