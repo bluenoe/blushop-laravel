@@ -123,12 +123,25 @@ Updated by Senior Mentor for rowId compatibility
                             class="flex gap-6 py-6 border-b border-neutral-100 last:border-0 group">
 
                             {{-- Image --}}
+                            @php
+                            // Build correct image path with slug
+                            $slug = $item['slug'] ?? '';
+                            $imgName = $item['image'] ?? null;
+                            $imgSrc = 'https://placehold.co/128x160?text=No+Image';
+
+                            if ($imgName && $slug) {
+                            if (Str::startsWith($imgName, ['http://', 'https://'])) {
+                            $imgSrc = $imgName;
+                            } else {
+                            $imgSrc = asset('storage/products/' . $slug . '/' . basename($imgName));
+                            }
+                            }
+                            @endphp
                             <div
                                 class="w-24 h-32 sm:w-32 sm:h-40 bg-neutral-100 flex-shrink-0 relative overflow-hidden">
                                 {{-- Link về trang chi tiết thì phải dùng product_id gốc --}}
                                 <a href="{{ route('products.show', $item['product_id'] ?? $item['id'] ?? 0) }}">
-                                    <img src="{{ Storage::url('products/' . $item['image']) }}"
-                                        alt="{{ $item['name'] }}"
+                                    <img src="{{ $imgSrc }}" alt="{{ $item['name'] }}"
                                         class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
                                 </a>
                             </div>
