@@ -88,9 +88,22 @@ Location: resources/views/products/new-arrivals.blade.php
             @if($highlightProducts->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 @foreach($highlightProducts as $product)
+                @php
+                $slug = $product->slug ?? '';
+                $imgRaw = $product->image ?? null;
+                $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                if ($slug && $imgRaw) {
+                if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                $imgSrc = $imgRaw;
+                } else {
+                $imgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                }
+                }
+                @endphp
                 <div class="group relative aspect-[3/4] md:aspect-[4/5] overflow-hidden bg-white" data-reveal>
                     <a href="{{ route('products.show', $product) }}" class="block w-full h-full">
-                        <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
+                        <img src="{{ $imgSrc }}" alt="{{ $product->name }}"
                             class="w-full h-full object-cover transition duration-1000 group-hover:scale-105">
                     </a>
 
@@ -102,7 +115,8 @@ Location: resources/views/products/new-arrivals.blade.php
                                 class="text-[10px] uppercase tracking-widest mb-1 bg-white text-black inline-block px-2 py-0.5">
                                 Highlight</p>
                             <h3 class="text-xl font-serif italic">{{ $product->name }}</h3>
-                            <p class="text-sm mt-1 opacity-90">{{ number_format($product->price) }}đ</p>
+                            <p class="text-sm mt-1 opacity-90">₫{{ number_format($product->price ?? $product->base_price
+                                ?? 0, 0, ',', '.') }}</p>
                         </div>
                         <button
                             class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-neutral-200 transition">
@@ -120,12 +134,24 @@ Location: resources/views/products/new-arrivals.blade.php
             {{-- STANDARD GRID (Các sản phẩm còn lại) --}}
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
                 @foreach($normalProducts as $product)
+                @php
+                $slug = $product->slug ?? '';
+                $imgRaw = $product->image ?? null;
+                $imgSrc = 'https://placehold.co/600x800?text=No+Image';
+
+                if ($slug && $imgRaw) {
+                if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                $imgSrc = $imgRaw;
+                } else {
+                $imgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                }
+                }
+                @endphp
                 <div class="group" data-reveal>
                     {{-- Image Wrapper --}}
                     <div class="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
                         <a href="{{ route('products.show', $product) }}" class="block w-full h-full">
-                            <img src="{{ Storage::url('products/' . $product->image) }}" alt="{{ $product->name }}"
-                                loading="lazy"
+                            <img src="{{ $imgSrc }}" alt="{{ $product->name }}" loading="lazy"
                                 class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-110">
                         </a>
 
@@ -152,7 +178,8 @@ Location: resources/views/products/new-arrivals.blade.php
                         <div class="flex justify-between items-center">
                             <p class="text-xs text-neutral-500 uppercase tracking-wide">{{ $product->category->name ??
                                 'Essentials' }}</p>
-                            <span class="text-sm font-medium">₫{{ number_format($product->price) }}</span>
+                            <span class="text-sm font-medium">₫{{ number_format($product->price ?? $product->base_price
+                                ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
