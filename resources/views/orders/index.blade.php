@@ -87,10 +87,24 @@ Concept: Clean Sidebar, Horizontal Product Strip, Monospace Data
                             {{-- Product Visual Strip --}}
                             <div class="grid grid-cols-4 md:grid-cols-6 gap-4 mb-8">
                                 @foreach($order->orderItems->take(5) as $item)
-                                @if($item->product && $item->product->image)
+                                @php
+                                $productRef = $item->product;
+                                $slug = $productRef->slug ?? '';
+                                $imgRaw = $productRef->image ?? null;
+                                $historyImgSrc = 'https://placehold.co/120x160?text=No+Image';
+
+                                if ($slug && $imgRaw) {
+                                if (Str::startsWith($imgRaw, ['http://', 'https://'])) {
+                                $historyImgSrc = $imgRaw;
+                                } else {
+                                $historyImgSrc = asset('storage/products/' . $slug . '/' . basename($imgRaw));
+                                }
+                                }
+                                @endphp
+                                @if($productRef)
                                 <div
                                     class="aspect-[3/4] bg-neutral-100 relative overflow-hidden group-hover:brightness-95 transition duration-500">
-                                    <img src="{{ Storage::url('products/'.$item->product->image) }}"
+                                    <img src="{{ $historyImgSrc }}"
                                         class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700">
                                 </div>
                                 @endif
