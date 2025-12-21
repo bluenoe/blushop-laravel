@@ -27,6 +27,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             transition: all 0.3s ease;
         }
     </style>
+
     @endpush
 
     <main class="bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
@@ -89,17 +90,16 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
             --}}
             {{-- 1. CHUẨN BỊ DỮ LIỆU Ở VÙNG AN TOÀN (SCRIPT TAG) --}}
             <script>
-                // Gán dữ liệu vào biến toàn cục, tránh xung đột HTML
                 window.productConfig = {
-                    isFragrance: {{ $isFragrance ? 'true' : 'false' }},
-                variants: { !!$variantsJson!! }, // Dùng !! ở đây an toàn tuyệt đối
-                defaultPrice: { { $defaultVariant ? $defaultVariant -> price : $product -> base_price } },
-                defaultImage: '{{ $defaultImage }}',
-                    defaultColor: '{{ $defaultVariant ? $defaultVariant->color_name : null }}',
-                        defaultSize: '{{ $defaultVariant ? $defaultVariant->size : null }}',
-                            defaultCapacity: { { $defaultVariant ? ($defaultVariant -> capacity_ml ?? 'null') : 'null' } },
-                defaultVariantId: { { $defaultVariant ? $defaultVariant -> id : 'null' } }
-    };
+                    isFragrance: @json($isFragrance),
+                    variants: @json($product -> variants),
+                    defaultImage: @json($defaultImage),
+                    defaultPrice: @json($product -> price),
+                    defaultColor: @json($defaultColor),
+                    defaultSize: @json($product -> default_size ?? null),
+                    defaultCapacity: @json($product -> default_capacity ?? null),
+                    defaultVariantId: @json($product -> default_variant_id ?? null)
+                };
             </script>
 
             {{-- 2. KHỞI TẠO ALPINE VỚI DỮ LIỆU SẠCH --}}
@@ -122,6 +122,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedSize: window.productConfig.defaultSize,
     selectedCapacity: window.productConfig.defaultCapacity,
     selectedVariantId: window.productConfig.defaultVariantId,
+    sku: null,
 
     // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
