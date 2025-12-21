@@ -916,7 +916,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             </div>
                         </div>
                         {{-- Link bao trùm --}}
-                        <a href="{{ route('products.show', $related->id) }}" class="absolute inset-0 z-20"></a>
+                        <a href="{{ route('products.show', $curatedItem->id) }}" class="absolute inset-0 z-20"></a>
                     </div>
                     @endforeach
                 </div>
