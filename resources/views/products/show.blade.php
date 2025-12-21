@@ -518,10 +518,17 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6">
                 @foreach($completeLook as $lookItem)
-                <div class="group relative">
+                @php
+                $lookImgUrl = $lookItem->image
+                ? (Str::startsWith($lookItem->image, 'products/') ? Storage::url($lookItem->image) :
+                Storage::url('products/' . $lookItem->image))
+                : 'https://placehold.co/600x800?text=No+Image';
+                @endphp
+                <div class="group relative overflow-hidden">
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
-                        <img src="{{ Storage::url('products/' . $lookItem->image) }}"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                        <img src="{{ $lookImgUrl }}"
+                            class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            alt="{{ $lookItem->name }}" loading="lazy">
                     </div>
                     <h3 class="text-sm font-medium">
                         <a href="{{ route('products.show', $lookItem->id) }}">
@@ -529,7 +536,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                             {{ $lookItem->name }}
                         </a>
                     </h3>
-                    <p class="text-sm text-neutral-500 mt-1">₫{{ number_format($lookItem->price, 0, ',', '.') }}</p>
+                    <p class="text-sm text-neutral-600 mt-1">₫{{ number_format($lookItem->price ??
+                        $lookItem->variants->first()?->price ?? 0, 0, ',', '.') }}</p>
 
                     <button
                         class="absolute bottom-20 right-4 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 z-10">
@@ -847,8 +855,10 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
                     @foreach($curated->take(5) as $index => $related)
                     @php
-                    $imgUrl = $related->image ? Storage::url('products/' . $related->image) :
-                    'https://loremflickr.com/800/1000/fashion';
+                    $imgUrl = $related->image
+                    ? (Str::startsWith($related->image, 'products/') ? Storage::url($related->image) :
+                    Storage::url('products/' . $related->image))
+                    : 'https://placehold.co/600x800?text=No+Image';
                     // LOGIC: Item đầu tiên (index 0) chiếm 2 cột 2 dòng
                     $classes = ($index === 0)
                     ? 'col-span-2 row-span-2 md:h-full relative group'
