@@ -97,6 +97,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     isFragrance: @json($isFragrance),
                     variants: @json($product -> variants),
                     defaultImage: @json($defaultImage),
+                    slug: "{{ $product->slug }}",
                     defaultPrice: @json($currentPrice),
                     defaultColor: @json($defaultColor),
                     defaultSize: @json($product -> default_size ?? null),
@@ -113,6 +114,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     qty: 1,
     
     // Lấy dữ liệu từ biến window
+    slug: window.productConfig.slug, // QUAN TRỌNG: Lấy Slug để ghép link ảnh
     isFragrance: window.productConfig.isFragrance,
     variants: window.productConfig.variants,
     
@@ -127,86 +129,83 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedVariantId: window.productConfig.defaultVariantId,
     sku: null,
 
-    // VINTAGE PALETTE (MINIMALIST & VINTAGE AESTHETIC)
+    // VINTAGE PALETTE (Giữ nguyên)
     vintageColorPalette: {
-        'Red': '#A94044',       // Muted Clay/Brick
-        'Blue': '#2C3E50',      // Deep Slate/Navy
-        'Green': '#556B2F',     // Olive/Sage
-        'Yellow': '#E3C800',    // Mustard/Ochre
-        'Black': '#1A1A1A',     // Off-Black
-        'White': '#F5F5F5',     // Off-White/Cream
-        'Brown': '#8D6E63',     // Warm Taupe
-        'Pink': '#D8B4B4',      // Dusty Rose
-        'Beige': '#F5F5DC',     // Beige
-        'Navy': '#202A44',      // Classic Navy
-        'Grey': '#808080',      // Neutral Grey
-        'Gray': '#808080'       // Neutral Gray
+        'Red': '#A94044', 'Blue': '#2C3E50', 'Green': '#556B2F', 'Yellow': '#E3C800',
+        'Black': '#1A1A1A', 'White': '#F5F5F5', 'Brown': '#8D6E63', 'Pink': '#D8B4B4',
+        'Beige': '#F5F5DC', 'Navy': '#202A44', 'Grey': '#808080', 'Gray': '#808080'
     },
 
-    // CUSTOM HELPER: GET COLOR STYLE
     getColorStyle(name, dbHex) {
-        // 1. Nếu DB có Hex xịn -> Dùng luôn
         if (dbHex && dbHex !== 'null') return dbHex;
-        
-        // 2. Map theo tên (Vintage Palette) - Case Insensitive for safety
-        // Capitalize first letter logic handled by simple lookup since keys are capitalized
-        return this.vintageColorPalette[name] || this.vintageColorPalette[Object.keys(this.vintageColorPalette).find(k => k.toLowerCase() === name.toLowerCase())] || '#CCCCCC';
+        return this.vintageColorPalette[name] || '#CCCCCC';
     },
 
-    // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
-        console.log('Alpine Loaded. Variants:', this.variants);
+        console.log('Alpine Loaded.');
+        // Nếu có variant mặc định, set SKU luôn
+        if (this.selectedVariantId) {
+            let initialV = this.variants.find(v => v.id == this.selectedVariantId);
+            if (initialV) this.sku = initialV.sku;
+        }
     },
 
-    // LOGIC 1: CHỌN MÀU
+    // --- LOGIC QUAN TRỌNG ĐÃ SỬA ---
+
+    // Hàm helper để tạo link ảnh chuẩn
+    makeImagePath(filename) {
+        if (!filename) return null;
+        if (filename.startsWith('http')) return filename; // Nếu là link online
+        // Logic ghép: /storage/products/{slug}/{filename}
+        return '/storage/products/' + this.slug + '/' + filename;
+    },
+
+    // LOGIC 4: CHỌN VARIANT (Nước hoa)
+    selectVariant(variant) {
+        if (!variant || variant.stock <= 0) return;
+
+        this.selectedVariantId = variant.id;
+        this.selectedCapacity = variant.size; // Lưu ý: DB bà là 'size' hay 'capacity_ml'? Tui để 'size' theo prompt trước
+        this.price = variant.price;
+        this.sku = variant.sku;
+        
+        // Cập nhật ảnh (Fix lỗi 404)
+        // Lưu ý: Kiểm tra xem DB trả về 'image' hay 'image_path'. Thường là 'image'.
+        let imgName = variant.image || variant.image_path; 
+        
+        if (imgName) {
+            this.currentImage = this.makeImagePath(imgName);
+        }
+    },
+
+    // LOGIC CŨ (Quần áo) - Update lại logic ảnh luôn cho đồng bộ
     selectColor(colorName, imageUrl) {
         this.selectedColor = colorName;
-        if (imageUrl) this.currentImage = imageUrl;
+        // Nếu imageUrl truyền vào là full link thì dùng luôn
+        if (imageUrl) this.currentImage = imageUrl; 
 
-        // Tìm variant khớp Màu + Size đang chọn
         let variant = this.variants.find(v => v.color === colorName && v.size === this.selectedSize) 
                    || this.variants.find(v => v.color === colorName);
 
         if (variant) this.updateVariantState(variant);
     },
 
-    // LOGIC 2: CHỌN SIZE
     selectSize(size) {
         this.selectedSize = size;
         let variant = this.variants.find(v => v.color === this.selectedColor && v.size === size);
         if (variant) this.updateVariantState(variant);
     },
 
-    // LOGIC 3: CHỌN DUNG TÍCH (Legacy - kept for compatibility)
-    selectCapacity(capacity) {
-        this.selectedCapacity = capacity;
-        let variant = this.variants.find(v => v.capacity_ml == capacity);
-        if (variant) {
-            this.updateVariantState(variant);
-            if (variant.image_path) this.currentImage = '/storage/' + variant.image_path; 
-        }
-    },
-
-    // LOGIC 4: CHỌN VARIANT ĐẦY ĐỦ (Fragrance - Size Pills)
-    selectVariant(variant) {
-        if (!variant || variant.stock <= 0) return; // Không chọn được nếu hết hàng
-        
-        this.selectedVariantId = variant.id;
-        this.selectedCapacity = variant.capacity_ml;
-        this.price = variant.price;
-        this.sku = variant.sku;
-        
-        // Update image with smooth transition
-        if (variant.image_path) {
-            this.currentImage = '/storage/' + variant.image_path;
-        }
-    },
-
-    // Cập nhật giá, ID và SKU
     updateVariantState(v) {
         this.selectedVariantId = v.id;
         this.price = v.price;
         if (v.sku) this.sku = v.sku;
+        
+        // Nếu variant quần áo có ảnh riêng
+        let imgName = v.image || v.image_path;
+        if (imgName) {
+             this.currentImage = this.makeImagePath(imgName);
+        }
     }
 }">
 
