@@ -533,6 +533,13 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                 }
                 @endphp
                 <div class="group relative overflow-hidden">
+                    <div
+                        style="background: #ffebeb; border: 2px solid red; color: red; padding: 5px; font-size: 10px; font-family: monospace; z-index: 50; position: relative;">
+                        <strong>DEBUG INFO:</strong><br>
+                        ID: {{ $lookItem->id ?? 'ERR' }} <br>
+                        Slug: "{{ $lookItem->slug ?? 'NULL' }}" <br>
+                        Image Raw: "{{ $lookItem->image ?? 'NULL' }}"
+                    </div>
                     <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-4">
                         <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -883,6 +890,13 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     @endphp
 
                     <div class="{{ $classes }} overflow-hidden bg-neutral-100">
+                        <div
+                            style="background: #ffebeb; border: 2px solid red; color: red; padding: 5px; font-size: 10px; font-family: monospace; z-index: 50; position: relative;">
+                            <strong>DEBUG INFO:</strong><br>
+                            ID: {{ $curatedItem->id ?? 'ERR' }} <br>
+                            Slug: "{{ $curatedItem->slug ?? 'NULL' }}" <br>
+                            Image Raw: "{{ $curatedItem->image ?? 'NULL' }}"
+                        </div>
                         {{-- Ảnh --}}
                         <img src="{{ $imgSrc }}"
                             class="w-full h-full object-cover transition duration-[1.5s] ease-out group-hover:scale-105"
