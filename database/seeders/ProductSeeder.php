@@ -47,7 +47,7 @@ class ProductSeeder extends Seeder
             // DRESSES & SKIRTS
             ['name' => 'Women Silk Dress',      'slug' => 'women-silk-dress',       'price' => 650000, 'variants' => ['green', 'grey', 'white']],
             ['name' => 'Women Summer Maxi',     'slug' => 'women-summer-maxi',      'price' => 550000, 'variants' => ['black', 'navy', 'red']],
-            ['name' => 'Women Bodycon Dress',   'slug' => 'women-bodycon-dress',    'price' => 450000, 'variants' => ['black', 'beige']],
+            ['name' => 'Women Bodycon Dress',   'slug' => 'women-bodycon-dress',    'price' => 450000, 'variants' => ['black', 'brown', 'grey']],
             ['name' => 'Women Pleated Skirt',   'slug' => 'women-pleated-skirt',    'price' => 320000, 'variants' => ['beige', 'black']],
             ['name' => 'Women Mini Skirt',      'slug' => 'women-mini-skirt',       'price' => 280000, 'variants' => ['red', 'black', 'white']],
             ['name' => 'Women Denim Skirt',     'slug' => 'women-denim-skirt',      'price' => 350000, 'variants' => ['beige', 'brown']],
