@@ -79,12 +79,18 @@ class ProductSeeder extends Seeder
     private function seedCategory($products, $category)
     {
         foreach ($products as $item) {
+            // [LOGIC MỚI] Lấy màu đầu tiên làm ảnh đại diện
+            // Ví dụ: ['black', 'white'] -> Lấy 'black' -> Tạo thành 'black.jpg'
+            $firstVariant = $item['variants'][0] ?? 'default';
+            $mainImage = "{$firstVariant}.jpg";
+
             $productId = DB::table('products')->insertGetId([
                 'name' => $item['name'],
                 'slug' => $item['slug'],
                 'description' => "This is a premium {$item['name']} for {$category}.",
                 'category' => $category,
                 'base_price' => $item['price'],
+                'image' => $mainImage, // <--- Cột này đã được tự động điền
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
