@@ -261,8 +261,11 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             // Kiểm tra xem user đang chọn danh mục cha này HOẶC con của nó
                             $isActive = (request('category') == $parent->slug) || $parent->children->contains('slug',
                             request('category'));
+                            $hasChildren = $parent->children->count() > 0;
                             @endphp
 
+                            @if($hasChildren)
+                            {{-- HAS CHILDREN: Use accordion pattern --}}
                             <div x-data="{ expanded: {{ $isActive ? 'true' : 'false' }} }">
                                 {{-- Dòng tiêu đề Cha (Bấm để đóng/mở) --}}
                                 <button @click="expanded = !expanded" type="button"
@@ -272,18 +275,15 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                                         {{ $parent->name }}
                                     </span>
                                     {{-- Mũi tên chỉ xuống/lên --}}
-                                    @if($parent->children->count() > 0)
                                     <svg class="w-3 h-3 transition-transform duration-200 text-neutral-400"
                                         :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
-                                    @endif
                                 </button>
 
                                 {{-- List con (Xổ xuống) --}}
-                                @if($parent->children->count() > 0)
                                 <div x-show="expanded" x-collapse
                                     class="pl-3 mt-1 space-y-1 border-l border-neutral-200 ml-1">
 
@@ -301,8 +301,14 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                                     </a>
                                     @endforeach
                                 </div>
-                                @endif
                             </div>
+                            @else
+                            {{-- NO CHILDREN: Render as direct link --}}
+                            <a href="{{ route('products.index', ['category' => $parent->slug]) }}"
+                                class="block py-1 text-sm {{ $isActive ? 'font-bold text-black' : 'text-neutral-600 hover:text-black' }}">
+                                {{ $parent->name }}
+                            </a>
+                            @endif
                             @endforeach
 
                         </div>
