@@ -11,6 +11,7 @@ $categories = \App\Models\Category::query()
         searchOpen: false, 
         shopHover: false,
         scrolled: false,
+        announcementVisible: true,
         searchQuery: '',
         searchResults: [],
         searchLoading: false,
@@ -62,203 +63,209 @@ $categories = \App\Models\Category::query()
         }
     }" @scroll.window="scrolled = (window.pageYOffset > 20)"
     @keydown.window.escape="searchOpen = false; mobileMenuOpen = false; shopHover = false"
-    :class="{ 'bg-white/95 backdrop-blur-md shadow-sm': scrolled, 'bg-white': !scrolled }"
-    class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-gray-100">
+    class="fixed top-0 w-full z-50">
 
-    {{-- PRIMARY HEADER --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 sm:h-20">
-
-            {{-- 1. MOBILE MENU BUTTON --}}
-            <div class="flex items-center sm:hidden">
-                <button @click="mobileMenuOpen = !mobileMenuOpen"
-                    class="p-2 -ml-2 text-gray-900 hover:opacity-70 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            {{-- 2. DESKTOP NAV LINKS --}}
-            <div class="hidden sm:flex items-center gap-8 md:gap-12">
-                {{-- Mega Menu Trigger --}}
-                <div class="relative h-full flex items-center" @mouseenter="shopHover = true"
-                    @mouseleave="shopHover = false">
-                    <a href="{{ route('products.index') }}"
-                        class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition py-8 border-b-2 border-transparent hover:border-black">
-                        Shop
-                    </a>
-                </div>
-
-                <a href="{{ route('new-arrivals') }}"
-                    class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition">New
-                    In</a>
-                <a href="{{ route('about') }}"
-                    class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 hover:text-gray-500 transition">About</a>
-            </div>
-
-            {{-- 3. LOGO --}}
-            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <a href="{{ route('home') }}" class="block group">
-                    <span
-                        class="font-bold text-2xl sm:text-3xl tracking-tighter group-hover:opacity-80 transition">BLUSHOP.</span>
-                </a>
-            </div>
-
-            {{-- 4. ICONS (Search, Account, Cart) --}}
-            <div class="flex items-center gap-4 sm:gap-6">
-                {{-- Search --}}
-                <button
-                    @click="searchOpen = !searchOpen; searchResults = []; searchQuery = ''; $nextTick(() => $refs.searchInput.focus())"
-                    class="text-gray-900 hover:opacity-60 transition">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-
-                {{-- Account --}}
-                <div class="hidden sm:block relative" x-data="{ open: false }">
-                    <button @click="open = !open" @click.outside="open = false"
-                        class="text-gray-900 hover:opacity-60 transition flex items-center">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-transition.opacity.duration.200ms
-                        class="absolute right-0 mt-4 w-48 bg-white border border-gray-100 shadow-xl py-2 z-50">
-                        @auth
-                        <div class="px-4 py-2 border-b border-gray-50 mb-1">
-                            <p class="text-xs text-gray-500">Hello,</p>
-                            <p class="text-sm font-bold truncate">{{ Auth::user()->name }}</p>
-                        </div>
-                        <a href="{{ route('profile.edit') }}"
-                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Profile</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit"
-                                class="w-full text-left px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50 text-red-600">Log
-                                Out</button>
-                        </form>
-                        @else
-                        <a href="{{ route('login') }}"
-                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Login</a>
-                        <a href="{{ route('register') }}"
-                            class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Register</a>
-                        @endauth
-                    </div>
-                </div>
-
-                {{-- Cart --}}
-                <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition"
-                    x-data="{ count: {{ (int) collect(session('cart', []))->sum('quantity') }} }"
-                    @cart-updated.window="count = $event.detail.count">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
-                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span x-show="count > 0" x-text="count" x-transition.scale
-                        class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold"></span>
-                </a>
-            </div>
+    {{-- ANNOUNCEMENT BAR --}}
+    <div x-show="announcementVisible" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="bg-neutral-900 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-center gap-6">
+            <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium text-center">
+                <span class="hidden sm:inline">Free Shipping on orders over 500.000₫</span>
+                <span class="hidden sm:inline mx-3 text-neutral-600">|</span>
+                <span href="{{ route('products.index') }}">New Collection Drop — <span
+                        class="underline underline-offset-2">Shop Now</span></span>
+            </p>
+            <button @click="announcementVisible = false"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition p-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
     </div>
 
-    {{-- MEGA MENU (DESKTOP) --}}
-    <div x-show="shopHover" @mouseenter="shopHover = true" @mouseleave="shopHover = false"
-        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
-        class="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl z-40 hidden sm:block">
+    {{-- PRIMARY HEADER --}}
+    <div :class="{ 'bg-white/95 backdrop-blur-md shadow-sm': scrolled, 'bg-white': !scrolled }"
+        class="transition-all duration-300 border-b border-neutral-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20 lg:h-24">
 
-        <div class="max-w-7xl mx-auto px-8 py-0">
-            <div class="grid grid-cols-4 min-h-[400px]">
-
-                {{-- Column 1: SHOP (Main Categories) --}}
-                <div class="py-12 pl-6 pr-10">
-                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Shop</h3>
-                    <ul class="space-y-3">
-                        <li class="group">
-                            <a href="{{ route('products.index') }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">All
-                                    Products</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'women']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Women</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'men']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Men</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Fragrance</span>
-                            </a>
-                        </li>
-
-                        <li class="pt-3 mt-3 border-t border-neutral-100">
-                            <a href="{{ route('on-sale') }}"
-                                class="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
-                                Sale Archive
-                            </a>
-                        </li>
-                    </ul>
+                {{-- 1. MOBILE MENU BUTTON --}}
+                <div class="flex items-center sm:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="p-2 -ml-2 text-neutral-900 hover:opacity-70 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                 </div>
 
-                {{-- Column 2: TRENDING NOW (Curated Edits) --}}
-                <div class="py-12 px-10 border-l border-neutral-50">
-                    <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Trending Now</h3>
-                    <ul class="space-y-3">
-                        <li class="group">
-                            <a href="{{ route('best-sellers') }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Best
-                                    Sellers</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['collection' => 'summer']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Back
-                                    in Stock</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['collection' => 'summer']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Summer
-                                    Linen</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['collection' => 'office']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Office
-                                    Essentials</span>
-                            </a>
-                        </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['collection' => 'evening']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Evening
-                                    Wear</span>
-                            </a>
-                        </li>
-                    </ul>
+                {{-- 2. DESKTOP NAV LINKS (LEFT) --}}
+                <div class="hidden sm:flex items-center gap-10 lg:gap-14">
+                    {{-- Shop with Mega Menu Trigger --}}
+                    <div class="relative h-full flex items-center" @mouseenter="shopHover = true"
+                        @mouseleave="shopHover = false">
+                        <a href="{{ route('products.index') }}"
+                            class="text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-900 hover:text-neutral-500 transition py-8 border-b-2 border-transparent hover:border-neutral-900">
+                            Shop
+                        </a>
+                    </div>
+                    {{-- About --}}
+                    <a href="{{ route('about') }}"
+                        class="text-[11px] font-medium uppercase tracking-[0.25em] text-neutral-900 hover:text-neutral-500 transition">
+                        About
+                    </a>
                 </div>
 
-                {{-- Column 3 & 4: PREMIUM SLIDER (Optimized) --}}
-                <div class="col-span-2 relative overflow-hidden bg-gray-100 group" x-data="{ 
+                {{-- 3. LOGO (CENTER) --}}
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <a href="{{ route('home') }}" class="block group">
+                        <span
+                            class="font-bold text-2xl lg:text-3xl tracking-tighter group-hover:tracking-[-0.08em] transition-all duration-300">BLUSHOP.</span>
+                    </a>
+                </div>
+
+                {{-- 4. ICONS (Search, Account, Cart) --}}
+                <div class="flex items-center gap-4 sm:gap-6">
+                    {{-- Search --}}
+                    <button
+                        @click="searchOpen = !searchOpen; searchResults = []; searchQuery = ''; $nextTick(() => $refs.searchInput.focus())"
+                        class="text-gray-900 hover:opacity-60 transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
+                    {{-- Account --}}
+                    <div class="hidden sm:block relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false"
+                            class="text-gray-900 hover:opacity-60 transition flex items-center">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition.opacity.duration.200ms
+                            class="absolute right-0 mt-4 w-48 bg-white border border-gray-100 shadow-xl py-2 z-50">
+                            @auth
+                            <div class="px-4 py-2 border-b border-gray-50 mb-1">
+                                <p class="text-xs text-gray-500">Hello,</p>
+                                <p class="text-sm font-bold truncate">{{ Auth::user()->name }}</p>
+                            </div>
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50 text-red-600">Log
+                                    Out</button>
+                            </form>
+                            @else
+                            <a href="{{ route('login') }}"
+                                class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Login</a>
+                            <a href="{{ route('register') }}"
+                                class="block px-4 py-2 text-xs uppercase tracking-wider hover:bg-gray-50">Register</a>
+                            @endauth
+                        </div>
+                    </div>
+
+                    {{-- Cart --}}
+                    <a href="{{ route('cart.index') }}" class="relative text-gray-900 hover:opacity-60 transition"
+                        x-data="{ count: {{ (int) collect(session('cart', []))->sum('quantity') }} }"
+                        @cart-updated.window="count = $event.detail.count">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span x-show="count > 0" x-text="count" x-transition.scale
+                            class="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-bold"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- MEGA MENU (DESKTOP) --}}
+        <div x-show="shopHover" @mouseenter="shopHover = true" @mouseleave="shopHover = false"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
+            class="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl z-40 hidden sm:block">
+
+            <div class="max-w-7xl mx-auto px-8 py-0">
+                <div class="grid grid-cols-4 min-h-[400px]">
+
+                    {{-- Column 1: SHOP (Main Categories) --}}
+                    <div class="py-12 pl-6 pr-10">
+                        <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Shop</h3>
+                        <ul class="space-y-3">
+                            <li class="group">
+                                <a href="{{ route('products.index') }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">All
+                                        Products</span>
+                                </a>
+                            </li>
+                            <li class="group">
+                                <a href="{{ route('products.index', ['category' => 'women']) }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Women</span>
+                                </a>
+                            </li>
+                            <li class="group">
+                                <a href="{{ route('products.index', ['category' => 'men']) }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Men</span>
+                                </a>
+                            </li>
+                            <li class="group">
+                                <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Fragrance</span>
+                                </a>
+                            </li>
+
+                            <li class="pt-3 mt-3 border-t border-neutral-100">
+                                <a href="{{ route('on-sale') }}"
+                                    class="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
+                                    Sale Archive
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {{-- Column 2: FEATURED (Simplified) --}}
+                    <div class="py-12 px-10 border-l border-neutral-50">
+                        <h3 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">Featured
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="group">
+                                <a href="{{ route('new-arrivals') }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">New
+                                        Arrivals</span>
+                                </a>
+                            </li>
+                            <li class="group">
+                                <a href="{{ route('best-sellers') }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Best
+                                        Sellers</span>
+                                </a>
+                            </li>
+                            <li class="group">
+                                <a href="{{ route('lookbook') }}" class="block py-1">
+                                    <span
+                                        class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Lookbook</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {{-- Column 3 & 4: PREMIUM SLIDER (Optimized) --}}
+                    <div class="col-span-2 relative overflow-hidden bg-gray-100 group" x-data="{ 
                         activeSlide: 0,
                         slides: [
                             '{{ asset('images/navigation/1.jpg') }}', 
@@ -271,83 +278,89 @@ $categories = \App\Models\Category::query()
                         stopAutoSlide() { clearInterval(this.timer); }
                      }" @mouseenter="stopAutoSlide()" @mouseleave="startAutoSlide()">
 
-                    <template x-for="(slide, index) in slides" :key="index">
-                        <div x-show="activeSlide === index" x-transition:enter="transition ease-out duration-700"
-                            x-transition:enter-start="opacity-0 scale-105"
-                            x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-700"
-                            x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-100" class="absolute inset-0 w-full h-full">
-                            <img :src="slide" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
+                        <template x-for="(slide, index) in slides" :key="index">
+                            <div x-show="activeSlide === index" x-transition:enter="transition ease-out duration-700"
+                                x-transition:enter-start="opacity-0 scale-105"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-700"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-100" class="absolute inset-0 w-full h-full">
+                                <img :src="slide" class="w-full h-full object-cover">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
+                                </div>
+                                <div class="absolute bottom-10 left-10 text-white">
+                                    <p x-text="slide.subtitle"
+                                        class="text-xs uppercase tracking-[0.2em] mb-2 opacity-90">
+                                    </p>
+                                    <h3 x-text="slide.title" class="text-3xl font-serif italic tracking-wide"></h3>
+                                    <button
+                                        class="mt-4 px-6 py-2 border border-white text-xs uppercase tracking-widest hover:bg-white hover:text-black transition duration-300">Shop
+                                        Now</button>
+                                </div>
                             </div>
-                            <div class="absolute bottom-10 left-10 text-white">
-                                <p x-text="slide.subtitle" class="text-xs uppercase tracking-[0.2em] mb-2 opacity-90">
-                                </p>
-                                <h3 x-text="slide.title" class="text-3xl font-serif italic tracking-wide"></h3>
-                                <button
-                                    class="mt-4 px-6 py-2 border border-white text-xs uppercase tracking-widest hover:bg-white hover:text-black transition duration-300">Shop
-                                    Now</button>
-                            </div>
-                        </div>
-                    </template>
-
-                    {{-- Dots --}}
-                    <div class="absolute bottom-6 right-6 flex gap-2 z-20">
-                        <template x-for="(slide, index) in slides">
-                            <button @click="activeSlide = index" class="h-1 transition-all duration-300 rounded-full"
-                                :class="activeSlide === index ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/80'"></button>
                         </template>
+
+                        {{-- Dots --}}
+                        <div class="absolute bottom-6 right-6 flex gap-2 z-20">
+                            <template x-for="(slide, index) in slides">
+                                <button @click="activeSlide = index"
+                                    class="h-1 transition-all duration-300 rounded-full"
+                                    :class="activeSlide === index ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/80'"></button>
+                            </template>
+                        </div>
+                        <a href="#" class="absolute inset-0 z-10"></a>
                     </div>
-                    <a href="#" class="absolute inset-0 z-10"></a>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- SEARCH OVERLAY --}}
-    <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-150"
-        class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
-        <div class="max-w-4xl mx-auto relative">
-            <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
-                <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..." x-model="searchQuery"
-                    @input="updateSearch($event.target.value)" @keydown="handleKeydown($event)" autocomplete="off"
-                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
-            </form>
+        {{-- SEARCH OVERLAY --}}
+        <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
+            <div class="max-w-4xl mx-auto relative">
+                <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
+                    <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..."
+                        x-model="searchQuery" @input="updateSearch($event.target.value)"
+                        @keydown="handleKeydown($event)" autocomplete="off"
+                        class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
+                </form>
 
-            <div x-show="searchQuery.length >= 2" x-transition
-                class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-b-xl max-h-80 overflow-y-auto">
-                <template x-if="searchLoading">
-                    <div class="px-4 py-3 text-sm text-gray-400">Searching...</div>
-                </template>
-                <template x-if="!searchLoading && !searchResults.length && searchQuery.length >= 2">
-                    <div class="px-4 py-3 text-sm text-gray-400">No products found.</div>
-                </template>
-                <ul>
-                    <template x-for="(item, index) in searchResults" :key="item.id">
-                        <li>
-                            <button type="button"
-                                class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50"
-                                :class="index === highlightedIndex ? 'bg-gray-50' : ''" @click="selectResult(index)">
-                                <div class="w-10 h-10 bg-gray-100 flex-shrink-0 overflow-hidden rounded">
-                                    <template x-if="item.image"><img :src="item.image"
-                                            class="w-full h-full object-cover"></template>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-900" x-text="item.name"></p>
-                                    <p class="text-xs text-gray-500"
-                                        x-text="item.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price) : ''">
-                                    </p>
-                                </div>
-                            </button>
-                        </li>
+                <div x-show="searchQuery.length >= 2" x-transition
+                    class="absolute left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-b-xl max-h-80 overflow-y-auto">
+                    <template x-if="searchLoading">
+                        <div class="px-4 py-3 text-sm text-gray-400">Searching...</div>
                     </template>
-                </ul>
+                    <template x-if="!searchLoading && !searchResults.length && searchQuery.length >= 2">
+                        <div class="px-4 py-3 text-sm text-gray-400">No products found.</div>
+                    </template>
+                    <ul>
+                        <template x-for="(item, index) in searchResults" :key="item.id">
+                            <li>
+                                <button type="button"
+                                    class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50"
+                                    :class="index === highlightedIndex ? 'bg-gray-50' : ''"
+                                    @click="selectResult(index)">
+                                    <div class="w-10 h-10 bg-gray-100 flex-shrink-0 overflow-hidden rounded">
+                                        <template x-if="item.image"><img :src="item.image"
+                                                class="w-full h-full object-cover"></template>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-900" x-text="item.name"></p>
+                                        <p class="text-xs text-gray-500"
+                                            x-text="item.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price) : ''">
+                                        </p>
+                                    </div>
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+                <button @click="searchOpen = false"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black text-xs uppercase tracking-widest">Close</button>
             </div>
-            <button @click="searchOpen = false"
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black text-xs uppercase tracking-widest">Close</button>
         </div>
     </div>
 
