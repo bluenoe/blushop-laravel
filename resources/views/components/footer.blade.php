@@ -48,7 +48,7 @@
                         <li><a href="{{ route('faq') }}#shipping"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">Shipping</a>
                         </li>
-                        <li><a href="{{ route('faq') . '#shipping' }}"
+                        <li><a href="{{ route('faq') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">FAQ</a>
                         </li>
                         <li><a href="{{ route('contact.index') }}"
