@@ -78,7 +78,7 @@ Concept: Clean lines, Expandable content, High readability
                 </div>
 
                 {{-- GROUP 2: SHIPPING & RETURNS --}}
-                <div id="shipping" class="py-4 scroll-mt-24" data-reveal>
+                <div id="shipping" class="py-4 scroll-mt-32" data-reveal>
                     <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Shipping & Delivery
                     </h3>
 
@@ -145,6 +145,7 @@ Concept: Clean lines, Expandable content, High readability
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // === 1. Reveal Animation Observer ===
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -158,6 +159,79 @@ Concept: Clean lines, Expandable content, High readability
                 el.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700', 'ease-out');
                 observer.observe(el);
             });
+        });
+
+        // === 2. Anchor Link & Accordion Auto-Open Fix ===
+        // Use window.onload to wait for all images/layout to stabilize
+        window.addEventListener('load', () => {
+            const HEADER_OFFSET = 100; // Fixed header height offset in pixels
+
+            const handleHashNavigation = () => {
+                const hash = window.location.hash;
+                if (!hash) return;
+
+                const targetElement = document.querySelector(hash);
+                if (!targetElement) return;
+
+                // Map anchor IDs to their corresponding accordion index
+                const hashToAccordionIndex = {
+                    '#shipping': 3,  // Shipping section, first question (Q3)
+                    // Add more mappings here if needed:
+                    // '#returns': 5,
+                    // '#account': 6,
+                };
+
+                const accordionIndex = hashToAccordionIndex[hash];
+
+                // Find the Alpine component and open the accordion
+                if (accordionIndex !== undefined) {
+                    const accordionContainer = document.querySelector('[x-data]');
+
+                    if (accordionContainer) {
+                        // Method 1: Try Alpine.js v3 _x_dataStack (most reliable)
+                        if (accordionContainer._x_dataStack && accordionContainer._x_dataStack.length > 0) {
+                            accordionContainer._x_dataStack[0].active = accordionIndex;
+                        }
+                        // Method 2: Try __x.$data (Alpine v3 alternative)
+                        else if (accordionContainer.__x && accordionContainer.__x.$data) {
+                            accordionContainer.__x.$data.active = accordionIndex;
+                        }
+                        // Method 3: Use Alpine.$data global helper
+                        else if (typeof Alpine !== 'undefined' && Alpine.$data) {
+                            const alpineData = Alpine.$data(accordionContainer);
+                            if (alpineData) {
+                                alpineData.active = accordionIndex;
+                            }
+                        }
+                        // Method 4: Fallback - trigger click on the accordion button
+                        else {
+                            const accordionButtons = accordionContainer.querySelectorAll('button[\\@click]');
+                            if (accordionButtons[accordionIndex - 1]) {
+                                accordionButtons[accordionIndex - 1].click();
+                            }
+                        }
+                    }
+                }
+
+                // Wait for accordion animation, then scroll with offset
+                setTimeout(() => {
+                    requestAnimationFrame(() => {
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - HEADER_OFFSET;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    });
+                }, 200); // Delay to allow accordion x-collapse animation
+            };
+
+            // Execute hash navigation
+            handleHashNavigation();
+
+            // Also handle hash changes while on the page (e.g., clicking internal links)
+            window.addEventListener('hashchange', handleHashNavigation);
         });
     </script>
     @endpush
