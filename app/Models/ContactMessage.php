@@ -15,6 +15,7 @@ class ContactMessage extends Model
         'topic',
         'order_id',
         'message',
-        'ip_address' // Cho phép lưu IP
+        'ip_address',
+        'status',
     ];
 }
