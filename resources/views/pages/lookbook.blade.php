@@ -217,19 +217,12 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                     {{-- Product List (Minimalist Line List) --}}
                     <div class="lg:col-span-6" data-reveal style="transition-delay: 200ms">
                         @forelse($lookbookProducts as $product)
-                        @php
-                        $imgSrc = $product->image;
-                        if (!Str::contains($imgSrc, 'http')) {
-                        $imgSrc = Storage::url('products/' . $imgSrc);
-                        }
-                        @endphp
-
                         <a href="{{ route('products.show', $product) }}"
                             class="group flex items-center gap-6 py-6 border-b border-neutral-100 hover:bg-neutral-50 cursor-pointer transition-all duration-300 ease-out relative">
 
                             {{-- Tiny Image (3:4 aspect) with Zoom on Hover --}}
                             <div class="w-16 aspect-[3/4] bg-neutral-100 overflow-hidden flex-shrink-0">
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}"
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                                     class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105">
                             </div>
 
@@ -248,7 +241,7 @@ Concept: Asymmetrical Grid, Sticky Details, Storytelling
                             {{-- Price (Right-aligned, Serif) with Bold on Hover --}}
                             <span
                                 class="font-serif text-sm text-neutral-500 text-right min-w-[100px] transition-all duration-300 ease-out group-hover:text-neutral-900 group-hover:font-semibold">
-                                {{ number_format($product->price, 0, ',', '.') }} ₫
+                                {{ number_format($product->base_price, 0, ',', '.') }} ₫
                             </span>
 
                             {{-- Arrow Icon (Slides in on hover) --}}
