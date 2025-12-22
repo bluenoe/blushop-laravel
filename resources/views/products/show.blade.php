@@ -97,6 +97,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     isFragrance: @json($isFragrance),
                     variants: @json($product -> variants),
                     defaultImage: @json($defaultImage),
+                    slug: "{{ $product->slug }}",
                     defaultPrice: @json($currentPrice),
                     defaultColor: @json($defaultColor),
                     defaultSize: @json($product -> default_size ?? null),
@@ -113,6 +114,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     qty: 1,
     
     // Lấy dữ liệu từ biến window
+    slug: window.productConfig.slug, // QUAN TRỌNG: Lấy Slug để ghép link ảnh
     isFragrance: window.productConfig.isFragrance,
     variants: window.productConfig.variants,
     
@@ -127,70 +129,82 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     selectedVariantId: window.productConfig.defaultVariantId,
     sku: null,
 
-    // VINTAGE PALETTE (MINIMALIST & VINTAGE AESTHETIC)
+    // VINTAGE PALETTE (Giữ nguyên)
     vintageColorPalette: {
-        'Red': '#A94044',       // Muted Clay/Brick
-        'Blue': '#2C3E50',      // Deep Slate/Navy
-        'Green': '#556B2F',     // Olive/Sage
-        'Yellow': '#E3C800',    // Mustard/Ochre
-        'Black': '#1A1A1A',     // Off-Black
-        'White': '#F5F5F5',     // Off-White/Cream
-        'Brown': '#8D6E63',     // Warm Taupe
-        'Pink': '#D8B4B4',      // Dusty Rose
-        'Beige': '#F5F5DC',     // Beige
-        'Navy': '#202A44',      // Classic Navy
-        'Grey': '#808080',      // Neutral Grey
-        'Gray': '#808080'       // Neutral Gray
+        'Red': '#A94044', 'Blue': '#2C3E50', 'Green': '#556B2F', 'Yellow': '#E3C800',
+        'Black': '#1A1A1A', 'White': '#F5F5F5', 'Brown': '#8D6E63', 'Pink': '#D8B4B4',
+        'Beige': '#F5F5DC', 'Navy': '#202A44', 'Grey': '#808080', 'Gray': '#808080'
     },
 
-    // CUSTOM HELPER: GET COLOR STYLE
     getColorStyle(name, dbHex) {
-        // 1. Nếu DB có Hex xịn -> Dùng luôn
         if (dbHex && dbHex !== 'null') return dbHex;
-        
-        // 2. Map theo tên (Vintage Palette) - Case Insensitive for safety
-        // Capitalize first letter logic handled by simple lookup since keys are capitalized
-        return this.vintageColorPalette[name] || this.vintageColorPalette[Object.keys(this.vintageColorPalette).find(k => k.toLowerCase() === name.toLowerCase())] || '#CCCCCC';
+        return this.vintageColorPalette[name] || '#CCCCCC';
     },
 
-    // CÁC HÀM XỬ LÝ LOGIC GIỮ NGUYÊN
     init() {
-        console.log('Alpine Loaded. Variants:', this.variants);
+        console.log('Alpine Loaded.');
+        // Nếu có variant mặc định, set SKU luôn
+        if (this.selectedVariantId) {
+            let initialV = this.variants.find(v => v.id == this.selectedVariantId);
+            if (initialV) this.sku = initialV.sku;
+        }
     },
 
-    // LOGIC 1: CHỌN MÀU
+    // --- LOGIC QUAN TRỌNG ĐÃ SỬA ---
+
+    // Hàm helper để tạo link ảnh chuẩn
+    makeImagePath(path) {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return '/storage/' + path;
+},
+
+    // LOGIC 4: CHỌN VARIANT (Nước hoa)
+    selectVariant(variant) {
+        if (!variant || variant.stock <= 0) return;
+
+        this.selectedVariantId = variant.id;
+        this.selectedCapacity = variant.size; // Lưu ý: DB bà là 'size' hay 'capacity_ml'? Tui để 'size' theo prompt trước
+        this.price = variant.price;
+        this.sku = variant.sku;
+        
+        // Cập nhật ảnh (Fix lỗi 404)
+        // Lưu ý: Kiểm tra xem DB trả về 'image' hay 'image_path'. Thường là 'image'.
+        let imgName = variant.image || variant.image_path; 
+        
+        if (imgName) {
+            this.currentImage = this.makeImagePath(imgName);
+        }
+    },
+
+    // LOGIC CŨ (Quần áo) - Update lại logic ảnh luôn cho đồng bộ
     selectColor(colorName, imageUrl) {
         this.selectedColor = colorName;
-        if (imageUrl) this.currentImage = imageUrl;
+        // Nếu imageUrl truyền vào là full link thì dùng luôn
+        if (imageUrl) this.currentImage = imageUrl; 
 
-        // Tìm variant khớp Màu + Size đang chọn
         let variant = this.variants.find(v => v.color === colorName && v.size === this.selectedSize) 
                    || this.variants.find(v => v.color === colorName);
 
         if (variant) this.updateVariantState(variant);
     },
 
-    // LOGIC 2: CHỌN SIZE
     selectSize(size) {
         this.selectedSize = size;
         let variant = this.variants.find(v => v.color === this.selectedColor && v.size === size);
         if (variant) this.updateVariantState(variant);
     },
 
-    // LOGIC 3: CHỌN DUNG TÍCH
-    selectCapacity(capacity) {
-        this.selectedCapacity = capacity;
-        let variant = this.variants.find(v => v.capacity == capacity);
-        if (variant) {
-            this.updateVariantState(variant);
-            if (variant.image) this.currentImage = variant.image; 
-        }
-    },
-
-    // Cập nhật giá và ID
     updateVariantState(v) {
         this.selectedVariantId = v.id;
         this.price = v.price;
+        if (v.sku) this.sku = v.sku;
+        
+        // Nếu variant quần áo có ảnh riêng
+        let imgName = v.image || v.image_path;
+        if (imgName) {
+             this.currentImage = this.makeImagePath(imgName);
+        }
     }
 }">
 
@@ -338,43 +352,51 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
 
                         {{-- =================================================== --}}
                         {{-- CASE 2: FRAGRANCE SELECTORS (VOLUME - DUNG TÍCH) --}}
+                        {{-- Minimalist Pill Buttons - Chanel/Le Labo Style --}}
                         {{-- =================================================== --}}
                         <div x-show="isFragrance" x-cloak>
                             <div class="mb-8">
-                                <div class="flex justify-between mb-2">
-                                    <span
-                                        class="text-xs font-bold uppercase tracking-widest text-neutral-500">Volume</span>
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-neutral-500">Select
+                                        Size</span>
+                                    <span x-show="sku"
+                                        class="text-[10px] font-mono text-neutral-400 uppercase tracking-wider"
+                                        x-text="'SKU: ' + sku"></span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-3">
-                                    {{-- Loop qua Variants JSON --}}
+
+                                {{-- Modern Pill Buttons --}}
+                                <div class="flex gap-3">
                                     <template x-for="variant in variants" :key="variant.id">
                                         <button type="button" @click="selectVariant(variant)"
-                                            class="py-4 border flex flex-col items-center justify-center transition-all duration-200 relative overflow-hidden"
-                                            :class="selectedVariantId === variant.id ? 'border-black bg-neutral-50' : 'border-neutral-200 hover:border-neutral-400'">
+                                            :disabled="variant.stock <= 0"
+                                            class="relative px-6 py-3 border text-sm font-medium transition-all duration-300 ease-out"
+                                            :class="selectedVariantId === variant.id 
+                                                ? 'bg-black text-white border-black' 
+                                                : variant.stock <= 0 
+                                                    ? 'bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed' 
+                                                    : 'bg-white text-black border-neutral-300 hover:border-black'">
+                                            {{-- Size Label --}}
+                                            <span x-text="variant.size || (variant.capacity_ml + 'ml')"></span>
 
-                                            {{-- Dung tích --}}
-                                            <span class="text-sm font-bold uppercase"
-                                                :class="selectedVariantId === variant.id ? 'text-black' : 'text-neutral-600'"
-                                                x-text="variant.capacity_ml + 'ml'"></span>
-
-                                            {{-- Trạng thái kho --}}
-                                            <template x-if="variant.stock_quantity <= 0">
+                                            {{-- Sold Out Overlay --}}
+                                            <template x-if="variant.stock <= 0">
                                                 <span
-                                                    class="absolute inset-0 bg-white/60 flex items-center justify-center">
-                                                    <span
-                                                        class="text-[10px] bg-neutral-200 px-2 py-1 text-neutral-500 font-bold uppercase">Sold
-                                                        Out</span>
+                                                    class="absolute -top-2 -right-2 bg-neutral-200 text-neutral-500 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-sm">
+                                                    Sold Out
                                                 </span>
                                             </template>
                                         </button>
                                     </template>
                                 </div>
-                                <p class="mt-3 text-[10px] text-neutral-400 font-light flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                {{-- Stock Status --}}
+                                <p class="mt-4 text-[10px] text-neutral-400 font-light flex items-center gap-1.5">
+                                    <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    In Stock. Ready to ship.
+                                    <span>In Stock · Ships within 2-3 business days</span>
                                 </p>
                             </div>
                         </div>
@@ -740,7 +762,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                         </template>
                                     </div>
                                     <input type="hidden" name="rating" :value="rating">
-                                    <p x-show="errors.rating" x-text="errors.rating[0]"
+                                    <p x-show="errors.rating" x-text="errors.rating ? errors.rating[0] : ''"
                                         class="mt-2 text-[10px] text-red-500 font-bold uppercase tracking-wide"></p>
                                 </div>
 
@@ -779,7 +801,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                     </label>
 
                                     {{-- Lỗi hiển thị bên dưới --}}
-                                    <p x-show="errors.content" x-text="errors.content[0]"
+                                    <p x-show="errors.content" x-text="errors.content ? errors.content[0] : ''"
                                         class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
                                     </p>
                                 </div>
@@ -817,7 +839,7 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                             </div>
                                         </template>
                                     </div>
-                                    <p x-show="errors.image" x-text="errors.image[0]"
+                                    <p x-show="errors.image" x-text="errors.image ? errors.image[0] : ''"
                                         class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-wide"></p>
                                 </div>
 

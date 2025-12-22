@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
         // 3. Chạy Product Mới (Bỏ đồ điện tử)
         $this->call(ProductSeeder::class);
 
+        // 3.5 Chạy Fragrance Products (Nước Hoa Cao Cấp)
+        $this->call(FragranceSeeder::class);
+
         // 4. QUAN TRỌNG: Chạy Random Ảnh & Màu
         // (File này nãy mình đã code logic random rồi, cứ thế gọi thôi)
         $this->call(ProductImageSeeder::class);
