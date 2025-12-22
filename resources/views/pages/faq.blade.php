@@ -78,7 +78,7 @@ Concept: Clean lines, Expandable content, High readability
                 </div>
 
                 {{-- GROUP 2: SHIPPING & RETURNS --}}
-                <div class="py-4" data-reveal>
+                <div id="shipping" class="py-4 scroll-mt-24" data-reveal>
                     <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-8">Shipping & Delivery
                     </h3>
 
