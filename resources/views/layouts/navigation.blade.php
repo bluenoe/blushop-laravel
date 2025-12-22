@@ -205,12 +205,7 @@ $categories = \App\Models\Category::query()
                                     class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Fragrance</span>
                             </a>
                         </li>
-                        <li class="group">
-                            <a href="{{ route('products.index', ['category' => 'accessories']) }}" class="block py-1">
-                                <span
-                                    class="text-base font-light text-neutral-600 group-hover:text-black group-hover:underline underline-offset-4 transition-all">Accessories</span>
-                            </a>
-                        </li>
+
                         <li class="pt-3 mt-3 border-t border-neutral-100">
                             <a href="{{ route('on-sale') }}"
                                 class="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
