@@ -153,12 +153,11 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     // --- LOGIC QUAN TRỌNG ĐÃ SỬA ---
 
     // Hàm helper để tạo link ảnh chuẩn
-    makeImagePath(filename) {
-        if (!filename) return null;
-        if (filename.startsWith('http')) return filename; // Nếu là link online
-        // Logic ghép: /storage/products/{slug}/{filename}
-        return '/storage/products/' + this.slug + '/' + filename;
-    },
+    makeImagePath(path) {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return '/storage/' + path;
+},
 
     // LOGIC 4: CHỌN VARIANT (Nước hoa)
     selectVariant(variant) {
