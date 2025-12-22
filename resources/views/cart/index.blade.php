@@ -187,10 +187,10 @@ Updated by Senior Mentor for rowId compatibility
                                             class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition">+</button>
                                     </div>
 
-                                    {{-- Remove (AJAX) --}}
-                                    {{-- Gọi hàm removeItem với rowId --}}
-                                    <button type="button" @click="removeItem('{{ $rowId }}')"
-                                        class="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-red-600 underline transition">
+                                    {{-- Remove (AJAX) - Using Event Delegation for reliability --}}
+                                    <button type="button"
+                                        class="js-remove-cart-item text-[10px] uppercase tracking-widest text-neutral-400 hover:text-red-600 underline transition"
+                                        data-rowid="{{ $rowId }}">
                                         Remove
                                     </button>
                                 </div>
@@ -286,4 +286,73 @@ Updated by Senior Mentor for rowId compatibility
             </template>
         </div>
     </main>
+    {{-- Vanilla JS Event Delegation for Remove Button (Fallback for Alpine scope issues) --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🟢 Cart JS Loaded - Event Delegation Active');
+
+            // Event Delegation: Listen on document, filter by class
+            document.body.addEventListener('click', function (e) {
+                const btn = e.target.closest('.js-remove-cart-item');
+                if (!btn) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rowId = btn.dataset.rowid;
+                console.log('🔴 Remove clicked! rowId:', rowId);
+
+                if (!confirm('Remove this item from cart?')) {
+                    console.log('🔴 User cancelled');
+                    return;
+                }
+
+                console.log('🔴 Sending DELETE request...');
+
+                fetch('{{ route("cart.remove") }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ rowId: rowId })
+                })
+                    .then(res => {
+                        console.log('🔴 Response status:', res.status);
+                        if (!res.ok) throw new Error('Server error: ' + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log('🔴 Response data:', data);
+                        if (data.success) {
+                            // Remove row from DOM
+                            const rowEl = document.getElementById('row-' + rowId);
+                            if (rowEl) {
+                                rowEl.style.transition = 'opacity 0.3s, transform 0.3s';
+                                rowEl.style.opacity = '0';
+                                rowEl.style.transform = 'translateX(-20px)';
+                                setTimeout(() => rowEl.remove(), 300);
+                            }
+
+                            // Update cart header via custom event
+                            window.dispatchEvent(new CustomEvent('cart-updated', {
+                                detail: { count: data.cart_count }
+                            }));
+
+                            // Reload if cart is empty
+                            if (data.is_empty) {
+                                setTimeout(() => window.location.reload(), 500);
+                            }
+                        } else {
+                            alert('Failed to remove item');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('🔴 Error:', err);
+                        alert('Network error: ' + err.message);
+                    });
+            });
+        });
+    </script>
 </x-app-layout>
