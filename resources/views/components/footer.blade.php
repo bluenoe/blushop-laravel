@@ -45,7 +45,7 @@
                         <li><a href="{{ route('orders.index') }}"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">Order
                                 Status</a></li>
-                        <li><a href="#"
+                        <li><a href="{{ route('faq') }}#shipping"
                                 class="hover:text-black hover:underline underline-offset-4 transition-colors">Shipping</a>
                         </li>
                         <li><a href="{{ route('faq') . '#shipping' }}"
