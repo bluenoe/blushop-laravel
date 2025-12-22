@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Category; // Nhớ import cái này
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -136,20 +137,25 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         try {
+            $productName = $product->name;
+            
             // 1. Delete associated image folder from storage
             if ($product->slug) {
                 $folderPath = 'products/' . $product->slug;
                 if (Storage::disk('public')->exists($folderPath)) {
-                    // Delete entire product folder (includes all images)
                     Storage::disk('public')->deleteDirectory($folderPath);
                 }
             }
 
-            // 2. Delete the product record (soft delete if using SoftDeletes)
+            // 2. Delete the product record
             $product->delete();
 
-            // 3. Return with success message
-            return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+            // 3. Log the deletion for audit
+            Log::info('Product deleted', ['id' => $product->id, 'name' => $productName]);
+
+            // 4. Return with success message
+            return redirect()->route('admin.products.index')
+                ->with('success', "Product \"{$productName}\" has been deleted successfully.");
             
         } catch (\Illuminate\Database\QueryException $e) {
             // Handle foreign key constraint violation (product in orders/carts)
@@ -158,8 +164,15 @@ class ProductController extends Controller
                     ->with('error', 'Cannot delete this product because it exists in customer orders or carts. Consider deactivating it instead.');
             }
             
-            // Re-throw other database errors
-            throw $e;
+            Log::error('Product deletion failed (DB)', ['error' => $e->getMessage()]);
+            return redirect()->route('admin.products.index')
+                ->with('error', 'Failed to delete the product due to a database error.');
+                
+        } catch (\Exception $e) {
+            // Catch ALL unexpected exceptions
+            Log::error('Product deletion failed (General)', ['error' => $e->getMessage()]);
+            return redirect()->route('admin.products.index')
+                ->with('error', 'An unexpected error occurred while deleting the product.');
         }
     }
 }

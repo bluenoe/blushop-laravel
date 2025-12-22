@@ -177,6 +177,10 @@
         </main>
     </div>
 
+    {{-- SweetAlert2 for Premium Confirmation Dialogs --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @stack('scripts')
 </body>
 
 </html>

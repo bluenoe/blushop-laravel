@@ -135,13 +135,14 @@
                                     </svg>
                                 </a>
 
-                                {{-- Delete Button --}}
-                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                {{-- Delete Button (SweetAlert2) --}}
+                                <form id="delete-form-{{ $product->id }}"
+                                    action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
                                     class="inline-block">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button"
-                                        onclick="if(confirm('Are you sure you want to delete this product? This action cannot be undone.')) { this.closest('form').submit(); }"
+                                        onclick="confirmDelete({{ $product->id }}, '{{ addslashes($product->name) }}')"
                                         class="text-neutral-400 hover:text-red-600 transition-colors" title="Delete">
                                         <span class="sr-only">Delete</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -165,4 +166,33 @@
         </div>
         @endif
     </div>
+
+    @push('scripts')
+    <script>
+        function confirmDelete(productId, productName) {
+            Swal.fire({
+                title: 'Delete Product?',
+                html: `<p class="text-gray-600">You are about to delete: <span class="font-semibold text-black">${productName}</span></p>
+                       <p class="text-sm text-red-500 mt-2">This action cannot be undone.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-none',
+                    confirmButton: 'rounded-none font-bold uppercase tracking-wider text-xs px-6 py-3',
+                    cancelButton: 'rounded-none font-bold uppercase tracking-wider text-xs px-6 py-3',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`delete-form-${productId}`).submit();
+                }
+            });
+        }
+    </script>
+    @endpush
 </x-admin-layout>
