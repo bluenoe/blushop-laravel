@@ -35,6 +35,6 @@ class UserController extends Controller
     {
         // Xóa khách hàng (Cẩn thận: Thường thì nên Soft Delete)
         $user->delete();
-        return back()->with('success', 'Customer deleted successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'Customer deleted successfully.');
     }
 }
