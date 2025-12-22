@@ -135,19 +135,31 @@ class ProductController extends Controller
     // 5. Delete Product with Image Cleanup
     public function destroy(Product $product)
     {
-        // 1. Delete associated image folder from storage
-        if ($product->slug) {
-            $folderPath = 'products/' . $product->slug;
-            if (Storage::disk('public')->exists($folderPath)) {
-                // Delete entire product folder (includes all images)
-                Storage::disk('public')->deleteDirectory($folderPath);
+        try {
+            // 1. Delete associated image folder from storage
+            if ($product->slug) {
+                $folderPath = 'products/' . $product->slug;
+                if (Storage::disk('public')->exists($folderPath)) {
+                    // Delete entire product folder (includes all images)
+                    Storage::disk('public')->deleteDirectory($folderPath);
+                }
             }
+
+            // 2. Delete the product record (soft delete if using SoftDeletes)
+            $product->delete();
+
+            // 3. Return with success message
+            return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+            
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle foreign key constraint violation (product in orders/carts)
+            if ($e->getCode() === '23000') {
+                return redirect()->route('admin.products.index')
+                    ->with('error', 'Cannot delete this product because it exists in customer orders or carts. Consider deactivating it instead.');
+            }
+            
+            // Re-throw other database errors
+            throw $e;
         }
-
-        // 2. Delete the product record (soft delete if using SoftDeletes)
-        $product->delete();
-
-        // 3. Return with success message
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

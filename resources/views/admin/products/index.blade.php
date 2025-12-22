@@ -26,6 +26,25 @@
         </div>
     </div>
 
+    {{-- FLASH MESSAGES --}}
+    @if (session('success'))
+    <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-3">
+        <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
+
+    @if (session('error'))
+    <div class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span>{{ session('error') }}</span>
+    </div>
+    @endif
+
     {{-- TABLE SECTION --}}
     <div class="bg-white min-h-[500px]">
         {{-- Nếu không có sản phẩm --}}
