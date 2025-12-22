@@ -60,10 +60,10 @@
 
             {{-- Danger Zone --}}
             <div class="pt-8">
-                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                    onsubmit="return confirm('Are you sure? This action cannot be undone.');">
+                <form id="delete-user-form" action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                    class="inline-block">
                     @csrf @method('DELETE')
-                    <button type="submit"
+                    <button type="button" onclick="confirmDeleteUser({{ $user->id }}, '{{ addslashes($user->name) }}')"
                         class="text-red-500 text-xs font-bold uppercase tracking-widest hover:text-red-700 border-b border-red-200 pb-0.5">
                         Delete Customer
                     </button>
@@ -115,4 +115,33 @@
             @endif
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function confirmDeleteUser(userId, userName) {
+            Swal.fire({
+                title: 'Delete Customer?',
+                html: `<p class="text-gray-600">You are about to delete: <span class="font-semibold text-black">${userName}</span></p>
+                       <p class="text-sm text-red-500 mt-2">This action cannot be undone. All orders and user data will be permanently deleted.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'rounded-none',
+                    confirmButton: 'rounded-none font-bold uppercase tracking-wider text-xs px-6 py-3',
+                    cancelButton: 'rounded-none font-bold uppercase tracking-wider text-xs px-6 py-3',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-user-form').submit();
+                }
+            });
+        }
+    </script>
+    @endpush
 </x-admin-layout>
