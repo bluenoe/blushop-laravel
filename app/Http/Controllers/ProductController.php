@@ -53,7 +53,18 @@ class ProductController extends Controller
             $query->where('base_price', '<=', (float) $request->input('price_max'));
         }
 
-        // 5. Sort
+        // 5. Filter Availability & Status Checkboxes
+        if ($request->filled('in_stock')) {
+            $query->where('stock', '>', 0);
+        }
+        if ($request->filled('on_sale')) {
+            $query->where('is_on_sale', true);
+        }
+        if ($request->filled('featured')) {
+            $query->where('is_bestseller', true);
+        }
+
+        // 6. Sort
         $sort = (string) $request->input('sort', 'newest');
         match ($sort) {
             'price_asc' => $query->orderBy('base_price', 'asc'),
@@ -62,10 +73,10 @@ class ProductController extends Controller
             default => $query->latest('id'),
         };
 
-        // 6. Pagination
+        // 7. Pagination
         $products = $query->paginate(12)->withQueryString();
 
-        // 7. Breadcrumbs & Categories
+        // 8. Breadcrumbs & Categories
         $breadcrumbs = [
             ['label' => 'Home', 'url' => route('home')],
             ['label' => 'Shop', 'url' => route('products.index')],
