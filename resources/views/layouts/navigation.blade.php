@@ -12,6 +12,8 @@ $categories = \App\Models\Category::query()
         shopHover: false,
         scrolled: false,
         announcementVisible: true,
+        navVisible: true,
+        lastScrollY: 0,
         searchQuery: '',
         searchResults: [],
         searchLoading: false,
@@ -22,6 +24,39 @@ $categories = \App\Models\Category::query()
             this.$watch('mobileMenuOpen', value => {
                 document.body.classList.toggle('overflow-hidden', value);
             })
+        },
+
+        handleScroll() {
+            const currentScrollY = window.pageYOffset;
+            const scrollThreshold = 10; // Minimum scroll delta to trigger hide/show
+            
+            // Always show at top of page
+            if (currentScrollY <= 0) {
+                this.navVisible = true;
+                this.scrolled = false;
+                this.lastScrollY = currentScrollY;
+                return;
+            }
+            
+            // Update scrolled state for background blur
+            this.scrolled = currentScrollY > 20;
+            
+            // Calculate scroll direction with threshold to prevent jitter
+            const scrollDelta = currentScrollY - this.lastScrollY;
+            
+            if (Math.abs(scrollDelta) < scrollThreshold) {
+                return; // Ignore small scrolls
+            }
+            
+            if (scrollDelta > 0 && currentScrollY > 100) {
+                // Scrolling DOWN and past initial area - hide navbar
+                this.navVisible = false;
+            } else if (scrollDelta < 0) {
+                // Scrolling UP - show navbar
+                this.navVisible = true;
+            }
+            
+            this.lastScrollY = currentScrollY;
         },
 
         updateSearch(query) {
@@ -61,9 +96,10 @@ $categories = \App\Models\Category::query()
                 this.selectResult(this.highlightedIndex);
             }
         }
-    }" @scroll.window="scrolled = (window.pageYOffset > 20)"
+    }" @scroll.window.throttle.50ms="handleScroll()"
     @keydown.window.escape="searchOpen = false; mobileMenuOpen = false; shopHover = false"
-    class="fixed top-0 w-full z-50">
+    :class="{ '-translate-y-full': !navVisible && !searchOpen && !mobileMenuOpen && !shopHover }"
+    class="fixed top-0 w-full z-50 transition-transform duration-300 ease-out">
 
     {{-- ANNOUNCEMENT BAR --}}
     <div x-show="announcementVisible" x-transition:leave="transition ease-in duration-200"
@@ -73,8 +109,10 @@ $categories = \App\Models\Category::query()
             <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium text-center">
                 <span class="hidden sm:inline">Free Shipping on orders over 500.000₫</span>
                 <span class="hidden sm:inline mx-3 text-neutral-600">|</span>
-                <span href="{{ route('products.index') }}">New Collection Drop — <span
-                        class="underline underline-offset-2">Shop Now</span></span>
+                <span class="hover:opacity-75 transition-opacity">
+                    New Collection Drop — <a href="{{ route('products.index') }}"
+                        class="underline underline-offset-2 hover:opacity-75 transition-opacity">Shop Now</a>
+                </span>
             </p>
             <button @click="announcementVisible = false"
                 class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition p-1">
