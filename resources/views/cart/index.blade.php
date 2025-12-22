@@ -302,11 +302,7 @@ Updated by Senior Mentor for rowId compatibility
                 const rowId = btn.dataset.rowid;
                 console.log('🔴 Remove clicked! rowId:', rowId);
 
-                if (!confirm('Remove this item from cart?')) {
-                    console.log('🔴 User cancelled');
-                    return;
-                }
-
+                // Skip confirm (browser blocking it) - just delete directly
                 console.log('🔴 Sending DELETE request...');
 
                 fetch('{{ route("cart.remove") }}', {
