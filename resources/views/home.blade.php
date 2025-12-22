@@ -214,13 +214,8 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                         {{-- Product Card --}}
                         <div class="w-[280px] md:w-[320px] px-3 md:px-4 group flex-shrink-0 cursor-pointer">
                             <div class="relative aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
-                                @php
-                                $imgSrc = $product->image;
-                                if (!Str::contains($imgSrc, 'http')) {
-                                $imgSrc = Storage::url('products/' . $imgSrc);
-                                }
-                                @endphp
-                                <img src="{{ $imgSrc }}" alt="{{ $product->name }}" loading="lazy"
+                                {{-- Use the model's imageUrl attribute accessor for proper image path handling --}}
+                                <img src="{{ $product->imageUrl }}" alt="{{ $product->name }}" loading="lazy"
                                     class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105 group-hover:opacity-95">
 
                                 {{-- Quick Add Overlay --}}
@@ -246,7 +241,7 @@ Status: STABLE (Flexbox Hybrid Layout + CSS Marquee)
                                         {{ $product->name }}
                                     </h3>
                                     <span class="text-sm font-medium whitespace-nowrap">
-                                        {{ number_format($product->price, 0, ',', '.') }} ₫
+                                        {{ number_format($product->base_price, 0, ',', '.') }} ₫
                                     </span>
                                 </div>
                             </div>
