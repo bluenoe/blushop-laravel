@@ -75,7 +75,8 @@
                                 <input type="text" name="name" id="name" required
                                     class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-colors duration-200 
                                     {{ $errors->has('name') ? 'border-red-500 text-red-900 focus:border-red-500' : 'text-neutral-900 border-neutral-300 focus:border-black' }}"
-                                    placeholder=" " value="{{ old('name', auth()->user()->name ?? '') }}" />
+                                    placeholder=" "
+                                    value="{{ old('name', $defaultAddress->name ?? auth()->user()->name ?? '') }}" />
 
                                 <label for="name"
                                     class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
@@ -94,7 +95,7 @@
                                         class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-colors duration-200 
                                         {{ $errors->has('phone') ? 'border-red-500 text-red-900 focus:border-red-500' : 'text-neutral-900 border-neutral-300 focus:border-black' }}"
                                         placeholder=" "
-                                        value="{{ old('phone', auth()->user()->phone_number ?? '') }}" />
+                                        value="{{ old('phone', $defaultAddress->phone ?? auth()->user()->phone_number ?? '') }}" />
 
                                     <label for="phone"
                                         class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
@@ -126,7 +127,7 @@
                                 <textarea name="address" id="address" rows="2" required
                                     class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer resize-none transition-colors duration-200 
                                     {{ $errors->has('address') ? 'border-red-500 text-red-900 focus:border-red-500' : 'text-neutral-900 border-neutral-300 focus:border-black' }}"
-                                    placeholder=" ">{{ old('address') }}</textarea>
+                                    placeholder=" ">{{ old('address', $defaultAddress->address ?? '') }}</textarea>
 
                                 <label for="address"
                                     class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
@@ -134,6 +135,23 @@
                                     Delivery Address
                                 </label>
                                 @error('address') <p
+                                    class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
+                                    {{ $message }}</p> @enderror
+                            </div>
+
+                            {{-- CITY (Floating Label) --}}
+                            <div class="relative z-0 w-full group">
+                                <input type="text" name="city" id="city" required
+                                    class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-colors duration-200 
+                                    {{ $errors->has('city') ? 'border-red-500 text-red-900 focus:border-red-500' : 'text-neutral-900 border-neutral-300 focus:border-black' }}"
+                                    placeholder=" " value="{{ old('city', $defaultAddress->city ?? '') }}" />
+
+                                <label for="city"
+                                    class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
+                                    {{ $errors->has('city') ? 'text-red-500' : 'text-neutral-500 peer-focus:text-black' }}">
+                                    City / Province
+                                </label>
+                                @error('city') <p
                                     class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
                                     {{ $message }}</p> @enderror
                             </div>

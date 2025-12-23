@@ -18,6 +18,12 @@
                             Settings
                         </a>
 
+                        {{-- Address Book --}}
+                        <a href="{{ route('profile.edit') }}?tab=address"
+                            class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
+                            Address Book
+                        </a>
+
                         {{-- Orders (Link sang trang riêng) --}}
                         <a href="{{ route('orders.index') }}"
                             class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
@@ -44,15 +50,27 @@
                 {{-- RIGHT: CONTENT AREA --}}
                 <div class="lg:col-span-9">
 
-                    {{-- Alpine Tab cho nội bộ Profile (Info vs Password) --}}
-                    <div
-                        x-data="{ tab: '{{ $errors->updatePassword->any() || session('status') === 'password-updated' ? 'password' : 'info' }}' }">
+                    {{-- Alpine Tab cho nội bộ Profile (Info vs Password vs Address) --}}
+                    @php
+                    $initialTab = 'info';
+                    if ($errors->updatePassword->any() || session('status') === 'password-updated') {
+                    $initialTab = 'password';
+                    } elseif (request('tab') === 'address' || session('status') === 'address-updated') {
+                    $initialTab = 'address';
+                    }
+                    @endphp
+                    <div x-data="{ tab: '{{ $initialTab }}' }">
                         {{-- Inner Tabs Header --}}
                         <div class="flex gap-8 border-b border-neutral-200 mb-12 pb-1">
                             <button @click="tab='info'"
                                 class="text-xs font-bold uppercase tracking-widest pb-4 transition border-b-2"
                                 :class="tab==='info' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
                                 Personal Info
+                            </button>
+                            <button @click="tab='address'"
+                                class="text-xs font-bold uppercase tracking-widest pb-4 transition border-b-2"
+                                :class="tab==='address' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'">
+                                Address Book
                             </button>
                             <button @click="tab='password'"
                                 class="text-xs font-bold uppercase tracking-widest pb-4 transition border-b-2"
@@ -78,7 +96,17 @@
                             </div>
                         </div>
 
-                        {{-- TAB 2: PASSWORD --}}
+                        {{-- TAB 2: ADDRESS BOOK --}}
+                        <div x-show="tab==='address'" x-cloak x-transition.opacity>
+                            <div class="max-w-xl">
+                                <h3 class="text-lg font-bold mb-2">Default Shipping Address</h3>
+                                <p class="text-sm text-neutral-500 mb-8">This address will be auto-filled at checkout.
+                                </p>
+                                @include('profile.partials.update-address-form')
+                            </div>
+                        </div>
+
+                        {{-- TAB 3: PASSWORD --}}
                         <div x-show="tab==='password'" x-cloak x-transition.opacity>
                             <div class="max-w-xl">
                                 <h3 class="text-lg font-bold mb-6">Change Password</h3>

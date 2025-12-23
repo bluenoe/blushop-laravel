@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\UserAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,10 +35,14 @@ class ProfileController extends Controller
 
         $wishedIds = $products->pluck('id')->map(fn ($id) => (int) $id)->all();
 
+        // Get user's default shipping address
+        $defaultAddress = $user->defaultAddress;
+
         return view('profile.edit', [
             'user' => $user,
             'products' => $products,
             'wishedIds' => $wishedIds,
+            'defaultAddress' => $defaultAddress,
         ]);
     }
 
@@ -73,6 +78,37 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's default shipping address.
+     */
+    public function updateAddress(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:500'],
+            'city' => ['required', 'string', 'max:100'],
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        UserAddress::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'is_default' => true,
+            ],
+            [
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'address' => $data['address'],
+                'city' => $data['city'],
+            ]
+        );
+
+        return Redirect::route('profile.edit', ['tab' => 'address'])->with('status', 'address-updated');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
@@ -93,3 +129,4 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 }
+
