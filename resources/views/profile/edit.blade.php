@@ -18,12 +18,6 @@
                             Settings
                         </a>
 
-                        {{-- Address Book --}}
-                        <a href="{{ route('profile.edit') }}?tab=address"
-                            class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
-                            Address Book
-                        </a>
-
                         {{-- Orders (Link sang trang riêng) --}}
                         <a href="{{ route('orders.index') }}"
                             class="block py-2 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition">
