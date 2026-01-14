@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\OrderPlaced;
 use App\Http\Responses\LoginResponse;
+use App\Listeners\SendOrderEmail;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
@@ -29,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register Event Listeners
+        Event::listen(OrderPlaced::class, SendOrderEmail::class);
+
         // --- ĐOẠN FIX LỖI NGROK ---
         // Lấy URL hiện tại trong file .env
         $appUrl = Config::get('app.url');

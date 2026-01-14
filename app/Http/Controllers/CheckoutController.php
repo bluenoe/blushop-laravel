@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPlaced;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\UserAddress;
@@ -98,6 +99,9 @@ class CheckoutController extends Controller
                 'price_at_purchase' => (float) $item['price'],
             ]);
         }
+
+        // Dispatch OrderPlaced event (triggers async email via queue)
+        OrderPlaced::dispatch($order);
 
         // Xoá giỏ sau khi đặt hàng
         $request->session()->forget('cart');
