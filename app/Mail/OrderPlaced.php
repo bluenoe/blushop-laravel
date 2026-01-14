@@ -39,19 +39,19 @@ class OrderPlaced extends Mailable
     /**
      * Get the message content definition.
      */
-    public function content(): Content
-    {
-        return new Content(
-            markdown: 'emails.orders.placed',
-            with: [
-                'orderId' => $this->order->id,
-                'customerName' => $this->order->user->name ?? 'Quý khách',
-                'totalPrice' => number_format($this->order->total_amount, 0, ',', '.') . '₫',
-                'shippingAddress' => $this->order->shipping_address,
-                'orderItems' => $this->order->orderItems,
-            ],
-        );
-    }
+   public function content(): Content
+{
+    return new Content(
+        markdown: 'emails.orders.placed',
+        with: [
+            'orderId' => $this->order->id,
+            'customerName' => $this->order->user->name ?? 'Quý khách',
+            'totalPrice' => number_format($this->order->total_amount, 0, ',', '.') . '₫',
+            'shippingAddress' => $this->order->shipping_address,
+            'orderItems' => $this->order->orderItems,
+        ],
+    );
+}
 
     /**
      * Get the attachments for the message.
