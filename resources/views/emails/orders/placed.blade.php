@@ -1,6 +1,5 @@
 <x-mail::message>
 <div style="text-align: center; margin-bottom: 24px;">
-{{-- LOGO: Nhúng trực tiếp từ folder public/images --}}
 @if(file_exists(public_path('images/blu-logo.jpg')))
 <img src="{{ $message->embed(public_path('images/blu-logo.jpg')) }}" alt="BluShop" style="height: 40px; width: auto;">
 @else
@@ -48,17 +47,22 @@
 <tr>
 <td style="width: 60px; padding-right: 15px; vertical-align: top;">
 @php
-// LOGIC XỬ LÝ ẢNH SẢN PHẨM (Embed để hiện trên mail)
-$imgSrc = '';
-// Đường dẫn file thực tế trên ổ cứng
-$diskPath = public_path('storage/' . ($item->product->image ?? '')); 
+// 1. Lấy đường dẫn từ DB (Dựa theo ảnh bà gửi là cột image_path)
+// Lưu ý: Nếu $item trỏ tới ProductVariant thì dùng $item->variant->image_path
+// Nếu $item trỏ tới Product thì dùng $item->product->image_path
+$dbPath = $item->product->image_path ?? $item->product->image ?? ''; 
 
-if (!empty($item->product->image) && file_exists($diskPath)) {
-    // Nếu file tồn tại -> Nhúng thẳng vào mail
-    $imgSrc = $message->embed($diskPath);
+// 2. Tạo đường dẫn tuyệt đối trên ổ cứng
+// DB của bà lưu dạng: "products/men-basic-tee/black.jpg"
+// Nên ta nối thêm 'storage/' vào trước
+$fullPath = public_path('storage/' . $dbPath);
+
+// 3. Kiểm tra file và Embed
+if (!empty($dbPath) && file_exists($fullPath)) {
+    $imgSrc = $message->embed($fullPath);
 } else {
-    // Nếu không có ảnh -> Dùng placeholder online hoặc text
-    $imgSrc = 'https://placehold.co/50x60?text=No+Img'; 
+    // Ảnh placeholder màu xám nếu không tìm thấy file
+    $imgSrc = 'https://placehold.co/50x60/eee/999?text=No+Img';
 }
 @endphp
 <img src="{{ $imgSrc }}" alt="Img" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5;">
