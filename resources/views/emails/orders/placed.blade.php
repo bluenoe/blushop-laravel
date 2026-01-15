@@ -1,101 +1,109 @@
 <x-mail::message>
-<div style="text-align: center; margin-bottom: 24px;">
+{{-- HEADER: LOGO & TITLE --}}
+<div style="text-align: center; margin-bottom: 30px;">
 @if(file_exists(public_path('images/blu-logo.jpg')))
-<img src="{{ $message->embed(public_path('images/blu-logo.jpg')) }}" alt="BluShop" style="height: 40px; width: auto;">
+<img src="{{ $message->embed(public_path('images/blu-logo.jpg')) }}" alt="BluShop" style="height: 35px; width: auto;">
 @else
-<h1 style="margin: 0; color: #000; letter-spacing: 2px;">BLUSHOP</h1>
+<h1 style="margin: 0; font-size: 24px; letter-spacing: 3px; color: #000; text-transform: uppercase;">BLUSHOP</h1>
 @endif
 </div>
 
-<div style="text-align: center;">
-<h1 style="font-size: 24px; font-weight: 300; margin-bottom: 10px; color: #000;">Xác nhận đơn hàng #{{ $orderId }}</h1>
-<p style="color: #555; font-size: 16px;">Cảm ơn <strong>{{ $customerName }}</strong>, đơn hàng của bạn đã được tiếp nhận.</p>
+<div style="text-align: center; margin-bottom: 40px;">
+<p style="font-size: 14px; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Xác nhận đơn hàng</p>
+<h1 style="font-size: 28px; font-weight: 400; margin: 0; color: #000;">#{{ $orderId }}</h1>
+<p style="color: #555; font-size: 15px; margin-top: 15px;">Xin chào <strong>{{ $customerName }}</strong>, chúng tôi đã nhận được đơn hàng của bạn.</p>
 </div>
 
-<hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+{{-- INFO GRID: NGÀY & TỔNG TIỀN --}}
+<div style="background: #fafafa; padding: 20px; margin-bottom: 30px;">
+<table width="100%" cellpadding="0" cellspacing="0">
 <tr>
 <td style="width: 50%; vertical-align: top;">
-<p style="color: #888; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Ngày đặt hàng</p>
-<p style="margin: 5px 0 0 0; font-weight: 600;">{{ now()->format('d/m/Y') }}</p>
+<p style="color: #999; margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Ngày đặt hàng</p>
+<p style="margin: 5px 0 0 0; font-weight: 600; font-size: 14px;">{{ now()->format('d/m/Y') }}</p>
 </td>
 <td style="width: 50%; vertical-align: top; text-align: right;">
-<p style="color: #888; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Tổng thanh toán</p>
+<p style="color: #999; margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Tổng thanh toán</p>
 <p style="margin: 5px 0 0 0; font-weight: 600; font-size: 18px; color: #000;">{{ $totalPrice }}</p>
 </td>
 </tr>
 </table>
-
-<div style="margin-bottom: 30px;">
-<p style="color: #888; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Địa chỉ giao hàng</p>
-<p style="margin: 5px 0 0 0;">{{ $shippingAddress }}</p>
 </div>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 30px; border-collapse: collapse;">
-<thead>
-<tr>
-<th style="text-align: left; padding-bottom: 10px; border-bottom: 1px solid #000; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888;">Sản phẩm</th>
-<th style="text-align: right; padding-bottom: 10px; border-bottom: 1px solid #000; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888;">Thành tiền</th>
-</tr>
-</thead>
-<tbody>
+<div style="margin-bottom: 40px; border-left: 2px solid #000; padding-left: 15px;">
+<p style="color: #999; margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Địa chỉ giao hàng</p>
+<p style="margin: 5px 0 0 0; font-size: 14px; line-height: 1.5;">{{ $shippingAddress }}</p>
+</div>
+
+{{-- PRODUCT LIST --}}
+<p style="border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Chi tiết đơn hàng</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;">
 @foreach ($orderItems as $item)
 <tr>
-{{-- Cột 1: Chứa Ảnh + Tên (Dùng bảng lồng nhau) --}}
-<td style="padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top;">
+{{-- Cột 1: ẢNH + THÔNG TIN --}}
+<td style="padding: 20px 0; border-bottom: 1px solid #eee; vertical-align: top;">
 <table cellpadding="0" cellspacing="0" width="100%">
 <tr>
-{{-- Phần Ảnh (Code Logic của bà ở đây) --}}
-<td style="width: 60px; padding-right: 15px; vertical-align: top;">
+{{-- XỬ LÝ ẢNH --}}
+<td style="width: 70px; padding-right: 15px; vertical-align: top;">
 @php
 $rawPath = $item->product->image_path ?? $item->product->image ?? '';
-$candidates = [
-    public_path('storage/' . $rawPath),
-    public_path($rawPath),
-    storage_path('app/public/' . $rawPath)
-];
 $finalPath = null;
-foreach ($candidates as $path) {
-    if (!empty($rawPath) && file_exists($path)) {
-        $finalPath = $path;
-        break;
-    }
+
+// Ưu tiên 1: Check đường dẫn trực tiếp
+$directCheck = public_path('storage/' . $rawPath);
+if (file_exists($directCheck)) {
+$finalPath = $directCheck;
+} 
+
+// Ưu tiên 2: Quét thư mục recursive (như code trước)
+if (!$finalPath && !empty($rawPath)) {
+$filename = basename($rawPath); 
+$rootDir = public_path('storage/products'); 
+if (is_dir($rootDir)) {
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootDir, RecursiveDirectoryIterator::SKIP_DOTS));
+foreach ($iterator as $file) {
+if ($file->getFilename() === $filename) {
+$finalPath = $file->getPathname();
+break;
+}
+}
+}
 }
 @endphp
 
 @if ($finalPath)
-<img src="{{ $message->embed($finalPath) }}" alt="Product" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5; border: 1px solid #eee;">
+<img src="{{ $message->embed($finalPath) }}" alt="Product" style="width: 60px; height: 75px; object-fit: cover; display: block; background: #f5f5f5;">
 @else
-<div style="width: 50px; height: 60px; background: #f0f0f0; border: 1px solid #ccc; display: block; overflow: hidden;">
-    <p style="font-size: 8px; color: red; line-height: 10px; margin: 2px; word-break: break-all;">Err: {{ $rawPath }}</p>
-</div>
+<div style="width: 60px; height: 75px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #999;">NO IMG</div>
 @endif
 </td>
 
-{{-- Phần Tên + Số lượng (Hồi nãy bà thiếu đoạn này) --}}
+{{-- THÔNG TIN SẢN PHẨM --}}
 <td style="vertical-align: top;">
-<p style="margin: 0; font-weight: 600; font-size: 14px;">{{ $item->product->name ?? 'Sản phẩm' }}</p>
-<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">SL: {{ $item->quantity }}</p>
+<p style="margin: 0; font-weight: 600; font-size: 14px; color: #000;">{{ $item->product->name ?? 'Sản phẩm' }}</p>
+<p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Số lượng: {{ $item->quantity }}</p>
 </td>
 </tr>
 </table>
 </td>
 
-{{-- Cột 2: Thành tiền (Hồi nãy bà thiếu đoạn này luôn) --}}
-<td style="text-align: right; padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top; font-weight: 500;">
-{{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }}₫
+{{-- Cột 2: GIÁ TIỀN --}}
+<td style="text-align: right; padding: 20px 0; border-bottom: 1px solid #eee; vertical-align: top; width: 120px;">
+<p style="margin: 0; font-weight: 600; font-size: 14px;">{{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }}₫</p>
 </td>
 </tr>
 @endforeach
-</tbody>
 </table>
 
-<div style="text-align: center; margin-top: 40px;">
-<a href="{{ route('orders.show', $orderId) }}" style="background-color: #000; color: #fff; padding: 12px 30px; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block;">THEO DÕI ĐƠN HÀNG</a>
+{{-- FOOTER --}}
+<div style="text-align: center; margin-top: 50px;">
+<a href="{{ route('orders.show', $orderId) }}" style="background-color: #000; color: #fff; padding: 15px 40px; text-decoration: none; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; display: inline-block;">Kiểm tra đơn hàng</a>
 </div>
 
-<div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
-<p style="margin: 0; font-size: 12px; color: #999;">Cần hỗ trợ? Liên hệ <a href="mailto:support@blushop.com" style="color: #000; text-decoration: underline;">support@blushop.com</a></p>
+<div style="text-align: center; margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
+<p style="margin: 0; font-size: 12px; color: #bbb;">{{ config('app.name') }} Inc. All rights reserved.</p>
+<p style="margin: 5px 0 0 0; font-size: 12px;"><a href="mailto:support@blushop.com" style="color: #999; text-decoration: none;">support@blushop.com</a></p>
 </div>
 </x-mail::message>
