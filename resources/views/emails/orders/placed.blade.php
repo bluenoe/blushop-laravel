@@ -42,40 +42,47 @@
 <tbody>
 @foreach ($orderItems as $item)
 <tr>
+{{-- Cột 1: Chứa Ảnh + Tên (Dùng bảng lồng nhau) --}}
 <td style="padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top;">
 <table cellpadding="0" cellspacing="0" width="100%">
 <tr>
+{{-- Phần Ảnh (Code Logic của bà ở đây) --}}
 <td style="width: 60px; padding-right: 15px; vertical-align: top;">
 @php
-// 1. Lấy đường dẫn từ DB (Dựa theo ảnh bà gửi là cột image_path)
-// Lưu ý: Nếu $item trỏ tới ProductVariant thì dùng $item->variant->image_path
-// Nếu $item trỏ tới Product thì dùng $item->product->image_path
-$dbPath = $item->product->image_path ?? $item->product->image ?? ''; 
-
-// 2. Tạo đường dẫn tuyệt đối trên ổ cứng
-// DB của bà lưu dạng: "products/men-basic-tee/black.jpg"
-// Nên ta nối thêm 'storage/' vào trước
-$fullPath = public_path('storage/' . $dbPath);
-
-// 3. Kiểm tra file và Embed
-if (!empty($dbPath) && file_exists($fullPath)) {
-    $imgSrc = $message->embed($fullPath);
-} else {
-    // Ảnh placeholder màu xám nếu không tìm thấy file
-    $imgSrc = 'https://placehold.co/50x60/eee/999?text=No+Img';
+$rawPath = $item->product->image_path ?? $item->product->image ?? '';
+$candidates = [
+    public_path('storage/' . $rawPath),
+    public_path($rawPath),
+    storage_path('app/public/' . $rawPath)
+];
+$finalPath = null;
+foreach ($candidates as $path) {
+    if (!empty($rawPath) && file_exists($path)) {
+        $finalPath = $path;
+        break;
+    }
 }
 @endphp
-<img src="{{ $imgSrc }}" alt="Img" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5;">
+
+@if ($finalPath)
+<img src="{{ $message->embed($finalPath) }}" alt="Product" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5; border: 1px solid #eee;">
+@else
+<div style="width: 50px; height: 60px; background: #f0f0f0; border: 1px solid #ccc; display: block; overflow: hidden;">
+    <p style="font-size: 8px; color: red; line-height: 10px; margin: 2px; word-break: break-all;">Err: {{ $rawPath }}</p>
+</div>
+@endif
 </td>
+
+{{-- Phần Tên + Số lượng (Hồi nãy bà thiếu đoạn này) --}}
 <td style="vertical-align: top;">
 <p style="margin: 0; font-weight: 600; font-size: 14px;">{{ $item->product->name ?? 'Sản phẩm' }}</p>
-<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">
-SL: {{ $item->quantity }}
-</p>
+<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">SL: {{ $item->quantity }}</p>
 </td>
 </tr>
 </table>
 </td>
+
+{{-- Cột 2: Thành tiền (Hồi nãy bà thiếu đoạn này luôn) --}}
 <td style="text-align: right; padding: 15px 0; border-bottom: 1px solid #eee; vertical-align: top; font-weight: 500;">
 {{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }}₫
 </td>
