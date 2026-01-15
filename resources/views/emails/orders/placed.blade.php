@@ -1,6 +1,11 @@
 <x-mail::message>
 <div style="text-align: center; margin-bottom: 24px;">
-<img src="{{ asset('images/blu-logo.jpg') }}" alt="BluShop" style="height: 40px; width: auto;">
+{{-- LOGO: Nhúng trực tiếp từ folder public/images --}}
+@if(file_exists(public_path('images/blu-logo.jpg')))
+<img src="{{ $message->embed(public_path('images/blu-logo.jpg')) }}" alt="BluShop" style="height: 40px; width: auto;">
+@else
+<h1 style="margin: 0; color: #000; letter-spacing: 2px;">BLUSHOP</h1>
+@endif
 </div>
 
 <div style="text-align: center;">
@@ -10,7 +15,6 @@
 
 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
-{{-- DÙNG TABLE ĐỂ CHIA CỘT (An toàn hơn Flexbox) --}}
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
 <tr>
 <td style="width: 50%; vertical-align: top;">
@@ -29,7 +33,6 @@
 <p style="margin: 5px 0 0 0;">{{ $shippingAddress }}</p>
 </div>
 
-{{-- QUAN TRỌNG: Không thụt đầu dòng đoạn này --}}
 <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 30px; border-collapse: collapse;">
 <thead>
 <tr>
@@ -44,11 +47,27 @@
 <table cellpadding="0" cellspacing="0" width="100%">
 <tr>
 <td style="width: 60px; padding-right: 15px; vertical-align: top;">
-<img src="{{ $item->product->image_url ?? asset('images/no-image.jpg') }}" alt="Img" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5;">
+@php
+// LOGIC XỬ LÝ ẢNH SẢN PHẨM (Embed để hiện trên mail)
+$imgSrc = '';
+// Đường dẫn file thực tế trên ổ cứng
+$diskPath = public_path('storage/' . ($item->product->image ?? '')); 
+
+if (!empty($item->product->image) && file_exists($diskPath)) {
+    // Nếu file tồn tại -> Nhúng thẳng vào mail
+    $imgSrc = $message->embed($diskPath);
+} else {
+    // Nếu không có ảnh -> Dùng placeholder online hoặc text
+    $imgSrc = 'https://placehold.co/50x60?text=No+Img'; 
+}
+@endphp
+<img src="{{ $imgSrc }}" alt="Img" style="width: 50px; height: 60px; object-fit: cover; border-radius: 2px; background: #f5f5f5;">
 </td>
 <td style="vertical-align: top;">
 <p style="margin: 0; font-weight: 600; font-size: 14px;">{{ $item->product->name ?? 'Sản phẩm' }}</p>
-<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">SL: {{ $item->quantity }}</p>
+<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">
+SL: {{ $item->quantity }}
+</p>
 </td>
 </tr>
 </table>
