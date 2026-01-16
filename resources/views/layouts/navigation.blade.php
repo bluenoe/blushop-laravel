@@ -310,11 +310,12 @@ $categories = \App\Models\Category::query()
         x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
-        <div class="max-w-4xl mx-auto relative">
+        <div class="max-w-4xl mx-auto relative flex-shrink-0">
             <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
                 <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..." x-model="searchQuery"
                     @input="updateSearch($event.target.value)" @keydown="handleKeydown($event)" autocomplete="off"
-                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
+                    maxlength="100"
+                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300 max-w-full overflow-hidden text-ellipsis">
             </form>
 
             <div x-show="searchQuery.length >= 2" x-transition
