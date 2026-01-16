@@ -89,23 +89,9 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                {{-- PHONE NUMBER (Floating Label) --}}
-                                <div class="relative z-0 w-full group">
-                                    <input type="tel" name="phone" id="phone" required
-                                        class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-colors duration-200 
-                                        {{ $errors->has('phone') ? 'border-red-500 text-red-900 focus:border-red-500' : 'text-neutral-900 border-neutral-300 focus:border-black' }}"
-                                        placeholder=" "
-                                        value="{{ old('phone', $defaultAddress->phone ?? auth()->user()->phone_number ?? '') }}" />
-
-                                    <label for="phone"
-                                        class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
-                                        {{ $errors->has('phone') ? 'text-red-500' : 'text-neutral-500 peer-focus:text-black' }}">
-                                        Phone Number
-                                    </label>
-                                    @error('phone') <p
-                                        class="mt-1 text-[10px] font-bold text-red-500 uppercase tracking-wider animate-pulse">
-                                        {{ $message }}</p> @enderror
-                                </div>
+                                {{-- Thay thế toàn bộ cụm Phone cũ bằng component mới ở đây --}}
+                                <x-phone-input name="phone" label="Phone Number"
+                                    :value="old('phone', $defaultAddress->phone ?? auth()->user()->phone_number ?? '')" />
 
                                 {{-- EMAIL (Floating Label) --}}
                                 <div class="relative z-0 w-full group">

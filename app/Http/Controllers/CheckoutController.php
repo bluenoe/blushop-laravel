@@ -10,9 +10,26 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Http\Requests\PhoneNumberRequest;
 
 class CheckoutController extends Controller
 {
+
+    public function store(PhoneNumberRequest $request)
+    {
+        // Lúc này, dữ liệu đã được validate tự động. 
+        // Nếu số điện thoại sai, Laravel tự quay về trang cũ kèm thông báo lỗi.
+
+        $validated = $request->validated();
+
+        // Dữ liệu nhận được sẽ là "901234567" (đã sạch số 0 và khoảng trắng)
+        $cleanPhone = $validated['phone'];
+
+        // Nếu muốn lưu vào DB kèm mã vùng +84:
+        $fullPhone = '+84' . $cleanPhone;
+
+        // Xử lý logic tạo đơn hàng tiếp theo...
+    }
     /**
      * Hiển thị trang checkout (tóm tắt giỏ hàng) — chỉ cho user đã đăng nhập.
      */
