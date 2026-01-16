@@ -3,7 +3,7 @@
 {{--
 PHONE INPUT COMPONENT
 - Ultra-minimalist design with bottom-border only
-- Fixed +84 prefix for Vietnam
+- Fixed +84 prefix (appears on focus or when has value)
 - Auto-strips leading zero
 - Input masking: XXX XXX XXX
 - Submits clean digits only
@@ -80,6 +80,10 @@ PHONE INPUT COMPONENT
 
         get isActive() {
             return this.focused || this.cleanValue.length > 0;
+        },
+
+        get showPrefix() {
+            return this.focused || this.cleanValue.length > 0;
         }
     }">
 
@@ -93,11 +97,14 @@ PHONE INPUT COMPONENT
             'border-neutral-300': !focused && !{{ $errors->has($name) ? 'true' : 'false' }}
         }">
 
-        {{-- Fixed Prefix +84 --}}
-        <span class="text-sm py-2.5 pr-2 transition-colors duration-300 select-none" :class="{
+        {{-- Fixed Prefix +84 - Hidden by default, appears on focus or when has value --}}
+        <span x-show="showPrefix" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-x-0"
+            x-transition:leave-end="opacity-0 -translate-x-2"
+            class="text-sm py-2.5 pr-2 transition-colors duration-300 select-none flex-shrink-0" :class="{
                 'text-red-500': {{ $errors->has($name) ? 'true' : 'false' }},
-                'text-neutral-900': focused && !{{ $errors->has($name) ? 'true' : 'false' }},
-                'text-neutral-400': !focused && !{{ $errors->has($name) ? 'true' : 'false' }}
+                'text-neutral-900': !{{ $errors->has($name) ? 'true' : 'false' }}
             }">
             +84
         </span>
@@ -111,10 +118,10 @@ PHONE INPUT COMPONENT
     </div>
 
     {{-- Floating Label --}}
-    <label class="absolute text-sm duration-300 transform origin-[0] left-0 uppercase tracking-widest pointer-events-none transition-all
+    <label class="absolute text-sm duration-300 transform origin-[0] uppercase tracking-widest pointer-events-none transition-all
         {{ $errors->has($name) ? 'text-red-500' : '' }}" :class="{
-            '-translate-y-6 scale-75 top-3 font-medium': isActive,
-            'translate-y-0 scale-100 top-2.5 {{ $errors->has($name) ? '' : 'text-neutral-500' }}': !isActive,
+            '-translate-y-6 scale-75 top-3 left-0 font-medium': isActive,
+            'translate-y-0 scale-100 top-2.5 left-0': !isActive,
             'text-black': focused && !{{ $errors->has($name) ? 'true' : 'false' }},
             'text-neutral-500': !focused && !{{ $errors->has($name) ? 'true' : 'false' }}
         }">
