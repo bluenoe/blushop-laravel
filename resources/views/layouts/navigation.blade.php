@@ -64,7 +64,8 @@ $categories = \App\Models\Category::query()
     }" @scroll.window="scrolled = (window.pageYOffset > 20)"
     @keydown.window.escape="searchOpen = false; mobileMenuOpen = false; shopHover = false"
     :class="{ 'bg-white/95 backdrop-blur-md shadow-sm': scrolled, 'bg-white': !scrolled }"
-    class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-gray-100">
+    class="fixed w-full z-50 border-b border-gray-100 transition-[top] duration-200 ease-out"
+    style="top: var(--announcement-bar-height, 0px);">
 
     {{-- PRIMARY HEADER --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
