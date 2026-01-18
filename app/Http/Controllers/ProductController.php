@@ -38,7 +38,8 @@ class ProductController extends Controller
 
         // 3. Filter Search
         if ($request->filled('q')) {
-            $q = trim((string) $request->input('q'));
+            $request->validate(['q' => 'nullable|string|max:100']);
+            $q = Str::limit(trim((string) $request->input('q')), 100, '');
             $query->where(function ($sub) use ($q) {
                 $sub->where('name', 'like', "%{$q}%")
                     ->orWhere('description', 'like', "%{$q}%");
@@ -191,7 +192,8 @@ class ProductController extends Controller
 
     public function autocomplete(Request $request)
     {
-        $term = trim((string) $request->input('q', ''));
+        $request->validate(['q' => 'nullable|string|max:100']);
+        $term = Str::limit(trim((string) $request->input('q', '')), 100, '');
         if (mb_strlen($term) < 2) return response()->json(['data' => []]);
 
         $safeTerm = str_replace(['%', '_'], ['\\%', '\\_'], $term);

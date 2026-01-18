@@ -24,7 +24,8 @@ $categories = \App\Models\Category::query()
         },
 
         updateSearch(query) {
-            this.searchQuery = query;
+            // Strict character limit - cap at 100 even if HTML bypassed
+            this.searchQuery = query.substring(0, 100);
             this.highlightedIndex = -1;
             if (this.searchTimeout) clearTimeout(this.searchTimeout);
 
@@ -310,11 +311,12 @@ $categories = \App\Models\Category::query()
         x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         class="absolute top-0 left-0 w-full bg-white z-50 border-b border-gray-100 py-6 px-4">
-        <div class="max-w-4xl mx-auto relative">
-            <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []">
+        <div class="max-w-4xl mx-auto relative flex-shrink-0">
+            <form action="{{ route('products.index') }}" method="GET" @submit="searchResults = []" class="relative">
                 <input x-ref="searchInput" type="text" name="q" placeholder="Type to search..." x-model="searchQuery"
                     @input="updateSearch($event.target.value)" @keydown="handleKeydown($event)" autocomplete="off"
-                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black p-4 placeholder-gray-300">
+                    maxlength="100"
+                    class="w-full text-2xl font-light border-none border-b border-gray-200 focus:ring-0 focus:border-black focus:outline-none outline-none p-4 pr-16 placeholder-gray-300">
             </form>
 
             <div x-show="searchQuery.length >= 2" x-transition
@@ -347,7 +349,7 @@ $categories = \App\Models\Category::query()
                 </ul>
             </div>
             <button @click="searchOpen = false"
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black text-xs uppercase tracking-widest">Close</button>
+                class="absolute right-4 top-6 z-10 text-gray-400 hover:text-black text-xs uppercase tracking-widest transition-colors">Close</button>
         </div>
     </div>
 
