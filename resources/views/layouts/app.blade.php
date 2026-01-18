@@ -7,6 +7,11 @@
         body {
             scroll-behavior: smooth !important;
         }
+
+        /* Prevent Alpine.js flash - hide elements until initialized */
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 
     <meta charset="utf-8">
