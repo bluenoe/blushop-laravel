@@ -86,6 +86,11 @@
 </head>
 
 <body class="font-sans antialiased">
+    {{-- Global Announcement Bar --}}
+    @if(config('announcement.enabled', true))
+    <x-announcement-bar />
+    @endif
+
     <div class="min-h-screen bg-warm">
         {{-- Navigation --}}
         @include('layouts.navigation')
