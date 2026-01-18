@@ -18,11 +18,22 @@ class Order extends Model
         'payment_status',
         'status',
         'shipping_address',
+        'cancellation_reason',
+        'cancelled_at',
     ];
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'cancelled_at' => 'datetime',
     ];
+
+    /**
+     * Check if the order can be cancelled.
+     */
+    public function isCancellable(): bool
+    {
+        return strtolower($this->status) === 'pending';
+    }
 
     public function user()
     {
