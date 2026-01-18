@@ -8,45 +8,41 @@ The bar will remember if the user closed it using localStorage.
 --}}
 
 @php
-// Get announcement message from config or use default
 $message = config('announcement.message', __('announcement.message'));
 $storageKey = config('announcement.storage_key', 'hide_promo_bar');
 @endphp
 
-{{--
-FIX: Using inline script to check localStorage BEFORE render
-This completely prevents flash because we decide visibility synchronously
---}}
+{{-- Check localStorage synchronously to prevent flash --}}
 <script>
     (function () {
         var shouldHide = localStorage.getItem('{{ $storageKey }}') === 'true';
-        console.log('Promo Bar Status:', shouldHide ? 'Hidden' : 'Visible', '| localStorage:', localStorage.getItem('{{ $storageKey }}'));
-        if (shouldHide) {
-            document.write('<style>#announcement-bar-container{display:none!important}</style>');
-        } else {
-            // Set CSS variable for navigation offset
+        console.log('Promo Bar Status:', shouldHide ? 'Hidden' : 'Visible');
+        if (!shouldHide) {
+            // Bar is visible - set CSS variable
             document.documentElement.style.setProperty('--announcement-bar-height', '40px');
+            document.documentElement.classList.add('has-announcement-bar');
         }
     })();
 </script>
 
-<style>
-    /* Default: no offset */
-    :root {
-        --announcement-bar-height: 0px;
-    }
-</style>
-
 <div id="announcement-bar-container" x-data="{
+        isVisible: !localStorage.getItem('{{ $storageKey }}'),
         close() {
+            // 1. Animate out
+            this.isVisible = false;
+            
+            // 2. Save to localStorage
             localStorage.setItem('{{ $storageKey }}', 'true');
-            console.log('Promo Bar: Closed by user, saved to localStorage');
-            // Reset CSS variable when closed
+            
+            // 3. Update CSS variable for navigation offset
             document.documentElement.style.setProperty('--announcement-bar-height', '0px');
-            this.$el.remove();
+            document.documentElement.classList.remove('has-announcement-bar');
+            
+            console.log('Promo Bar: Closed');
         }
-    }" class="relative w-full bg-black text-white z-[60]" style="height: 40px;" role="banner"
-    aria-label="Announcement">
+    }" x-show="isVisible" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0" class="fixed top-0 left-0 right-0 w-full bg-black text-white z-[60]"
+    style="height: 40px;" role="banner" aria-label="Announcement">
     <div class="flex items-center justify-center h-full px-4">
         {{-- Main Message --}}
         <p class="text-xs sm:text-sm font-medium tracking-wide text-center">
@@ -63,3 +59,7 @@ This completely prevents flash because we decide visibility synchronously
         </button>
     </div>
 </div>
+
+{{-- Spacer to push content down when bar is visible --}}
+<div id="announcement-bar-spacer" class="h-0 transition-all duration-200"
+    style="height: var(--announcement-bar-height, 0px);"></div>
