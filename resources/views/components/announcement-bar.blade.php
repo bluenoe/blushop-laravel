@@ -23,18 +23,31 @@ This completely prevents flash because we decide visibility synchronously
         console.log('Promo Bar Status:', shouldHide ? 'Hidden' : 'Visible', '| localStorage:', localStorage.getItem('{{ $storageKey }}'));
         if (shouldHide) {
             document.write('<style>#announcement-bar-container{display:none!important}</style>');
+        } else {
+            // Set CSS variable for navigation offset
+            document.documentElement.style.setProperty('--announcement-bar-height', '40px');
         }
     })();
 </script>
+
+<style>
+    /* Default: no offset */
+    :root {
+        --announcement-bar-height: 0px;
+    }
+</style>
 
 <div id="announcement-bar-container" x-data="{
         close() {
             localStorage.setItem('{{ $storageKey }}', 'true');
             console.log('Promo Bar: Closed by user, saved to localStorage');
+            // Reset CSS variable when closed
+            document.documentElement.style.setProperty('--announcement-bar-height', '0px');
             this.$el.remove();
         }
-    }" class="relative w-full bg-black text-white z-50 md:sticky md:top-0" role="banner" aria-label="Announcement">
-    <div class="flex items-center justify-center h-10 px-4">
+    }" class="relative w-full bg-black text-white z-[60]" style="height: 40px;" role="banner"
+    aria-label="Announcement">
+    <div class="flex items-center justify-center h-full px-4">
         {{-- Main Message --}}
         <p class="text-xs sm:text-sm font-medium tracking-wide text-center">
             {{ $message }}
