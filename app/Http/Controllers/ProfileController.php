@@ -22,13 +22,14 @@ class ProfileController extends Controller
 
         // DB-backed wishlist data for inline profile tab and count
         $products = $user->wishlistedProducts()
+            ->with('category')
             ->select([
                 'products.id',
                 'products.name',
                 'products.slug',
                 'products.base_price',
                 'products.image',
-                'products.category'
+                'products.category_id'
             ])
             ->latest('wishlists.created_at')
             ->get();

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-
+            
 /**
  * @mixin IdeHelperProduct
  */
@@ -25,7 +25,7 @@ class Product extends Model
         'base_price',     // Current selling price
         'original_price', // Original/Retail price (before discount)
         'image',
-        'category',       // Enum string ('men', 'women', 'fragrance')
+        'category_id',    // Foreign key to categories table
         'stock',
         'is_active',
         'is_new',

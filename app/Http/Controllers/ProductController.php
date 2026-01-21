@@ -11,15 +11,11 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     /**
-     * Helper: Danh sách danh mục cố định (Vì DB dùng Enum)
+     * Helper: Lấy danh sách danh mục từ Database
      */
-    private function getStaticCategories()
+    private function getCategories()
     {
-        return collect([
-            (object)['name' => 'Men', 'slug' => 'men', 'children' => collect([])],
-            (object)['name' => 'Women', 'slug' => 'women', 'children' => collect([])],
-            (object)['name' => 'Fragrance', 'slug' => 'fragrance', 'children' => collect([])],
-        ]);
+        return Category::with('children')->whereNull('parent_id')->get();
     }
 
     /**
@@ -27,13 +23,15 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Khởi tạo query (Eager load variants để Accessor chạy nhanh)
-        $query = Product::with('variants');
+        // 1. Khởi tạo query (Eager load variants + category để tránh N+1)
+        $query = Product::with(['variants', 'category']);
 
-        // 2. Filter Category (Theo Enum)
+        // 2. Filter Category (Theo slug của relationship)
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
-            $query->where('category', $slug);
+            $query->whereHas('category', function ($q) use ($slug) {
+                $q->where('slug', $slug);
+            });
         }
 
         // 3. Filter Search
@@ -85,7 +83,7 @@ class ProductController extends Controller
 
         return view('products.index', [
             'products' => $products,
-            'categories' => $this->getStaticCategories(), // Dùng hàm helper cho gọn
+            'categories' => $this->getCategories(),
             'breadcrumbs' => $breadcrumbs,
             'pageTitle' => 'Shop All'
         ]);
@@ -168,7 +166,7 @@ class ProductController extends Controller
      
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('category', $product->category)
+            $completeLook = Product::where('category_id', $product->category_id)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
 
@@ -222,10 +220,10 @@ class ProductController extends Controller
 
     public function newArrivals()
     {
-        $products = Product::latest()->paginate(12);
+        $products = Product::with(['variants', 'category'])->latest()->paginate(12);
         return view('products.new-arrivals', [
             'products' => $products,
-            'categories' => $this->getStaticCategories(),
+            'categories' => $this->getCategories(),
             'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'New Arrivals', 'url' => '']],
             'pageTitle' => 'New Arrivals'
         ]);
@@ -233,10 +231,10 @@ class ProductController extends Controller
 
     public function bestSellers()
     {
-        $products = Product::orderBy('sold_count', 'desc')->paginate(12);
+        $products = Product::with(['variants', 'category'])->orderBy('sold_count', 'desc')->paginate(12);
         return view('products.index', [
             'products' => $products,
-            'categories' => $this->getStaticCategories(),
+            'categories' => $this->getCategories(),
             'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'Best Sellers', 'url' => '']],
             'pageTitle' => 'Best Sellers'
         ]);
@@ -244,10 +242,10 @@ class ProductController extends Controller
 
     public function onSale()
     {
-        $products = Product::where('is_on_sale', true)->latest()->paginate(12);
+        $products = Product::with(['variants', 'category'])->where('is_on_sale', true)->latest()->paginate(12);
         return view('products.index', [
             'products' => $products,
-            'categories' => $this->getStaticCategories(),
+            'categories' => $this->getCategories(),
             'breadcrumbs' => [['label' => 'Home', 'url' => route('home')], ['label' => 'On Sale', 'url' => '']],
             'pageTitle' => 'On Sale'
         ]);

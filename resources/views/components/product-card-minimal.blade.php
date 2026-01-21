@@ -22,8 +22,8 @@ $originalPriceFormatted = $originalPrice ? number_format($originalPrice, 0, ',',
 // Check if we should show sale pricing (on sale AND original > base)
 $showSalePrice = $isOnSale && $originalPrice && $originalPrice > $basePrice;
 
-// 3. Category
-$categoryName = $product->cat ?? ($product->category->name ?? ($product->category ?? 'Essential'));
+// 3. Category (Use null-safe relationship access)
+$categoryName = $product->cat ?? ($product->category?->name ?? 'Essential');
 if (is_string($categoryName)) {
 $categoryName = ucfirst($categoryName);
 }
