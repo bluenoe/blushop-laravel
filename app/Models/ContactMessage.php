@@ -18,4 +18,9 @@ class ContactMessage extends Model
         'ip_address',
         'status',
     ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
