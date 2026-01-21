@@ -35,11 +35,6 @@ class Product extends Model
         'reviews_count',
     ];
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
     // Cast base_price để định dạng nhất quán (giữ 2 số thập phân dạng string)
     protected $casts = [
         'base_price' => 'decimal:2',

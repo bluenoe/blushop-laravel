@@ -168,7 +168,7 @@ class ProductController extends Controller
      
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('category', $product->category)
+            $completeLook = Product::where('category_id', $product->category)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
 
