@@ -30,10 +30,10 @@ class ProductController extends Controller
         // 1. Khởi tạo query (Eager load variants để Accessor chạy nhanh)
         $query = Product::with('variants');
 
-        // 2. Filter Category (Theo Enum)
-        if ($request->filled('category')) {
-            $slug = (string) $request->input('category');
-            $query->where('category', $slug);
+        // 2. Filter Category (Theo category_id foreign key)
+        if ($request->filled('category_id')) {
+            $slug = (string) $request->input('category_id');
+            $query->where('category_id', $slug);
         }
 
         // 3. Filter Search
@@ -97,7 +97,7 @@ class ProductController extends Controller
     public function show(int $id)
     {
         // 1. Load sản phẩm
-        $product = Product::with(['category', 'variants', 'completeLookProducts'])
+        $product = Product::with(['category_id', 'variants', 'completeLookProducts'])
             ->withCount('reviews')
             ->findOrFail($id);
 
@@ -168,7 +168,7 @@ class ProductController extends Controller
      
         $completeLook = $product->completeLookProducts;
         if ($completeLook->isEmpty()) {
-            $completeLook = Product::where('category_id', $product->category)
+            $completeLook = Product::where('category_id', $product->category_id)
                 ->where('id', '!=', $id)->inRandomOrder()->take(4)->get();
         }
 
