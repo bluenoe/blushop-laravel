@@ -102,7 +102,7 @@
 
                         {{-- Category --}}
                         <td class="py-4 text-neutral-600">
-                            {{ ucfirst($product->category ?? 'Uncategorized') }}
+                            {{ $product->category?->name ?? 'Uncategorized' }}
                         </td>
 
                         {{-- Status Badge (Minimal Pill) --}}

@@ -186,8 +186,8 @@ Location: resources/views/products/new-arrivals.blade.php
                             <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
                         </h3>
                         <div class="flex justify-between items-center">
-                            <p class="text-xs text-neutral-500 uppercase tracking-wide">{{ $product->category->name ??
-                                ucfirst($product->category ?? 'Essentials') }}</p>
+                            <p class="text-xs text-neutral-500 uppercase tracking-wide">{{ $product->category?->name ??
+                                'Essentials' }}</p>
                             {{-- Price with Sale Logic --}}
                             @if($product->is_on_sale && $product->original_price > $product->base_price)
                             <div class="flex items-baseline gap-2">

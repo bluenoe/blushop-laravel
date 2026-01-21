@@ -107,19 +107,19 @@
 
                     {{-- Category & SKU Row --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {{-- Category Select (Enum String) --}}
+                        {{-- Category Select (Dynamic from DB) --}}
                         <div class="relative z-0 w-full group">
-                            <select name="category" id="category"
+                            <select name="category_id" id="category_id"
                                 class="block py-2.5 px-0 w-full text-sm text-neutral-900 bg-transparent border-0 border-b border-neutral-300 appearance-none focus:outline-none focus:ring-0 focus:border-black peer">
                                 <option value="">Select Category</option>
-                                <option value="men" {{ old('category', $product->category) == 'men' ? 'selected' : ''
-                                    }}>Men</option>
-                                <option value="women" {{ old('category', $product->category) == 'women' ? 'selected' :
-                                    '' }}>Women</option>
-                                <option value="fragrance" {{ old('category', $product->category) == 'fragrance' ?
-                                    'selected' : '' }}>Fragrance</option>
+                                @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) ==
+                                    $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                                @endforeach
                             </select>
-                            <label for="category"
+                            <label for="category_id"
                                 class="peer-focus:font-medium absolute text-sm text-neutral-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-black peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest">
                                 Category
                             </label>

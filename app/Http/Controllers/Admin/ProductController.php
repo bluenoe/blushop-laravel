@@ -33,7 +33,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|string|unique:products,sku',
-            'category' => 'required|string|in:men,women,fragrance', // Enum values
+            'category_id' => 'required|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
@@ -77,7 +77,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku'  => 'required|string|unique:products,sku,' . $product->id,
-            'category' => 'required|string|in:men,women,fragrance',
+            'category_id' => 'required|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
@@ -88,7 +88,7 @@ class ProductController extends Controller
         // 2. Explicit Property Assignment (Prevents Silent Failures)
         $product->name = $validated['name'];
         $product->sku = $validated['sku'];
-        $product->category = $validated['category'];
+        $product->category_id = $validated['category_id'];
         $product->base_price = $validated['base_price'];
         $product->original_price = $validated['original_price'] ?? null;
         $product->stock = $validated['stock'] ?? 0;

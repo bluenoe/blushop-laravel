@@ -199,8 +199,8 @@ Concept: Editorial Grid, Minimalist Actions
                                     </a>
                                 </h3>
                                 <div class="flex justify-between items-baseline">
-                                    <p class="text-xs text-neutral-500">{{ ucfirst($product->category ?? 'Essentials')
-                                        }}</p>
+                                    <p class="text-xs text-neutral-500">{{ $product->category?->name ?? 'Essentials' }}
+                                    </p>
                                     {{-- Price with Sale Logic --}}
                                     @if($product->is_on_sale && $product->original_price > $product->base_price)
                                     <div class="flex items-baseline gap-1.5">
