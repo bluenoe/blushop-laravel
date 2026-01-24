@@ -58,7 +58,8 @@
             </a>
         </div>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white border border-beige/60 shadow-soft rounded-xl">
+        <div
+            class="w-full sm:max-w-md mt-6 px-10 py-10 sm:px-12 sm:py-12 bg-white border border-white/60 shadow-[0_20px_40px_rgba(0,0,0,0.04)] rounded-3xl">
             {{ $slot }}
         </div>
     </div>

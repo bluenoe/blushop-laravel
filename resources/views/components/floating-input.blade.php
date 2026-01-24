@@ -3,18 +3,18 @@
 <div class="relative z-0 w-full mb-6 group">
     {{-- 1. INPUT FIELD --}}
     <input {{ $disabled ? 'disabled' : '' }} type="{{ $type }}" name="{{ $name }}" id="{{ $name }}" placeholder=" " {{
-        $attributes->merge(['class' => 'block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2
-    appearance-none focus:outline-none focus:ring-0 peer transition-colors duration-200 ' .
+        $attributes->merge(['class' => 'block px-4 py-3.5 w-full text-sm text-neutral-900 bg-transparent rounded-lg
+    border-1 border-neutral-200 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-200 ' .
     ($errors->has($name)
-    ? 'border-red-500 text-red-900 focus:border-red-500' // Khi LỖI: Viền đỏ, Chữ đỏ, Focus vẫn đỏ
-    : 'text-neutral-900 border-neutral-300 focus:border-black' // Bình thường: Viền xám, Focus đen
+    ? 'border-red-500 focus:border-red-500' // Error state
+    : 'focus:border-black hover:border-neutral-300' // Normal state
     )
     ]) }}
     />
 
     {{-- 2. FLOATING LABEL (Hiệu ứng bay lên) --}}
-    <label for="{{ $name }}" class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 uppercase tracking-widest 
-        {{ $errors->has($name) ? 'text-red-500' : 'text-neutral-500 peer-focus:text-black' }}">
+    <label for="{{ $name }}" class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 
+        {{ $errors->has($name) ? 'text-red-500' : 'peer-focus:text-black' }}">
         {{ $label }}
     </label>
 
