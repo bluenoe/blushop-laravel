@@ -12,14 +12,14 @@
             </div>
         </div>
 
-        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Check your mail</h1>
-        <p class="text-sm text-neutral-500 font-medium mb-8">
+        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Check your mail</h1>
+        <p class="text-sm text-neutral-500 font-medium mb-8 leading-relaxed">
             We have sent a password recover instructions to your email.
         </p>
 
         <div class="space-y-6">
             <a href="mailto:"
-                class="block w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                class="block w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
                 Open Email App
             </a>
 
@@ -34,8 +34,8 @@
     @else
     {{-- FORM STATE: Forgot Password --}}
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Reset your password</h1>
-        <p class="text-sm text-neutral-500 font-medium">
+        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Reset your password</h1>
+        <p class="text-sm text-neutral-500 font-medium leading-relaxed">
             Enter the email address associated with your account and we'll send you a link to reset your password.
         </p>
     </div>
@@ -48,7 +48,7 @@
 
         <div class="mt-6 flex flex-col gap-6">
             <button type="submit"
-                class="w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
                 {{ __('Send Reset Link') }}
             </button>
 

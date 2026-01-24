@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Welcome back</h1>
-        <p class="text-sm text-neutral-500 font-medium">Enter your details to access your account</p>
+        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Welcome back</h1>
+        <p class="text-sm text-neutral-500 font-medium leading-relaxed">Enter your details to access your account</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -35,14 +35,14 @@
         </div>
 
         <button type="submit"
-            class="w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+            class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
             {{ __('Log In') }}
         </button>
 
         <div class="text-center mt-8">
             <span class="text-sm text-neutral-500">New to BluShop?</span>
             <a href="{{ route('register') }}"
-                class="ml-1 text-sm font-semibold text-black hover:text-neutral-600 hover:underline transition">
+                class="ml-1 text-sm font-medium text-black hover:text-neutral-600 hover:underline transition">
                 Create account
             </a>
         </div>

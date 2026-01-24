@@ -1,8 +1,8 @@
 <x-guest-layout>
     {{-- Header --}}
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Create an account</h1>
-        <p class="text-sm text-neutral-500 font-medium">
+        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Create an account</h1>
+        <p class="text-sm text-neutral-500 font-medium leading-relaxed">
             Join us to track orders & checkout faster
         </p>
     </div>
@@ -31,7 +31,7 @@
         {{-- Submit Button --}}
         <div class="pt-2">
             <button type="submit"
-                class="w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
                 {{ __('Create account') }}
             </button>
         </div>
@@ -41,7 +41,7 @@
         <div class="text-center mt-8">
             <span class="text-sm text-neutral-500">Already have an account?</span>
             <a href="{{ route('login') }}"
-                class="ml-1 text-sm font-semibold text-black hover:text-neutral-600 hover:underline transition">
+                class="ml-1 text-sm font-medium text-black hover:text-neutral-600 hover:underline transition">
                 Log In
             </a>
         </div>

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Set new password</h1>
-        <p class="text-sm text-neutral-500 font-medium">
+        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Set new password</h1>
+        <p class="text-sm text-neutral-500 font-medium leading-relaxed">
             Secure your account with a new password
         </p>
     </div>
@@ -25,7 +25,7 @@
 
         <div class="pt-2">
             <button type="submit"
-                class="w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
                 {{ __('Reset password') }}
             </button>
         </div>

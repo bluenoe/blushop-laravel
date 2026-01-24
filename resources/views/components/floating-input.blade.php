@@ -13,7 +13,7 @@
     />
 
     {{-- 2. FLOATING LABEL (Hiệu ứng bay lên) --}}
-    <label for="{{ $name }}" class="absolute text-sm text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 
+    <label for="{{ $name }}" class="absolute text-[11px] font-medium tracking-[0.05em] uppercase text-neutral-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 
         {{ $errors->has($name) ? 'text-red-500' : 'peer-focus:text-black' }}">
         {{ $label }}
     </label>
