@@ -1,9 +1,9 @@
 <x-guest-layout>
     {{-- Header --}}
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-bold tracking-tighter mb-2">Join the Inner Circle.</h1>
-        <p class="text-sm text-neutral-500 font-light">
-            Create an account to track orders & checkout faster.
+        <h1 class="text-3xl font-bold mb-2 text-neutral-900">Create an account</h1>
+        <p class="text-sm text-neutral-500 font-medium">
+            Join us to track orders & checkout faster
         </p>
     </div>
 
@@ -28,18 +28,20 @@
             autocomplete="new-password" />
 
         {{-- Submit Button --}}
+        {{-- Submit Button --}}
         <div class="pt-2">
             <button type="submit"
-                class="w-full py-4 bg-black text-white font-bold uppercase text-xs tracking-widest hover:bg-neutral-800 transition transform hover:-translate-y-1 duration-300">
-                {{ __('Create Account') }}
+                class="w-full py-3.5 bg-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                {{ __('Create account') }}
             </button>
         </div>
 
         {{-- Link Login --}}
+        {{-- Link Login --}}
         <div class="text-center mt-8">
-            <span class="text-xs text-neutral-500">Already have an account?</span>
+            <span class="text-sm text-neutral-500">Already have an account?</span>
             <a href="{{ route('login') }}"
-                class="ml-1 text-xs font-bold uppercase tracking-wide border-b border-black pb-0.5 hover:text-neutral-600 hover:border-neutral-600 transition">
+                class="ml-1 text-sm font-semibold text-black hover:text-neutral-600 hover:underline transition">
                 Log In
             </a>
         </div>
