@@ -5,22 +5,44 @@
             <h1 class="text-3xl font-bold tracking-tighter">Customers</h1>
         </div>
 
-        {{-- Search (Minimal) --}}
-        <div class="relative group">
-            <input type="text" placeholder="FIND CLIENT..."
-                class="pl-3 pr-8 py-2 bg-transparent border-b border-neutral-200 text-sm focus:border-black focus:ring-0 placeholder-neutral-400 w-40 transition-all focus:w-64">
-            <svg class="w-4 h-4 text-neutral-400 absolute right-2 top-2.5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
+        {{-- Search (Functional) --}}
+        <form action="{{ route('admin.users.index') }}" method="GET" class="relative group flex items-center gap-2">
+            <div class="relative">
+                <input type="text" name="search" placeholder="FIND CLIENT..." value="{{ $search ?? '' }}"
+                    class="pl-3 pr-8 py-2 bg-transparent border-b border-neutral-200 text-sm focus:border-black focus:ring-0 placeholder-neutral-400 w-40 transition-all focus:w-64">
+                <button type="submit" class="absolute right-2 top-2.5 text-neutral-400 hover:text-black transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+            @if(!empty($search))
+            <a href="{{ route('admin.users.index') }}" class="text-xs text-neutral-400 hover:text-black transition">
+                Clear
+            </a>
+            @endif
+        </form>
     </div>
+
+    {{-- Search Results Indicator --}}
+    @if(!empty($search))
+    <div class="mb-6 text-sm text-neutral-500">
+        Results for "<span class="font-medium text-neutral-900">{{ Str::limit($search, 50) }}</span>"
+        <span class="text-neutral-400 ml-2">({{ $users->total() }} found)</span>
+    </div>
+    @endif
 
     <div class="bg-white">
         @if($users->isEmpty())
         <div class="text-center py-24 border-t border-neutral-100">
-            <p class="text-neutral-400">No customers found.</p>
+            <p class="text-neutral-400">
+                @if(!empty($search))
+                No customers matching "{{ Str::limit($search, 30) }}" were found.
+                @else
+                No customers found.
+                @endif
+            </p>
         </div>
         @else
         <div class="overflow-x-auto">

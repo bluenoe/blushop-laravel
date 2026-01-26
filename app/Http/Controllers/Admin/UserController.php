@@ -10,14 +10,29 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Lấy danh sách user (trừ Admin ra để đỡ rối)
-        // Kèm theo đếm số đơn hàng (orders_count) và tổng tiền (tính sau trong view hoặc dùng withSum nếu muốn)
-        $users = User::where('is_admin', false)
-            ->withCount('orders')
-            ->latest()
-            ->paginate(10);
+        // Get search query from request (supports both 'search' and 'query' params)
+        $search = $request->input('search') ?? $request->input('query');
 
-        return view('admin.users.index', compact('users'));
+        // Build the base query (exclude admins)
+        $query = User::where('is_admin', false)
+            ->withCount('orders');
+
+        // Apply search filters if search term is provided
+        if ($search && trim($search) !== '') {
+            $searchTerm = '%' . trim($search) . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                  ->orWhere('email', 'like', $searchTerm)
+                  ->orWhere('phone_number', 'like', $searchTerm);
+            });
+        }
+
+        // Order by latest and paginate, appending search param for pagination links
+        $users = $query->latest()
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('admin.users.index', compact('users', 'search'));
     }
 
     public function show(User $user)
