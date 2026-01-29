@@ -43,11 +43,11 @@
 
         /* Delay Utilities */
         .delay-200 {
-            transition-delay: 200ms;
+            transition-delay: 100ms;
         }
 
         .delay-400 {
-            transition-delay: 400ms;
+            transition-delay: 200ms;
         }
 
         /* Image Hover Zoom */
