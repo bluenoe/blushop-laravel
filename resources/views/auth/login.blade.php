@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Welcome back</h1>
+        <h1 class="text-3xl font-semibold mb-2 text-gray-900 tracking-[-0.025em]">Welcome back</h1>
         <p class="text-sm text-neutral-500 font-medium leading-relaxed">Enter your details to access your account</p>
     </div>
 

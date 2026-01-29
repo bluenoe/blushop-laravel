@@ -1,7 +1,7 @@
 <x-guest-layout>
     {{-- Header --}}
     <div class="mb-10 text-center">
-        <h1 class="text-3xl font-semibold mb-2 text-[#111111] tracking-[-0.025em]">Create an account</h1>
+        <h1 class="text-3xl font-semibold mb-2 text-gray-900 tracking-[-0.025em]">Create an account</h1>
         <p class="text-sm text-neutral-500 font-medium leading-relaxed">
             Join us to track orders & checkout faster
         </p>
