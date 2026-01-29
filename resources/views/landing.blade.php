@@ -93,7 +93,9 @@
                 <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop"
                     alt="BluShop Editorial Campaign" class="w-full h-full object-cover animate-ken-burns">
                 {{-- Scrim Gradient Overlay for better text readability --}}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none">
+                </div>
             </div>
 
             <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 pb-20 md:pb-32 text-white z-10">
@@ -106,8 +108,10 @@
                         The New <br> <span class="italic font-light opacity-90">Silence</span>
                     </h1>
                     <div class="reveal-element delay-400 h-px w-24 bg-white/50 mb-8"></div>
+                    {{-- Performance Optimized Button: z-20 for layering, will-change-transform for composition,
+                    specific transition properties --}}
                     <a href="{{ route('products.index') }}"
-                        class="reveal-element delay-400 inline-block font-sans-clean text-xs tracking-[0.2em] uppercase px-8 py-3 border border-white/30 bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white hover:text-black hover:-translate-y-0.5 hover:shadow-lg">
+                        class="reveal-element delay-400 relative z-20 inline-block font-sans-clean text-xs tracking-[0.2em] uppercase px-8 py-3 border border-white/30 bg-white/5 backdrop-blur-sm transition duration-300 ease-out will-change-transform hover:bg-white hover:text-black hover:-translate-y-0.5 hover:shadow-lg">
                         View Collection
                     </a>
                 </div>
