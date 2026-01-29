@@ -77,7 +77,7 @@
                 <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop"
                     alt="BluShop Editorial Campaign" class="w-full h-full object-cover">
                 {{-- Overlay nhẹ để text nổi bật nhưng không làm tối ảnh quá mức --}}
-                <div class="absolute inset-0 bg-black/20"></div>
+                <div class="absolute inset-0 bg-black/50"></div>
             </div>
 
             <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 pb-20 md:pb-32 text-white z-10">
