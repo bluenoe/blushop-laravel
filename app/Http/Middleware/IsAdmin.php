@@ -14,10 +14,8 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Kiểm tra: Đã đăng nhập CHƯA? và CÓ PHẢI ADMIN KHÔNG?
-        // Giả sử trong bảng users bà có cột 'is_admin' (boolean) hoặc 'role' (string)
         if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.'); // Chặn ngay
+            abort(403, 'Unauthorized action.');
         }
 
         return $next($request);
