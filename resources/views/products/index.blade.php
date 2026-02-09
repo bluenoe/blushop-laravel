@@ -27,7 +27,8 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
                             <span>/</span>
                             <span class="text-black">Shop</span>
                         </div>
-                        <h1 class="text-2xl font-bold tracking-tight uppercase">
+                        <h1
+                            class="text-2xl font-bold tracking-tight uppercase {{ (isset($isSectional) && $isSectional) ? 'sr-only' : '' }}">
                             @if(request('category'))
                             {{ $categories->firstWhere('slug', request('category'))?->name ?? 'Category' }}
                             @else
@@ -103,86 +104,131 @@ Concept: Clean Grid, Off-canvas Filters, Minimalist Typography
         <section class="max-w-[1600px] mx-auto px-6 pb-24 pt-20 sm:pt-28">
 
             @if(isset($isSectional) && $isSectional)
-                {{-- ================= SECTIONAL VIEW ================= --}}
-                
-                {{-- 1. FRAGRANCE SECTION --}}
-                <div class="mb-32">
-                    <div class="flex justify-between items-end mb-10 border-b border-neutral-100 pb-4">
-                        <h2 class="text-4xl md:text-5xl font-light uppercase tracking-tighter text-neutral-900">The Scent</h2>
-                        <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="hidden md:block text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition">View All Fragrances</a>
+            {{-- ================= EDITORIAL VIEW ================= --}}
+
+            {{-- 1. THE SCENT (Fragrance) --}}
+            <div class="mb-40">
+                {{-- Editorial Header --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-end border-b border-black/10 pb-8">
+                    <div>
+                        <span
+                            class="block text-[10px] items-center gap-2 uppercase tracking-[0.2em] text-neutral-500 mb-4">
+                            Section 01 / Olfactory
+                        </span>
+                        <h2 class="font-serif text-5xl md:text-7xl text-neutral-900 leading-[0.9]">
+                            The Scent
+                        </h2>
                     </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
-                        @foreach($fragranceProducts as $product)
-                            @include('partials.product-card', ['product' => $product])
-                        @endforeach
-                    </div>
-                    
-                    <div class="mt-8 md:hidden text-center">
-                        <a href="{{ route('products.index', ['category' => 'fragrance']) }}" class="inline-block px-8 py-3 border border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">View All</a>
+                    <div class="flex flex-col md:items-end justify-between h-full">
+                        <p class="font-serif italic text-xl text-neutral-500 max-w-sm text-right">
+                            "Curated notes for the modern soul. An atmosphere, not just a fragrance."
+                        </p>
+                        <a href="{{ route('products.index', ['category' => 'fragrance']) }}"
+                            class="mt-8 text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 hover:border-neutral-500 transition">
+                            Explore Collection
+                        </a>
                     </div>
                 </div>
 
-                {{-- 2. WOMEN SECTION --}}
-                <div class="mb-32">
-                    <div class="flex justify-between items-end mb-10 border-b border-neutral-100 pb-4">
-                        <h2 class="text-4xl md:text-5xl font-light uppercase tracking-tighter text-neutral-900">For Her</h2>
-                        <a href="{{ route('products.index', ['category' => 'women']) }}" class="hidden md:block text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition">View All Women's</a>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
-                        @foreach($womenProducts as $product)
-                            @include('partials.product-card', ['product' => $product])
-                        @endforeach
-                    </div>
-
-                    <div class="mt-8 md:hidden text-center">
-                        <a href="{{ route('products.index', ['category' => 'women']) }}" class="inline-block px-8 py-3 border border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">View All</a>
-                    </div>
-                </div>
-
-                {{-- 3. MEN SECTION --}}
-                <div class="mb-12">
-                    <div class="flex justify-between items-end mb-10 border-b border-neutral-100 pb-4">
-                        <h2 class="text-4xl md:text-5xl font-light uppercase tracking-tighter text-neutral-900">For Him</h2>
-                        <a href="{{ route('products.index', ['category' => 'men']) }}" class="hidden md:block text-xs font-bold uppercase tracking-widest hover:text-neutral-500 transition">View All Men's</a>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
-                        @foreach($menProducts as $product)
-                             @include('partials.product-card', ['product' => $product])
-                        @endforeach
-                    </div>
-
-                    <div class="mt-8 md:hidden text-center">
-                        <a href="{{ route('products.index', ['category' => 'men']) }}" class="inline-block px-8 py-3 border border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">View All</a>
-                    </div>
-                </div>
-
-            @else
-                {{-- ================= STANDARD GRID VIEW ================= --}}
-                @if(($products ?? collect())->isEmpty())
-                <div class="flex flex-col items-center justify-center py-24 text-center">
-                    <p class="text-neutral-400 mb-4 text-lg font-light">No products found matching your criteria.</p>
-                    <a href="{{ route('products.index') }}"
-                        class="px-8 py-3 border border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">
-                        Clear All Filters
-                    </a>
-                </div>
-                @else
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                    @foreach($products as $product)
-                        @include('partials.product-card', ['product' => $product])
+                {{-- Minimal Row --}}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-12">
+                    @foreach($fragranceProducts->take(4) as $product)
+                    @include('partials.product-card', ['product' => $product])
                     @endforeach
                 </div>
+            </div>
 
-                {{-- Pagination --}}
-                @if($products->hasPages())
-                <div class="mt-20 flex justify-center border-t border-neutral-100 pt-12">
-                    {{ $products->withQueryString()->links('pagination::simple-tailwind') }}
+            {{-- 2. THE SILHOUETTE (Women) --}}
+            <div class="relative -mx-6 px-6 py-32 bg-neutral-50 mb-40">
+                <div class="max-w-[1600px] mx-auto">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-16">
+                        <div>
+                            <span
+                                class="block text-[10px] items-center gap-2 uppercase tracking-[0.2em] text-neutral-500 mb-4">
+                                Section 02 / Apparel
+                            </span>
+                            <h2 class="font-serif text-5xl md:text-7xl text-neutral-900 leading-[0.9]">
+                                The Silhouette
+                            </h2>
+                        </div>
+                        <a href="{{ route('products.index', ['category' => 'women']) }}"
+                            class="hidden md:block text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 hover:border-neutral-500 transition">
+                            View Women's
+                        </a>
+                    </div>
+
+                    {{-- Asymmetrical Masonry Layout --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {{-- Feature Item (Left) --}}
+                        @if($womenProducts->isNotEmpty())
+                        <div class="md:col-span-1 md:row-span-2">
+                            @include('partials.product-card', ['product' => $womenProducts->first()])
+                        </div>
+                        @endif
+
+                        {{-- Grid Items (Right - 2x2) --}}
+                        <div class="md:col-span-2 grid grid-cols-2 gap-8">
+                            @foreach($womenProducts->skip(1)->take(4) as $product)
+                            @include('partials.product-card', ['product' => $product])
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-12 md:hidden text-center">
+                        <a href="{{ route('products.index', ['category' => 'women']) }}"
+                            class="inline-block border-b border-black pb-1 text-xs font-bold uppercase tracking-widest">View
+                            All</a>
+                    </div>
                 </div>
-                @endif
-                @endif
+            </div>
+
+            {{-- 3. THE STRUCTURE (Men) --}}
+            <div class="mb-24">
+                <div class="text-center mb-20">
+                    <span class="block text-[10px] uppercase tracking-[0.2em] text-neutral-500 mb-4">
+                        Section 03 / Tailoring
+                    </span>
+                    <h2 class="font-serif text-5xl md:text-7xl text-neutral-900 mb-6">
+                        The Structure
+                    </h2>
+                    <a href="{{ route('products.index', ['category' => 'men']) }}"
+                        class="inline-block text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-neutral-500 hover:border-neutral-500 transition">
+                        View Men's
+                    </a>
+                </div>
+
+                {{-- Bold 3-Column Grid --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16">
+                    @foreach($menProducts->take(6) as $product)
+                    @include('partials.product-card', ['product' => $product])
+                    @endforeach
+                </div>
+            </div>
+
+            @else
+            {{-- ================= STANDARD GRID VIEW ================= --}}
+            @if(($products ?? collect())->isEmpty())
+            <div class="flex flex-col items-center justify-center py-24 text-center">
+                <p class="text-neutral-400 mb-4 text-lg font-light">No products found matching your criteria.</p>
+                <a href="{{ route('products.index') }}"
+                    class="px-8 py-3 border border-black text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition">
+                    Clear All Filters
+                </a>
+            </div>
+            @else
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+                @foreach($products as $product)
+                @include('partials.product-card', ['product' => $product])
+                @endforeach
+            </div>
+
+            {{-- Pagination --}}
+            @if($products->hasPages())
+            <div class="mt-20 flex justify-center border-t border-neutral-100 pt-12">
+                {{ $products->withQueryString()->links('pagination::simple-tailwind') }}
+            </div>
+            @endif
+            @endif
 
             @endif
         </section>
