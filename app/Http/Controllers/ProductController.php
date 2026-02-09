@@ -23,6 +23,50 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if any filter/search/sort is active
+        $hasFilters = $request->anyFilled(['category', 'q', 'price_min', 'price_max', 'in_stock', 'on_sale', 'featured', 'sort']) || $request->has('page');
+
+        // If NO filters are active, return the "Sectional/Curated" view data
+        if (! $hasFilters) {
+            $fragranceProducts = Product::whereHas('category', fn($q) => $q->where('slug', 'fragrance'))
+                ->with(['variants', 'category'])
+                ->latest()
+                ->take(8)
+                ->get();
+
+            $womenProducts = Product::whereHas('category', fn($q) => $q->where('slug', 'women')->orWhereHas('parent', fn($p) => $p->where('slug', 'women')))
+                ->with(['variants', 'category'])
+                ->latest()
+                ->take(8)
+                ->get();
+
+            $menProducts = Product::whereHas('category', fn($q) => $q->where('slug', 'men')->orWhereHas('parent', fn($p) => $p->where('slug', 'men')))
+                ->with(['variants', 'category'])
+                ->latest()
+                ->take(8)
+                ->get();
+
+            $breadcrumbs = [
+                ['label' => 'Home', 'url' => route('home')],
+                ['label' => 'Shop', 'url' => route('products.index')],
+            ];
+
+            return view('products.index', [
+                'categories' => $this->getCategories(),
+                'breadcrumbs' => $breadcrumbs,
+                'pageTitle' => 'Shop All',
+                // Sectional Data
+                'isSectional' => true,
+                'fragranceProducts' => $fragranceProducts,
+                'womenProducts' => $womenProducts,
+                'menProducts' => $menProducts,
+                // Pass empty products pagination to avoid view errors if any
+                'products' => collect(), 
+            ]);
+        }
+
+        // --- EXISTING FILTER LOGIC ---
+
         // 1. Khởi tạo query (Eager load variants + category để tránh N+1)
         $query = Product::with(['variants', 'category']);
 
@@ -30,7 +74,10 @@ class ProductController extends Controller
         if ($request->filled('category')) {
             $slug = (string) $request->input('category');
             $query->whereHas('category', function ($q) use ($slug) {
-                $q->where('slug', $slug);
+                $q->where('slug', $slug)
+                  ->orWhereHas('parent', function($p) use ($slug) {
+                      $p->where('slug', $slug);
+                  });
             });
         }
 
@@ -85,7 +132,8 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $this->getCategories(),
             'breadcrumbs' => $breadcrumbs,
-            'pageTitle' => 'Shop All'
+            'pageTitle' => 'Shop All',
+            'isSectional' => false,
         ]);
     }
 
