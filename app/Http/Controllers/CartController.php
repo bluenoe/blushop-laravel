@@ -13,9 +13,14 @@ class CartController extends Controller
         $cart = Session::get('cart', []);
         $total = $this->calculateTotal($cart);
 
-        return view('cart.index', [ // Lưu ý: view thường nằm trong folder cart/index.blade.php
+        // Build stock map for real-time JS validation
+        $productIds = collect($cart)->pluck('product_id')->unique()->filter()->values()->toArray();
+        $stockMap = Product::whereIn('id', $productIds)->pluck('stock', 'id')->toArray();
+
+        return view('cart.index', [
             'cart' => $cart,
             'total' => $total,
+            'stockMap' => $stockMap,
         ]);
     }
 
