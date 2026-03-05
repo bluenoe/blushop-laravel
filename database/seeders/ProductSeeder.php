@@ -71,34 +71,31 @@ class ProductSeeder extends Seeder
             ['name' => 'Women Yoga Leggings',   'slug' => 'women-yoga-leggings',    'price' => 350000, 'variants' => ['grey']],
         ];
 
-        // CHẠY HÀM TẠO
-        $this->seedCategory($menProducts, 'men');
-        $this->seedCategory($womenProducts, 'women');
+        // CHẠY HÀM TẠO (ĐÃ TRUYỀN THÊM CATEGORY_ID)
+        // Giả sử 1 là Men, 2 là Women (tùy thuộc vào CategorySeeder của bà tạo ra ID nào trước)
+        $this->seedCategory($menProducts, 'men', 1);
+        $this->seedCategory($womenProducts, 'women', 2);
     }
 
-    private function seedCategory($products, $category)
+    private function seedCategory($products, $categoryPrefix, $categoryId)
     {
-        $counter = 1; // Counter for unique SKU suffix
+        $counter = 1; 
         
         foreach ($products as $item) {
-            // [LOGIC MỚI] Lấy màu đầu tiên làm ảnh đại diện
-            // Ví dụ: ['black', 'white'] -> Lấy 'black' -> Tạo thành 'black.jpg'
             $firstVariant = $item['variants'][0] ?? 'default';
             $mainImage = "{$firstVariant}.jpg";
             
-            // Generate semantic SKU: MEN-BASIC-TEE-001
-            $skuBase = strtoupper(str_replace('-', '-', $item['slug']));
-            $sku = strtoupper($category) . '-' . str_pad($counter, 3, '0', STR_PAD_LEFT);
+            $sku = strtoupper($categoryPrefix) . '-' . str_pad($counter, 3, '0', STR_PAD_LEFT);
 
             $productId = DB::table('products')->insertGetId([
                 'name' => $item['name'],
                 'slug' => $item['slug'],
-                'sku' => $sku, // <--- SKU field added
-                'description' => "This is a premium {$item['name']} for {$category}.",
-                'category' => $category,
+                'sku' => $sku,
+                'description' => "This is a premium {$item['name']} for {$categoryPrefix}.",
+                'category_id' => $categoryId, // <--- SỬA CHỖ NÀY THÀNH CATEGORY_ID
                 'base_price' => $item['price'],
-                'stock' => rand(10, 100), // <--- Stock field added
-                'image' => $mainImage, // <--- Cột này đã được tự động điền
+                'stock' => rand(10, 100),
+                'image' => $mainImage, 
                 'is_active' => true,
                 'is_new' => rand(0, 1) === 1,
                 'is_bestseller' => rand(0, 1) === 1,
