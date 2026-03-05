@@ -8,18 +8,20 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    // 1. Danh sách đơn hàng
     public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $query = Order::query()->with('user');
 
         if ($request->has('status') && $request->status != 'all') {
             $query->where('status', $request->status);
         }
 
-        $orders = $query->latest()->paginate(10);
+        // Apply search using Searchable trait
+        $orders = $query->search($search)->latest()->paginate(10)->appends(request()->query());
 
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', compact('orders', 'search'));
     }
 
     // 2. Chi tiết đơn hàng (SỬA LẠI KHÚC NÀY NÈ)

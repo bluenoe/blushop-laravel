@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use App\Traits\Searchable;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
+
+    // Các cột cho phép tìm kiếm
+    protected $searchable = ['order_code'];
 
     // Định nghĩa các hằng số để tránh gõ sai (Nếu chưa dùng Enum)
     const STATUS_PENDING = 'pending';
