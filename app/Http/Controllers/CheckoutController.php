@@ -163,7 +163,7 @@ class CheckoutController extends Controller
 
             // Clear cart after successful order
             $request->session()->forget('cart');
-            return redirect()->route('checkout.success', $order->id);
+            return redirect()->route('checkout.success', $order);
 
         } catch (\Exception $e) {
             DB::rollBack();
