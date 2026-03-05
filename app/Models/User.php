@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\Searchable;
 
 /**
  * @mixin IdeHelperUser
@@ -16,7 +17,12 @@ use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Searchable;
+
+    /**
+     * Columns searchable via the Searchable trait.
+     */
+    protected $searchable = ['name', 'email', 'phone_number'];
 
     /**
      * The attributes that are mass assignable.

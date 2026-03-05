@@ -10,25 +10,12 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Get search query from request (supports both 'search' and 'query' params)
         $search = $request->input('search') ?? $request->input('query');
 
-        // Build the base query (exclude admins)
-        $query = User::where('is_admin', false)
-            ->withCount('orders');
-
-        // Apply search filters if search term is provided
-        if ($search && trim($search) !== '') {
-            $searchTerm = '%' . trim($search) . '%';
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', $searchTerm)
-                  ->orWhere('email', 'like', $searchTerm)
-                  ->orWhere('phone_number', 'like', $searchTerm);
-            });
-        }
-
-        // Order by latest and paginate, appending search param for pagination links
-        $users = $query->latest()
+        $users = User::where('is_admin', false)
+            ->withCount('orders')
+            ->search($search)
+            ->latest()
             ->paginate(10)
             ->appends(['search' => $search]);
 
