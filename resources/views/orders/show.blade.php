@@ -28,7 +28,7 @@ Concept: High Contrast Header, Clean Grid Line Items
                 class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 border-b border-black pb-8">
                 <div>
                     <div class="flex items-center gap-3 mb-4">
-                        <h1 class="text-4xl md:text-6xl font-bold tracking-tighter">Order #{{ $order->id }}</h1>
+                        <h1 class="text-4xl md:text-6xl font-bold tracking-tighter">Order #{{ $order->order_code }}</h1>
                         <span class="px-3 py-1 border border-neutral-200 bg-neutral-50 text-[10px] font-bold uppercase tracking-wider rounded-full
                             @if($order->status === 'cancelled') bg-red-50 border-red-200 text-red-600 @endif">
                             {{ $order->status }}
@@ -236,7 +236,8 @@ Concept: High Contrast Header, Clean Grid Line Items
                 {{-- Header --}}
                 <div class="mb-6">
                     <h2 class="text-xl font-bold tracking-tight">Hủy đơn hàng</h2>
-                    <p class="text-sm text-neutral-500 mt-1">Bạn có chắc muốn hủy đơn hàng #{{ $order->id }}?</p>
+                    <p class="text-sm text-neutral-500 mt-1">Bạn có chắc muốn hủy đơn hàng #{{ $order->order_code }}?
+                    </p>
                 </div>
 
                 {{-- Error Message --}}

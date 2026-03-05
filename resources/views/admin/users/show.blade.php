@@ -93,8 +93,8 @@
                     <tbody class="divide-y divide-neutral-100 text-sm">
                         @foreach($orders as $order)
                         <tr class="group hover:bg-neutral-50 transition cursor-pointer"
-                            onclick="window.location='{{ route('admin.orders.show', $order->id) }}'">
-                            <td class="p-4 font-mono font-medium text-black">#{{ $order->id }}</td>
+                            onclick="window.location='{{ route('admin.orders.show', $order->order_code) }}'">
+                            <td class="p-4 font-mono font-medium text-black">#{{ $order->order_code }}</td>
                             <td class="p-4 text-neutral-500">{{ $order->created_at->format('M d, Y') }}</td>
                             <td class="p-4">
                                 <span

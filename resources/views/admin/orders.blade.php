@@ -60,7 +60,7 @@
             <tbody class="divide-y divide-neutral-100 text-sm">
                 @forelse($orders as $order)
                 <tr class="group hover:bg-neutral-50 transition-colors">
-                    <td class="py-4 px-4 font-mono text-neutral-500">#{{ $order->id }}</td>
+                    <td class="py-4 px-4 font-mono text-neutral-500">#{{ $order->order_code }}</td>
                     <td class="py-4 px-4 text-neutral-600">{{ $order->created_at->format('M d, Y') }}</td>
                     <td class="py-4 px-4">
                         <div class="font-medium text-neutral-900">{{ $order->user->name ?? 'Guest' }}</div>

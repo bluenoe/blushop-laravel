@@ -5,7 +5,7 @@
                 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition mb-2 block">
                 &larr; Back to Orders
             </a>
-            <h1 class="text-3xl font-bold tracking-tighter">Order #{{ $order->id }}</h1>
+            <h1 class="text-3xl font-bold tracking-tighter">Order #{{ $order->order_code }}</h1>
             <p class="text-xs text-neutral-400 font-mono mt-1">{{ $order->created_at->format('F j, Y \a\t H:i') }}</p>
         </div>
 
@@ -102,7 +102,7 @@
             <div class="bg-neutral-50 p-6 border border-neutral-100">
                 <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4">Fulfillment</h3>
 
-                <form action="{{ route('admin.orders.status', $order->id) }}" method="POST">
+                <form action="{{ route('admin.orders.status', $order->order_code) }}" method="POST">
                     @csrf
                     <label class="block mb-2 text-sm font-medium">Update Status</label>
                     <div class="flex gap-2">

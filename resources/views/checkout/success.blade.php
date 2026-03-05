@@ -58,7 +58,7 @@ Concept: High Contrast, Monospace Data, Editorial Typography
                     <div class="flex justify-between items-end mb-8 border-b border-neutral-200 pb-6">
                         <div>
                             <p class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1">Order Reference</p>
-                            <p class="text-2xl font-mono font-bold tracking-tight">#{{ $order->id }}</p>
+                            <p class="text-2xl font-mono font-bold tracking-tight">#{{ $order->order_code }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1">Date</p>
@@ -134,7 +134,7 @@ Concept: High Contrast, Monospace Data, Editorial Typography
                             class="h-8 w-full bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAQBAMAAAC8xVNFAAAABlBMVEX///8AAABVwtN+AAAAAnRSTlMA/1uRIrUAAAA2SURBVCjPY2AgCjAwMDBwcDBwQnAAhRkYOIB8BoxkIDA0MDAQMCDKMRJpECPJIEZSjCSLhgAAXb4F0W53uMcAAAAASUVORK5CYII=')] bg-repeat-x opacity-20">
                         </div>
                         <p class="text-[10px] text-center font-mono text-neutral-300 mt-2 tracking-[0.5em]">{{
-                            $order->id }}</p>
+                            $order->order_code }}</p>
                     </div>
 
                 </div>

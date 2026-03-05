@@ -69,7 +69,8 @@ Concept: Clean Sidebar, Horizontal Product Strip, Monospace Data
                                                 {{ $order->status === 'completed' ? 'bg-black text-white border-black' : 'text-neutral-500' }}">
                                             {{ $order->status }}
                                         </span>
-                                        <span class="text-xs font-mono text-neutral-400">#{{ $order->id }}</span>
+                                        <span class="text-xs font-mono text-neutral-400">#{{ $order->order_code
+                                            }}</span>
                                     </div>
                                     <p class="text-xs font-bold uppercase tracking-widest text-neutral-400">
                                         Placed on {{ $order->created_at->format('F d, Y') }}
@@ -122,7 +123,7 @@ Concept: Clean Sidebar, Horizontal Product Strip, Monospace Data
 
                             {{-- Action --}}
                             <div>
-                                <a href="{{ route('orders.show', $order->id) }}"
+                                <a href="{{ route('orders.show', $order->order_code) }}"
                                     class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:opacity-60 transition">
                                     View Invoice
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

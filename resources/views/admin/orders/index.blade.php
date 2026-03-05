@@ -49,9 +49,9 @@
                     <tr class="group hover:bg-neutral-50 transition">
                         {{-- ID --}}
                         <td class="py-4 pl-2 font-mono text-xs font-medium">
-                            <a href="{{ route('admin.orders.show', $order->id) }}"
+                            <a href="{{ route('admin.orders.show', $order->order_code) }}"
                                 class="underline decoration-neutral-300 underline-offset-4 hover:text-black hover:decoration-black transition">
-                                #{{ $order->id }}
+                                #{{ $order->order_code }}
                             </a>
                         </td>
 
@@ -94,7 +94,7 @@
 
                         {{-- Action --}}
                         <td class="py-4 pr-2 text-right">
-                            <a href="{{ route('admin.orders.show', $order->id) }}"
+                            <a href="{{ route('admin.orders.show', $order->order_code) }}"
                                 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition border border-neutral-200 px-3 py-1.5 rounded hover:border-black">
                                 View
                             </a>

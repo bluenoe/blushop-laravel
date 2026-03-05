@@ -105,12 +105,12 @@
                     $style = $statusMap[$order->status] ?? ['dot' => 'bg-neutral-300', 'text' => 'text-neutral-500'];
                     @endphp
                     <tr class="group hover:bg-neutral-50 transition duration-150 cursor-pointer"
-                        onclick="window.location='{{ route('admin.orders.show', $order->id) }}'">
+                        onclick="window.location='{{ route('admin.orders.show', $order->order_code) }}'">
 
                         {{-- ID --}}
                         <td
                             class="px-6 py-4 font-mono text-xs text-neutral-500 group-hover:text-black transition-colors">
-                            #{{ $order->id }}
+                            #{{ $order->order_code }}
                         </td>
 
                         {{-- Customer --}}
