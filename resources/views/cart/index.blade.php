@@ -89,9 +89,33 @@ Updated by Senior Mentor for rowId compatibility
                 {{-- 1. Breadcrumb: Luôn nằm dòng riêng, padding cố định --}}
                 <nav class="flex items-center gap-3 text-[10px] uppercase tracking-widest text-neutral-400 mb-4 h-5">
                     <a href="{{ route('home') }}" class="hover:text-black transition">Home</a>
-                    <span class="text-neutral-300">/</span> {{-- Dùng dấu gạch chéo text cho gọn, đỡ lệch icon --}}
+                    <span class="text-neutral-300">/</span>
+                    <a href="{{ route('products.index') }}" class="hover:text-black transition">Shop</a>
+                    <span class="text-neutral-300">/</span>
                     <span class="text-black font-bold">Cart</span>
                 </nav>
+
+                {{-- Stock Error Flash Banner (auto-dismiss 5s) --}}
+                @if(session('error'))
+                <div id="flash-alert-cart"
+                    class="mb-6 p-4 bg-red-600 text-white text-sm font-medium leading-relaxed flex items-start gap-3 transition-all duration-500">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div>{!! nl2br(e(session('error'))) !!}</div>
+                </div>
+                <script>
+                    setTimeout(function () {
+                        var el = document.getElementById('flash-alert-cart');
+                        if (el) {
+                            el.style.opacity = '0';
+                            el.style.transform = 'translateX(-20px)';
+                            setTimeout(function () { el.remove(); }, 500);
+                        }
+                    }, 5000);
+                </script>
+                @endif
 
                 {{-- 2. Title & Border --}}
                 <div class="flex items-end justify-between border-b border-neutral-100 pb-6">
@@ -175,16 +199,26 @@ Updated by Senior Mentor for rowId compatibility
                                 </div>
 
                                 <div class="flex justify-between items-end mt-4">
-                                    {{-- Quantity Control (AJAX) --}}
-                                    <div class="flex items-center border border-neutral-200"
-                                        x-data="{ qty: {{ $item['quantity'] }} }">
-                                        <button type="button"
-                                            @click="qty > 1 ? qty-- : null; updateQty('{{ $rowId }}', qty)"
-                                            class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition"
-                                            :disabled="qty <= 1">-</button>
-                                        <span class="w-8 text-center text-sm font-medium" x-text="qty"></span>
-                                        <button type="button" @click="qty++; updateQty('{{ $rowId }}', qty)"
-                                            class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition">+</button>
+                                    {{-- Quantity Control (AJAX + Stock Limited) --}}
+                                    @php $itemStock = $stockMap[$item['product_id'] ?? 0] ?? 999; @endphp
+                                    <div class="flex flex-col gap-1"
+                                        x-data="{ qty: {{ $item['quantity'] }}, maxStock: {{ $itemStock }}, showMaxWarn: false }">
+                                        <div class="flex items-center border border-neutral-200">
+                                            <button type="button"
+                                                @click="qty > 1 ? qty-- : null; showMaxWarn = false; updateQty('{{ $rowId }}', qty)"
+                                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition"
+                                                :disabled="qty <= 1">-</button>
+                                            <span class="w-8 text-center text-sm font-medium" x-text="qty"></span>
+                                            <button type="button"
+                                                @click="if (qty < maxStock) { qty++; showMaxWarn = false; updateQty('{{ $rowId }}', qty); } else { showMaxWarn = true; }"
+                                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:bg-neutral-50 transition"
+                                                :class="qty >= maxStock ? 'opacity-30 cursor-not-allowed' : ''"
+                                                :disabled="qty >= maxStock">+</button>
+                                        </div>
+                                        <span x-show="showMaxWarn" x-transition
+                                            class="text-[10px] text-amber-600 font-bold uppercase tracking-wider animate-pulse">
+                                            Max stock reached
+                                        </span>
                                     </div>
 
                                     {{-- Remove (AJAX) - Using Event Delegation for reliability --}}

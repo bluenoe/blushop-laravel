@@ -112,6 +112,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
     loading: false,
     added: false,
     qty: 1,
+    maxStock: {{ $product->stock ?? 0 }},
+    stockWarning: '',
     
     // Lấy dữ liệu từ biến window
     slug: window.productConfig.slug, // QUAN TRỌNG: Lấy Slug để ghép link ảnh
@@ -274,17 +276,26 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                     {{-- Add to Cart Form --}}
                     <form method="POST" action="{{ route('cart.add', $product->id) }}" @submit.prevent="
                         if(isFragrance ? !selectedVariantId : !selectedSize) { alert(isFragrance ? 'Please select a volume' : 'Please select a size'); return; }
+                        
+                        // Real-time stock guard
+                        if (qty > maxStock) { qty = maxStock; stockWarning = 'Maximum available stock is ' + maxStock; return; }
+                        if (qty < 1) { qty = 1; return; }
+                        stockWarning = '';
                         loading = true;
                         
                         // Chuẩn bị payload
                         let payload = { quantity: qty, size: selectedSize, color: selectedColor };
-                        if(selectedVariantId) payload.variant_id = selectedVariantId; // Gửi kèm ID variant nếu có
+                        if(selectedVariantId) payload.variant_id = selectedVariantId;
 
                         fetch($el.action, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content },
                             body: JSON.stringify(payload)
-                        }).then(r => r.ok ? r.json() : Promise.reject(r))
+                        }).then(r => {
+                            if (r.status === 422) return r.json().then(d => { stockWarning = d.message || 'Stock limit exceeded'; loading = false; throw new Error('stock'); });
+                            if (!r.ok) return Promise.reject(r);
+                            return r.json();
+                        })
                         .then(data => {
                             loading = false;
                             if (data && data.success) { 
@@ -292,7 +303,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                 added = true; 
                                 setTimeout(() => added = false, 3000);
                             }
-                        });
+                        })
+                        .catch(err => { loading = false; if (err.message !== 'stock') console.error(err); });
                     ">
                         @csrf
 
@@ -389,7 +401,8 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                     </template>
                                 </div>
 
-                                {{-- Stock Status --}}
+                                {{-- Dynamic Stock Status --}}
+                                @if($product->stock > 5)
                                 <p class="mt-4 text-[10px] text-neutral-400 font-light flex items-center gap-1.5">
                                     <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -398,11 +411,43 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                     </svg>
                                     <span>In Stock · Ships within 2-3 business days</span>
                                 </p>
+                                @elseif($product->stock > 0)
+                                <div class="mt-4 flex items-center gap-2 text-amber-600">
+                                    <svg class="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-xs font-bold uppercase tracking-widest">Hurry! Only {{
+                                        $product->stock }} items left in stock.</span>
+                                </div>
+                                @else
+                                <div class="mt-4 flex items-center gap-2 text-neutral-400">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                    <span class="text-xs font-bold uppercase tracking-widest">Out of Stock</span>
+                                </div>
+                                @endif
                             </div>
                         </div>
 
                         {{-- Action Buttons --}}
                         <div class="space-y-3">
+                            {{-- Stock Warning (inline, auto-hides) --}}
+                            <div x-show="stockWarning" x-transition
+                                class="p-3 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                                x-effect="if (stockWarning) { setTimeout(() => stockWarning = '', 4000); }">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span x-text="stockWarning"></span>
+                            </div>
+
+                            @if($product->stock > 0)
                             <button type="submit" :disabled="loading"
                                 class="w-full py-4 bg-neutral-900 text-white font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed relative">
                                 <span x-show="!loading && !added">Add to Bag</span>
@@ -413,6 +458,12 @@ Updated: Supports Dynamic Pricing, Scent Pyramid, & Variants
                                             d="M5 13l4 4L19 7" />
                                     </svg></span>
                             </button>
+                            @else
+                            <button type="button" disabled
+                                class="w-full py-4 bg-neutral-300 text-neutral-500 font-bold uppercase tracking-widest text-xs cursor-not-allowed relative">
+                                Out of Stock
+                            </button>
+                            @endif
                             <p
                                 class="flex items-center justify-center gap-2 text-center text-[10px] text-neutral-400 uppercase tracking-widest">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

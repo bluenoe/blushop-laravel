@@ -1,24 +1,49 @@
 <x-app-layout>
     <main class="bg-white min-h-screen text-neutral-900">
 
-        {{-- Flash Messages --}}
-        @if(session('success') || session('warning') || $errors->any())
-        <div class="fixed top-20 right-6 z-50 max-w-sm w-full space-y-2 pointer-events-none">
+        {{-- Flash Messages (auto-dismiss after 5s) --}}
+        @if(session('success') || session('warning') || session('error') || $errors->any())
+        <div id="flash-alert-checkout" class="fixed top-20 right-6 z-50 max-w-sm w-full space-y-2 pointer-events-none">
             @if(session('success'))
-            <div class="pointer-events-auto p-4 bg-black text-white text-sm shadow-xl flex items-center gap-3">
+            <div
+                class="pointer-events-auto p-4 bg-black text-white text-sm shadow-xl flex items-center gap-3 transition-all duration-500">
                 <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
                 {{ session('success') }}
             </div>
             @endif
+            @if(session('error'))
+            <div
+                class="pointer-events-auto p-4 bg-red-600 text-white text-sm shadow-xl font-medium leading-relaxed transition-all duration-500">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div>{!! nl2br(e(session('error'))) !!}</div>
+                </div>
+            </div>
+            @endif
             @if($errors->any())
             <div
-                class="pointer-events-auto p-4 bg-red-50 text-red-600 border border-red-100 text-sm shadow-xl font-medium">
+                class="pointer-events-auto p-4 bg-red-50 text-red-600 border border-red-100 text-sm shadow-xl font-medium transition-all duration-500">
                 Please check the form for errors.
             </div>
             @endif
         </div>
+        <script>
+            setTimeout(function () {
+                var container = document.getElementById('flash-alert-checkout');
+                if (container) {
+                    Array.from(container.children).forEach(function (el) {
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateY(-10px)';
+                    });
+                    setTimeout(function () { container.remove(); }, 500);
+                }
+            }, 5000);
+        </script>
         @endif
 
         <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-20">
