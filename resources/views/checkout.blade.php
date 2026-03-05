@@ -324,9 +324,11 @@
 
                     <div class="border-t border-neutral-200 pt-6 space-y-2">
                         <div class="flex justify-between text-sm"><span class="text-neutral-600">Subtotal</span><span
-                                class="font-medium">₫{{ number_format($total, 0, ',', '.') }}</span></div>
+                                class="font-medium">₫{{ number_format($subtotal, 0, ',', '.') }}</span></div>
                         <div class="flex justify-between text-sm"><span class="text-neutral-600">Shipping</span><span
-                                class="text-xs uppercase font-bold tracking-widest bg-black text-white px-2 py-0.5">Free</span>
+                                class="text-xs uppercase font-bold tracking-widest bg-black text-white px-2 py-0.5">
+                                @if($shipping == 0) Free @else ₫{{ number_format($shipping, 0, ',', '.') }} @endif
+                            </span>
                         </div>
                     </div>
 

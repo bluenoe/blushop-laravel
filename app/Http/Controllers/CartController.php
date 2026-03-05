@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use App\Models\Setting;
 
 class CartController extends Controller
 {
     public function index()
     {
         $cart = Session::get('cart', []);
-        $total = $this->calculateTotal($cart);
+        $subtotal = $this->calculateTotal($cart);
+        
+        $shippingFee = (float) Setting::getVal('shipping_fee', 30000);
+        $freeShippingThreshold = (float) Setting::getVal('free_shipping_threshold', 500000);
+        $shipping = ($subtotal >= $freeShippingThreshold) ? 0 : $shippingFee;
+        $orderTotal = $subtotal + $shipping;
 
         // Build stock map for real-time JS validation
         $productIds = collect($cart)->pluck('product_id')->unique()->filter()->values()->toArray();
@@ -19,7 +25,10 @@ class CartController extends Controller
 
         return view('cart.index', [
             'cart' => $cart,
-            'total' => $total,
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'orderTotal' => $orderTotal,
+            'freeShippingThreshold' => $freeShippingThreshold,
             'stockMap' => $stockMap,
         ]);
     }
@@ -107,13 +116,20 @@ class CartController extends Controller
 
                 // Tính toán lại
                 $itemSubtotal = $cart[$rowId]['price'] * $quantity;
-                $total = $this->calculateTotal($cart);
+                $subtotal = $this->calculateTotal($cart);
+                
+                $shippingFee = (float) Setting::getVal('shipping_fee', 30000);
+                $freeShippingThreshold = (float) Setting::getVal('free_shipping_threshold', 500000);
+                $shipping = ($subtotal >= $freeShippingThreshold) ? 0 : $shippingFee;
+                $total = $subtotal + $shipping;
 
                 if ($request->wantsJson()) {
                     return response()->json([
                         'success' => true,
                         'message' => 'Cart updated',
                         'item_subtotal' => number_format($itemSubtotal, 0, ',', '.'),
+                        'subtotal' => number_format($subtotal, 0, ',', '.'),
+                        'shipping' => $shipping == 0 ? 'Free' : number_format($shipping, 0, ',', '.'),
                         'total' => number_format($total, 0, ',', '.'),
                         'cart_count' => collect(session('cart'))->sum('quantity'),
                     ]);
@@ -137,12 +153,18 @@ class CartController extends Controller
                 Session::put('cart', $cart);
             }
 
-            $total = $this->calculateTotal($cart);
+            $subtotal = $this->calculateTotal($cart);
+            $shippingFee = (float) Setting::getVal('shipping_fee', 30000);
+            $freeShippingThreshold = (float) Setting::getVal('free_shipping_threshold', 500000);
+            $shipping = ($subtotal >= $freeShippingThreshold) ? 0 : $shippingFee;
+            $total = $subtotal + $shipping;
 
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Item removed',
+                    'subtotal' => number_format($subtotal, 0, ',', '.'),
+                    'shipping' => $shipping == 0 ? 'Free' : number_format($shipping, 0, ',', '.'),
                     'total' => number_format($total, 0, ',', '.'),
                     'cart_count' => collect(session('cart'))->sum('quantity'),
                     'is_empty' => empty($cart)

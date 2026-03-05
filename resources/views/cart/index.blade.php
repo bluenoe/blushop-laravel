@@ -8,7 +8,9 @@ Updated by Senior Mentor for rowId compatibility
 
 <x-app-layout>
     <main class="bg-white min-h-screen text-neutral-900" x-data="{
-             total: '{{ number_format($total ?? 0, 0, ',', '.') }}',
+             subtotal: '{{ number_format($subtotal ?? 0, 0, ',', '.') }}',
+             shipping: '{{ (isset($shipping) && $shipping > 0) ? number_format($shipping, 0, ',', '.') : 'Free' }}',
+             total: '{{ number_format($orderTotal ?? 0, 0, ',', '.') }}',
              isEmpty: {{ empty($cart) ? 'true' : 'false' }},
              
              updateQty(rowId, newQty) {
@@ -33,6 +35,8 @@ Updated by Senior Mentor for rowId compatibility
                          const subEl = document.getElementById('subtotal-' + rowId);
                          if(subEl) subEl.innerText = '₫' + data.item_subtotal;
                          
+                         this.subtotal = data.subtotal;
+                         this.shipping = data.shipping;
                          this.total = data.total;
                          
                          // CẬP NHẬT HEADER (Bắn sự kiện Global)
@@ -66,6 +70,8 @@ Updated by Senior Mentor for rowId compatibility
                          const rowEl = document.getElementById('row-' + rowId);
                          if(rowEl) rowEl.remove();
                          
+                         this.subtotal = data.subtotal;
+                         this.shipping = data.shipping;
                          this.total = data.total;
                          this.isEmpty = data.is_empty;
                          
@@ -248,11 +254,12 @@ Updated by Senior Mentor for rowId compatibility
                         <div class="space-y-4 text-sm text-neutral-600">
                             <div class="flex justify-between">
                                 <span>Subtotal</span>
-                                <span class="font-medium" x-text="'₫' + total"></span>
+                                <span class="font-medium" x-text="'₫' + subtotal"></span>
                             </div>
                             <div class="flex justify-between">
                                 <span>Shipping estimate</span>
-                                <span class="text-neutral-400">Calculated at checkout</span>
+                                <span class="text-neutral-900 font-medium"
+                                    x-text="shipping === 'Free' ? 'Free' : ('₫' + shipping)"></span>
                             </div>
                         </div>
 
@@ -263,6 +270,15 @@ Updated by Senior Mentor for rowId compatibility
                             </div>
                             <p class="text-[10px] text-neutral-400 mt-1">Including VAT</p>
                         </div>
+
+                        @if(isset($freeShippingThreshold))
+                        <div class="mt-4 p-4 bg-neutral-100/50 border border-neutral-100 rounded-sm">
+                            <p class="text-[10px] text-center uppercase tracking-widest text-neutral-500">
+                                Free shipping on all orders over ₫{{ number_format($freeShippingThreshold, 0, ',', '.')
+                                }}
+                            </p>
+                        </div>
+                        @endif
 
                         <a href="{{ route('checkout.index') }}"
                             class="block w-full py-4 bg-black text-white text-center font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition transform hover:-translate-y-1">

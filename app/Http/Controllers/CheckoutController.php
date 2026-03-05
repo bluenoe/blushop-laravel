@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\UserAddress;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,10 +36,15 @@ class CheckoutController extends Controller
         }
 
         // Tính tổng
-        $total = 0.0;
+        $subtotal = 0.0;
         foreach ($cart as $item) {
-            $total += ((float) $item['price']) * ((int) $item['quantity']);
+            $subtotal += ((float) $item['price']) * ((int) $item['quantity']);
         }
+        
+        $shippingFee = (float) Setting::getVal('shipping_fee', 30000);
+        $freeShippingThreshold = (float) Setting::getVal('free_shipping_threshold', 500000);
+        $shipping = ($subtotal >= $freeShippingThreshold) ? 0 : $shippingFee;
+        $total = $subtotal + $shipping;
 
         // Get user's default address for auto-fill
         /** @var \App\Models\User|null $user */
@@ -47,6 +53,8 @@ class CheckoutController extends Controller
 
         return view('checkout', [
             'cart' => $cart,
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
             'total' => $total,
             'defaultAddress' => $defaultAddress,
         ]);
@@ -94,6 +102,7 @@ class CheckoutController extends Controller
 
         try {
             $total = 0.0;
+            $subtotal = 0.0;
             $stockErrors = [];
             $resolvedItems = [];
 
@@ -117,7 +126,7 @@ class CheckoutController extends Controller
 
                 // Use DB price for total calculation (never trust session price)
                 $price = (float) ($product->base_price ?? $product->price ?? $item['price']);
-                $total += $price * $requestedQty;
+                $subtotal += $price * $requestedQty;
 
                 $resolvedItems[] = [
                     'product' => $product,
@@ -125,6 +134,12 @@ class CheckoutController extends Controller
                     'price' => $price,
                 ];
             }
+
+            // Calculate Shipping
+            $shippingFee = (float) Setting::getVal('shipping_fee', 30000);
+            $freeShippingThreshold = (float) Setting::getVal('free_shipping_threshold', 500000);
+            $shipping = ($subtotal >= $freeShippingThreshold) ? 0 : $shippingFee;
+            $total = $subtotal + $shipping;
 
             // If any stock errors, abort transaction and redirect back
             if (!empty($stockErrors)) {
