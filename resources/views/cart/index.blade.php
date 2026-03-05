@@ -89,9 +89,22 @@ Updated by Senior Mentor for rowId compatibility
                 {{-- 1. Breadcrumb: Luôn nằm dòng riêng, padding cố định --}}
                 <nav class="flex items-center gap-3 text-[10px] uppercase tracking-widest text-neutral-400 mb-4 h-5">
                     <a href="{{ route('home') }}" class="hover:text-black transition">Home</a>
-                    <span class="text-neutral-300">/</span> {{-- Dùng dấu gạch chéo text cho gọn, đỡ lệch icon --}}
+                    <span class="text-neutral-300">/</span>
+                    <a href="{{ route('products.index') }}" class="hover:text-black transition">Shop</a>
+                    <span class="text-neutral-300">/</span>
                     <span class="text-black font-bold">Cart</span>
                 </nav>
+
+                {{-- Stock Error Flash Banner --}}
+                @if(session('error'))
+                <div class="mb-6 p-4 bg-red-600 text-white text-sm font-medium leading-relaxed flex items-start gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div>{!! nl2br(e(session('error'))) !!}</div>
+                </div>
+                @endif
 
                 {{-- 2. Title & Border --}}
                 <div class="flex items-end justify-between border-b border-neutral-100 pb-6">

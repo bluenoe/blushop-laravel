@@ -31,30 +31,45 @@ class CartController extends Controller
         $product = Product::findOrFail($id);
         $quantity = (int) $request->input('quantity', 1);
 
-        // --- LOGIC QUAN TRỌNG: TẠO ROW ID ---
-        // Tạo key độc nhất: ID_Size_Color (Ví dụ: 10_M_Black)
-        $size = $request->input('size', 'Freesize'); // Mặc định nếu không chọn là Freesize
+        // --- STOCK CHECK: Prevent adding more than available stock ---
+        $size = $request->input('size', 'Freesize');
         $color = $request->input('color', 'Default');
-
-        // Tạo mã định danh riêng cho biến thể này
         $rowId = $id . '_' . $size . '_' . $color;
-
         $cart = Session::get('cart', []);
+
+        // Calculate total quantity (existing in cart + new)
+        $existingQty = isset($cart[$rowId]) ? (int) $cart[$rowId]['quantity'] : 0;
+        $totalQty = $existingQty + $quantity;
+
+        if ($totalQty > $product->stock) {
+            $availableToAdd = $product->stock - $existingQty;
+            $message = $availableToAdd <= 0
+                ? "Sorry, \"{$product->name}\" is already at max stock in your bag."
+                : "Sorry, only {$product->stock} units of \"{$product->name}\" are available.";
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 422);
+            }
+            return redirect()->back()->with('error', $message);
+        }
 
         // 2. Logic thêm/cập nhật dựa trên ROW ID
         if (isset($cart[$rowId])) {
             $cart[$rowId]['quantity'] += $quantity;
         } else {
             $cart[$rowId] = [
-                "product_id" => $product->id, // Lưu thêm ID gốc để dễ query sau này
+                "product_id" => $product->id,
                 "name" => $product->name,
-                "slug" => $product->slug, // Lưu slug để xây dựng đường dẫn ảnh
+                "slug" => $product->slug,
                 "quantity" => $quantity,
                 "price" => (float) ($product->price ?? $product->base_price ?? 0),
                 "image" => $product->image,
                 "size" => $size,
                 "color" => $color,
-                "rowId" => $rowId // Lưu chính cái key này vào để tiện xóa/sửa
+                "rowId" => $rowId
             ];
         }
 
@@ -65,7 +80,6 @@ class CartController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "Added {$product->name} ({$size}/{$color}) to bag",
-                // Dùng Helper Cart::count() hôm qua tui chỉ, hoặc dùng collect tính tổng quantity
                 'cart_count' => collect(session('cart'))->sum('quantity'),
             ]);
         }
