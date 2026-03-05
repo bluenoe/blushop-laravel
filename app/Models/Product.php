@@ -8,13 +8,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Traits\Searchable;
             
 /**
  * @mixin IdeHelperProduct
  */
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
+
+    /**
+     * Columns searchable via the Searchable trait.
+     */
+    protected $searchable = ['name', 'sku', 'description'];
 
     // Cho phép fill các field này khi cần (an toàn, ngắn gọn)
     protected $fillable = [

@@ -12,10 +12,17 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->latest()->paginate(10);
-        return view('admin.products.index', compact('products'));
+        $search = $request->input('search');
+
+        $products = Product::with('category')
+            ->search($search)
+            ->latest()
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('admin.products.index', compact('products', 'search'));
     }
 
     // 1. Hiển thị Form tạo mới
