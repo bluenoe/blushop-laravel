@@ -80,7 +80,7 @@ class FragranceSeeder extends Seeder
                 'slug'        => $slug,
                 'sku'         => "PERF-{$i}-MAIN",
                 'description' => $descriptions[$index % count($descriptions)],
-                'category'    => 'fragrance',
+                'category_id' => 3, // <--- ĐÃ SỬA CHỖ NÀY (Đổi từ 'category' => 'fragrance')
                 'base_price'  => $basePrice,
                 'stock'       => 30, // Total stock (both variants)
                 'image'       => $mainImage,
