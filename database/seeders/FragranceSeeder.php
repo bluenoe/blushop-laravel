@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,6 +15,12 @@ class FragranceSeeder extends Seeder
      */
     public function run(): void
     {
+        // ==========================================
+        // DYNAMIC CATEGORY LOOKUP (no hardcoded IDs!)
+        // ==========================================
+        $fragranceCategory = Category::where('slug', 'fragrance')->firstOrFail();
+        $fragranceCategoryId = $fragranceCategory->id;
+
         // ==========================================
         // LUXURY PERFUME NAMING COLLECTION
         // Inspired by Chanel, Le Labo, Tom Ford styles
@@ -64,63 +71,72 @@ class FragranceSeeder extends Seeder
         foreach ($fragrances as $index => $name) {
             $i = $index + 1; // 1-indexed for naming convention
             $slug = Str::slug($name);
-            
+
             // Random base price between 1,500,000 and 3,000,000 VND
             $basePrice = rand(15, 30) * 100000;
-            
+
             // Price for 100ml = Base × 1.6 (approximately)
             $largePrice = (int) ($basePrice * 1.6);
 
             // Main product image uses the 50ml variant
             $mainImage = "fragrance_{$i}_50ml.jpg";
 
-            // Insert Product
-            $productId = DB::table('products')->insertGetId([
-                'name'        => $name,
-                'slug'        => $slug,
-                'sku'         => "PERF-{$i}-MAIN",
-                'description' => $descriptions[$index % count($descriptions)],
-                'category_id' => 3, // <--- ĐÃ SỬA CHỖ NÀY (Đổi từ 'category' => 'fragrance')
-                'base_price'  => $basePrice,
-                'stock'       => 30, // Total stock (both variants)
-                'image'       => $mainImage,
-                'is_active'   => true,
-                'is_new'      => $index < 5, // First 5 are marked as new
-                'is_bestseller' => in_array($index, [0, 3, 7, 12, 18]), // Selected bestsellers
-                'is_on_sale'  => false,
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
+            // Insert/Update Product (idempotent via slug)
+            DB::table('products')->updateOrInsert(
+                ['slug' => $slug],
+                [
+                    'name'          => $name,
+                    'sku'           => "PERF-{$i}-MAIN",
+                    'description'   => $descriptions[$index % count($descriptions)],
+                    'category_id'   => $fragranceCategoryId,
+                    'base_price'    => $basePrice,
+                    'stock'         => 30,
+                    'image'         => $mainImage,
+                    'is_active'     => true,
+                    'is_new'        => $index < 5,
+                    'is_bestseller' => in_array($index, [0, 3, 7, 12, 18]),
+                    'is_on_sale'    => false,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]
+            );
+
+            $productRecord = DB::table('products')->where('slug', $slug)->first();
+            $productId = $productRecord->id;
 
             // ==========================================
             // CREATE 50ml VARIANT
             // ==========================================
-            DB::table('product_variants')->insert([
-                'product_id'  => $productId,
-                'sku'         => "PERF-{$i}-50",
-                'size'        => '50ml',
-                'capacity_ml' => 50,
-                'price'       => $basePrice,
-                'stock'       => 20,
-                'image_path'  => "products/{$slug}/fragrance_{$i}_50ml.jpg",
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
+            DB::table('product_variants')->updateOrInsert(
+                ['sku' => "PERF-{$i}-50"],
+                [
+                    'product_id'  => $productId,
+                    'size'        => '50ml',
+                    'capacity_ml' => 50,
+                    'price'       => $basePrice,
+                    'stock'       => 20,
+                    'image_path'  => "products/{$slug}/fragrance_{$i}_50ml.jpg",
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]
+            );
 
             // ==========================================
             // CREATE 100ml VARIANT
             // ==========================================
-            DB::table('product_variants')->insert([
-                'product_id'  => $productId,
-                'sku'         => "PERF-{$i}-100",
-                'size'        => '100ml',
-                'capacity_ml' => 100,
-                'price'       => $largePrice,
-                'stock'       => 10,
-                'image_path'  => "products/{$slug}/fragrance_{$i}_100ml.jpg",
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
+            DB::table('product_variants')->updateOrInsert(
+                ['sku' => "PERF-{$i}-100"],
+                [
+                    'product_id'  => $productId,
+                    'size'        => '100ml',
+                    'capacity_ml' => 100,
+                    'price'       => $largePrice,
+                    'stock'       => 10,
+                    'image_path'  => "products/{$slug}/fragrance_{$i}_100ml.jpg",
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]
+            );
 
             $this->command->line("   ✓ Created: {$name} (₫" . number_format($basePrice) . " / ₫" . number_format($largePrice) . ")");
         }
