@@ -57,7 +57,7 @@ class Product extends Model
     {
         return Attribute::make(
             get: function () {
-                // 1. Lấy biến thể đầu tiên ra (Lúc này mới gọi được nè)
+                // 1. Lấy biến thể đầu tiên ra 
                 $variant = $this->variants->first();
 
                 // 2. Ưu tiên: Nếu có Variant và Variant có đường dẫn ảnh
@@ -74,7 +74,7 @@ class Product extends Model
                     return Storage::url($path);
                 }
 
-                // 4. Đường cùng: Trả về ảnh giữ chỗ (Placeholder) để web không bị vỡ khung
+                // 4. Fallback: Trả về ảnh giữ chỗ (Placeholder) để web không bị vỡ khung
                 return 'https://placehold.co/600x800?text=No+Image';
             }
         );
