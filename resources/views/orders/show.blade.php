@@ -30,15 +30,15 @@ Concept: High Contrast Header, Clean Grid Line Items
                     <div class="flex items-center gap-3 mb-4">
                         <h1 class="text-4xl md:text-6xl font-bold tracking-tighter">Order #{{ $order->order_code }}</h1>
                         <span class="px-3 py-1 border border-neutral-200 bg-neutral-50 text-[10px] font-bold uppercase tracking-wider rounded-full
-                            @if($order->status === 'cancelled') bg-red-50 border-red-200 text-red-600 @endif">
-                            {{ $order->status }}
+                            @if($order->status->value === 'cancelled') bg-red-50 border-red-200 text-red-600 @endif">
+                            {{ $order->status->label() }}
                         </span>
                     </div>
                     <p class="text-sm text-neutral-500 font-light">
                         Placed on <span class="text-black font-medium">{{ $order->created_at->format('F d, Y') }}</span>
                         at {{ $order->created_at->format('H:i') }}
                     </p>
-                    @if($order->status === 'cancelled' && $order->cancellation_reason)
+                    @if($order->status->value === 'cancelled' && $order->cancellation_reason)
                     <p class="text-sm text-red-600 mt-2">
                         <span class="font-medium">Reason:</span> {{ $order->cancellation_reason }}
                     </p>

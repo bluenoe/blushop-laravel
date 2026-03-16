@@ -66,8 +66,8 @@ Concept: Clean Sidebar, Horizontal Product Strip, Monospace Data
                                     <div class="flex items-center gap-3">
                                         <span
                                             class="px-2 py-1 border border-neutral-200 text-[10px] font-bold uppercase tracking-wider rounded-sm
-                                                {{ $order->status === 'completed' ? 'bg-black text-white border-black' : 'text-neutral-500' }}">
-                                            {{ $order->status }}
+                                                {{ $order->status->value === 'completed' ? 'bg-black text-white border-black' : 'text-neutral-500' }}">
+                                            {{ $order->status->label() }}
                                         </span>
                                         <span class="text-xs font-mono text-neutral-400">#{{ $order->order_code
                                             }}</span>

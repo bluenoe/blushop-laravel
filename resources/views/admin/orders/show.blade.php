@@ -102,27 +102,38 @@
             <div class="bg-neutral-50 p-6 border border-neutral-100">
                 <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-4">Fulfillment</h3>
 
-                <form action="{{ route('admin.orders.status', $order->order_code) }}" method="POST">
-                    @csrf
-                    <label class="block mb-2 text-sm font-medium">Update Status</label>
-                    <div class="flex gap-2">
-                        <select name="status"
-                            class="flex-1 bg-white border border-neutral-300 text-sm py-2 px-3 focus:border-black focus:ring-0 cursor-pointer">
-                            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing
-                            </option>
-                            <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed
-                            </option>
-                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled
-                            </option>
-                        </select>
-                        <button type="submit"
-                            class="bg-black text-white text-xs font-bold uppercase px-4 py-2 hover:bg-neutral-800 transition">
-                            Update
+                @if (! $order->status->isTerminal())
+                <div class="mb-6 space-y-3">
+                    {{-- Sequential Advance Action --}}
+                    @if ($order->status->next())
+                    <form action="{{ route('admin.orders.advance', $order->order_code) }}" method="POST">
+                        @csrf
+                        <button type="submit" 
+                                class="w-full bg-black text-white text-xs font-bold uppercase px-4 py-3 hover:bg-neutral-800 transition">
+                            {{ $order->status->actionLabel() }}
                         </button>
-                    </div>
-                </form>
+                    </form>
+                    @endif
+
+                    {{-- Cancel Order Action --}}
+                    @if ($order->status === \App\Enums\OrderStatusEnum::PENDING || $order->status === \App\Enums\OrderStatusEnum::PROCESSING)
+                    <form action="{{ route('admin.orders.status', $order->order_code) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                        @csrf
+                        <input type="hidden" name="status" value="{{ \App\Enums\OrderStatusEnum::CANCELLED->value }}">
+                        <button type="submit" 
+                                class="w-full bg-red-50 text-red-600 border border-red-200 text-xs font-bold uppercase px-4 py-3 hover:bg-red-100 transition">
+                            Cancel Order
+                        </button>
+                    </form>
+                    @endif
+                </div>
+                @else
+                <div class="mb-6 p-4 bg-neutral-100 border border-neutral-200 text-center">
+                    <p class="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                        Completed / Terminal State
+                    </p>
+                </div>
+                @endif
 
                 <div class="mt-6 pt-6 border-t border-neutral-200/50">
                     <p class="text-xs text-neutral-400 mb-2">Current Status</p>
@@ -133,13 +144,48 @@
                     'shipped' => 'bg-purple-50 text-purple-700 border-purple-200',
                     'completed' => 'bg-green-50 text-green-700 border-green-200',
                     'cancelled' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
+                    'refunded' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
                     ];
-                    $statusClass = $colors[$order->status] ?? 'bg-white text-neutral-900 border-neutral-200';
+                    $statusClass = $colors[$order->status->value] ?? 'bg-white text-neutral-900 border-neutral-200';
                     @endphp
-                    <span
-                        class="inline-block px-3 py-1 border text-[10px] font-bold uppercase tracking-wider rounded-sm {{ $statusClass }}">
-                        {{ $order->status }}
+                    <span class="inline-block px-3 py-1 border text-[10px] font-bold uppercase tracking-wider rounded-sm {{ $statusClass }}">
+                        {{ $order->status->label() }}
                     </span>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-neutral-200/50">
+                    <details class="group">
+                        <summary class="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 cursor-pointer mb-2 list-none flex items-center justify-between">
+                            Manual Override (Super Admin)
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="12" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="12"><path d="M6 9l6 6 6-6"></path></svg>
+                            </span>
+                        </summary>
+                        
+                        <form action="{{ route('admin.orders.status', $order->order_code) }}" method="POST" class="mt-4">
+                            @csrf
+                            <div class="flex gap-2">
+                                <select name="status"
+                                    class="flex-1 bg-white border border-neutral-300 text-sm py-2 px-3 focus:border-black focus:ring-0 cursor-pointer">
+                                    <option value="pending" {{ $order->status->value == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="processing" {{ $order->status->value == 'processing' ? 'selected' : '' }}>Processing
+                                    </option>
+                                    <option value="shipped" {{ $order->status->value == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                    <option value="completed" {{ $order->status->value == 'completed' ? 'selected' : '' }}>Completed
+                                    </option>
+                                    <option value="cancelled" {{ $order->status->value == 'cancelled' ? 'selected' : '' }}>Cancelled
+                                    </option>
+                                    <option value="refunded" {{ $order->status->value == 'refunded' ? 'selected' : '' }}>Refunded
+                                    </option>
+                                </select>
+                                <button type="submit"
+                                    class="bg-black text-white text-xs font-bold uppercase px-4 py-2 hover:bg-neutral-800 transition"
+                                    onclick="return confirm('WARNING: Manual override can desynchronize data. Proceed?');">
+                                    Override
+                                </button>
+                            </div>
+                        </form>
+                    </details>
                 </div>
             </div>
 

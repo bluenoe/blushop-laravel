@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use App\Traits\Searchable;
+use App\Enums\OrderStatusEnum;
 
 class Order extends Model
 {
@@ -15,11 +16,6 @@ class Order extends Model
 
     // Các cột cho phép tìm kiếm
     protected $searchable = ['order_code'];
-
-    // Định nghĩa các hằng số để tránh gõ sai (Nếu chưa dùng Enum)
-    const STATUS_PENDING = 'pending';
-    const STATUS_PAID = 'paid';
-    const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'user_id',
@@ -35,6 +31,7 @@ class Order extends Model
     protected $casts = [
         'total_amount' => 'decimal:2',
         'cancelled_at' => 'datetime',
+        'status' => OrderStatusEnum::class,
     ];
 
     /**
@@ -77,7 +74,7 @@ class Order extends Model
 
     public function isCancellable(): bool
     {
-        return $this->status === self::STATUS_PENDING;
+        return $this->status === OrderStatusEnum::PENDING || $this->status === OrderStatusEnum::PROCESSING;
     }
 
     public function user(): BelongsTo

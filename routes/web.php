@@ -129,6 +129,7 @@ Route::prefix('admin')
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [AdminOrderController::class, 'index'])->name('index');
             Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
+            Route::post('/{order}/advance-status', [AdminOrderController::class, 'advanceStatus'])->name('advance');
             Route::post('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('status');
         });
 

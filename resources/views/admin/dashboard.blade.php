@@ -102,7 +102,7 @@
                 <tbody class="divide-y divide-neutral-100 text-sm">
                     @forelse($recentOrders as $order)
                     @php
-                    $style = $statusMap[$order->status] ?? ['dot' => 'bg-neutral-300', 'text' => 'text-neutral-500'];
+                    $style = $statusMap[$order->status->value] ?? ['dot' => 'bg-neutral-300', 'text' => 'text-neutral-500'];
                     @endphp
                     <tr class="group hover:bg-neutral-50 transition duration-150 cursor-pointer"
                         onclick="window.location='{{ route('admin.orders.show', $order->order_code) }}'">
@@ -125,7 +125,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }}"></span>
                                 <span class="text-xs font-medium uppercase tracking-wide {{ $style['text'] }}">
-                                    {{ $order->status }}
+                                    {{ $order->status->label() }}
                                 </span>
                             </div>
                         </td>

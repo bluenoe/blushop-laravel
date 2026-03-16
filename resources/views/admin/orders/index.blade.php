@@ -129,12 +129,11 @@
                             'completed' => 'bg-green-50 text-green-700 border-green-200',
                             'cancelled' => 'bg-neutral-100 text-neutral-500 border-neutral-200',
                             ];
-                            $statusClass = $colors[$order->status] ?? 'bg-neutral-50 text-neutral-900
-                            border-neutral-200';
+                            $statusClass = $colors[$order->status->value] ?? 'bg-neutral-50 text-neutral-900 border-neutral-200';
                             @endphp
                             <span
                                 class="inline-flex items-center px-2.5 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wide {{ $statusClass }}">
-                                {{ $order->status }}
+                                {{ $order->status->label() }}
                             </span>
                         </td>
 
