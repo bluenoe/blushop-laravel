@@ -28,7 +28,6 @@
             autocomplete="new-password" />
 
         {{-- Submit Button --}}
-        {{-- Submit Button --}}
         <div class="pt-2">
             <button type="submit"
                 class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition duration-300 hover:shadow-lg hover:-translate-y-0.5">
@@ -36,7 +35,6 @@
             </button>
         </div>
 
-        {{-- Link Login --}}
         {{-- Link Login --}}
         <div class="text-center mt-8">
             <span class="text-sm text-neutral-500">Already have an account?</span>
